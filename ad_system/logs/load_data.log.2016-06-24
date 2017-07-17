@@ -1,0 +1,2 @@
+2016-06-24 16:25:36,495 -[INFO] create HttpGet:http://183.63.52.141/mtk_sp/sp_ll_0191.jsp?orderId=123456&mobile=123456&price=10&order_code=123456&status=0&transmissionData={"temp2":100,"temp":"123456"}
+2016-06-24 16:26:28,077 -[INFO] create HttpGet:http://183.63.52.141/mtk_sp/sp_ll_0191.jsp?orderId=123456&mobile=123456&price=10&order_code=123456&status=0&transmissionData={"temp2":100,"temp":"123456"}
