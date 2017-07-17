@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.guoan.demo.mapper.ClassMapper">
+	<sql id="Base_Column_List">
+		ID,NAME,AVAILABLE
+  	</sql>
+  	<sql id="Student_Base_Column_List">
+		ID,NAME,C_ID
+  	</sql>
+  	
+	<resultMap id="ClassResultMap" type="com.guoan.demo.entity.Class" >
+		<id column="ID" property="id" jdbcType="BIGINT"/>
+	    <result column="NAME" property="name" jdbcType="VARCHAR" />
+	    <result column="AVAILABLE" property="isAvailable" jdbcType="VARCHAR" />
+  	</resultMap>
+  	<resultMap id="StudentResultMap" type="com.guoan.demo.vo.StudentVo" >
+		<id column="ID" property="id" jdbcType="BIGINT"/>
+	    <result column="NAME" property="name" jdbcType="VARCHAR" />
+	    <result column="C_ID" property="cId" jdbcType="INTEGER" />
+  	</resultMap>
+	<!-- 添加学生 -->
+	<insert id="addClass" parameterType="com.guoan.demo.entity.Class">
+  		INSERT INTO CLASS
+  			(NAME)
+  		VALUES
+  			(#{name, jdbcType=VARCHAR});
+	</insert>
+	<!-- 查询所有学生 -->
+	<select id="searchAllClass" resultMap="ClassResultMap">
+		SELECT
+	    <include refid="Base_Column_List" />
+	    FROM CLASS WHERE AVAILABLE = 1 ORDER BY ID ASC;
+	</select> 	
+ 	<!-- 修改班级 -->
+ 	<update id="editClass" parameterType="com.guoan.demo.entity.Class">
+ 		UPDATE CLASS 
+ 			SET NAME = #{name, jdbcType=VARCHAR}
+ 			WHERE ID = #{id,jdbcType=BIGINT}
+ 	</update>
+ 	<!-- 删除班级 -->
+ 	<update id="deleteClass" parameterType="java.lang.Long">
+ 		UPDATE CLASS
+ 			SET AVAILABLE = 0
+ 			WHERE ID = #{cId,jdbcType=BIGINT}
+ 	</update>
+ 	<!-- 查询所有未添加班级的学生 -->
+ 	<select id="searchNoCheckedClassStudent" resultMap="StudentResultMap">
+ 		SELECT 
+ 		<include refid="Student_Base_Column_List"/>
+ 		FROM STUDENT WHERE AVAILABLE = 1 AND C_ID = 0 ORDER BY ID ASC;
+ 	</select>
+ 	<!-- 保存学生班级信息 -->
+ 	<update id="updateStudentClass" parameterType="com.guoan.demo.entity.Student">
+ 		UPDATE STUDENT 
+ 			SET C_ID = #{cId,jdbcType=BIGINT}
+ 		WHERE ID =#{id,jdbcType=BIGINT}
+ 	</update>
+ 	<!-- 查询当前班级下是否存在学生 --> 	
+ 	<select id="searchIsExistStudentByClass" parameterType="java.lang.Long" resultType="java.lang.Integer">
+ 		SELECT COUNT(1) FROM STUDENT
+ 			WHERE AVAILABLE = 1 AND C_ID = #{cId,jdbcType=BIGINT}
+ 	</select>
+ 	
+ 	
+</mapper>
