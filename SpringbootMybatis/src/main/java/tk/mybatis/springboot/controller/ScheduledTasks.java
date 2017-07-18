@@ -16,8 +16,8 @@ import java.util.TimeZone;
 public class ScheduledTasks {
 	
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-    //@Scheduled(cron = " 0 40,46 10,11 ? * *")
-    @Scheduled(fixedRate = 1000)
+    @Scheduled(cron = " 0 40,46 10,11 ? * *")//每天10:40 10:46 11:40 11:46执行
+    //@Scheduled(fixedRate = 1000)//每秒执行一次
     public void reportCurrentTime() throws ParseException {
 	        SimpleDateFormat formater = new SimpleDateFormat("yyyy/MM/dd");
 	        SimpleDateFormat formater2 = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");	         

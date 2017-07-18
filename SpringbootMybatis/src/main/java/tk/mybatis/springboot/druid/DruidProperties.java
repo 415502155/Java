@@ -4,11 +4,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * 只提供了常用的属性，如果有需要，自己添加
- *
- * @author liuzh
- * @since 2017/2/5.
+ * 配置单一数据源
  */
-@ConfigurationProperties(prefix = "druid")
+///***
+@ConfigurationProperties(prefix = "vani")
 public class DruidProperties {
     private String url;
     private String username;
@@ -84,3 +83,4 @@ public class DruidProperties {
         this.testOnBorrow = testOnBorrow;
     }
 }
+//***/

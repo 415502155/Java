@@ -1,0 +1,97 @@
+{
+  "hints": [],
+  "groups": [
+    {
+      "sourceType": "tk.mybatis.springboot.druid.DruidProperties2",
+      "name": "term",
+      "type": "tk.mybatis.springboot.druid.DruidProperties2"
+    },
+    {
+      "sourceType": "tk.mybatis.springboot.druid.DruidProperties",
+      "name": "vani",
+      "type": "tk.mybatis.springboot.druid.DruidProperties"
+    }
+  ],
+  "properties": [
+    {
+      "sourceType": "tk.mybatis.springboot.druid.DruidProperties2",
+      "name": "term.driver-class",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "tk.mybatis.springboot.druid.DruidProperties2",
+      "name": "term.initial-size",
+      "type": "java.lang.Integer"
+    },
+    {
+      "sourceType": "tk.mybatis.springboot.druid.DruidProperties2",
+      "name": "term.max-active",
+      "type": "java.lang.Integer"
+    },
+    {
+      "sourceType": "tk.mybatis.springboot.druid.DruidProperties2",
+      "name": "term.min-idle",
+      "type": "java.lang.Integer"
+    },
+    {
+      "sourceType": "tk.mybatis.springboot.druid.DruidProperties2",
+      "name": "term.password",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "tk.mybatis.springboot.druid.DruidProperties2",
+      "name": "term.test-on-borrow",
+      "type": "java.lang.Boolean"
+    },
+    {
+      "sourceType": "tk.mybatis.springboot.druid.DruidProperties2",
+      "name": "term.url",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "tk.mybatis.springboot.druid.DruidProperties2",
+      "name": "term.username",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "tk.mybatis.springboot.druid.DruidProperties",
+      "name": "vani.driver-class",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "tk.mybatis.springboot.druid.DruidProperties",
+      "name": "vani.initial-size",
+      "type": "java.lang.Integer"
+    },
+    {
+      "sourceType": "tk.mybatis.springboot.druid.DruidProperties",
+      "name": "vani.max-active",
+      "type": "java.lang.Integer"
+    },
+    {
+      "sourceType": "tk.mybatis.springboot.druid.DruidProperties",
+      "name": "vani.min-idle",
+      "type": "java.lang.Integer"
+    },
+    {
+      "sourceType": "tk.mybatis.springboot.druid.DruidProperties",
+      "name": "vani.password",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "tk.mybatis.springboot.druid.DruidProperties",
+      "name": "vani.test-on-borrow",
+      "type": "java.lang.Boolean"
+    },
+    {
+      "sourceType": "tk.mybatis.springboot.druid.DruidProperties",
+      "name": "vani.url",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "tk.mybatis.springboot.druid.DruidProperties",
+      "name": "vani.username",
+      "type": "java.lang.String"
+    }
+  ]
+}
