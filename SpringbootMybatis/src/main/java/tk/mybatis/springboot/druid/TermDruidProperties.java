@@ -8,7 +8,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  */
 ///***
 @ConfigurationProperties(prefix = "term")
-public class DruidProperties2 {
+public class TermDruidProperties {
     private String url;
     private String username;
     private String password;

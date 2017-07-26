@@ -2,9 +2,14 @@
   "hints": [],
   "groups": [
     {
-      "sourceType": "tk.mybatis.springboot.druid.DruidProperties2",
+      "sourceType": "tk.mybatis.springboot.druid.GambDruidProperties",
+      "name": "gamb",
+      "type": "tk.mybatis.springboot.druid.GambDruidProperties"
+    },
+    {
+      "sourceType": "tk.mybatis.springboot.druid.TermDruidProperties",
       "name": "term",
-      "type": "tk.mybatis.springboot.druid.DruidProperties2"
+      "type": "tk.mybatis.springboot.druid.TermDruidProperties"
     },
     {
       "sourceType": "tk.mybatis.springboot.druid.DruidProperties",
@@ -14,42 +19,82 @@
   ],
   "properties": [
     {
-      "sourceType": "tk.mybatis.springboot.druid.DruidProperties2",
+      "sourceType": "tk.mybatis.springboot.druid.GambDruidProperties",
+      "name": "gamb.driver-class",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "tk.mybatis.springboot.druid.GambDruidProperties",
+      "name": "gamb.initial-size",
+      "type": "java.lang.Integer"
+    },
+    {
+      "sourceType": "tk.mybatis.springboot.druid.GambDruidProperties",
+      "name": "gamb.max-active",
+      "type": "java.lang.Integer"
+    },
+    {
+      "sourceType": "tk.mybatis.springboot.druid.GambDruidProperties",
+      "name": "gamb.min-idle",
+      "type": "java.lang.Integer"
+    },
+    {
+      "sourceType": "tk.mybatis.springboot.druid.GambDruidProperties",
+      "name": "gamb.password",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "tk.mybatis.springboot.druid.GambDruidProperties",
+      "name": "gamb.test-on-borrow",
+      "type": "java.lang.Boolean"
+    },
+    {
+      "sourceType": "tk.mybatis.springboot.druid.GambDruidProperties",
+      "name": "gamb.url",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "tk.mybatis.springboot.druid.GambDruidProperties",
+      "name": "gamb.username",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "tk.mybatis.springboot.druid.TermDruidProperties",
       "name": "term.driver-class",
       "type": "java.lang.String"
     },
     {
-      "sourceType": "tk.mybatis.springboot.druid.DruidProperties2",
+      "sourceType": "tk.mybatis.springboot.druid.TermDruidProperties",
       "name": "term.initial-size",
       "type": "java.lang.Integer"
     },
     {
-      "sourceType": "tk.mybatis.springboot.druid.DruidProperties2",
+      "sourceType": "tk.mybatis.springboot.druid.TermDruidProperties",
       "name": "term.max-active",
       "type": "java.lang.Integer"
     },
     {
-      "sourceType": "tk.mybatis.springboot.druid.DruidProperties2",
+      "sourceType": "tk.mybatis.springboot.druid.TermDruidProperties",
       "name": "term.min-idle",
       "type": "java.lang.Integer"
     },
     {
-      "sourceType": "tk.mybatis.springboot.druid.DruidProperties2",
+      "sourceType": "tk.mybatis.springboot.druid.TermDruidProperties",
       "name": "term.password",
       "type": "java.lang.String"
     },
     {
-      "sourceType": "tk.mybatis.springboot.druid.DruidProperties2",
+      "sourceType": "tk.mybatis.springboot.druid.TermDruidProperties",
       "name": "term.test-on-borrow",
       "type": "java.lang.Boolean"
     },
     {
-      "sourceType": "tk.mybatis.springboot.druid.DruidProperties2",
+      "sourceType": "tk.mybatis.springboot.druid.TermDruidProperties",
       "name": "term.url",
       "type": "java.lang.String"
     },
     {
-      "sourceType": "tk.mybatis.springboot.druid.DruidProperties2",
+      "sourceType": "tk.mybatis.springboot.druid.TermDruidProperties",
       "name": "term.username",
       "type": "java.lang.String"
     },

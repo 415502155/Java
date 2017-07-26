@@ -16,23 +16,22 @@ import javax.sql.DataSource;
 import java.sql.SQLException;
 
 /**
- * 配置单一数据源term.
+ * 配置数据源gamb.
  */
-///***
 @Configuration
-@EnableConfigurationProperties(DruidProperties2.class)
+@EnableConfigurationProperties(GambDruidProperties.class)
 @ConditionalOnClass(DruidDataSource.class)
-@ConditionalOnProperty(prefix = "term", name = "url")
+@ConditionalOnProperty(prefix = "gamb", name = "url")
 @AutoConfigureBefore(DataSourceAutoConfiguration.class)
 //扫描 Mapper 接口并容器管理
-@MapperScan(basePackages = DruidAutoConfiguration2.PACKAGE)
-public class DruidAutoConfiguration2 {
+@MapperScan(basePackages = GambDruidAutoConfiguration.PACKAGE)
+public class GambDruidAutoConfiguration {
 
     @Autowired
-    private DruidProperties2 properties;
+    private GambDruidProperties properties;
     
     // 精确到 master 目录，以便跟其他数据源隔离
-    static final String PACKAGE = "tk.mybatis.springboot.dao.term";
+    static final String PACKAGE = "tk.mybatis.springboot.dao.gamb";
 
     @Bean
     public DataSource dataSource() {
@@ -58,4 +57,3 @@ public class DruidAutoConfiguration2 {
         return dataSource;
     }
 }
-//***/
