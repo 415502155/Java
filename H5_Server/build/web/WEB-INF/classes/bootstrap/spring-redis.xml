@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd" 
+       xmlns="http://www.springframework.org/schema/beans" xmlns:c="http://www.springframework.org/schema/c"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <bean class="redis.clients.jedis.JedisPoolConfig" id="jedisPoolConfig">
+        <property value="${redis.pool.maxTotal}" name="maxTotal"/>
+        <property value="${redis.pool.maxIdle}" name="maxIdle"/>
+        <property value="${redis.pool.maxWaitMillis}" name="maxWaitMillis"/>
+        <property value="${redis.pool.minIdle}" name="minIdle"/>
+    </bean>
+    <!-- sharded集群-->
+    <bean class="redis.clients.jedis.ShardedJedisPool" id="shardedJedisPool" destroy-method="destroy">
+        <constructor-arg ref="jedisPoolConfig"/>
+        <constructor-arg>
+            <list>
+                <bean class="redis.clients.jedis.JedisShardInfo">
+                    <constructor-arg value="${redis.shard.01.host}"/>
+                    <constructor-arg value="${redis.shard.01.port}" type="int"/>
+                    <constructor-arg value="${redis.shard.01.name}"/>
+                </bean>
+
+                <bean class="redis.clients.jedis.JedisShardInfo">
+                    <constructor-arg value="${redis.shard.02.host}"/>
+                    <constructor-arg value="${redis.shard.02.port}" type="int"/>
+                    <constructor-arg value="${redis.shard.02.name}"/>
+                </bean>
+
+                <!--
+                <bean class="redis.clients.jedis.JedisShardInfo">
+                    <constructor-arg value="${redis.shard.03.host}"/>
+                    <constructor-arg value="${redis.shard.03.port}" type="int"/>
+                    <constructor-arg value="${redis.shard.03.name}"/>
+                </bean>
+
+                <bean class="redis.clients.jedis.JedisShardInfo">
+                    <constructor-arg value="${redis.shard.04.host}"/>
+                    <constructor-arg value="${redis.shard.04.port}" type="int"/>
+                    <constructor-arg value="${redis.shard.04.name}"/>
+                </bean>-->
+            </list>
+        </constructor-arg>
+    </bean>
+</beans>
