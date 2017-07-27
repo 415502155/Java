@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import com.alibaba.fastjson.JSONObject;
 
+import tk.mybatis.springboot.dao.vani.TmnInfoDao;
 
 //import com.alibaba.fastjson.JSONArray;
 //import com.alibaba.fastjson.JSONObject;
@@ -39,6 +40,9 @@ public class TmnInfoController {
 	TmnInfoMapper tmnnfoMapper;
 	
 	@Autowired
+	TmnInfoDao tmninfoDao;
+	
+//	@Autowired
 //	TmnPageInfoMapper tmnpageInfoMapper;
 //  @Autowired
 //  TmnInfoService tmninfoService;
@@ -160,5 +164,12 @@ public class TmnInfoController {
 		System.out.println(list.get(0).getLinkman());
 		return "success";
 	}
-	
+	@RequestMapping(value="getinfo")
+	@ResponseBody
+	public String getTmnInfoList() {
+		int start = 1;
+		int end = 10;
+		List<t_tmn_info> tmnList = tmninfoDao.getAll(end, start);
+		return "suc";
+	}
 }

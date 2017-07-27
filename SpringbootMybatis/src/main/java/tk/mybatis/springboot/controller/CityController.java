@@ -31,7 +31,10 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import tk.mybatis.springboot.dao.term.CityInfoDao;
 import tk.mybatis.springboot.model.City;
+import tk.mybatis.springboot.model.CityInfo;
 import tk.mybatis.springboot.service.CityService;
 
 import java.util.List;
@@ -46,6 +49,19 @@ public class CityController {
 
     @Autowired
     private CityService cityService;
+    
+    @Autowired
+    private CityInfoDao cityinfoDao;
+    
+    @RequestMapping("/info")
+    public String getCityInfo() {
+		int pagesize = 8;
+		int pagenum = 1;
+		int end =pagenum*pagesize;
+		int start = (pagenum-1)*8;
+		List<CityInfo> cityInfo = cityinfoDao.getAll(end, start);
+    	return "success";
+    }
 
     @RequestMapping
     public PageInfo<City> getAll(City city) {

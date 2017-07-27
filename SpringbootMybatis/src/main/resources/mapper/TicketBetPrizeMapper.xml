@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="tk.mybatis.springboot.dao.gamb.TicketBetPrizeDao" >
+	<!-- 
+	<insert id="save" parameterType="com.ibigsea.bootdao.entity.User">
+		insert into t_user(username,age) values(#{userName,jdbcType=VARCHAR},#{age,jdbcType=NUMERIC})
+	</insert>
+	
+	<select id="selectById" resultType="com.ibigsea.bootdao.entity.User">
+		select * from t_user where id = #{id,jdbcType=NUMERIC}
+	</select>
+	-->
+    <sql id="Ticket_Bet_Prize_Column_List">
+        a.bet_time,a.terminal_id,a.bet_money,a.bet_line,b.prize_detail,c.draw_name,b.common_prize 
+    </sql>
+	<select id="getTicketBetPrizeByCipher1" resultType="tk.mybatis.springboot.model.TicketBetPrize">
+		select 
+		<include refid="Ticket_Bet_Prize_Column_List" />
+		from t_ticket_bet a ,t_ticket_prize b,t_game_draw_info c 
+        where 
+        a.cipher=b.cipher 
+        and a.game_id=c.game_id 
+        and a.draw_id=c.draw_id 
+        and a.cipher = #{cipher,jdbcType=VARCHAR} 
+	</select>
+	<select id="getTicketBetPrizeByTmnid" resultType="tk.mybatis.springboot.model.TicketBetPrize">
+		select 
+		a.bet_time,a.terminal_id,a.bet_money,a.bet_line,b.prize_detail,c.draw_name,b.common_prize
+		from t_ticket_bet a ,t_ticket_prize b,t_game_draw_info c 
+        where 
+        a.cipher=b.cipher 
+        and a.game_id=c.game_id 
+        and a.draw_id=c.draw_id 
+        and a.terminal_id > #{terminalId} 
+	</select>
+	<!-- 
+	<update id="updateById" parameterType="com.ibigsea.bootdao.entity.User">
+		update t_user set  
+		username = #{userName,jdbcType=VARCHAR} ,
+		age = #{age,jdbcType=NUMERIC}
+		where id = #{id,jdbcType=NUMERIC}
+	</update>
+	
+	<delete id="deleteById">
+		delete from t_user where id = #{id,jdbcType=NUMERIC}
+	</delete>
+	
+	<select id="queryAll" resultType="com.ibigsea.bootdao.entity.User">
+		select * from t_user
+	</select>
+	 -->
+</mapper>

@@ -1,5 +1,9 @@
-#Tue Jul 04 17:19:24 CST 2017
 eclipse.preferences.version=1
+encoding//src/main/java=UTF-8
 encoding//src/main/java/tk/mybatis/springboot/controller/ScheduledTasks.java=UTF-8
 encoding//src/main/java/tk/mybatis/springboot/model/t_tmn_info.java=UTF-8
+encoding//src/main/java/tk/mybatis/springboot/service=UTF-8
+encoding//src/main/resources=UTF-8
+encoding//src/main/resources/application.properties=UTF-8
+encoding//src/test/java=UTF-8
 encoding/<project>=UTF-8
