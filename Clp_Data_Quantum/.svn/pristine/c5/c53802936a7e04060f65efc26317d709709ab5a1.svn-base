@@ -1,0 +1,30 @@
+#\u63a7\u5236\u4e00\u4e2apool\u53ef\u5206\u914d\u591a\u5c11\u4e2ajedis\u5b9e\u4f8b\uff0c\u901a\u8fc7pool.getResource()\u6765\u83b7\u53d6\uff1b\u5982\u679c\u8d4b\u503c\u4e3a-1\uff0c\u5219\u8868\u793a\u4e0d\u9650\u5236
+redis.pool.maxTotal=1024
+#\u63a7\u5236\u4e00\u4e2apool\u6700\u591a\u6709\u591a\u5c11\u4e2a\u72b6\u6001\u4e3aidle(\u7a7a\u95f2)\u7684jedis\u5b9e\u4f8b
+redis.pool.maxIdle=200
+
+redis.pool.maxWait=1000
+redis.pool.testOnBorrow=true
+redis.timeout=3000
+redis.default.db=0
+redis.master.host=192.168.0.211
+redis.port=8200
+redis.master.weight=1
+
+#jedis shard
+redis.shard.01.host=192.168.0.211
+redis.shard.01.port=8200
+redis.shard.01.name=instance:01
+redis.shard.02.host=192.168.0.211
+redis.shard.02.port=6399
+redis.shard.02.name=instance:02
+
+#jedis sentinel shard
+sharded.jedis.sentinel.master1=master1
+sharded.jedis.sentinel.master2=master2
+sharded.jedis.sentinel.sentinel1=192.168.0.211:28200
+sharded.jedis.sentinel.sentinel2=192.168.0.214:28200
+sharded.jedis.sentinel.password=123456
+
+
+

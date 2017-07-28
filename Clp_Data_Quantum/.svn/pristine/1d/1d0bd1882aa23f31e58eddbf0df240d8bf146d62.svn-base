@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
+         
+    <!-- K3 sync Quartz start -->
+    <bean id="k3SyncQuartz" class="com.bestinfo.sync.quartz.K3SyncQuartz"/>
+    <bean id="k3SyncDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject">
+            <ref bean="k3SyncQuartz" />
+        </property>
+        <property name="targetMethod">
+            <value>masterThread</value> 
+        </property>
+    </bean>
+    <bean id="k3SyncTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail">
+            <ref bean="k3SyncDetail" />
+        </property>
+        <property name="cronExpression">
+            <value>0 30 7 * * ?</value>
+        </property>
+    </bean>
+    <!-- K3 sync Quartz end -->
+    
+    <!-- S10 sync Quartz start -->
+    <bean id="s10SyncQuartz" class="com.bestinfo.sync.quartz.S10SyncQuartz"/>
+    <bean id="s10SyncDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject">
+            <ref bean="s10SyncQuartz" />
+        </property>
+        <property name="targetMethod">
+            <value>masterThread</value> 
+        </property>
+    </bean>
+    <bean id="s10SyncTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail">
+            <ref bean="s10SyncDetail" />
+        </property>
+        <property name="cronExpression">
+            <value>0 32 7 * * ?</value>
+        </property>
+    </bean>
+    <!-- S10 sync Quartz end -->
+    
+    <!-- K80 sync Quartz start -->
+    <bean id="k80SyncQuartz" class="com.bestinfo.sync.quartz.K80SyncQuartz"/>
+    <bean id="k80SyncDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject">
+            <ref bean="k80SyncQuartz" />
+        </property>
+        <property name="targetMethod">
+            <value>masterThread</value> 
+        </property>
+    </bean>
+    <bean id="k80SyncTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail">
+            <ref bean="k80SyncDetail" />
+        </property>
+        <property name="cronExpression">
+            <value>0 34 7 * * ?</value>
+        </property>
+    </bean>
+    <!-- K80 sync Quartz end -->
+    
+    
+    <!-- weisaite file Quartz start -->
+    <bean id="wstFileQuartz" class="com.bestinfo.sync.quartz.WstFileQuartz"/>
+    <bean id="wstFileDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject">
+            <ref bean="wstFileQuartz" />
+        </property>
+        <property name="targetMethod">
+            <value>masterThread</value> 
+        </property>
+    </bean>
+    <bean id="wstFileTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail">
+            <ref bean="wstFileDetail" />
+        </property>
+        <property name="cronExpression">
+            <value>0 50 20 * * ?</value>
+        </property>
+    </bean>
+    <!-- weisaite file Quartz end -->
+    
+    <!-- Auto Cash Quartz start -->
+    <bean id="autoCashQuartz" class="com.bestinfo.sync.quartz.AutoCashQuartz"/>
+    <bean id="autoCashDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject">
+            <ref bean="autoCashQuartz" />
+        </property>
+        <property name="targetMethod">
+            <value>masterThread</value> 
+        </property>
+    </bean>
+    <bean id="autoCashTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail">
+            <ref bean="autoCashDetail" />
+        </property>
+        <property name="cronExpression">
+            <value>0 0 1 * * ?</value>
+        </property>
+    </bean>
+    <!-- Auto Cash Quartz end -->
+    
+    <!-- 配置任务工厂, 只能有一个这种bean -->
+    <bean id="schedulerFactory" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <property name="triggers">
+            <list>
+                <ref local="k3SyncTrigger" />
+                <ref local="s10SyncTrigger" />
+                <ref local="k80SyncTrigger" />
+                <ref local="wstFileTrigger" />
+                <ref local="autoCashTrigger" />
+            </list>
+        </property>
+        <property name="startupDelay" value="1"></property>  
+    </bean>
+</beans>

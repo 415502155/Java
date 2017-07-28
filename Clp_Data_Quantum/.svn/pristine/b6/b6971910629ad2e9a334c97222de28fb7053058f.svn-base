@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:cache="http://www.springframework.org/schema/cache"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                                http://www.springframework.org/schema/beans/spring-beans.xsd
+				http://www.springframework.org/schema/context 
+                                http://www.springframework.org/schema/context/spring-context.xsd 
+                                http://www.springframework.org/schema/mvc 
+                                http://www.springframework.org/schema/mvc/spring-mvc.xsd
+                                http://www.springframework.org/schema/aop 
+                                http://www.springframework.org/schema/aop/spring-aop-3.0.xsd 
+                                http://www.springframework.org/schema/cache  
+                                http://www.springframework.org/schema/cache/spring-cache-3.0.xsd">
+   
+    <!-- 自动扫瞄 -->
+    <!--<context:component-scan base-package="com"/>-->
+    <context:component-scan base-package="com.bestinfo"/>
+        
+    <!-- 默认的注解映射的支持 -->
+    <mvc:annotation-driven/>
+    
+    <!-- json view -->
+    <bean id="defaultJsonView" class="org.springframework.web.servlet.view.json.MappingJacksonJsonView" />
+    
+    <!-- 拦截器配置 判断session是否过期 add by lcr-->  
+    <!--    <mvc:interceptors>  
+         session超时   
+        <mvc:interceptor>  
+            <mvc:mapping path="/*/*"/>  
+            <bean class="com.bestinfo.interceptor.SessionTimeoutInterceptor">  
+                <property name="allowUrls">  
+                    <list>  
+                         如果请求中包含以下路径，则不进行拦截   
+                        <value>/user/2login</value>
+                        <value>/user/login</value>  
+                        <value>/user/logout</value>  
+                    </list>  
+                </property>  
+            </bean>  
+        </mvc:interceptor>  
+    </mvc:interceptors>  -->
+          
+    <!--ehcache配置 开启注解支持-->
+    <!--    <cache:annotation-driven cache-manager="ehCacheCacheManager"/>    -->
+    <!--ehCacheManagerFactoryBean 用来初始化Ehcache的CacheManager-->
+    <bean id="ehCacheManagerFactoryBean" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+        <property name="configLocation" value="classpath:bootstrap/ehcache.xml"></property>
+    </bean>    
+    <!--ehCacheCacheManager 配置Spring的缓存管理器-->
+    <bean id="ehCacheCacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager">
+        <property name="cacheManager" ref="ehCacheManagerFactoryBean" />
+    </bean>
+    
+</beans>
+

@@ -1,0 +1,52 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+package com.bestinfo.controller.clpdata;
+
+import com.alibaba.fastjson.JSONArray;
+import com.bestinfo.bean.business.TmnInfo;
+import com.bestinfo.bean.ticket.TicketBet;
+import com.bestinfo.service.clpdata.ITicketBetInfoSer;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import org.apache.log4j.Logger;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+/**
+ *
+ * @author Administrator
+ */
+@Controller
+@RequestMapping(value = "/ticket")
+public class TacketBetInfoCtr {
+     private final Logger logger = Logger.getLogger(TacketBetInfoCtr.class);
+
+    @Resource
+    private ITicketBetInfoSer ttfs;
+    /**
+     * queryall
+     * @param request
+     * @return 
+     */
+    @RequestMapping(value = "/queryall", method = RequestMethod.POST)
+    @ResponseBody
+    public String queryInfo(HttpServletRequest request) {
+        String resultString="";  
+        try {
+             List<Map> list=ttfs.getTicketBetsList();
+             resultString=JSONArray.toJSONString(list);
+        } catch (Exception e) {
+            logger.error("query TicketBet list info error,error info(" + e.getMessage() + ")!");
+        }       
+        return resultString;
+    }
+}

@@ -1,0 +1,75 @@
+jdbc.connection.driverClassName=oracle.jdbc.driver.OracleDriver
+
+# UnivMeta db
+jdbc.univmeta.master.connection.url=jdbc:oracle:thin:@192.168.26.220:1521/fengcai
+jdbc.univmeta.master.connection.username=meta
+jdbc.univmeta.master.connection.password=oracle
+jdbc.univmeta.master.connection.filters=stat
+jdbc.univmeta.master.connection.maxActive=50
+jdbc.univmeta.master.connection.initialSize=1
+jdbc.univmeta.master.connection.maxWait=600000
+jdbc.univmeta.master.connection.minIdle=1
+jdbc.univmeta.master.connection.timeBetweenEvictionRunsMillis=60000
+jdbc.univmeta.master.connection.minEvictableIdleTimeMillis=30000
+jdbc.univmeta.master.connection.validationQuery=select 1 from dual
+jdbc.univmeta.master.connection.testWhileIdle=true
+jdbc.univmeta.master.connection.testOnBorrow=false
+jdbc.univmeta.master.connection.testOnReturn=false
+jdbc.univmeta.master.connection.poolPreparedStatements=true
+jdbc.univmeta.master.connection.maxPoolPreparedStatementPerConnectionSize=50
+
+#term
+jdbc.univterm.master.connection.url=jdbc:oracle:thin:@192.168.26.220:1521/fengcai
+jdbc.univterm.master.connection.username=term
+jdbc.univterm.master.connection.password=oracle
+jdbc.univterm.master.connection.filters=stat
+jdbc.univterm.master.connection.maxActive=50
+jdbc.univterm.master.connection.initialSize=1
+jdbc.univterm.master.connection.maxWait=600000
+jdbc.univterm.master.connection.minIdle=1
+jdbc.univterm.master.connection.timeBetweenEvictionRunsMillis=60000
+jdbc.univterm.master.connection.minEvictableIdleTimeMillis=30000
+jdbc.univterm.master.connection.validationQuery=select 1 from dual
+jdbc.univterm.master.connection.testWhileIdle=true
+jdbc.univterm.master.connection.testOnBorrow=false
+jdbc.univterm.master.connection.testOnReturn=false
+jdbc.univterm.master.connection.poolPreparedStatements=true
+jdbc.univterm.master.connection.maxPoolPreparedStatementPerConnectionSize=50
+
+#gamb
+jdbc.univgamb.master.connection.url=jdbc:oracle:thin:@192.168.26.220:1521/fengcai
+jdbc.univgamb.master.connection.username=gamb
+jdbc.univgamb.master.connection.password=oracle
+jdbc.univgamb.master.connection.filters=stat
+jdbc.univgamb.master.connection.maxActive=50
+jdbc.univgamb.master.connection.initialSize=1
+jdbc.univgamb.master.connection.maxWait=10000
+jdbc.univgamb.master.connection.minIdle=1
+jdbc.univgamb.master.connection.timeBetweenEvictionRunsMillis=300000
+jdbc.univgamb.master.connection.minEvictableIdleTimeMillis=300000
+jdbc.univgamb.master.connection.validationQuery=select 1 from dual
+jdbc.univgamb.master.connection.testWhileIdle=true
+jdbc.univgamb.master.connection.testOnBorrow=false
+jdbc.univgamb.master.connection.testOnReturn=false
+jdbc.univgamb.master.connection.poolPreparedStatements=true
+jdbc.univgamb.master.connection.maxPoolPreparedStatementPerConnectionSize=50
+
+# UnivVani db
+jdbc.univvani.master.connection.url=jdbc:oracle:thin:@192.168.26.228:1521/vani
+jdbc.univvani.master.connection.username=vani
+jdbc.univvani.master.connection.password=oracle
+jdbc.univvani.master.connection.filters=stat
+jdbc.univvani.master.connection.maxActive=50
+jdbc.univvani.master.connection.initialSize=1
+jdbc.univvani.master.connection.maxWait=600000
+jdbc.univvani.master.connection.minIdle=1
+jdbc.univvani.master.connection.timeBetweenEvictionRunsMillis=60000
+jdbc.univvani.master.connection.minEvictableIdleTimeMillis=30000
+jdbc.univvani.master.connection.validationQuery=select 1 from dual
+jdbc.univvani.master.connection.testWhileIdle=true
+jdbc.univvani.master.connection.testOnBorrow=false
+jdbc.univvani.master.connection.testOnReturn=false
+jdbc.univvani.master.connection.poolPreparedStatements=true
+jdbc.univvani.master.connection.maxPoolPreparedStatementPerConnectionSize=50
+
+
