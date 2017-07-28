@@ -1,0 +1,14 @@
+//package com.bestinfo.dao.sqlmap;
+//
+///**
+// *
+// * @author chenliping
+// */
+//public class DealerInfoSql {
+//   
+//    public static String INSERT_DEALERINFO = "INSERT INTO T_DEALER_INFO (DEALER_ID, DEALER_NAME, DEALER_TYPE, DEALER_ADDRESS, OWNER_NAME, OWNER_PHONE, LINK_NAME, LINK_PHONE, DEALER_PHONE, PROVINCE_ID, CITY_ID, EMAIL, PHONE_NO, ID_TYPE_ID, ID_NO, BANK_ID, ACCOUNT_NAME, ACCOUNT_CARD, NOTE, TERMINAL_CONDITION, REGIST_TIME, WORK_STATUS) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ";
+//    public static String SELECT_ALLDEALERINFO = "SELECT * FROM T_DEALER_INFO";
+//    public static String SELECT_DEALERINFO_BY_ID = "SELECT * FROM T_DEALER_INFO WHERE DEALER_ID = ?";
+//    public static String UPDATE_DEALERINFO = "UPDATE T_DEALER_INFO SET DEALER_NAME = ?, DEALER_TYPE = ?, DEALER_ADDRESS = ?, OWNER_NAME = ?, OWNER_PHONE = ?, LINK_NAME = ?, LINK_PHONE = ?, DEALER_PHONE = ?, PROVINCE_ID = ?, CITY_ID = ?, EMAIL = ?, PHONE_NO = ?, ID_TYPE_ID = ?, ID_NO = ?, BANK_ID = ?, ACCOUNT_NAME = ?, ACCOUNT_CARD = ?, NOTE = ?, TERMINAL_CONDITION = ?, REGIST_TIME = ?, WORK_STATUS = ? WHERE DEALER_ID = ?";
+//
+//}
