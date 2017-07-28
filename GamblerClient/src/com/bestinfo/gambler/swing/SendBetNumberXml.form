@@ -1,0 +1,1876 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Form version="1.3" maxVersion="1.8" type="org.netbeans.modules.form.forminfo.JFrameFormInfo">
+  <Properties>
+    <Property name="defaultCloseOperation" type="int" value="2"/>
+  </Properties>
+  <SyntheticProperties>
+    <SyntheticProperty name="formSizePolicy" type="int" value="1"/>
+    <SyntheticProperty name="generateCenter" type="boolean" value="false"/>
+  </SyntheticProperties>
+  <Events>
+    <EventHandler event="windowOpened" listener="java.awt.event.WindowListener" parameters="java.awt.event.WindowEvent" handler="formWindowOpened"/>
+  </Events>
+  <AuxValues>
+    <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="0"/>
+    <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_generateFQN" type="java.lang.Boolean" value="true"/>
+    <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_i18nAutoMode" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="1"/>
+    <AuxValue name="FormSettings_listenerGenerationStyle" type="java.lang.Integer" value="0"/>
+    <AuxValue name="FormSettings_variablesLocal" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_variablesModifier" type="java.lang.Integer" value="2"/>
+  </AuxValues>
+
+  <Layout>
+    <DimensionLayout dim="0">
+      <Group type="103" groupAlignment="0" attributes="0">
+          <Component id="jScrollPane1" alignment="1" pref="1277" max="32767" attributes="0"/>
+      </Group>
+    </DimensionLayout>
+    <DimensionLayout dim="1">
+      <Group type="103" groupAlignment="0" attributes="0">
+          <Group type="102" alignment="0" attributes="0">
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="jScrollPane1" pref="742" max="32767" attributes="0"/>
+          </Group>
+      </Group>
+    </DimensionLayout>
+  </Layout>
+  <SubComponents>
+    <Container class="javax.swing.JScrollPane" name="jScrollPane1">
+
+      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+      <SubComponents>
+        <Container class="javax.swing.JPanel" name="jPanel3">
+          <Properties>
+            <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+              <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
+                <TitledBorder title="&#x53ef;&#x9009;"/>
+              </Border>
+            </Property>
+          </Properties>
+
+          <Layout>
+            <DimensionLayout dim="0">
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" attributes="0">
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="102" alignment="0" attributes="0">
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="modify" max="32767" attributes="0"/>
+                                  <Group type="102" attributes="0">
+                                      <Group type="103" groupAlignment="1" attributes="0">
+                                          <Component id="jLabel11" max="32767" attributes="0"/>
+                                          <Component id="jLabel2" max="32767" attributes="0"/>
+                                          <Component id="jLabel4" max="32767" attributes="0"/>
+                                          <Component id="jLabel3" alignment="1" max="32767" attributes="0"/>
+                                          <Component id="jLabel1" alignment="1" max="32767" attributes="0"/>
+                                      </Group>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Group type="103" groupAlignment="0" attributes="0">
+                                          <Component id="terminal_id" max="32767" attributes="0"/>
+                                          <Component id="mobile" alignment="1" max="32767" attributes="0"/>
+                                          <Component id="dealer_id" alignment="0" max="32767" attributes="0"/>
+                                          <Component id="type" alignment="1" max="32767" attributes="0"/>
+                                          <Component id="phone" alignment="1" max="32767" attributes="0"/>
+                                      </Group>
+                                  </Group>
+                              </Group>
+                              <EmptySpace min="-2" pref="56" max="-2" attributes="0"/>
+                              <Component id="city_id2" min="-2" pref="380" max="-2" attributes="0"/>
+                              <EmptySpace min="-2" pref="354" max="-2" attributes="0"/>
+                          </Group>
+                          <Component id="jTabbedPane2" max="32767" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <EmptySpace min="-2" pref="118" max="-2" attributes="0"/>
+                      <Component id="jScrollPane3" min="-2" pref="696" max="-2" attributes="0"/>
+                      <EmptySpace max="32767" attributes="0"/>
+                  </Group>
+                  <Group type="103" rootIndex="1" groupAlignment="0" attributes="0">
+                      <Group type="102" alignment="1" attributes="0">
+                          <EmptySpace pref="680" max="32767" attributes="0"/>
+                          <Component id="city_id3" min="-2" pref="380" max="-2" attributes="0"/>
+                          <EmptySpace min="-2" pref="360" max="-2" attributes="0"/>
+                      </Group>
+                  </Group>
+              </Group>
+            </DimensionLayout>
+            <DimensionLayout dim="1">
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" alignment="0" attributes="0">
+                      <Group type="103" groupAlignment="1" attributes="0">
+                          <Group type="102" alignment="1" attributes="0">
+                              <Group type="103" groupAlignment="3" attributes="0">
+                                  <Component id="jLabel1" alignment="3" min="-2" pref="25" max="-2" attributes="0"/>
+                                  <Component id="type" alignment="3" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="dealer_id" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jLabel3" alignment="0" min="-2" pref="25" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="3" attributes="0">
+                                  <Component id="jLabel4" alignment="3" min="-2" pref="25" max="-2" attributes="0"/>
+                                  <Component id="terminal_id" alignment="3" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="3" attributes="0">
+                                  <Component id="jLabel2" alignment="3" min="-2" pref="25" max="-2" attributes="0"/>
+                                  <Component id="mobile" alignment="3" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="phone" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jLabel11" alignment="0" min="-2" pref="25" max="-2" attributes="0"/>
+                              </Group>
+                          </Group>
+                          <Group type="102" alignment="1" attributes="0">
+                              <Component id="city_id2" min="-2" pref="46" max="-2" attributes="0"/>
+                              <EmptySpace min="-2" pref="3" max="-2" attributes="0"/>
+                          </Group>
+                      </Group>
+                      <Component id="modify" min="-2" pref="35" max="-2" attributes="0"/>
+                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                      <Component id="jTabbedPane2" min="-2" pref="404" max="-2" attributes="0"/>
+                      <EmptySpace type="separate" max="-2" attributes="0"/>
+                      <Component id="jScrollPane3" min="-2" pref="86" max="-2" attributes="0"/>
+                      <EmptySpace pref="28" max="32767" attributes="0"/>
+                  </Group>
+                  <Group type="103" rootIndex="1" groupAlignment="0" attributes="0">
+                      <Group type="102" alignment="0" attributes="0">
+                          <EmptySpace min="-2" pref="31" max="-2" attributes="0"/>
+                          <Component id="city_id3" min="-2" pref="46" max="-2" attributes="0"/>
+                          <EmptySpace pref="659" max="32767" attributes="0"/>
+                      </Group>
+                  </Group>
+              </Group>
+            </DimensionLayout>
+          </Layout>
+          <SubComponents>
+            <Component class="javax.swing.JTextField" name="type">
+              <Properties>
+                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                  <Font name="&#x5b8b;&#x4f53;" size="14" style="0"/>
+                </Property>
+                <Property name="text" type="java.lang.String" value="3"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="typeActionPerformed"/>
+              </Events>
+            </Component>
+            <Component class="javax.swing.JTextField" name="phone">
+              <Properties>
+                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                  <Font name="&#x5b8b;&#x4f53;" size="14" style="0"/>
+                </Property>
+                <Property name="text" type="java.lang.String" value="0"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JTextField" name="terminal_id">
+              <Properties>
+                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                  <Font name="&#x5b8b;&#x4f53;" size="14" style="0"/>
+                </Property>
+                <Property name="text" type="java.lang.String" value="100"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="terminal_idActionPerformed"/>
+              </Events>
+            </Component>
+            <Component class="javax.swing.JLabel" name="jLabel3">
+              <Properties>
+                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                  <Font name="&#x5b8b;&#x4f53;" size="14" style="0"/>
+                </Property>
+                <Property name="horizontalAlignment" type="int" value="4"/>
+                <Property name="text" type="java.lang.String" value="&#x8fd0;&#x8425;&#x5546;id&#xff1a;"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JTextField" name="mobile">
+              <Properties>
+                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                  <Font name="&#x5b8b;&#x4f53;" size="14" style="0"/>
+                </Property>
+                <Property name="text" type="java.lang.String" value="0"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JLabel" name="jLabel4">
+              <Properties>
+                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                  <Font name="&#x5b8b;&#x4f53;" size="14" style="0"/>
+                </Property>
+                <Property name="horizontalAlignment" type="int" value="4"/>
+                <Property name="text" type="java.lang.String" value="&#x7ec8;&#x7aef;&#x673a;&#x53f7;&#xff1a;"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JLabel" name="jLabel1">
+              <Properties>
+                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                  <Font name="&#x5b8b;&#x4f53;" size="14" style="0"/>
+                </Property>
+                <Property name="horizontalAlignment" type="int" value="4"/>
+                <Property name="text" type="java.lang.String" value="&#x53d1;&#x9001;&#x65b9;&#x7c7b;&#x578b;&#xff1a;"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JLabel" name="jLabel11">
+              <Properties>
+                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                  <Font name="&#x5b8b;&#x4f53;" size="14" style="0"/>
+                </Property>
+                <Property name="horizontalAlignment" type="int" value="4"/>
+                <Property name="text" type="java.lang.String" value="&#x7535;&#x8bdd;&#x53f7;&#x7801;&#xff1a;"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JLabel" name="jLabel2">
+              <Properties>
+                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                  <Font name="&#x5b8b;&#x4f53;" size="14" style="0"/>
+                </Property>
+                <Property name="horizontalAlignment" type="int" value="4"/>
+                <Property name="text" type="java.lang.String" value="&#x624b;&#x673a;&#x53f7;&#xff1a;"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JTextField" name="dealer_id">
+              <Properties>
+                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                  <Font name="&#x5b8b;&#x4f53;" size="14" style="0"/>
+                </Property>
+                <Property name="text" type="java.lang.String" value="160"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JButton" name="modify">
+              <Properties>
+                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                  <Font name="&#x5b8b;&#x4f53;" size="14" style="0"/>
+                </Property>
+                <Property name="text" type="java.lang.String" value="&#x4fee;&#x6539;"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="modifyActionPerformed"/>
+              </Events>
+            </Component>
+            <Container class="javax.swing.JTabbedPane" name="jTabbedPane2">
+              <Events>
+                <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="jTabbedPane2StateChanged"/>
+              </Events>
+
+              <Layout class="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout"/>
+              <SubComponents>
+                <Container class="javax.swing.JPanel" name="jPanel2">
+                  <Constraints>
+                    <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
+                      <JTabbedPaneConstraints tabName="&#x6307;&#x5b9a;&#x65b9;&#x6848;&#x6295;&#x6ce8;">
+                        <Property name="tabTitle" type="java.lang.String" value="&#x6307;&#x5b9a;&#x65b9;&#x6848;&#x6295;&#x6ce8;"/>
+                      </JTabbedPaneConstraints>
+                    </Constraint>
+                  </Constraints>
+
+                  <Layout>
+                    <DimensionLayout dim="0">
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="102" alignment="0" attributes="0">
+                              <EmptySpace min="-2" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="jLabel7" max="32767" attributes="0"/>
+                                  <Group type="102" attributes="0">
+                                      <Group type="103" groupAlignment="0" attributes="0">
+                                          <Group type="103" groupAlignment="0" attributes="0">
+                                              <Group type="103" alignment="0" groupAlignment="1" max="-2" attributes="0">
+                                                  <Component id="jLabel34" alignment="0" max="32767" attributes="0"/>
+                                                  <Component id="jLabel33" alignment="0" pref="141" max="32767" attributes="0"/>
+                                                  <Component id="jLabel32" alignment="0" max="32767" attributes="0"/>
+                                                  <Component id="jLabel26" alignment="0" max="32767" attributes="0"/>
+                                                  <Component id="jLabel31" alignment="0" max="32767" attributes="0"/>
+                                                  <Component id="jLabel5" alignment="1" max="32767" attributes="0"/>
+                                              </Group>
+                                              <Component id="jLabel6" alignment="1" min="-2" pref="138" max="-2" attributes="0"/>
+                                              <Component id="jLabel53" alignment="1" min="-2" pref="106" max="-2" attributes="0"/>
+                                          </Group>
+                                          <Component id="jButton1" alignment="0" min="-2" pref="142" max="-2" attributes="0"/>
+                                      </Group>
+                                      <EmptySpace min="-2" max="-2" attributes="0"/>
+                                      <Group type="103" groupAlignment="0" attributes="0">
+                                          <Group type="102" alignment="0" attributes="0">
+                                              <Group type="103" groupAlignment="1" attributes="0">
+                                                  <Group type="102" attributes="0">
+                                                      <Component id="numberno" min="-2" pref="162" max="-2" attributes="0"/>
+                                                      <EmptySpace max="-2" attributes="0"/>
+                                                      <Component id="jLabel48" min="-2" pref="106" max="-2" attributes="0"/>
+                                                      <EmptySpace min="-2" pref="22" max="-2" attributes="0"/>
+                                                  </Group>
+                                                  <Group type="102" alignment="0" attributes="0">
+                                                      <EmptySpace min="10" pref="10" max="-2" attributes="0"/>
+                                                      <Component id="sure" min="-2" pref="118" max="-2" attributes="0"/>
+                                                      <EmptySpace min="-2" pref="80" max="-2" attributes="0"/>
+                                                      <Component id="jLabel51" min="-2" max="-2" attributes="0"/>
+                                                  </Group>
+                                                  <Component id="money" alignment="0" min="-2" pref="161" max="-2" attributes="0"/>
+                                              </Group>
+                                              <Group type="103" groupAlignment="1" attributes="0">
+                                                  <Group type="102" alignment="1" attributes="0">
+                                                      <Component id="jLabel25" min="-2" pref="106" max="-2" attributes="0"/>
+                                                      <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
+                                                      <Component id="chargetypeid1" min="-2" pref="162" max="-2" attributes="0"/>
+                                                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                                                      <Component id="jLabel35" min="-2" pref="141" max="-2" attributes="0"/>
+                                                  </Group>
+                                                  <Group type="102" alignment="0" attributes="0">
+                                                      <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
+                                                      <Component id="from" min="-2" pref="77" max="-2" attributes="0"/>
+                                                      <EmptySpace type="separate" max="-2" attributes="0"/>
+                                                      <Group type="103" groupAlignment="0" attributes="0">
+                                                          <Group type="102" attributes="0">
+                                                              <Component id="jLabel54" min="-2" max="-2" attributes="0"/>
+                                                              <EmptySpace type="separate" max="-2" attributes="0"/>
+                                                              <Component id="to" min="-2" pref="78" max="-2" attributes="0"/>
+                                                              <EmptySpace max="-2" attributes="0"/>
+                                                              <Component id="jButton2" min="-2" max="-2" attributes="0"/>
+                                                              <EmptySpace type="separate" max="-2" attributes="0"/>
+                                                              <Component id="jLabel55" min="-2" max="-2" attributes="0"/>
+                                                          </Group>
+                                                          <Group type="102" attributes="0">
+                                                              <Component id="jLabel57" min="-2" max="-2" attributes="0"/>
+                                                              <EmptySpace max="-2" attributes="0"/>
+                                                              <Component id="eachnum4" min="-2" pref="94" max="-2" attributes="0"/>
+                                                              <EmptySpace min="-2" pref="45" max="-2" attributes="0"/>
+                                                              <Component id="jLabel56" min="-2" max="-2" attributes="0"/>
+                                                          </Group>
+                                                      </Group>
+                                                      <EmptySpace max="-2" attributes="0"/>
+                                                      <Group type="103" groupAlignment="0" attributes="0">
+                                                          <Component id="eachnum2" min="-2" pref="87" max="-2" attributes="0"/>
+                                                          <Component id="eachnum3" alignment="0" min="-2" pref="87" max="-2" attributes="0"/>
+                                                      </Group>
+                                                      <EmptySpace min="0" pref="5" max="32767" attributes="0"/>
+                                                  </Group>
+                                              </Group>
+                                              <EmptySpace max="-2" attributes="0"/>
+                                              <Group type="103" groupAlignment="0" attributes="0">
+                                                  <Component id="isuser" min="-2" pref="127" max="-2" attributes="0"/>
+                                                  <Component id="gambler_name1" min="-2" pref="162" max="-2" attributes="0"/>
+                                              </Group>
+                                              <EmptySpace min="-2" pref="319" max="-2" attributes="0"/>
+                                          </Group>
+                                          <Group type="102" alignment="0" attributes="0">
+                                              <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                                                  <Group type="102" alignment="1" attributes="0">
+                                                      <Component id="bet_method1" min="-2" pref="162" max="-2" attributes="0"/>
+                                                      <EmptySpace max="-2" attributes="0"/>
+                                                      <Component id="jLabel40" max="32767" attributes="0"/>
+                                                  </Group>
+                                                  <Group type="102" alignment="1" attributes="0">
+                                                      <Component id="keno_draw_id1" min="-2" pref="162" max="-2" attributes="0"/>
+                                                      <EmptySpace max="-2" attributes="0"/>
+                                                      <Component id="jLabel43" max="32767" attributes="0"/>
+                                                  </Group>
+                                                  <Group type="102" alignment="1" attributes="0">
+                                                      <Component id="draw_id1" min="-2" pref="162" max="-2" attributes="0"/>
+                                                      <EmptySpace max="-2" attributes="0"/>
+                                                      <Component id="jLabel44" max="32767" attributes="0"/>
+                                                  </Group>
+                                                  <Group type="102" alignment="1" attributes="0">
+                                                      <Component id="secrecy_level1" min="-2" pref="162" max="-2" attributes="0"/>
+                                                      <EmptySpace max="-2" attributes="0"/>
+                                                      <Component id="jLabel45" max="32767" attributes="0"/>
+                                                  </Group>
+                                                  <Group type="102" alignment="1" attributes="0">
+                                                      <Component id="scheme_type1" min="-2" pref="162" max="-2" attributes="0"/>
+                                                      <EmptySpace max="-2" attributes="0"/>
+                                                      <Component id="jLabel46" min="-2" pref="107" max="-2" attributes="0"/>
+                                                  </Group>
+                                                  <Group type="102" alignment="0" attributes="0">
+                                                      <Component id="bet_method2" min="-2" pref="162" max="-2" attributes="0"/>
+                                                      <EmptySpace max="-2" attributes="0"/>
+                                                      <Component id="jLabel38" min="-2" max="-2" attributes="0"/>
+                                                  </Group>
+                                              </Group>
+                                              <EmptySpace min="-2" max="-2" attributes="0"/>
+                                              <Group type="103" groupAlignment="0" attributes="0">
+                                                  <Group type="102" attributes="0">
+                                                      <Group type="103" groupAlignment="0" attributes="0">
+                                                          <Component id="bet_mode1" alignment="0" min="-2" pref="162" max="-2" attributes="0"/>
+                                                          <Component id="multi" alignment="0" min="-2" pref="162" max="-2" attributes="0"/>
+                                                          <Component id="city_id1" alignment="0" min="-2" pref="162" max="-2" attributes="0"/>
+                                                          <Component id="game_id1" alignment="0" min="-2" pref="162" max="-2" attributes="0"/>
+                                                          <Component id="play_id1" alignment="0" min="-2" pref="162" max="-2" attributes="0"/>
+                                                          <Component id="num" alignment="0" min="-2" pref="162" max="-2" attributes="0"/>
+                                                      </Group>
+                                                      <EmptySpace max="-2" attributes="0"/>
+                                                      <Group type="103" groupAlignment="1" attributes="0">
+                                                          <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                                                              <Group type="102" alignment="0" attributes="0">
+                                                                  <EmptySpace min="-2" pref="202" max="-2" attributes="0"/>
+                                                                  <Component id="jLabel41" max="32767" attributes="0"/>
+                                                              </Group>
+                                                              <Component id="jLabel37" alignment="0" max="32767" attributes="0"/>
+                                                              <Component id="jLabel47" alignment="0" max="32767" attributes="0"/>
+                                                              <Component id="jLabel42" alignment="0" max="32767" attributes="0"/>
+                                                              <Component id="jLabel36" alignment="0" max="32767" attributes="0"/>
+                                                          </Group>
+                                                          <Component id="jLabel39" min="-2" pref="196" max="-2" attributes="0"/>
+                                                      </Group>
+                                                      <Group type="103" groupAlignment="0" attributes="0">
+                                                          <Group type="102" alignment="0" attributes="0">
+                                                              <EmptySpace min="-2" pref="2" max="-2" attributes="0"/>
+                                                              <Component id="scheme_title1" min="-2" pref="162" max="-2" attributes="0"/>
+                                                          </Group>
+                                                          <Group type="102" alignment="0" attributes="0">
+                                                              <EmptySpace max="-2" attributes="0"/>
+                                                              <Group type="103" groupAlignment="0" attributes="0">
+                                                                  <Component id="stop_win1" alignment="0" min="-2" pref="162" max="-2" attributes="0"/>
+                                                                  <Component id="isChasing1" alignment="0" min="-2" pref="162" max="-2" attributes="0"/>
+                                                                  <Component id="current_draw1" alignment="0" min="-2" pref="162" max="-2" attributes="0"/>
+                                                                  <Component id="business_id1" alignment="0" min="-2" pref="162" max="-2" attributes="0"/>
+                                                                  <Component id="betnum" alignment="0" min="-2" pref="162" max="-2" attributes="0"/>
+                                                              </Group>
+                                                          </Group>
+                                                      </Group>
+                                                  </Group>
+                                                  <Component id="betnumber" max="32767" attributes="0"/>
+                                              </Group>
+                                              <EmptySpace min="157" pref="157" max="-2" attributes="0"/>
+                                          </Group>
+                                      </Group>
+                                  </Group>
+                              </Group>
+                              <EmptySpace min="-2" max="-2" attributes="0"/>
+                          </Group>
+                      </Group>
+                    </DimensionLayout>
+                    <DimensionLayout dim="1">
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="102" alignment="0" attributes="0">
+                              <EmptySpace min="-2" pref="1" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="3" attributes="0">
+                                  <Component id="jLabel31" alignment="3" min="-2" pref="25" max="-2" attributes="0"/>
+                                  <Component id="scheme_type1" alignment="3" max="32767" attributes="0"/>
+                                  <Component id="jLabel47" alignment="3" min="-2" pref="25" max="-2" attributes="0"/>
+                                  <Component id="scheme_title1" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jLabel46" alignment="3" min="-2" pref="25" max="-2" attributes="0"/>
+                                  <Component id="city_id1" alignment="3" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="3" attributes="0">
+                                  <Component id="jLabel26" alignment="3" min="-2" pref="27" max="-2" attributes="0"/>
+                                  <Component id="secrecy_level1" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jLabel45" alignment="3" min="-2" pref="25" max="-2" attributes="0"/>
+                                  <Component id="game_id1" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jLabel42" alignment="3" min="-2" pref="25" max="-2" attributes="0"/>
+                                  <Component id="isChasing1" alignment="3" max="32767" attributes="0"/>
+                              </Group>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="3" attributes="0">
+                                  <Component id="jLabel32" alignment="3" min="-2" pref="25" max="-2" attributes="0"/>
+                                  <Component id="draw_id1" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jLabel44" alignment="3" min="-2" pref="25" max="-2" attributes="0"/>
+                                  <Component id="play_id1" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jLabel36" alignment="3" min="-2" pref="25" max="-2" attributes="0"/>
+                                  <Component id="stop_win1" alignment="3" max="32767" attributes="0"/>
+                              </Group>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Group type="102" alignment="0" attributes="0">
+                                      <Group type="103" groupAlignment="3" attributes="0">
+                                          <Component id="jLabel33" alignment="3" min="-2" pref="25" max="-2" attributes="0"/>
+                                          <Component id="keno_draw_id1" alignment="3" min="-2" max="-2" attributes="0"/>
+                                          <Component id="jLabel37" alignment="3" min="-2" pref="29" max="-2" attributes="0"/>
+                                          <Component id="current_draw1" alignment="3" max="32767" attributes="0"/>
+                                      </Group>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Group type="103" groupAlignment="3" attributes="0">
+                                          <Component id="jLabel34" alignment="3" min="-2" pref="25" max="-2" attributes="0"/>
+                                          <Component id="bet_method1" alignment="3" max="32767" attributes="0"/>
+                                          <Component id="jLabel41" alignment="3" min="-2" max="-2" attributes="0"/>
+                                          <Component id="business_id1" alignment="3" min="-2" max="-2" attributes="0"/>
+                                      </Group>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Group type="103" groupAlignment="3" attributes="0">
+                                          <Component id="jLabel38" alignment="3" min="-2" max="-2" attributes="0"/>
+                                          <Component id="betnum" alignment="3" min="-2" max="-2" attributes="0"/>
+                                          <Component id="jLabel53" alignment="3" min="-2" max="-2" attributes="0"/>
+                                          <Component id="bet_method2" alignment="3" max="32767" attributes="0"/>
+                                          <Component id="num" alignment="3" min="-2" max="-2" attributes="0"/>
+                                          <Component id="jLabel39" alignment="3" min="-2" max="-2" attributes="0"/>
+                                      </Group>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Group type="103" groupAlignment="0" attributes="0">
+                                          <Component id="numberno" alignment="0" min="-2" pref="27" max="-2" attributes="0"/>
+                                          <Group type="103" groupAlignment="3" attributes="0">
+                                              <Component id="jLabel5" alignment="3" max="32767" attributes="0"/>
+                                              <Component id="betnumber" alignment="3" min="-2" max="-2" attributes="0"/>
+                                              <Component id="jLabel48" alignment="3" min="-2" max="-2" attributes="0"/>
+                                          </Group>
+                                      </Group>
+                                  </Group>
+                                  <Group type="102" alignment="0" attributes="0">
+                                      <Group type="103" groupAlignment="3" attributes="0">
+                                          <Component id="jLabel43" alignment="3" min="-2" pref="25" max="-2" attributes="0"/>
+                                          <Component id="bet_mode1" alignment="3" min="-2" max="-2" attributes="0"/>
+                                      </Group>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Group type="103" groupAlignment="3" attributes="0">
+                                          <Component id="jLabel40" alignment="3" min="-2" max="-2" attributes="0"/>
+                                          <Component id="multi" alignment="3" min="-2" max="-2" attributes="0"/>
+                                      </Group>
+                                      <EmptySpace min="-2" pref="74" max="-2" attributes="0"/>
+                                  </Group>
+                              </Group>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="3" max="-2" attributes="0">
+                                  <Component id="jLabel6" alignment="3" max="32767" attributes="0"/>
+                                  <Component id="money" alignment="3" max="32767" attributes="0"/>
+                                  <Component id="jLabel25" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="chargetypeid1" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jLabel35" alignment="3" min="-2" pref="25" max="-2" attributes="0"/>
+                                  <Component id="gambler_name1" alignment="3" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Group type="103" groupAlignment="3" attributes="0">
+                                      <Component id="jButton1" alignment="3" min="-2" pref="29" max="-2" attributes="0"/>
+                                      <Component id="sure" alignment="3" min="-2" max="-2" attributes="0"/>
+                                      <Component id="from" alignment="3" min="-2" max="-2" attributes="0"/>
+                                      <Component id="jLabel51" alignment="3" min="-2" max="-2" attributes="0"/>
+                                      <Component id="jLabel54" alignment="3" min="-2" max="-2" attributes="0"/>
+                                      <Component id="to" alignment="3" min="-2" max="-2" attributes="0"/>
+                                      <Component id="jButton2" alignment="3" max="32767" attributes="0"/>
+                                      <Component id="jLabel55" alignment="3" min="-2" max="-2" attributes="0"/>
+                                      <Component id="eachnum2" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                                  <Group type="102" alignment="0" attributes="0">
+                                      <EmptySpace min="8" pref="8" max="-2" attributes="0"/>
+                                      <Component id="isuser" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                              </Group>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="3" attributes="0">
+                                  <Component id="jLabel56" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="eachnum3" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jLabel57" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="eachnum4" alignment="3" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace min="-2" pref="25" max="-2" attributes="0"/>
+                              <Component id="jLabel7" min="-2" pref="27" max="-2" attributes="0"/>
+                          </Group>
+                      </Group>
+                    </DimensionLayout>
+                  </Layout>
+                  <SubComponents>
+                    <Component class="javax.swing.JLabel" name="jLabel31">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="horizontalAlignment" type="int" value="4"/>
+                        <Property name="text" type="java.lang.String" value="&#x65b9;&#x6848;&#x7c7b;&#x578b;&#xff1a;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JComboBox" name="scheme_type1">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
+                          <StringArray count="6">
+                            <StringItem index="0" value="&#x76f4;&#x63a5;&#x6295;&#x6ce8;"/>
+                            <StringItem index="1" value="&#x5b9a;&#x5236;&#x6295;&#x6ce8;"/>
+                            <StringItem index="2" value="&#x5b9a;&#x5236;&#x5408;&#x4e70;"/>
+                            <StringItem index="3" value="&#x4ee3;&#x8d2d;&#x6295;&#x6ce8;"/>
+                            <StringItem index="4" value="&#x4ee3;&#x8d2d;&#x5408;&#x4e70;"/>
+                            <StringItem index="5" value="&#x5176;&#x5b83;&#x9519;&#x8bef;"/>
+                          </StringArray>
+                        </Property>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="scheme_type1ActionPerformed"/>
+                      </Events>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel26">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="horizontalAlignment" type="int" value="4"/>
+                        <Property name="text" type="java.lang.String" value="&#x65b9;&#x6848;&#x4fdd;&#x5bc6;&#x7ea7;&#x522b;&#xff1a;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JComboBox" name="secrecy_level1">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
+                          <StringArray count="4">
+                            <StringItem index="0" value="&#x4fdd;&#x5bc6;&#x6295;&#x6ce8;"/>
+                            <StringItem index="1" value="&#x516c;&#x5f00;&#x6295;&#x6ce8;"/>
+                            <StringItem index="2" value="&#x597d;&#x53cb;&#x53ef;&#x89c1;"/>
+                            <StringItem index="3" value="&#x5176;&#x5b83;&#x9519;&#x8bef;"/>
+                          </StringArray>
+                        </Property>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="secrecy_level1ActionPerformed"/>
+                      </Events>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel32">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="horizontalAlignment" type="int" value="4"/>
+                        <Property name="text" type="java.lang.String" value="&#x5f53;&#x524d;&#x671f;&#xff1a;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JTextField" name="draw_id1">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="text" type="java.lang.String" value="105"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="draw_id1ActionPerformed"/>
+                      </Events>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel33">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="horizontalAlignment" type="int" value="4"/>
+                        <Property name="text" type="java.lang.String" value="&#x5feb;&#x5f00;&#x6e38;&#x620f;&#x5c0f;&#x671f;&#xff1a;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JTextField" name="keno_draw_id1">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="text" type="java.lang.String" value="0"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="keno_draw_id1ActionPerformed"/>
+                      </Events>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel34">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="horizontalAlignment" type="int" value="4"/>
+                        <Property name="text" type="java.lang.String" value="&#x6295;&#x6ce8;&#x65b9;&#x6cd5;&#xff1a;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JComboBox" name="bet_method1">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
+                          <StringArray count="2">
+                            <StringItem index="0" value="&#x673a;&#x9009;"/>
+                            <StringItem index="1" value="&#x81ea;&#x9009;"/>
+                          </StringArray>
+                        </Property>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="bet_method1ActionPerformed"/>
+                      </Events>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel35">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="horizontalAlignment" type="int" value="4"/>
+                        <Property name="text" type="java.lang.String" value="&#x7528;&#x6237;&#x540d;&#xff1a;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JTextField" name="gambler_name1">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="text" type="java.lang.String" value="test"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="gambler_name1ActionPerformed"/>
+                      </Events>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel36">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="horizontalAlignment" type="int" value="4"/>
+                        <Property name="text" type="java.lang.String" value="&#x4e2d;&#x5956;&#x540e;&#x662f;&#x5426;&#x505c;&#x6b62;&#x8ffd;&#x53f7;&#xff1a;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JComboBox" name="stop_win1">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
+                          <StringArray count="2">
+                            <StringItem index="0" value="&#x662f;"/>
+                            <StringItem index="1" value="&#x5426;"/>
+                          </StringArray>
+                        </Property>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="stop_win1ActionPerformed"/>
+                      </Events>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel37">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="horizontalAlignment" type="int" value="4"/>
+                        <Property name="text" type="java.lang.String" value="&#x662f;&#x5426;&#x6295;&#x6ce8;&#x5f53;&#x524d;&#x671f;&#xff1a;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JComboBox" name="current_draw1">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
+                          <StringArray count="2">
+                            <StringItem index="0" value="&#x662f;"/>
+                            <StringItem index="1" value="&#x5426;"/>
+                          </StringArray>
+                        </Property>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="current_draw1ActionPerformed"/>
+                      </Events>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel38">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="horizontalAlignment" type="int" value="4"/>
+                        <Property name="text" type="java.lang.String" value="&#x53f7;&#x7801;&#x7ec4;&#x4e2a;&#x6570;&#xff1a;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JTextField" name="num">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="text" type="java.lang.String" value="2"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="numActionPerformed"/>
+                      </Events>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel39">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="horizontalAlignment" type="int" value="4"/>
+                        <Property name="text" type="java.lang.String" value="&#x6295;&#x6ce8;&#x7968;&#x6570;&#xff1a;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JTextField" name="betnum">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="text" type="java.lang.String" value="1"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="betnumActionPerformed"/>
+                      </Events>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel40">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="horizontalAlignment" type="int" value="4"/>
+                        <Property name="text" type="java.lang.String" value="&#x6295;&#x6ce8;&#x500d;&#x6570;&#xff1a;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JTextField" name="multi">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="text" type="java.lang.String" value="1"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="multiActionPerformed"/>
+                      </Events>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel41">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="horizontalAlignment" type="int" value="4"/>
+                        <Property name="text" type="java.lang.String" value="&#x4e1a;&#x52a1;&#x7f16;&#x53f7;&#xff1a;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JTextField" name="business_id1">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="text" type="java.lang.String" value="1"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="business_id1ActionPerformed"/>
+                      </Events>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel42">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="horizontalAlignment" type="int" value="4"/>
+                        <Property name="text" type="java.lang.String" value="&#x662f;&#x5426;&#x8ffd;&#x53f7;&#xff1a;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JComboBox" name="isChasing1">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
+                          <StringArray count="2">
+                            <StringItem index="0" value="&#x5426;"/>
+                            <StringItem index="1" value="&#x662f;"/>
+                          </StringArray>
+                        </Property>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="isChasing1ActionPerformed"/>
+                      </Events>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel43">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="horizontalAlignment" type="int" value="4"/>
+                        <Property name="text" type="java.lang.String" value="&#x6295;&#x6ce8;&#x65b9;&#x5f0f;&#xff1a;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JTextField" name="bet_mode1">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="text" type="java.lang.String" value="1"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="bet_mode1ActionPerformed"/>
+                      </Events>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel44">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="horizontalAlignment" type="int" value="4"/>
+                        <Property name="text" type="java.lang.String" value="&#x73a9;&#x6cd5;&#x7f16;&#x53f7;&#xff1a;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JTextField" name="play_id1">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="text" type="java.lang.String" value="1"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel45">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="horizontalAlignment" type="int" value="4"/>
+                        <Property name="text" type="java.lang.String" value="&#x6e38;&#x620f;&#x7f16;&#x53f7;&#xff1a;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JTextField" name="game_id1">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="text" type="java.lang.String" value="1"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="game_id1ActionPerformed"/>
+                      </Events>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel46">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="horizontalAlignment" type="int" value="4"/>
+                        <Property name="text" type="java.lang.String" value="&#x5730;&#x5e02;&#x7f16;&#x53f7;&#xff1a;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JTextField" name="city_id1">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="text" type="java.lang.String" value="99"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="city_id1ActionPerformed"/>
+                      </Events>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel47">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="horizontalAlignment" type="int" value="4"/>
+                        <Property name="text" type="java.lang.String" value="&#x65b9;&#x6848;&#x6807;&#x9898;&#xff1a;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JTextField" name="scheme_title1">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="text" type="java.lang.String" value="testing"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="scheme_title1ActionPerformed"/>
+                      </Events>
+                    </Component>
+                    <Component class="javax.swing.JButton" name="sure">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="text" type="java.lang.String" value="&#x6295;&#x6ce8;&#x786e;&#x8ba4;"/>
+                        <Property name="actionCommand" type="java.lang.String" value=""/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="sureActionPerformed"/>
+                      </Events>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel48">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="horizontalAlignment" type="int" value="4"/>
+                        <Property name="text" type="java.lang.String" value="&#x6295;&#x6ce8;&#x53f7;&#x7801;&#xff1a;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JTextField" name="betnumber">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="text" type="java.lang.String" value="01060102030405060103##"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="betnumberActionPerformed"/>
+                      </Events>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel5">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="horizontalAlignment" type="int" value="4"/>
+                        <Property name="text" type="java.lang.String" value="&#x6709;&#x6548;&#x53f7;&#x7801;&#x4e2a;&#x6570;&#xff1a;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JTextField" name="numberno">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="text" type="java.lang.String" value="7"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel6">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="horizontalAlignment" type="int" value="4"/>
+                        <Property name="text" type="java.lang.String" value="&#x91d1;&#x989d;&#xff1a;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JTextField" name="money">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="text" type="java.lang.String" value="2"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel7">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="14" style="0"/>
+                        </Property>
+                        <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                          <Color blue="66" green="66" red="0" type="rgb"/>
+                        </Property>
+                        <Property name="text" type="java.lang.String" value="&#x6ce8;&#x610f;&#xff1a;&#x4ee5;&#x4e0a;&#x672a;&#x505a;&#x4efb;&#x4f55;&#x6821;&#x9a8c;&#xff0c;&#x53ef;&#x4ee5;&#x505a;&#x9519;&#x8bef;&#x4ee3;&#x7801;&#x6d4b;&#x8bd5;&#x3002;&#x5f53;&#x524d;&#x671f;&#x548c;&#x5feb;&#x5f00;&#x6e38;&#x620f;&#x5c0f;&#x671f;&#x6682;&#x4e0d;&#x652f;&#x6301;&#x4ece;&#x6570;&#x636e;&#x5e93;&#x4e2d;&#x67e5;&#x8be2;; &#x4ee5;&#x7528;&#x6237;&#x586b;&#x5199;&#x7684;&#x5177;&#x4f53;&#x503c;&#x53d1;&#x9001;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JButton" name="jButton1">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="&#x8ba1;&#x7b97;&#x91d1;&#x989d;"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton1ActionPerformed"/>
+                      </Events>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel25">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="horizontalAlignment" type="int" value="4"/>
+                        <Property name="text" type="java.lang.String" value="&#x6263;&#x6b3e;&#x7c7b;&#x578b;&#xff1a;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JTextField" name="chargetypeid1">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="text" type="java.lang.String" value="5"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="chargetypeid1ActionPerformed"/>
+                      </Events>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel53">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="horizontalAlignment" type="int" value="4"/>
+                        <Property name="text" type="java.lang.String" value="&#x8d26;&#x6237;&#x7c7b;&#x578b;&#xff1a;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JComboBox" name="bet_method2">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
+                          <StringArray count="1">
+                            <StringItem index="0" value="13"/>
+                          </StringArray>
+                        </Property>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="mouseMoved" listener="java.awt.event.MouseMotionListener" parameters="java.awt.event.MouseEvent" handler="bet_method2MouseMoved"/>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="bet_method2ActionPerformed"/>
+                        <EventHandler event="ancestorAdded" listener="javax.swing.event.AncestorListener" parameters="javax.swing.event.AncestorEvent" handler="bet_method2AncestorAdded"/>
+                      </Events>
+                    </Component>
+                    <Component class="javax.swing.JRadioButton" name="isuser">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="&#x7528;&#x6237;&#x4fe1;&#x606f;&#x4e0d;&#x5bf9;&#x4e5f;&#x8fc7;"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="isuserActionPerformed"/>
+                      </Events>
+                    </Component>
+                    <Component class="javax.swing.JButton" name="jButton2">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="&#x6279;&#x91cf;&#x6295;&#x6ce8;"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton2ActionPerformed,batchBet"/>
+                      </Events>
+                    </Component>
+                    <Component class="javax.swing.JTextField" name="from">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="text" type="java.lang.String" value="14610001"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="fromActionPerformed"/>
+                      </Events>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel51">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="horizontalAlignment" type="int" value="4"/>
+                        <Property name="text" type="java.lang.String" value="from"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel54">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="horizontalAlignment" type="int" value="4"/>
+                        <Property name="text" type="java.lang.String" value="to"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JTextField" name="to">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="text" type="java.lang.String" value="14610100"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="toActionPerformed"/>
+                      </Events>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel55">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="&#x7528;&#x65f6;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JTextField" name="eachnum2">
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="eachnum2ActionPerformed"/>
+                      </Events>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel56">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="&#x6210;&#x529f;&#x6570;&#x76ee;&#xff1a;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JTextField" name="eachnum3">
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="eachnum3ActionPerformed"/>
+                      </Events>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel57">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="&#x5931;&#x8d25;&#x6570;&#x76ee;&#xff1a;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JTextField" name="eachnum4">
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="eachnum4ActionPerformed"/>
+                      </Events>
+                    </Component>
+                  </SubComponents>
+                </Container>
+                <Container class="javax.swing.JPanel" name="jPanel4">
+                  <Constraints>
+                    <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
+                      <JTabbedPaneConstraints tabName="&#x968f;&#x673a;&#x53f7;&#x7801;&#x6295;&#x6ce8;">
+                        <Property name="tabTitle" type="java.lang.String" value="&#x968f;&#x673a;&#x53f7;&#x7801;&#x6295;&#x6ce8;"/>
+                      </JTabbedPaneConstraints>
+                    </Constraint>
+                  </Constraints>
+
+                  <Layout>
+                    <DimensionLayout dim="0">
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="102" alignment="1" attributes="0">
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                                  <Group type="102" attributes="0">
+                                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                                          <Component id="jLabel21" alignment="0" max="32767" attributes="0"/>
+                                          <Component id="jLabel22" alignment="0" pref="189" max="32767" attributes="0"/>
+                                      </Group>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Group type="103" groupAlignment="0" attributes="0">
+                                          <Group type="102" alignment="0" attributes="0">
+                                              <Component id="draw_num" min="-2" pref="162" max="-2" attributes="0"/>
+                                              <EmptySpace min="-2" max="-2" attributes="0"/>
+                                              <Component id="jLabel24" min="-2" pref="149" max="-2" attributes="0"/>
+                                              <EmptySpace max="-2" attributes="0"/>
+                                              <Component id="chargetypeid" max="32767" attributes="0"/>
+                                          </Group>
+                                          <Group type="102" alignment="0" attributes="0">
+                                              <Component id="current_draw" min="-2" pref="162" max="-2" attributes="0"/>
+                                              <EmptySpace max="-2" attributes="0"/>
+                                              <Component id="checklogin" min="-2" max="-2" attributes="0"/>
+                                          </Group>
+                                      </Group>
+                                  </Group>
+                                  <Group type="102" alignment="0" attributes="0">
+                                      <Component id="jLabel27" min="-2" pref="189" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="scheme_type" min="-2" pref="162" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="jLabel12" min="-2" pref="149" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="scheme_title" pref="162" max="32767" attributes="0"/>
+                                  </Group>
+                                  <Group type="103" alignment="1" groupAlignment="0" attributes="0">
+                                      <Group type="102" alignment="0" attributes="0">
+                                          <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                                              <Component id="jLabel15" alignment="0" max="32767" attributes="0"/>
+                                              <Component id="jLabel16" alignment="0" max="32767" attributes="0"/>
+                                              <Component id="jLabel13" alignment="0" min="-2" pref="189" max="-2" attributes="0"/>
+                                          </Group>
+                                          <EmptySpace max="-2" attributes="0"/>
+                                          <Group type="103" groupAlignment="0" attributes="0">
+                                              <Component id="secrecy_level" alignment="0" min="-2" pref="162" max="-2" attributes="0"/>
+                                              <Component id="keno_draw_id" alignment="0" min="-2" pref="162" max="-2" attributes="0"/>
+                                          </Group>
+                                      </Group>
+                                      <Group type="103" alignment="0" groupAlignment="1" attributes="0">
+                                          <Group type="102" attributes="0">
+                                              <Component id="jLabel52" min="-2" max="-2" attributes="0"/>
+                                              <EmptySpace max="-2" attributes="0"/>
+                                              <Component id="serno" min="-2" pref="105" max="-2" attributes="0"/>
+                                          </Group>
+                                          <Group type="102" attributes="0">
+                                              <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                                                  <Component id="jLabel17" alignment="0" max="32767" attributes="0"/>
+                                                  <Component id="jLabel18" alignment="0" max="32767" attributes="0"/>
+                                                  <Component id="jLabel19" alignment="0" max="32767" attributes="0"/>
+                                                  <Component id="jLabel20" alignment="0" pref="189" max="32767" attributes="0"/>
+                                              </Group>
+                                              <EmptySpace max="-2" attributes="0"/>
+                                              <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                                                  <Group type="102" alignment="0" attributes="0">
+                                                      <Component id="stop_win" min="-2" pref="162" max="-2" attributes="0"/>
+                                                      <EmptySpace max="-2" attributes="0"/>
+                                                      <Component id="jLabel23" max="32767" attributes="0"/>
+                                                  </Group>
+                                                  <Group type="102" alignment="0" attributes="0">
+                                                      <Group type="103" groupAlignment="0" attributes="0">
+                                                          <Component id="bet_method" alignment="0" min="-2" pref="162" max="-2" attributes="0"/>
+                                                          <Component id="gambler_name" alignment="0" min="-2" pref="162" max="-2" attributes="0"/>
+                                                          <Component id="isChasing" alignment="0" min="-2" pref="162" max="-2" attributes="0"/>
+                                                          <Component id="draw_id" alignment="0" min="-2" pref="162" max="-2" attributes="0"/>
+                                                      </Group>
+                                                      <EmptySpace max="-2" attributes="0"/>
+                                                      <Group type="103" groupAlignment="0" attributes="0">
+                                                          <Component id="jLabel14" alignment="0" max="32767" attributes="0"/>
+                                                          <Component id="jLabel28" alignment="0" min="-2" pref="149" max="-2" attributes="0"/>
+                                                          <Component id="jLabel29" alignment="0" min="-2" pref="149" max="-2" attributes="0"/>
+                                                          <Component id="jLabel30" alignment="0" min="-2" pref="149" max="-2" attributes="0"/>
+                                                          <Component id="jLabel49" alignment="0" min="-2" pref="149" max="-2" attributes="0"/>
+                                                          <Component id="jLabel50" alignment="0" min="-2" pref="149" max="-2" attributes="0"/>
+                                                      </Group>
+                                                  </Group>
+                                              </Group>
+                                              <EmptySpace max="-2" attributes="0"/>
+                                              <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                                                  <Component id="city_id" alignment="0" pref="162" max="32767" attributes="0"/>
+                                                  <Component id="game_id" alignment="0" max="32767" attributes="0"/>
+                                                  <Component id="play_id" alignment="0" max="32767" attributes="0"/>
+                                                  <Component id="bet_mode" alignment="0" max="32767" attributes="0"/>
+                                                  <Component id="peoplenum" alignment="0" max="32767" attributes="0"/>
+                                                  <Component id="eachpeoplenum" alignment="0" max="32767" attributes="0"/>
+                                                  <Component id="filename" alignment="0" max="32767" attributes="0"/>
+                                              </Group>
+                                          </Group>
+                                      </Group>
+                                  </Group>
+                              </Group>
+                              <EmptySpace pref="199" max="32767" attributes="0"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="jScrollPane4" alignment="1" min="-2" pref="306" max="-2" attributes="0"/>
+                                  <Group type="102" alignment="1" attributes="0">
+                                      <Component id="select" min="-2" pref="160" max="-2" attributes="0"/>
+                                      <EmptySpace min="-2" pref="2" max="-2" attributes="0"/>
+                                      <Component id="randsubmit" min="-2" pref="154" max="-2" attributes="0"/>
+                                  </Group>
+                              </Group>
+                              <EmptySpace pref="206" max="32767" attributes="0"/>
+                          </Group>
+                      </Group>
+                    </DimensionLayout>
+                    <DimensionLayout dim="1">
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="102" alignment="0" attributes="0">
+                              <Group type="103" groupAlignment="1" attributes="0">
+                                  <Group type="102" alignment="1" attributes="0">
+                                      <EmptySpace min="1" pref="1" max="-2" attributes="0"/>
+                                      <Group type="103" groupAlignment="3" attributes="0">
+                                          <Component id="jLabel27" alignment="3" min="-2" pref="25" max="-2" attributes="0"/>
+                                          <Component id="scheme_type" alignment="3" min="-2" max="-2" attributes="0"/>
+                                          <Component id="jLabel12" alignment="3" min="-2" pref="25" max="-2" attributes="0"/>
+                                          <Component id="scheme_title" alignment="3" min="-2" max="-2" attributes="0"/>
+                                      </Group>
+                                      <Group type="103" groupAlignment="0" attributes="0">
+                                          <Group type="102" alignment="0" attributes="0">
+                                              <Group type="103" groupAlignment="3" attributes="0">
+                                                  <Component id="jLabel13" alignment="3" min="-2" pref="27" max="-2" attributes="0"/>
+                                                  <Component id="secrecy_level" alignment="3" min="-2" max="-2" attributes="0"/>
+                                              </Group>
+                                              <EmptySpace max="-2" attributes="0"/>
+                                              <Group type="103" groupAlignment="1" attributes="0">
+                                                  <Component id="jLabel15" alignment="1" min="-2" pref="25" max="-2" attributes="0"/>
+                                                  <Component id="draw_id" alignment="1" min="-2" max="-2" attributes="0"/>
+                                              </Group>
+                                              <EmptySpace max="-2" attributes="0"/>
+                                              <Group type="103" groupAlignment="3" attributes="0">
+                                                  <Component id="keno_draw_id" alignment="3" min="-2" max="-2" attributes="0"/>
+                                                  <Component id="jLabel16" alignment="3" min="-2" pref="25" max="-2" attributes="0"/>
+                                              </Group>
+                                              <EmptySpace max="-2" attributes="0"/>
+                                              <Group type="103" groupAlignment="3" attributes="0">
+                                                  <Component id="jLabel17" alignment="3" min="-2" pref="25" max="-2" attributes="0"/>
+                                                  <Component id="bet_method" alignment="3" min="-2" pref="31" max="-2" attributes="0"/>
+                                                  <Component id="jLabel30" alignment="3" min="-2" pref="25" max="-2" attributes="0"/>
+                                                  <Component id="bet_mode" alignment="3" min="-2" pref="27" max="-2" attributes="0"/>
+                                              </Group>
+                                              <EmptySpace max="-2" attributes="0"/>
+                                              <Group type="103" groupAlignment="3" attributes="0">
+                                                  <Component id="jLabel18" alignment="3" min="-2" pref="25" max="-2" attributes="0"/>
+                                                  <Component id="gambler_name" alignment="3" min="-2" max="-2" attributes="0"/>
+                                                  <Component id="jLabel49" alignment="3" min="-2" pref="25" max="-2" attributes="0"/>
+                                                  <Component id="peoplenum" alignment="3" min="-2" pref="27" max="-2" attributes="0"/>
+                                              </Group>
+                                              <EmptySpace max="-2" attributes="0"/>
+                                              <Group type="103" groupAlignment="3" attributes="0">
+                                                  <Component id="jLabel19" alignment="3" min="-2" pref="25" max="-2" attributes="0"/>
+                                                  <Component id="isChasing" alignment="3" min="-2" max="-2" attributes="0"/>
+                                                  <Component id="jLabel50" alignment="3" min="-2" pref="25" max="-2" attributes="0"/>
+                                                  <Component id="eachpeoplenum" alignment="3" min="-2" pref="27" max="-2" attributes="0"/>
+                                              </Group>
+                                              <EmptySpace max="-2" attributes="0"/>
+                                              <Group type="103" groupAlignment="3" attributes="0">
+                                                  <Component id="jLabel20" alignment="3" min="-2" pref="25" max="-2" attributes="0"/>
+                                                  <Component id="stop_win" alignment="3" pref="29" max="32767" attributes="0"/>
+                                                  <Component id="jLabel23" alignment="3" min="-2" max="-2" attributes="0"/>
+                                                  <Component id="filename" alignment="3" min="-2" max="-2" attributes="0"/>
+                                              </Group>
+                                              <EmptySpace max="-2" attributes="0"/>
+                                              <Group type="103" groupAlignment="3" attributes="0">
+                                                  <Component id="jLabel21" alignment="3" min="-2" max="-2" attributes="0"/>
+                                                  <Component id="draw_num" alignment="3" min="-2" max="-2" attributes="0"/>
+                                                  <Component id="jLabel24" alignment="3" min="-2" max="-2" attributes="0"/>
+                                                  <Component id="chargetypeid" alignment="3" min="-2" max="-2" attributes="0"/>
+                                              </Group>
+                                              <EmptySpace max="-2" attributes="0"/>
+                                              <Group type="103" groupAlignment="3" attributes="0">
+                                                  <Component id="jLabel22" alignment="3" min="-2" pref="29" max="-2" attributes="0"/>
+                                                  <Component id="current_draw" alignment="3" min="-2" max="-2" attributes="0"/>
+                                                  <Component id="checklogin" alignment="3" min="-2" max="-2" attributes="0"/>
+                                                  <Component id="jLabel52" alignment="3" min="-2" pref="22" max="-2" attributes="0"/>
+                                              </Group>
+                                              <EmptySpace min="-2" pref="9" max="-2" attributes="0"/>
+                                          </Group>
+                                          <Group type="102" alignment="0" attributes="0">
+                                              <Group type="103" groupAlignment="3" attributes="0">
+                                                  <Component id="jLabel14" alignment="3" min="-2" pref="25" max="-2" attributes="0"/>
+                                                  <Component id="city_id" alignment="3" min="-2" max="-2" attributes="0"/>
+                                              </Group>
+                                              <EmptySpace max="-2" attributes="0"/>
+                                              <Group type="103" groupAlignment="3" attributes="0">
+                                                  <Component id="jLabel28" alignment="3" min="-2" pref="25" max="-2" attributes="0"/>
+                                                  <Component id="game_id" alignment="3" min="-2" max="-2" attributes="0"/>
+                                              </Group>
+                                              <EmptySpace max="-2" attributes="0"/>
+                                              <Group type="103" groupAlignment="3" attributes="0">
+                                                  <Component id="jLabel29" alignment="3" min="-2" pref="25" max="-2" attributes="0"/>
+                                                  <Component id="play_id" alignment="3" min="-2" max="-2" attributes="0"/>
+                                              </Group>
+                                          </Group>
+                                      </Group>
+                                  </Group>
+                                  <Group type="102" alignment="1" attributes="0">
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="jScrollPane4" max="32767" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Group type="103" groupAlignment="3" attributes="0">
+                                          <Component id="randsubmit" alignment="3" min="-2" pref="35" max="-2" attributes="0"/>
+                                          <Component id="select" alignment="3" min="-2" pref="35" max="-2" attributes="0"/>
+                                          <Component id="serno" alignment="3" min="-2" max="-2" attributes="0"/>
+                                      </Group>
+                                      <EmptySpace min="-2" pref="9" max="-2" attributes="0"/>
+                                  </Group>
+                              </Group>
+                              <EmptySpace min="-2" pref="27" max="-2" attributes="0"/>
+                          </Group>
+                      </Group>
+                    </DimensionLayout>
+                  </Layout>
+                  <SubComponents>
+                    <Component class="javax.swing.JLabel" name="jLabel27">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="horizontalAlignment" type="int" value="4"/>
+                        <Property name="text" type="java.lang.String" value="&#x65b9;&#x6848;&#x7c7b;&#x578b;&#xff1a;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JComboBox" name="scheme_type">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
+                          <StringArray count="5">
+                            <StringItem index="0" value="&#x76f4;&#x63a5;&#x6295;&#x6ce8;"/>
+                            <StringItem index="1" value="&#x5b9a;&#x5236;&#x6295;&#x6ce8;"/>
+                            <StringItem index="2" value="&#x5b9a;&#x5236;&#x5408;&#x4e70;"/>
+                            <StringItem index="3" value="&#x4ee3;&#x8d2d;&#x6295;&#x6ce8;"/>
+                            <StringItem index="4" value="&#x4ee3;&#x8d2d;&#x5408;&#x4e70;"/>
+                          </StringArray>
+                        </Property>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JComboBox" name="secrecy_level">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
+                          <StringArray count="3">
+                            <StringItem index="0" value="&#x4fdd;&#x5bc6;&#x6295;&#x6ce8;"/>
+                            <StringItem index="1" value="&#x516c;&#x5f00;&#x6295;&#x6ce8;"/>
+                            <StringItem index="2" value="&#x597d;&#x53cb;&#x53ef;&#x89c1;"/>
+                          </StringArray>
+                        </Property>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel15">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="horizontalAlignment" type="int" value="4"/>
+                        <Property name="text" type="java.lang.String" value="&#x5f53;&#x524d;&#x671f;&#xff1a;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel13">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="horizontalAlignment" type="int" value="4"/>
+                        <Property name="text" type="java.lang.String" value="&#x65b9;&#x6848;&#x4fdd;&#x5bc6;&#x7ea7;&#x522b;&#xff1a;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JTextField" name="draw_id">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="draw_idActionPerformed"/>
+                      </Events>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel16">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="horizontalAlignment" type="int" value="4"/>
+                        <Property name="text" type="java.lang.String" value="&#x5feb;&#x5f00;&#x6e38;&#x620f;&#x5c0f;&#x671f;&#xff1a;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JTextField" name="keno_draw_id">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel17">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="horizontalAlignment" type="int" value="4"/>
+                        <Property name="text" type="java.lang.String" value="&#x6295;&#x6ce8;&#x65b9;&#x6cd5;&#xff1a;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JComboBox" name="bet_method">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
+                          <StringArray count="2">
+                            <StringItem index="0" value="&#x673a;&#x9009;"/>
+                            <StringItem index="1" value="&#x81ea;&#x9009;"/>
+                          </StringArray>
+                        </Property>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel18">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="horizontalAlignment" type="int" value="4"/>
+                        <Property name="text" type="java.lang.String" value="&#x7528;&#x6237;&#x540d;&#xff1a;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JTextField" name="gambler_name">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel19">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="horizontalAlignment" type="int" value="4"/>
+                        <Property name="text" type="java.lang.String" value="&#x662f;&#x5426;&#x8ffd;&#x53f7;&#xff1a;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JComboBox" name="isChasing">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
+                          <StringArray count="2">
+                            <StringItem index="0" value="&#x5426;"/>
+                            <StringItem index="1" value="&#x662f;"/>
+                          </StringArray>
+                        </Property>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel20">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="horizontalAlignment" type="int" value="4"/>
+                        <Property name="text" type="java.lang.String" value="&#x4e2d;&#x5956;&#x540e;&#x662f;&#x5426;&#x505c;&#x6b62;&#x8ffd;&#x53f7;&#xff1a;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JComboBox" name="stop_win">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
+                          <StringArray count="2">
+                            <StringItem index="0" value="&#x662f;"/>
+                            <StringItem index="1" value="&#x5426;"/>
+                          </StringArray>
+                        </Property>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel21">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="horizontalAlignment" type="int" value="4"/>
+                        <Property name="text" type="java.lang.String" value="&#x8ffd;&#x53f7;&#x671f;&#x6570;&#xff1a;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JTextField" name="draw_num">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel22">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="horizontalAlignment" type="int" value="4"/>
+                        <Property name="text" type="java.lang.String" value="&#x662f;&#x5426;&#x6295;&#x6ce8;&#x5f53;&#x524d;&#x671f;&#xff1a;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JComboBox" name="current_draw">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
+                          <StringArray count="2">
+                            <StringItem index="0" value="&#x662f;"/>
+                            <StringItem index="1" value="&#x5426;"/>
+                          </StringArray>
+                        </Property>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JTextField" name="scheme_title">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="text" type="java.lang.String" value="testing"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="scheme_titleActionPerformed"/>
+                      </Events>
+                    </Component>
+                    <Component class="javax.swing.JTextField" name="city_id">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="text" type="java.lang.String" value="1"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JTextField" name="game_id">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="text" type="java.lang.String" value="1"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JTextField" name="play_id">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="text" type="java.lang.String" value="1"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JTextField" name="bet_mode">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="text" type="java.lang.String" value="1"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JTextField" name="peoplenum">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JTextField" name="eachpeoplenum">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel12">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="horizontalAlignment" type="int" value="4"/>
+                        <Property name="text" type="java.lang.String" value="&#x65b9;&#x6848;&#x6807;&#x9898;&#xff1a;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel14">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="horizontalAlignment" type="int" value="4"/>
+                        <Property name="text" type="java.lang.String" value="&#x5730;&#x5e02;&#x7f16;&#x53f7;&#xff1a;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel28">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="horizontalAlignment" type="int" value="4"/>
+                        <Property name="text" type="java.lang.String" value="&#x6e38;&#x620f;&#x7f16;&#x53f7;&#xff1a;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel29">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="horizontalAlignment" type="int" value="4"/>
+                        <Property name="text" type="java.lang.String" value="&#x73a9;&#x6cd5;&#x7f16;&#x53f7;&#xff1a;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel30">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="horizontalAlignment" type="int" value="4"/>
+                        <Property name="text" type="java.lang.String" value="&#x6295;&#x6ce8;&#x65b9;&#x5f0f;&#xff1a;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel49">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="horizontalAlignment" type="int" value="4"/>
+                        <Property name="text" type="java.lang.String" value="&#x7528;&#x6237;&#x4e2a;&#x6570;&#xff1a;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel50">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="horizontalAlignment" type="int" value="4"/>
+                        <Property name="text" type="java.lang.String" value="&#x6bcf;&#x7528;&#x6237;&#x7968;&#x4e2a;&#x6570;&#xff1a;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel23">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="horizontalAlignment" type="int" value="4"/>
+                        <Property name="text" type="java.lang.String" value="&#x6307;&#x5b9a;xml&#x6587;&#x4ef6;&#xff1a;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JTextField" name="filename">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JCheckBox" name="checklogin">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="&#x4e0d;&#x6821;&#x9a8c;&#x767b;&#x5f55;,&#x4e0d;&#x767b;&#x5f55;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JButton" name="select">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="text" type="java.lang.String" value="&#x67e5;&#x8be2;&#x7968;&#x4e2a;&#x6570;"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="selectActionPerformed"/>
+                      </Events>
+                    </Component>
+                    <Component class="javax.swing.JButton" name="randsubmit">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="text" type="java.lang.String" value="&#x6295;&#x6ce8;&#x786e;&#x8ba4;"/>
+                        <Property name="actionCommand" type="java.lang.String" value=""/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="randsubmitActionPerformed"/>
+                      </Events>
+                    </Component>
+                    <Container class="javax.swing.JScrollPane" name="jScrollPane4">
+                      <AuxValues>
+                        <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+                      </AuxValues>
+
+                      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+                      <SubComponents>
+                        <Component class="javax.swing.JTextArea" name="jTextArea2">
+                          <Properties>
+                            <Property name="editable" type="boolean" value="false"/>
+                            <Property name="columns" type="int" value="20"/>
+                            <Property name="rows" type="int" value="5"/>
+                            <Property name="text" type="java.lang.String" value="1.&#x6e38;&#x620f;&#x7f16;&#x53f7;&#x4e0d;&#x586b;&#xff0c;&#x4ee3;&#x8868;&#x6d4b;&#x6240;&#x6709;&#x6e38;&#x620f;&#xa;2.&#x73a9;&#x6cd5;&#x7f16;&#x53f7;&#x4e0d;&#x586b;&#xff0c;&#x8868;&#x793a;&#x6d4b;&#x67d0;&#x6e38;&#x620f;&#x6240;&#x6709;&#x73a9;&#x6cd5;&#xa;3.&#x6295;&#x6ce8;&#x65b9;&#x5f0f;&#x4e0d;&#x586b;&#xff0c;&#x8868;&#x793a;&#x6d4b;&#x67d0;&#x6e38;&#x620f;&#x7684;&#x67d0;&#x4e2a;&#x73a9;&#x6cd5;&#x7684;&#x6240;&#x6709;&#xa;&#x6295;&#x6ce8;&#x65b9;&#x5f0f;&#x3002;&#xa;4.&#x5355;&#x4e2a;&#x7528;&#x6237;&#x6295;&#x6ce8;&#xff0c;&#x8bf7;&#x586b;&#x5199;&#x7528;&#x6237;&#x540d;&#xff0c;&#x82e5;&#x662f;&#x591a;&#x4e2a;&#x7528;&#x6237;&#xff0c;&#x8bf7;&#xa;&#x586b;&#x5199;&#x7528;&#x6237;&#x4e2a;&#x6570;&#x3002;&#xa;5.&#x6bcf;&#x7528;&#x6237;&#x7968;&#x4e2a;&#x6570;&#x4e0d;&#x586b;&#xff0c;&#x9ed8;&#x8ba4;&#x53d1;&#x9001;&#x6240;&#x6709;&#x6ee1;&#x8db3;&#x6761;&#x4ef6;&#x7684;&#x53f7;&#x7801;&#xa;&#x4e00;&#x6b21;&#x3002;&#xa;&#x5f53;&#x7968;&#x4e2a;&#x6570;&#x5c0f;&#x4e8e;&#x5df2;&#x5b58;&#x5728;&#x7684;&#x7968;&#x4e2a;&#x6570;&#x65f6;&#xff0c;&#x53d1;&#x9001;&#x6307;&#x5b9a;&#x7684;&#x4e2a;&#x6570;;&#xa;&#x5f53;&#x7968;&#x4e2a;&#x6570;&#x5927;&#x4e8e;&#x5df2;&#x5b58;&#x5728;&#x7684;&#x7968;&#x4e2a;&#x6570;&#x65f6;&#xff0c;&#x4f1a;&#x5c06;&#x6ee1;&#x8db3;&#x6761;&#x4ef6;&#x7684;&#x7968;&#xa;&#x4e2a;&#x6570;&#x591a;&#x6b21;&#x53d1;&#x9001;&#xff0c;&#x76f4;&#x5230;&#x7968;&#x7684;&#x4e2a;&#x6570;&#x6ee1;&#x8db3;&#x6307;&#x5b9a;&#x7684;&#x7968;&#x4e2a;&#x6570;&#x3002;&#xa;6.&#x201c;&#x6307;&#x5b9a;xml&#x6587;&#x4ef6;&#x201d;&#x4e0d;&#x586b;&#xff0c;&#x53d1;&#x9001;&#x6240;&#x6709;&#x7684;xml&#x6587;&#x4ef6;&#x4e2d;&#x7684;&#xa;&#x6ee1;&#x8db3;&#x6761;&#x4ef6;&#x7684;&#x7968;&#x3002;&#xa;"/>
+                          </Properties>
+                        </Component>
+                      </SubComponents>
+                    </Container>
+                    <Component class="javax.swing.JLabel" name="jLabel24">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="horizontalAlignment" type="int" value="4"/>
+                        <Property name="text" type="java.lang.String" value="&#x6263;&#x6b3e;&#x7c7b;&#x578b;&#xff1a;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel52">
+                      <Properties>
+                        <Property name="horizontalAlignment" type="int" value="4"/>
+                        <Property name="text" type="java.lang.String" value="&#x6d41;&#x6c34;&#x53f7;&#x6807;&#x8bc6;&#xff1a;"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JTextField" name="chargetypeid">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="text" type="java.lang.String" value="5"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JTextField" name="serno">
+                      <Properties>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                        </Property>
+                        <Property name="text" type="java.lang.String" value="a"/>
+                      </Properties>
+                    </Component>
+                  </SubComponents>
+                </Container>
+              </SubComponents>
+            </Container>
+            <Container class="javax.swing.JScrollPane" name="jScrollPane3">
+              <AuxValues>
+                <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+              </AuxValues>
+
+              <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+              <SubComponents>
+                <Component class="javax.swing.JTextArea" name="information">
+                  <Properties>
+                    <Property name="editable" type="boolean" value="false"/>
+                    <Property name="columns" type="int" value="20"/>
+                    <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                      <Font name="Monospaced" size="14" style="0"/>
+                    </Property>
+                    <Property name="rows" type="int" value="5"/>
+                    <Property name="disabledTextColor" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                      <Color blue="33" green="33" red="ff" type="rgb"/>
+                    </Property>
+                    <Property name="enabled" type="boolean" value="false"/>
+                    <Property name="focusable" type="boolean" value="false"/>
+                  </Properties>
+                </Component>
+              </SubComponents>
+            </Container>
+            <Component class="javax.swing.JTextField" name="city_id2">
+              <Properties>
+                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                  <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                </Property>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="city_id2ActionPerformed"/>
+              </Events>
+            </Component>
+            <Component class="javax.swing.JTextField" name="city_id3">
+              <Properties>
+                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                  <Font name="&#x5b8b;&#x4f53;" size="18" style="0"/>
+                </Property>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="city_id3ActionPerformed"/>
+              </Events>
+            </Component>
+          </SubComponents>
+        </Container>
+      </SubComponents>
+    </Container>
+  </SubComponents>
+</Form>
