@@ -1,0 +1,26 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+package com.bestinfo.dao.clpdata;
+
+import com.bestinfo.bean.clpdata.TmnClpKey;
+import org.springframework.jdbc.core.JdbcTemplate;
+
+
+/**
+ * 
+ * @author Administrator
+ */
+public interface ITmnClpKeyDao {
+    /***
+     * 
+     * @param jdbcTemplate
+     * @param terminalId
+     * @return 
+     */
+    public TmnClpKey getTmnClpKey(JdbcTemplate jdbcTemplate,Integer terminalId);
+    public int getTmnClpKeyCount(JdbcTemplate jdbcTemplate);
+}

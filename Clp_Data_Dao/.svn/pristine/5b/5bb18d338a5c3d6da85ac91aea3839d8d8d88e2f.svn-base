@@ -1,0 +1,57 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+package com.bestinfo.dao.impl.clpdata;
+
+import com.bestinfo.bean.clpdata.TmnClpKey;
+import com.bestinfo.dao.clpdata.ITmnClpKeyDao;
+import com.bestinfo.dao.impl.BaseDaoImpl;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
+
+/**
+ *
+ * @author Administrator
+ */
+@Repository
+public class TmnClpKeyDaoImpl extends BaseDaoImpl implements ITmnClpKeyDao{
+/**
+     * 查询ticketBet信息sql
+     */
+    //select * from  t_tmn_clpkey where terminal_id=? order by create_time desc
+    private static final String QUERY_TMN_CLPKEY_ENTITY = "select public_key from (select public_key from  t_tmn_clpkey where terminal_id=? order by create_time desc) where rownum=1";
+    private static final String QUERY_TMN_CLPKEY_COUNT ="select count(*) from (select terminal_id from t_tmn_clpkey group by terminal_id)";
+//    @Override
+//    public List<TicketBet> getTicketInfoList(JdbcTemplate jdbcTemplate,Integer game_id, Integer draw_id) {
+//        try {
+//            return  this.queryForList(jdbcTemplate, QUERY_TACKET_BET_INFO_LIST, new Object[]{game_id,draw_id}, TicketBet.class);
+//        } catch (Exception e) {
+//            logger.error("GetTicketInfoList ex :", e);
+//            return Collections.emptyList();
+//        }
+//    }
+
+
+    @Override
+    public TmnClpKey getTmnClpKey(JdbcTemplate jdbcTemplate, Integer terminalId) {
+        try {
+            return  this.queryForObject(jdbcTemplate, QUERY_TMN_CLPKEY_ENTITY, new Object[]{terminalId}, TmnClpKey.class);
+        } catch (Exception e) {
+            logger.error("getTmnClpKey ex :", e);
+            return null;
+        }
+    }
+
+    @Override
+    public int getTmnClpKeyCount(JdbcTemplate jdbcTemplate) {
+        try {
+            return  this.queryForInteger(jdbcTemplate, QUERY_TMN_CLPKEY_COUNT, null);
+        } catch (Exception e) {
+            logger.error("getTmnClpKeyCount ex :", e);
+            return 0;
+        }    }
+    
+}
