@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ticketNumber>
+	<game id="1">
+		<playtype id="1">
+			<betmod id="1" filename="" startline="" endline=""/>
+			<betmod id="12" filename="" startline="" endline=""/>
+			<betmod id="13" filename="" startline="" endline=""/>
+		</playtype>
+	</game>
+	<game id="2">
+		<playtype id="1">
+			<betmod id="1" filename="" startline="" endline=""/>
+			<betmod id="12" filename="" startline="" endline=""/>
+			<betmod id="13" filename="" startline="" endline=""/>
+		</playtype>
+	</game>
+	<game id="3">
+		<playtype id="2">
+			<betmod id="1" filename="" startline="" endline=""/>
+			<betmod id="12" filename="" startline="" endline=""/>
+		</playtype>
+		<playtype id="3">
+			<betmod id="1" filename="" startline="" endline=""/>
+			<betmod id="12" filename="" startline="" endline=""/>
+		</playtype>
+	</game>
+	<game id="4">
+		<playtype id="2">
+			<betmod id="1" filename="" startline="" endline=""/>
+			<betmod id="12" filename="" startline="" endline=""/>
+		</playtype>
+		<playtype id="3">
+			<betmod id="1" filename="" startline="" endline=""/>
+			<betmod id="12" filename="" startline="" endline=""/>
+		</playtype>
+	</game>
+	<game id="5">
+		<playtype id="1">
+			<betmod id="1" filename="" startline="" endline=""/>
+			<betmod id="12" filename="" startline="" endline=""/>
+			<betmod id="13" filename="" startline="" endline=""/>
+		</playtype>
+	</game>
+	<game id="6">
+		<playtype id="1">
+			<betmod id="1" filename="" startline="" endline=""/>
+			<betmod id="4" filename="" startline="" endline=""/>
+			<betmod id="5" filename="" startline="" endline=""/>
+			<betmod id="6" filename="d1.txt" startline="111" endline="120"/>
+			<betmod id="7" filename="" startline="" endline=""/>
+			<betmod id="8" filename="" startline="" endline=""/>
+			<betmod id="9" filename="" startline="" endline=""/>
+			<!--<betmod id="10" filename="d1.txt" startline="111" endline="120"/>-->
+			<betmod id="12" filename="" startline="" endline=""/>
+			<betmod id="14" filename="" startline="" endline=""/>
+		</playtype>
+		<playtype id="3">
+			<betmod id="1" filename="" startline="" endline=""/>
+			<betmod id="8" filename="" startline="" endline=""/>
+		</playtype>
+		<playtype id="6">
+			<betmod id="1" filename="" startline="" endline=""/>
+			<betmod id="8" filename="" startline="" endline=""/>
+		</playtype>
+		<playtype id="255">
+			<betmod id="4" filename="" startline="" endline=""/>
+			<betmod id="5" filename="" startline="" endline=""/>
+			<betmod id="6" filename="d1.txt" startline="131" endline="140"/>
+			<betmod id="7" filename="" startline="" endline=""/>
+			<betmod id="9" filename="" startline="" endline=""/>
+			<!--<betmod id="10" filename="d1.txt" startline="131" endline="140"/>-->
+			<betmod id="14" filename="" startline="" endline=""/>
+		</playtype>
+	</game>
+	
+	<game id="7">
+		<playtype id="1">
+			<betmod id="1" filename="" startline="" endline=""/>
+			<betmod id="12" filename="" startline="" endline=""/>
+		</playtype>
+		<playtype id="2">
+			<betmod id="1" filename="" startline="" endline=""/>
+		</playtype>
+		<playtype id="3">
+			<betmod id="1" filename="" startline="" endline=""/>
+			<betmod id="12" filename="" startline="" endline=""/>
+			<betmod id="13" filename="" startline="" endline=""/>
+		</playtype>
+		<playtype id="4">
+			<betmod id="1" filename="" startline="" endline=""/>
+			<betmod id="12" filename="" startline="" endline=""/>
+			<betmod id="13" filename="" startline="" endline=""/>
+		</playtype>
+		<playtype id="5">
+			<betmod id="1" filename="" startline="" endline=""/>
+			<betmod id="12" filename="" startline="" endline=""/>
+			<betmod id="13" filename="" startline="" endline=""/>
+		</playtype>
+		<playtype id="6">
+			<betmod id="1" filename="" startline="" endline=""/>
+			<betmod id="12" filename="" startline="" endline=""/>
+			<betmod id="13" filename="" startline="" endline=""/>
+		</playtype>
+		<playtype id="7">
+			<betmod id="1" filename="" startline="" endline=""/>
+			<betmod id="12" filename="" startline="" endline=""/>
+			<betmod id="13" filename="" startline="" endline=""/>
+		</playtype>
+		<playtype id="8">
+			<betmod id="1" filename="" startline="" endline=""/>
+			<betmod id="12" filename="" startline="" endline=""/>
+			<betmod id="13" filename="" startline="" endline=""/>
+		</playtype>
+		<playtype id="9">
+			<betmod id="1" filename="" startline="" endline=""/>
+			<betmod id="12" filename="" startline="" endline=""/>
+			<betmod id="13" filename="" startline="" endline=""/>
+		</playtype>
+		<playtype id="10">
+			<betmod id="1" filename="" startline="" endline=""/>
+			<betmod id="12" filename="" startline="" endline=""/>
+			<betmod id="13" filename="" startline="" endline=""/>
+		</playtype>
+	</game>
+	
+	<game id="8">
+		<playtype id="1">			
+			<betmod id="12" filename="" startline="" endline=""/>
+		</playtype>
+		<playtype id="2">
+			<betmod id="12" filename="" startline="" endline=""/>
+		</playtype>
+		<playtype id="3">
+			<betmod id="12" filename="" startline="" endline=""/>
+		</playtype>
+		<playtype id="4">
+			<betmod id="12" filename="" startline="" endline=""/>
+		</playtype>		
+	</game>
+	
+</ticketNumber>
