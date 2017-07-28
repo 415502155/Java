@@ -1,0 +1,116 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+package com.bestinfo.service.impl.clpdata;
+
+import com.bestinfo.bean.ticket.TicketBet;
+import com.bestinfo.dao.clpdata.ITicketInfoDao;
+import com.bestinfo.service.clpdata.ITicketBetInfoSer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Resource;
+import org.apache.log4j.Logger;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
+
+/**
+ *
+ * @author Administrator
+ */
+@Service
+public class TicketBetInfoSerImpl implements ITicketBetInfoSer{
+    private static final Logger logger = Logger.getLogger(TicketBetInfoSerImpl.class);
+    @Resource
+    private JdbcTemplate termJdbcTemplate;
+    @Resource
+    private ITicketInfoDao it;
+
+    @Override
+    public List<Map> getTicketBetsList(Integer game_id,Integer draw_id) {
+        List<Map> list = new ArrayList<>();
+        String ticketId ="";
+        String provinceId ="11";
+        String gameId ="";
+        String saleDrawNumber ="";
+        Integer drawDrawAmount=1;
+        String beginDrawDrawNumber="";
+        String agentId ="";
+        String serialNumber ="";
+        String operatorId ="";
+        Integer status =1;
+        Integer riskControlGroup =null;
+        String riskControlBetNumber ="";
+        String multiDrawRePrintTicketId ="";
+        String multiDrawRePrintProvinceId="";
+        String multiDrawRePrintGameId ="";
+        String multiDrawRePrintSaleDrawNumber="";
+        String multiDrawRrePrintAgentId ="";
+        String multiDrawRePrintSerialNumber ="";
+        String saleTime ="";
+        Integer betTotal =null;
+        String memberCardNumberString ="";
+        Integer agnetTypeInteger=null;
+        Integer seleteType = null;
+        Integer ticketType=null;
+        Integer selectionGroupAmount=null;
+        String selectionDetail ="";
+        List<TicketBet> ticketBetsList = it.getTicketInfoList(termJdbcTemplate,game_id,draw_id);
+        
+        for(TicketBet tb:ticketBetsList){
+            Map map = new LinkedHashMap();
+            ticketId=tb.getCipher();
+            map.put("ticketId",ticketId);
+            map.put("provinceId", "42");//省码
+            map.put("gameId", tb.getGame_id());
+            map.put("saleDrawNumber", "");//销售期号  此票被卖出去的期号
+            map.put("drawDrawAmount", "1");//开奖期数
+            map.put("beginDrawDrawNumber", "");//起始开奖期号
+            map.put("agentId", tb.getTerminal_id());
+            map.put("serialNumber", tb.getSerial_no());
+            map.put("operatorId", tb.getOperator_id());
+            map.put("status", "1");//状态：1.销售2.未完成3...4...5...
+            
+            map.put("riskControlGroup", "");//导致出现风险控制的组序号
+            map.put("riskControlBetNumber", "");//导致出现风险控制的组序号
+            map.put("multiDrawRePrintTicketId", "");//多期重打票的特征码
+            map.put("multiDrawRePrintProvinceId", "");//多期重打票的省码
+            map.put("multiDrawRePrintGameId", "");//多期重打票的游戏编码
+            map.put("multiDrawRePrintSaleDrawNumber", "");//多期重打票的销售期号
+            map.put("multiDrawRePrintAgentId", "");//多期重打票的销售终端逻辑机号
+            map.put("multiDrawRePrintSerialNumber", "");//多期重打票的销售终端机销售的流水号
+            
+            map.put("saleTime", "");//销售时间 yyyy-MM-dd HH:mm:ss
+            Integer bet_stakes =tb.getBet_stakes();
+            String betTatol =String.valueOf(bet_stakes*2);
+            map.put("betTotal", betTatol);
+            map.put("memberCardNumber", tb.getPoint_card());
+            map.put("agentType", "");//销售终端类型
+            map.put("selectType", "");//选码方式
+            map.put("ticketType", "");//彩票类型
+            map.put("selectionGroupAmount", "");//票面注码组数
+            map.put("selectionDetail", "");//注码细节描述，见附件
+            
+            list.add(map);
+        }        
+        return  list;
+    }
+
+    @Override
+    public List<TicketBet> getTicketInfoPage(Integer game_id, Integer draw_id, Integer ends, Integer starts) {
+        List<TicketBet> ticketBetsList = it.getTicketInfoPage(termJdbcTemplate,game_id,draw_id,ends,starts);
+        return ticketBetsList;
+    }
+
+    @Override
+    public int getTicketInfoCount(Integer game_id, Integer draw_id) {
+        int count =it.getTicketInfoCount(termJdbcTemplate, game_id, draw_id);
+        return count;
+    }
+ 
+}

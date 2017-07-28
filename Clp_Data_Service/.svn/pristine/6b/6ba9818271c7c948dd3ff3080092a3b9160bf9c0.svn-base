@@ -1,0 +1,72 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+package com.bestinfo.service.impl.clpdata;
+
+import com.bestinfo.bean.ticket.TicketBet;
+import com.bestinfo.dao.clpdata.ITicketInfoDao;
+import com.bestinfo.service.clpdata.ITicketBetInfoSer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Resource;
+import org.apache.log4j.Logger;
+import org.springframework.jdbc.core.JdbcTemplate;
+
+/**
+ *
+ * @author Administrator
+ */
+public class TicketBetInfoSerImpl implements ITicketBetInfoSer{
+    private static final Logger logger = Logger.getLogger(TicketBetInfoSerImpl.class);
+    @Resource
+    private JdbcTemplate termJdbcTemplate;
+    @Resource
+    private ITicketInfoDao it;
+
+    @Override
+    public List<Map> getTicketBetsList() {
+        List<Map> list = new ArrayList<>();
+        String ticketId ="";
+        String provinceId ="11";
+        String gameId ="";
+        String saleDrawNumber ="";
+        Integer drawDrawAmount=1;
+        String beginDrawDrawNumber="";
+        String agentId ="";
+        String serialNumber ="";
+        String operatorId ="";
+        Integer status =1;
+        Integer riskControlGroup =null;
+        String riskControlBetNumber ="";
+        String multiDrawRePrintTicketId ="";
+        String multiDrawRePrintProvinceId="";
+        String multiDrawRePrintGameId ="";
+        String multiDrawRePrintSaleDrawNumber="";
+        String multiDrawRrePrintAgentId ="";
+        String multiDrawRePrintSerialNumber ="";
+        String saleTime ="";
+        Integer betTotal =null;
+        String memberCardNumberString ="";
+        Integer agnetTypeInteger=null;
+        Integer seleteType = null;
+        Integer ticketType=null;
+        Integer selectionGroupAmount=null;
+        String selectionDetail ="";
+        List<TicketBet> ticketBetsList = it.getTicketInfoList(termJdbcTemplate);
+        LinkedHashMap map=null;
+        for(TicketBet tb:ticketBetsList){
+            map = new LinkedHashMap();
+            String cipher=tb.getCipher();
+            map.put("cipher",cipher);
+        }
+        list.add(map);
+        return  list;
+    }
+ 
+}
