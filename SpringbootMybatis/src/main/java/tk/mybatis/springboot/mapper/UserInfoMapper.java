@@ -24,12 +24,39 @@
 
 package tk.mybatis.springboot.mapper;
 
-import tk.mybatis.springboot.model.UserInfo;
-import tk.mybatis.springboot.util.MyMapper;
+import java.util.List;
 
-/**
- * @author liuzh_3nofxnp
- * @since 2016-01-22 22:17
- */
-public interface UserInfoMapper extends MyMapper<UserInfo> {
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
+
+import tk.mybatis.springboot.model.UserInfo;
+
+@Mapper
+public interface UserInfoMapper{
+	
+	@Select("select * from t_user_info ")
+	List<UserInfo>  findUserInfo();
+	
+	List<UserInfo> queryAll();
+	
+	List<UserInfo> getPageUserInfo(@Param("start")int start,@Param("end")int end);
+	
+	@Select("SELECT * FROM t_user_info a, t_role_info b where a.role_id = b.r_id")
+	List<UserInfo> getUserRoleInfo();
+	
+	@Select("select count(1) from t_user_info a, t_role_info b where a.role_id = b.r_id")
+	int CountUserRoleInfo();
+	
+	@Select("select count(1) from t_user_info")
+	int CountUserInfo();
+	
+	List<UserInfo> getUserRolePageInfo(@Param("start")int start,@Param("end")int end);
+	
+	@Update("update t_user_info set user_name = #{userName} where user_id = #{userId}")
+	int updateUserInfo(@Param("userName")String userName,@Param("userId")int userId);
+	
+	int addUserInfo(@Param("ulist")List<UserInfo> ulist);
 }
+ 

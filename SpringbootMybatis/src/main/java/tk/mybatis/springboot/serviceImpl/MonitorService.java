@@ -19,7 +19,7 @@ import tk.mybatis.springboot.model.t_tmn_info;
 import tk.mybatis.springboot.service.IComponentsService;
 
 /**
- * 监控Service （CMD 102）
+ * test （CMD 102）
  *
  * @author Administrator
  */

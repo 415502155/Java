@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="tk.mybatis.springboot.mapper.UserInfoMapper" >
+	<!-- 
+	<insert id="save" parameterType="com.ibigsea.bootdao.entity.User">
+		insert into t_user(username,age) values(#{userName,jdbcType=VARCHAR},#{age,jdbcType=NUMERIC})
+	</insert>
+	
+	<select id="selectById" resultType="com.ibigsea.bootdao.entity.User">
+		select * from t_user where id = #{id,jdbcType=NUMERIC}
+	</select>
+	-->
+	<!-- 批量添加  参数为List<UserInfo> -->
+	 <insert id="addUserInfo" useGeneratedKeys="true" parameterType="java.util.List"> 
+        INSERT INTO t_user_info(user_name, sex, address,role_id) 
+        VALUES
+        <foreach collection="ulist" item="data" separator="," index = "index">
+            (#{data.user_name},#{data.sex},#{data.address},#{data.role_id})
+        </foreach>
+
+    </insert>
+	
+	<select id="queryAll" resultType="tk.mybatis.springboot.model.UserInfo">
+		select * from t_user_info
+	</select>
+	
+	<select id="getPageUserInfo" resultType="tk.mybatis.springboot.model.UserInfo">
+		select * from t_user_info limit #{start},#{end}
+	</select>
+	
+	<select id="getUserRolePageInfo" resultType="tk.mybatis.springboot.model.UserInfo">
+		SELECT * FROM t_user_info a, t_role_info b where a.role_id = b.r_id limit #{start},#{end}
+	</select>	
+	
+	<!-- 
+	<update id="updateById" parameterType="com.ibigsea.bootdao.entity.User">
+		update t_user set  
+		username = #{userName,jdbcType=VARCHAR} ,
+		age = #{age,jdbcType=NUMERIC}
+		where id = #{id,jdbcType=NUMERIC}
+	</update>
+	
+	<delete id="deleteById">
+		delete from t_user where id = #{id,jdbcType=NUMERIC}
+	</delete>
+	
+	<select id="queryAll" resultType="com.ibigsea.bootdao.entity.User">
+		select * from t_user
+	</select>
+	 -->
+</mapper>

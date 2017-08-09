@@ -1,12 +1,23 @@
 package tk.mybatis.springboot.controller;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 import javax.annotation.Resource;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.expression.MapAccessor;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -19,6 +30,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 import tk.mybatis.springboot.dao.vani.TmnInfoDao;
@@ -27,6 +41,7 @@ import tk.mybatis.springboot.dao.vani.TmnInfoDao;
 //import com.alibaba.fastjson.JSONObject;
 
 import tk.mybatis.springboot.mapper.TmnInfoMapper;
+import tk.mybatis.springboot.mapper.UserInfoMapper;
 import tk.mybatis.springboot.model.UserInfo;
 import tk.mybatis.springboot.model.t_tmn_info;
 //import tk.mybatis.springboot.service.TmnInfoService;
@@ -42,6 +57,9 @@ public class TmnInfoController {
 	@Autowired
 	TmnInfoDao tmninfoDao;
 	
+	@Autowired
+	UserInfoMapper userInfo;
+	
 //	@Autowired
 //	TmnPageInfoMapper tmnpageInfoMapper;
 //  @Autowired
@@ -53,13 +71,13 @@ public class TmnInfoController {
     @Resource
     private RedisTemplate<Serializable,Serializable> template;
 
-//    public RedisTemplate<Serializable, Serializable> getTemplate() {
-//        return template;
-//    }
-//
-//    public void setTemplate(RedisTemplate<Serializable, Serializable> template) {
-//        this.template = template;
-//    }
+    public RedisTemplate<Serializable, Serializable> getTemplate() {
+        return template;
+    }
+
+    public void setTemplate(RedisTemplate<Serializable, Serializable> template) {
+        this.template = template;
+    }
 	
 	@RequestMapping(value = "/info")
 	@ResponseBody
@@ -90,29 +108,31 @@ public class TmnInfoController {
 	
 	@RequestMapping(value = "/redis")
 	@ResponseBody
-	public UserInfo tmnPageList(){
-		UserInfo uiInfo = new UserInfo();
-		uiInfo.setEmail("zhansan@126.com");
-		uiInfo.setId(1);
-		uiInfo.setTel("10086");
-		uiInfo.setUsername("zhangsan");
-//	    ValueOperations<String,String> valueOperations = redisTemplate.opsForValue();
-//      valueOperations.set("admin", "random1="+Math.random());      
-        ValueOperations<Serializable,Serializable> valueOperations1 = template.opsForValue();
-        UserInfo userInfo = (UserInfo) valueOperations1.get(uiInfo.getUsername());
+	public String tmnPageList(){
+
+
         HashOperations<Serializable, Object, Object>  hash = template.opsForHash();
-        Map<String,Object> map = new HashMap<String,Object>();
-        map.put("name", "lp");
-        map.put("age", "26");
+		Map map = new LinkedHashMap<>();
+		map.put("name", "zhangsan");
+		map.put("age", 10);
+		map.put("sex", 1);
+		map.put("address", "china");
+//        Map<String,Object> map = new HashMap<String,Object>();
+//        map.put("name", "lp");
+//        map.put("age", "26");
         hash.putAll("lpMap", map);
         //获取 map
         System.out.println(hash.entries("lpMap"));
         //添加 一个 list 列表
         ListOperations<Serializable, Serializable> list = template.opsForList();
-        list.rightPush("lpList", "lp");
-        list.rightPush("lpList", "26");
+        //list.rightPush("lpList", "lp");
+        //list.rightPush("lpList", "26");
         //输出 list
-        System.out.println(list.range("lpList", 0, list.size("26")));
+        list.remove("lp", 5, "lp");
+        System.out.println("List:"+list.range("lpList", 0, list.size("lpList")));
+        System.out.println("size:"+list.size("lpList"));
+        System.out.println("lp:"+list.size("lp"));
+        System.out.println("26:"+list.size("26"));
         //添加 一个 set 集合
         SetOperations<Serializable, Serializable> set = template.opsForSet();
         set.add("lpSet", "lp");
@@ -127,7 +147,7 @@ public class TmnInfoController {
         zset.add("lpZset", "178cm", 2);
         //输出有序 set 集合
         System.out.println(zset.rangeByScore("lpZset", 0, 2));
-		return userInfo;
+		return "success";
 	}
 	
 //	@RequestMapping(value = "/params", method=RequestMethod.GET)
@@ -141,20 +161,20 @@ public class TmnInfoController {
 //	}
 
 	
-	@RequestMapping(value = "/findone/{id}")
-	@ResponseBody
-	public String tmnInfoByTerminalId(@PathVariable Integer id){
-		String result="";
-		JSONObject backJson = new JSONObject();	
-		t_tmn_info tmn = tmnnfoMapper.findTmnInfoByTerminal(id);
-		Map<String,Object> returnmap=new HashMap<String,Object>();
-		returnmap.put("TERMINALID", tmn.getTerminal_id());
-		returnmap.put("ACCOUNTID", tmn.getAccount_id());
-		returnmap.put("ADDRESS", tmn.getTerminal_address());
-		result=net.sf.json.JSONObject.fromObject(returnmap).toString();
-		logger.info("res:"+result);
-		return result;
-	}
+//	@RequestMapping(value = "/findone/{id}")
+//	@ResponseBody
+//	public String tmnInfoByTerminalId(@PathVariable Integer id){
+//		String result="";
+//		JSONObject backJson = new JSONObject();	
+//		t_tmn_info tmn = tmnnfoMapper.findTmnInfoByTerminal(id);
+//		Map<String,Object> returnmap=new HashMap<String,Object>();
+//		returnmap.put("TERMINALID", tmn.getTerminal_id());
+//		returnmap.put("ACCOUNTID", tmn.getAccount_id());
+//		returnmap.put("ADDRESS", tmn.getTerminal_address());
+//		result=net.sf.json.JSONObject.fromObject(returnmap).toString();
+//		logger.info("res:"+result);
+//		return result;
+//	}
 	
 	@RequestMapping(value="city")
 	@ResponseBody
@@ -172,4 +192,160 @@ public class TmnInfoController {
 		List<t_tmn_info> tmnList = tmninfoDao.getAll(end, start);
 		return "suc";
 	}
+	
+	@RequestMapping(value="test")
+	@ResponseBody
+	public JSONObject getTest() {
+		logger.info("111111111111111111111111111111");
+		JSONObject backJson = new JSONObject();
+		List<UserInfo> userInfos = userInfo.findUserInfo();
+		backJson.put("user", userInfos);
+		logger.info("BackJson:"+backJson);
+		return backJson;
+	}
+	
+	@RequestMapping(value="test1")
+	@ResponseBody
+	public JSONObject getTest1() {
+		JSONObject backJson = new JSONObject();
+		int pagenum = 2;
+		int pagesize = 5;
+		int start = (pagenum-1)*pagesize;
+		int end = pagesize;
+		logger.info("start:"+start+",end:"+end);
+		List<UserInfo> userInfos = userInfo.getPageUserInfo(start, end);
+		if(userInfos.isEmpty()) {
+			logger.info("userinfo is null!");
+		}
+		backJson.put("user", userInfos);
+		logger.info("BackJson:"+backJson);
+		return backJson;
+	}
+	
+	/***
+	 * Mysql Query
+	 * @return
+	 */
+	@RequestMapping(value="test2")
+	@ResponseBody
+	public JSONObject getTest2() {
+		JSONObject backJson = new JSONObject();
+		int pagenum = 2;
+		int pagesize = 5;
+		int start = (pagenum-1)*pagesize;
+		int end = pagesize;
+		logger.info("start:"+start+",end:"+end);
+		List<UserInfo> userInfos = userInfo.getUserRolePageInfo(start, end); //userInfo.getUserRoleInfo();
+		if(userInfos.isEmpty()) {
+			logger.info("userroleinfo is null!");
+		}
+		int count = userInfo.CountUserRoleInfo();
+		backJson.put("PAGENUM", pagenum);
+		backJson.put("PAGESIZE", pagesize);
+		backJson.put("COUNT", count);
+		backJson.put("user", userInfos);
+		logger.info("BackJson:"+userInfos.size());
+		return backJson;
+	}
+	/***
+	 * 修改
+	 * @return
+	 */
+	@RequestMapping(value="test3")
+	@ResponseBody
+	public JSONObject getTest3() {
+		JSONObject backJson = new JSONObject();
+		String userName = "hanni";
+		int userId = 2;
+		int status = userInfo.updateUserInfo(userName, userId);
+		int count = userInfo.CountUserRoleInfo();
+		backJson.put("COUNT", count);
+		backJson.put("STATUS", status);
+		logger.info("BackJson:"+backJson);
+		return backJson;
+	}
+	
+	/***
+	 * 批量修改或添加
+	 * @return
+	 */
+	@RequestMapping(value="test4")
+	@ResponseBody
+	public JSONObject getTest4() {
+		JSONObject backJson = new JSONObject();
+		List<UserInfo> ulist = new ArrayList<UserInfo>();
+		UserInfo user1 = new UserInfo();
+		user1.setAddress("china1");
+		user1.setRole_id(1);
+		user1.setSex(1);
+		//user1.setUser_id(1);
+		user1.setUser_name("ningyi1");
+		ulist.add(user1);
+		UserInfo user2 = new UserInfo();
+		user2.setAddress("china2");
+		user2.setRole_id(1);
+		user2.setSex(1);
+		user2.setUser_name("ningyi2");
+		ulist.add(user2);
+		UserInfo user3 = new UserInfo();
+		user3.setAddress("china3");
+		user3.setRole_id(1);
+		user3.setSex(1);
+		user3.setUser_name("ningyi3");
+		ulist.add(user3);
+		int sts = userInfo.addUserInfo(ulist);		
+		backJson.put("STATUS", sts);
+		logger.info("BackJson:"+backJson);
+		return backJson;
+	}
+	
+	/***
+	 * ThreadPoolExecutor
+	 * 
+	 * @return
+	 * @throws ExecutionException 
+	 * @throws InterruptedException 
+	 */
+	@RequestMapping(value="test5")
+	@ResponseBody
+	public JSONObject getTest5() throws InterruptedException, ExecutionException {
+		JSONObject backJson = new JSONObject();
+		ThreadPoolExecutor threadPoolExecutor =new ThreadPoolExecutor(5, 100, 5000, TimeUnit.MILLISECONDS,new LinkedBlockingQueue<Runnable>(50),new ThreadPoolExecutor.AbortPolicy());
+		int count = userInfo.CountUserInfo();//userinfo count
+		logger.info("userinfo count: "+count);
+		//thread num
+		int threadnum = count;
+		int num = 3;
+		if(threadnum%3 == 0) {
+			threadnum = threadnum/num;
+		}else {
+			threadnum = threadnum/num +1;
+		}
+		logger.info("ThreadNum :"+threadnum);
+		StringBuilder sBuilder = new StringBuilder();
+		List<UserInfo> list = new ArrayList<UserInfo>();
+		for(int i = 0; i < threadnum ; i++) {
+			logger.info("cishu:"+i);
+			UserTask userTask = new UserTask(threadnum);
+			userTask.setStart(i*num);
+			userTask.setEnd(num);
+			Future future = threadPoolExecutor.submit(userTask);
+			List<UserInfo> ulist= (List<UserInfo>) future.get();
+			list.addAll(ulist);
+			
+		}
+        JSONArray jsonArray = new JSONArray();
+        for (UserInfo user : list) {
+            JSONObject tempJson = new JSONObject();
+            tempJson.put("user_id", user.getUser_id());
+            tempJson.put("user_name", user.getUser_name());
+            tempJson.put("address", user.getAddress());
+            tempJson.put("sex", user.getSex());            
+            jsonArray.add(tempJson);
+        }
+		backJson.put("List", jsonArray);
+		logger.info("BackJson:"+backJson);
+		return backJson;
+	}
+	
 }

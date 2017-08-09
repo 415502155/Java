@@ -33,7 +33,6 @@ import org.springframework.web.bind.annotation.*;
 import tk.mybatis.springboot.dao.gamb.TicketBetPrizeDao;
 import tk.mybatis.springboot.model.ReturnMsg;
 import tk.mybatis.springboot.model.TicketBetPrize;
-import tk.mybatis.springboot.util.MD5;
 
 
 import java.text.SimpleDateFormat;
@@ -86,7 +85,7 @@ public class TicketBetPrizeController {
         String betLine = ticketBetPrize.getBet_line();
         String prizeDetail = ticketBetPrize.getPrize_detail();
         String str = betTime+betMoney+terminalId+drawName+betLine+prizeDetail; 
-        String caHash = new MD5().digest(str, "MD5");
+        String caHash =""; //new MD5().digest(str, "MD5");
         backJson.put("returnCode", ReturnMsg.SUCCESS.getCode());
         backJson.put("returnMsg",ReturnMsg.SUCCESS.getMsg());
         Map<String, String> map = new LinkedHashMap<String, String>();
