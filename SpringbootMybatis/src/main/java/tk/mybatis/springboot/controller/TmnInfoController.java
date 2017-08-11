@@ -2,50 +2,35 @@ package tk.mybatis.springboot.controller;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-
 import javax.annotation.Resource;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.expression.MapAccessor;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.SetOperations;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.data.redis.core.ZSetOperations;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-
 import tk.mybatis.springboot.dao.vani.TmnInfoDao;
-
-//import com.alibaba.fastjson.JSONArray;
-//import com.alibaba.fastjson.JSONObject;
-
 import tk.mybatis.springboot.mapper.TmnInfoMapper;
 import tk.mybatis.springboot.mapper.UserInfoMapper;
 import tk.mybatis.springboot.model.UserInfo;
 import tk.mybatis.springboot.model.t_tmn_info;
-//import tk.mybatis.springboot.service.TmnInfoService;
-//import tk.mybatis.springboot.repository.TmnInfoRepository;
+import tk.mybatis.springboot.util.ReturnMsg;
 
 @RestController
 @RequestMapping("/tmn")
@@ -345,6 +330,31 @@ public class TmnInfoController {
         }
 		backJson.put("List", jsonArray);
 		logger.info("BackJson:"+backJson);
+		return backJson;
+	}
+	
+	@RequestMapping(value="test6")
+	@ResponseBody
+	public JSONObject test6(Integer id) {
+		JSONObject backJson = new JSONObject();
+		//int id = 1;
+		List<UserInfo> list = userInfo.getUserInfoById(id);
+		backJson.put("LIST", list);
+		backJson.put("CODE", ReturnMsg.SUCCESS.getCode());
+		backJson.put("MSG", ReturnMsg.SUCCESS.getMsg());
+		return backJson;
+	}
+	
+	@RequestMapping(value="test7")
+	@ResponseBody
+	public JSONObject test7() {
+		JSONObject backJson = new JSONObject();
+		String name = "QQ";
+		String soft = "user_id desc"; 
+		List<UserInfo> list = userInfo.getUserInfoByName(name,soft);
+		backJson.put("LIST", list);
+		backJson.put("CODE", ReturnMsg.SUCCESS.getCode());
+		backJson.put("MSG", ReturnMsg.SUCCESS.getMsg());
 		return backJson;
 	}
 	

@@ -43,9 +43,23 @@
 	<delete id="deleteById">
 		delete from t_user where id = #{id,jdbcType=NUMERIC}
 	</delete>
-	
-	<select id="queryAll" resultType="com.ibigsea.bootdao.entity.User">
-		select * from t_user
+	-->
+	<select id="getUserInfoById" resultType="tk.mybatis.springboot.model.UserInfo">
+		select * from t_user_info where 1 = 1
+		<if test="id != null and id != '' ">
+			and user_id = #{id}
+		</if>
+		<if test="id == null">
+			
+		</if>
 	</select>
-	 -->
+	<select id="getUserInfoByName" resultType="tk.mybatis.springboot.model.UserInfo">
+		select * from t_user_info where 1 = 1
+		<if test="name != null">
+			and user_name = #{name}
+		</if>
+		<if test="soft != null">
+			order by ${soft}
+		</if>
+	</select> 
 </mapper>

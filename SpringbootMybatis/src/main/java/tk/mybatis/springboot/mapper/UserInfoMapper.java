@@ -58,5 +58,9 @@ public interface UserInfoMapper{
 	int updateUserInfo(@Param("userName")String userName,@Param("userId")int userId);
 	
 	int addUserInfo(@Param("ulist")List<UserInfo> ulist);
+	
+	List<UserInfo> getUserInfoById(@Param("id")Integer id);
+	
+	List<UserInfo> getUserInfoByName(@Param("name")String name,@Param("soft")String soft);
 }
  
