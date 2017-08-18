@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="tk.mybatis.springboot.mapper.RoleMapper" >
+	<select id="getRoleList" resultType="tk.mybatis.springboot.model.RoleInfo">
+		SELECT * FROM t_role_info
+	</select>
+	<select id="getMenuId" resultType="tk.mybatis.springboot.model.MenuInfo">
+		SELECT menu_id FROM t_menu_info 
+	</select>
+	<select id="getMRId" resultType="tk.mybatis.springboot.model.RoleMenuInfo"> 
+		SELECT * FROM t_role_menu_info WHERE 
+		role_id = #{param.role_id} 
+		AND menu_id = #{param.menu_id}
+	</select>
+	<update id="updateRole" parameterType="tk.mybatis.springboot.model.UserInfo">
+		UPDATE t_user_info SET role_id = #{user.role_id} WHERE user_name = #{user.user_name}	
+	</update>
+	<insert id="addAll" useGeneratedKeys="true" parameterType="java.util.List">
+		INSERT INTO t_role_menu_info (role_id,menu_id) VALUE
+		<foreach collection="roleM" item="data" separator="," index = "index">
+            (#{data.role_id},#{data.menu_id})
+        </foreach> 
+	</insert>
+</mapper>

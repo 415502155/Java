@@ -12,10 +12,10 @@
 	-->
 	<!-- 批量添加  参数为List<UserInfo> -->
 	 <insert id="addUserInfo" useGeneratedKeys="true" parameterType="java.util.List"> 
-        INSERT INTO t_user_info(user_name, sex, address,role_id) 
+        INSERT INTO t_user_info(user_name, sex, address,role_id,user_pass) 
         VALUES
         <foreach collection="ulist" item="data" separator="," index = "index">
-            (#{data.user_name},#{data.sex},#{data.address},#{data.role_id})
+            (#{data.user_name},#{data.sex},#{data.address},#{data.role_id},#{data.user_pass})
         </foreach>
 
     </insert>
@@ -29,17 +29,26 @@
 	</select>
 	
 	<select id="getUserRolePageInfo" resultType="tk.mybatis.springboot.model.UserInfo">
-		SELECT * FROM t_user_info a, t_role_info b where a.role_id = b.r_id limit #{start},#{end}
+		SELECT * FROM t_user_info a, t_role_info b where a.role_id = b.role_id limit #{start},#{end}
 	</select>	
 	
+	<select id="checkUserName" resultType="java.lang.Integer">
+		SELECT * FROM t_user_info WHERE user_name = #{userName}
+	</select>
+	<select id="getUserRoleMenu" resultType="tk.mybatis.springboot.model.UserRoleMenuInfo">
+		SELECT r.role_id, r.mr_id, m.menu_id, m.p_id, m.menu_name FROM t_role_menu_info r ,t_menu_info m WHERE r.menu_id = m.menu_id AND role_id = 
+		(SELECT role_id FROM t_user_info m WHERE m.user_name = #{userName} ) 
+	</select>
+	<select id="getUserRoleMenu1" resultType="tk.mybatis.springboot.model.UserInfo">
+	select * from t_user_info
+	</select>
 	<!-- 
 	<update id="updateById" parameterType="com.ibigsea.bootdao.entity.User">
 		update t_user set  
 		username = #{userName,jdbcType=VARCHAR} ,
 		age = #{age,jdbcType=NUMERIC}
 		where id = #{id,jdbcType=NUMERIC}
-	</update>
-	
+	</update>	
 	<delete id="deleteById">
 		delete from t_user where id = #{id,jdbcType=NUMERIC}
 	</delete>

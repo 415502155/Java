@@ -33,10 +33,17 @@ public class UserInfo {
     private String user_name;
     private String address;
     private int sex;
-    
-    
-    private int role_id;
+    private String user_pass;
+	private int role_id;
     private String role_name;
+    
+    public String getUser_pass() {
+		return user_pass;
+	}
+	public void setUser_pass(String user_pass) {
+		this.user_pass = user_pass;
+	}
+
 	public int getRole_id() {
 		return role_id;
 	}

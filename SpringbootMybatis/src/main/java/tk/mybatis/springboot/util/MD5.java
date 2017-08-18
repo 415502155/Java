@@ -2,14 +2,14 @@ package tk.mybatis.springboot.util;
 
 import java.security.MessageDigest;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 /**
  * md5摘要算法
  *
- * @author chenliping
+ * @author 
  */
 public class MD5 {
 

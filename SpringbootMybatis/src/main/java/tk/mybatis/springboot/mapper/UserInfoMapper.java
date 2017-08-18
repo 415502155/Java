@@ -32,6 +32,7 @@ import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
 import tk.mybatis.springboot.model.UserInfo;
+import tk.mybatis.springboot.model.UserRoleMenuInfo;
 
 @Mapper
 public interface UserInfoMapper{
@@ -43,10 +44,10 @@ public interface UserInfoMapper{
 	
 	List<UserInfo> getPageUserInfo(@Param("start")int start,@Param("end")int end);
 	
-	@Select("SELECT * FROM t_user_info a, t_role_info b where a.role_id = b.r_id")
+	@Select("SELECT * FROM t_user_info a, t_role_info b where a.role_id = b.role_id")
 	List<UserInfo> getUserRoleInfo();
 	
-	@Select("select count(1) from t_user_info a, t_role_info b where a.role_id = b.r_id")
+	@Select("select count(1) from t_user_info a, t_role_info b where a.role_id = b.role_id")
 	int CountUserRoleInfo();
 	
 	@Select("select count(1) from t_user_info")
@@ -56,11 +57,17 @@ public interface UserInfoMapper{
 	
 	@Update("update t_user_info set user_name = #{userName} where user_id = #{userId}")
 	int updateUserInfo(@Param("userName")String userName,@Param("userId")int userId);
-	
+	//校验所添加的信息是否有重复的user_name
+	int checkUserName(@Param("userName")String userName);
+	//批量注册
 	int addUserInfo(@Param("ulist")List<UserInfo> ulist);
 	
 	List<UserInfo> getUserInfoById(@Param("id")Integer id);
 	
 	List<UserInfo> getUserInfoByName(@Param("name")String name,@Param("soft")String soft);
+	
+	List<UserRoleMenuInfo> getUserRoleMenu(@Param("userName")String userName); 
+	
+	List<UserInfo> getUserRoleMenu1(@Param("userName")String userName); 
 }
  

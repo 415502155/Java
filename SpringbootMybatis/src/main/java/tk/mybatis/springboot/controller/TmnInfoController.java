@@ -1,5 +1,9 @@
 package tk.mybatis.springboot.controller;
 
+import static org.assertj.core.api.Assertions.in;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.log;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -11,6 +15,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Resource;
+
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.HashOperations;
@@ -21,15 +27,21 @@ import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+
 import tk.mybatis.springboot.dao.vani.TmnInfoDao;
 import tk.mybatis.springboot.mapper.TmnInfoMapper;
 import tk.mybatis.springboot.mapper.UserInfoMapper;
 import tk.mybatis.springboot.model.UserInfo;
 import tk.mybatis.springboot.model.t_tmn_info;
+import tk.mybatis.springboot.util.MD5;
 import tk.mybatis.springboot.util.ReturnMsg;
 
 @RestController
@@ -39,8 +51,8 @@ public class TmnInfoController {
 	@Autowired
 	TmnInfoMapper tmnnfoMapper;
 	
-	@Autowired
-	TmnInfoDao tmninfoDao;
+//	@Autowired
+//	TmnInfoDao tmninfoDao;
 	
 	@Autowired
 	UserInfoMapper userInfo;
@@ -169,14 +181,14 @@ public class TmnInfoController {
 		System.out.println(list.get(0).getLinkman());
 		return "success";
 	}
-	@RequestMapping(value="getinfo")
-	@ResponseBody
-	public String getTmnInfoList() {
-		int start = 1;
-		int end = 10;
-		List<t_tmn_info> tmnList = tmninfoDao.getAll(end, start);
-		return "suc";
-	}
+//	@RequestMapping(value="getinfo")
+//	@ResponseBody
+//	public String getTmnInfoList() {
+//		int start = 1;
+//		int end = 10;
+//		List<t_tmn_info> tmnList = tmninfoDao.getAll(end, start);
+//		return "suc";
+//	}
 	
 	@RequestMapping(value="test")
 	@ResponseBody
@@ -202,7 +214,19 @@ public class TmnInfoController {
 		if(userInfos.isEmpty()) {
 			logger.info("userinfo is null!");
 		}
-		backJson.put("user", userInfos);
+
+		JSONArray jsonArray = new JSONArray();
+        for (UserInfo user : userInfos) {
+            JSONObject tempJson = new JSONObject();
+            tempJson.put("user_id", user.getUser_id());
+            tempJson.put("user_name", user.getUser_name());
+            tempJson.put("address", user.getAddress());
+            tempJson.put("sex", user.getSex());            
+            tempJson.put("role_name", user.getRole_name());
+            tempJson.put("role_id", user.getRole_id());
+            jsonArray.add(tempJson);
+        }
+        backJson.put("LIST", jsonArray);
 		logger.info("BackJson:"+backJson);
 		return backJson;
 	}
@@ -355,6 +379,109 @@ public class TmnInfoController {
 		backJson.put("LIST", list);
 		backJson.put("CODE", ReturnMsg.SUCCESS.getCode());
 		backJson.put("MSG", ReturnMsg.SUCCESS.getMsg());
+		return backJson;
+	}
+	/***
+	 * 批量注册
+	 * md5(base64)
+	 * 应该先判断当前用户表中的user_name是否有重复的
+	 * 假如有相同的用户，停止该操作
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value="/test8")
+	@ResponseBody
+	public JSONObject regist() throws Exception {
+		JSONObject backJson = new JSONObject();
+		List<UserInfo> ulist = new ArrayList<UserInfo>();
+		UserInfo user1 = new UserInfo();
+		user1.setAddress("Beijig");
+		user1.setRole_id(1);
+		user1.setSex(1);
+		//user1.setUser_id(1);
+		user1.setUser_name("zhangsan");
+		String pass1 = "123456789";
+		user1.setUser_pass(new MD5().digest(pass1, "MD5"));
+		ulist.add(user1);
+		UserInfo user2 = new UserInfo();
+		user2.setAddress("chaoyang");
+		user2.setRole_id(1);
+		user2.setSex(1);
+		user2.setUser_name("zhaoqi");
+		String pass2 = "123456789";
+		user2.setUser_pass(new MD5().digest(pass2, "MD5"));
+		ulist.add(user2);
+		UserInfo user3 = new UserInfo();
+		user3.setAddress("haidian");
+		user3.setRole_id(1);
+		user3.setSex(1);
+		user3.setUser_name("lisi");
+		String pass3 = "10086";
+		user3.setUser_pass(new MD5().digest(pass3, "MD5"));
+		ulist.add(user3);
+		//校验所添加的用户信息中是否有重复的user_name
+		String[] strArray={user1.getUser_name(),user2.getUser_name(),user3.getUser_name()};
+		for(int i =0 ; i<strArray.length; i++) {
+			logger.info("names:"+strArray[i]);
+			int WhetherToRepeat = userInfo.checkUserName(strArray[i]);
+			logger.info("check username num :"+WhetherToRepeat);
+			if(WhetherToRepeat != 0) {
+				backJson.put("CODE", 0);
+				backJson.put("MSG", "add userinfo of username is repeat");
+				return backJson;
+			}
+		}
+		
+		try {
+			int sts = userInfo.addUserInfo(ulist);		
+			backJson.put("STATUS", sts);
+		} catch (Exception e) {
+			// TODO: handle exception
+			backJson.put("CODE", ReturnMsg.SALE_TICKET_EXCEPTION.getCode());
+			backJson.put("MSG", ReturnMsg.SALE_TICKET_EXCEPTION.getMsg());
+			logger.info("EX:",e);
+			return backJson;
+		}
+
+		backJson.put("CODE", ReturnMsg.SUCCESS.getCode());
+		backJson.put("MSG", ReturnMsg.SUCCESS.getMsg());
+		return backJson;
+	}
+	/***
+	 * login
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value="/login")
+	@ResponseBody
+	public JSONObject login(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		HttpSession session = request.getSession();
+//		ServletInputStream inputStream = request.getInputStream();
+//		String param = IOUtils.toString(inputStream);
+//		JSONObject json = JSONObject.parseObject(param);//转为json
+//		String nString = String.valueOf(json.get("USERNAME"));
+		JSONObject backJson = new JSONObject();
+		String pass = "123456789";
+		String mpass = new MD5().digest(pass, "MD5");
+		String userName = "shy";
+		if(null == pass || userName == null) {
+			return backJson;
+		}
+		List<UserInfo> list = userInfo.findUserInfo();
+		if(list.isEmpty()) {
+			return backJson;
+		}
+		for(UserInfo user: list) {
+			if(userName.equals(user.getUser_name())  && mpass.equals(user.getUser_pass()) ) {
+				
+				session.setAttribute("user", user.getUser_name());
+				session.setAttribute("pass", user.getUser_pass());
+				logger.info("session:"+session.getAttribute("user")+",pass:"+session.getAttribute("pass"));
+				backJson.put("CODE", ReturnMsg.SUCCESS.getCode());
+				backJson.put("MSG", ReturnMsg.SUCCESS.getMsg());
+				return backJson;
+			}
+		}
 		return backJson;
 	}
 	

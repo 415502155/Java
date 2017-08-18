@@ -25,23 +25,30 @@
 package tk.mybatis.springboot.model;
 
 /**
- * 角色信息
+ * 菜单信息
  *
  */
-public class RoleInfo extends BaseEntity {
-    private int role_id;
-    private String role_name;
-	public int getRole_id() {
-		return role_id;
+public class MenuInfo extends BaseEntity {
+    private int menu_id;
+    private String menu_name;
+	private int p_id;
+	public int getMenu_id() {
+		return menu_id;
 	}
-	public void setRole_id(int role_id) {
-		this.role_id = role_id;
+	public void setMenu_id(int menu_id) {
+		this.menu_id = menu_id;
 	}
-	public String getRole_name() {
-		return role_name;
+	public String getMenu_name() {
+		return menu_name;
 	}
-	public void setRole_name(String role_name) {
-		this.role_name = role_name;
+	public void setMenu_name(String menu_name) {
+		this.menu_name = menu_name;
 	}
-	    
+	public int getP_id() {
+		return p_id;
+	}
+	public void setP_id(int p_id) {
+		this.p_id = p_id;
+	}
+	
 }
