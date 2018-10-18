@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+    <!-- UnivMeta-->
+    <bean id="univMetaDataSource" class="com.alibaba.druid.pool.DruidDataSource"
+          init-method="init" destroy-method="close">
+        <property name="driverClassName" value="${jdbc.connection.driverClassName}" />
+        <property name="url" value="${jdbc.univmeta.master.connection.url}" />
+        <property name="username" value="${jdbc.univmeta.master.connection.username}" />
+        <property name="password" value="${jdbc.univmeta.master.connection.password}" />
+        <property name="filters" value="${jdbc.univmeta.master.connection.filters}" />
+        <property name="maxActive" value="${jdbc.univmeta.master.connection.maxActive}" />
+        <property name="initialSize" value="${jdbc.univmeta.master.connection.initialSize}" />
+        <property name="maxWait" value="${jdbc.univmeta.master.connection.maxWait}" />
+        <property name="minIdle" value="${jdbc.univmeta.master.connection.minIdle}" />
+        <property name="timeBetweenEvictionRunsMillis" value="${jdbc.univmeta.master.connection.timeBetweenEvictionRunsMillis}" />
+        <property name="minEvictableIdleTimeMillis" value="${jdbc.univmeta.master.connection.minEvictableIdleTimeMillis}" />
+        <property name="validationQuery" value="${jdbc.univmeta.master.connection.validationQuery}" />
+        <property name="testWhileIdle"   value="${jdbc.univmeta.master.connection.testWhileIdle}" />
+        <property name="testOnBorrow" value="${jdbc.univmeta.master.connection.testOnBorrow}" />
+        <property name="testOnReturn" value="${jdbc.univmeta.master.connection.testOnReturn}" />
+        <property name="poolPreparedStatements" value="${jdbc.univmeta.master.connection.poolPreparedStatements}" />
+        <property name="maxPoolPreparedStatementPerConnectionSize" value="${jdbc.univmeta.master.connection.maxPoolPreparedStatementPerConnectionSize}" />
+    </bean>
+    
+    
+    <!-- term -->
+    <bean id="univTermDataSource" class="com.alibaba.druid.pool.DruidDataSource"
+          init-method="init" destroy-method="close">
+        <property name="driverClassName" value="${jdbc.connection.driverClassName}" />
+        <property name="url" value="${jdbc.univterm.master.connection.url}" />
+        <property name="username" value="${jdbc.univterm.master.connection.username}" />
+        <property name="password" value="${jdbc.univterm.master.connection.password}" />
+        <property name="filters" value="${jdbc.univterm.master.connection.filters}" />
+        <property name="maxActive" value="${jdbc.univterm.master.connection.maxActive}" />
+        <property name="initialSize" value="${jdbc.univterm.master.connection.initialSize}" />
+        <property name="maxWait" value="${jdbc.univterm.master.connection.maxWait}" />
+        <property name="minIdle" value="${jdbc.univterm.master.connection.minIdle}" />
+        <property name="timeBetweenEvictionRunsMillis"
+                  value="${jdbc.univterm.master.connection.timeBetweenEvictionRunsMillis}" />
+        <property name="minEvictableIdleTimeMillis"
+                  value="${jdbc.univterm.master.connection.minEvictableIdleTimeMillis}" />
+        <property name="validationQuery"
+                  value="${jdbc.univterm.master.connection.validationQuery}" />
+        <property name="testWhileIdle" value="${jdbc.univterm.master.connection.testWhileIdle}" />
+        <property name="testOnBorrow" value="${jdbc.univterm.master.connection.testOnBorrow}" />
+        <property name="testOnReturn" value="${jdbc.univterm.master.connection.testOnReturn}" />
+        <property name="poolPreparedStatements"
+                  value="${jdbc.univterm.master.connection.poolPreparedStatements}" />
+        <property name="maxPoolPreparedStatementPerConnectionSize"
+                  value="${jdbc.univterm.master.connection.maxPoolPreparedStatementPerConnectionSize}" />
+    </bean>
+    
+    <!-- gamb -->
+    <bean destroy-method="close" init-method="init" class="com.alibaba.druid.pool.DruidDataSource" id="univGambDataSource">
+        <property value="${jdbc.connection.driverClassName}" name="driverClassName"/>
+        <property value="${jdbc.univgamb.master.connection.url}" name="url"/>
+        <property value="${jdbc.univgamb.master.connection.username}" name="username"/>
+        <property value="${jdbc.univgamb.master.connection.password}" name="password"/>
+        <property value="${jdbc.univgamb.master.connection.filters}" name="filters"/>
+        <property value="${jdbc.univgamb.master.connection.maxActive}" name="maxActive"/>
+        <property value="${jdbc.univgamb.master.connection.initialSize}" name="initialSize"/>
+        <property value="${jdbc.univgamb.master.connection.maxWait}" name="maxWait"/>
+        <property value="${jdbc.univgamb.master.connection.minIdle}" name="minIdle"/>
+        <property value="${jdbc.univgamb.master.connection.timeBetweenEvictionRunsMillis}" name="timeBetweenEvictionRunsMillis"/>
+        <property value="${jdbc.univgamb.master.connection.minEvictableIdleTimeMillis}" name="minEvictableIdleTimeMillis"/>
+        <property value="${jdbc.univgamb.master.connection.validationQuery}" name="validationQuery"/>
+        <property value="${jdbc.univgamb.master.connection.testWhileIdle}" name="testWhileIdle"/>
+        <property value="${jdbc.univgamb.master.connection.testOnBorrow}" name="testOnBorrow"/>
+        <property value="${jdbc.univgamb.master.connection.testOnReturn}" name="testOnReturn"/>
+        <property value="${jdbc.univgamb.master.connection.poolPreparedStatements}" name="poolPreparedStatements"/>
+        <property value="${jdbc.univgamb.master.connection.maxPoolPreparedStatementPerConnectionSize}" name="maxPoolPreparedStatementPerConnectionSize"/>
+    </bean>
+
+    <!-- UnivVani-->
+    <bean id="univVaniDataSource" class="com.alibaba.druid.pool.DruidDataSource"
+          init-method="init" destroy-method="close">
+        <property name="driverClassName" value="${jdbc.connection.driverClassName}" />
+        <property name="url" value="${jdbc.univvani.master.connection.url}" />
+        <property name="username" value="${jdbc.univvani.master.connection.username}" />
+        <property name="password" value="${jdbc.univvani.master.connection.password}" />
+        <property name="filters" value="${jdbc.univvani.master.connection.filters}" />
+        <property name="maxActive" value="${jdbc.univvani.master.connection.maxActive}" />
+        <property name="initialSize" value="${jdbc.univvani.master.connection.initialSize}" />
+        <property name="maxWait" value="${jdbc.univvani.master.connection.maxWait}" />
+        <property name="minIdle" value="${jdbc.univvani.master.connection.minIdle}" />
+        <property name="timeBetweenEvictionRunsMillis"
+                  value="${jdbc.univvani.master.connection.timeBetweenEvictionRunsMillis}" />
+        <property name="minEvictableIdleTimeMillis"
+                  value="${jdbc.univvani.master.connection.minEvictableIdleTimeMillis}" />
+        <property name="validationQuery"
+                  value="${jdbc.univvani.master.connection.validationQuery}" />
+        <property name="testWhileIdle" value="${jdbc.univvani.master.connection.testWhileIdle}" />
+        <property name="testOnBorrow" value="${jdbc.univvani.master.connection.testOnBorrow}" />
+        <property name="testOnReturn" value="${jdbc.univvani.master.connection.testOnReturn}" />
+        <property name="poolPreparedStatements"
+                  value="${jdbc.univvani.master.connection.poolPreparedStatements}" />
+        <property name="maxPoolPreparedStatementPerConnectionSize"
+                  value="${jdbc.univvani.master.connection.maxPoolPreparedStatementPerConnectionSize}" />
+    </bean>
+    
+
+</beans>

@@ -1,0 +1,154 @@
+2016-07-08 18:14:09,053 -[INFO] create HttpGet:https://tcc.taobao.com/cc/json/mobile_tel_segment.htm?tel=18310545658
+2016-07-08 18:14:09,058 -[INFO] execute post...
+2016-07-08 18:14:10,082 -[INFO] get response from http server..
+2016-07-08 18:14:10,082 -[INFO] response status: HTTP/1.1 200 OK
+2016-07-08 18:14:10,085 -[INFO] __GetZoneResult_ = {
+    mts:'1831054',
+    province:'北京',
+    catName:'中国移动',
+    telString:'18310545658',
+	areaVid:'29400',
+	ispVid:'3236139',
+	carrier:'北京移动'
+}
+
+2016-07-08 18:15:14,056 -[INFO] create HttpGet:https://tcc.taobao.com/cc/json/mobile_tel_segment.htm?tel=18310545658
+2016-07-08 18:15:14,060 -[INFO] execute post...
+2016-07-08 18:15:14,917 -[INFO] get response from http server..
+2016-07-08 18:15:14,918 -[INFO] response status: HTTP/1.1 200 OK
+2016-07-08 18:15:14,920 -[INFO] __GetZoneResult_ = {
+    mts:'1831054',
+    province:'北京',
+    catName:'中国移动',
+    telString:'18310545658',
+	areaVid:'29400',
+	ispVid:'3236139',
+	carrier:'北京移动'
+}
+
+2016-07-08 18:16:33,997 -[INFO] create HttpGet:https://tcc.taobao.com/cc/json/mobile_tel_segment.htm?tel=18310545658
+2016-07-08 18:16:34,001 -[INFO] execute post...
+2016-07-08 18:16:34,969 -[INFO] get response from http server..
+2016-07-08 18:16:34,969 -[INFO] response status: HTTP/1.1 200 OK
+2016-07-08 18:16:34,972 -[INFO] __GetZoneResult_ = {
+    mts:'1831054',
+    province:'北京',
+    catName:'中国移动',
+    telString:'18310545658',
+	areaVid:'29400',
+	ispVid:'3236139',
+	carrier:'北京移动'
+}
+
+2016-07-08 18:17:14,731 -[INFO] create HttpGet:https://tcc.taobao.com/cc/json/mobile_tel_segment.htm?tel=18310545658
+2016-07-08 18:17:14,734 -[INFO] execute post...
+2016-07-08 18:17:15,557 -[INFO] get response from http server..
+2016-07-08 18:17:15,558 -[INFO] response status: HTTP/1.1 200 OK
+2016-07-08 18:17:15,562 -[INFO] __GetZoneResult_ = {
+    mts:'1831054',
+    province:'北京',
+    catName:'中国移动',
+    telString:'18310545658',
+	areaVid:'29400',
+	ispVid:'3236139',
+	carrier:'北京移动'
+}
+
+2016-07-08 18:17:27,399 -[INFO] create HttpGet:https://tcc.taobao.com/cc/json/mobile_tel_segment.htm?tel=18310545658
+2016-07-08 18:17:27,403 -[INFO] execute post...
+2016-07-08 18:17:28,412 -[INFO] get response from http server..
+2016-07-08 18:17:28,413 -[INFO] response status: HTTP/1.1 200 OK
+2016-07-08 18:17:28,417 -[INFO] __GetZoneResult_ = {
+    mts:'1831054',
+    province:'北京',
+    catName:'中国移动',
+    telString:'18310545658',
+	areaVid:'29400',
+	ispVid:'3236139',
+	carrier:'北京移动'
+}
+
+2016-07-08 18:17:41,716 -[INFO] create HttpGet:https://tcc.taobao.com/cc/json/mobile_tel_segment.htm?tel=18310545658
+2016-07-08 18:17:41,719 -[INFO] execute post...
+2016-07-08 18:17:42,705 -[INFO] get response from http server..
+2016-07-08 18:17:42,705 -[INFO] response status: HTTP/1.1 200 OK
+2016-07-08 18:17:42,710 -[INFO] __GetZoneResult_ = {
+    mts:'1831054',
+    province:'北京',
+    catName:'中国移动',
+    telString:'18310545658',
+	areaVid:'29400',
+	ispVid:'3236139',
+	carrier:'北京移动'
+}
+
+2016-07-08 18:18:42,780 -[INFO] create HttpGet:https://tcc.taobao.com/cc/json/mobile_tel_segment.htm?tel=18310545658
+2016-07-08 18:18:42,784 -[INFO] execute post...
+2016-07-08 18:18:43,729 -[INFO] get response from http server..
+2016-07-08 18:18:43,729 -[INFO] response status: HTTP/1.1 200 OK
+2016-07-08 18:18:43,731 -[INFO] __GetZoneResult_ = {
+    mts:'1831054',
+    province:'北京',
+    catName:'中国移动',
+    telString:'18310545658',
+	areaVid:'29400',
+	ispVid:'3236139',
+	carrier:'北京移动'
+}
+
+2016-07-08 18:19:25,502 -[INFO] create HttpGet:https://tcc.taobao.com/cc/json/mobile_tel_segment.htm?tel=18310545658
+2016-07-08 18:19:25,505 -[INFO] execute post...
+2016-07-08 18:19:26,527 -[INFO] get response from http server..
+2016-07-08 18:19:26,527 -[INFO] response status: HTTP/1.1 200 OK
+2016-07-08 18:19:26,527 -[INFO] __GetZoneResult_ = {
+    mts:'1831054',
+    province:'北京',
+    catName:'中国移动',
+    telString:'18310545658',
+	areaVid:'29400',
+	ispVid:'3236139',
+	carrier:'北京移动'
+}
+
+2016-07-08 18:20:27,172 -[INFO] create HttpGet:https://tcc.taobao.com/cc/json/mobile_tel_segment.htm?tel=15145725230
+2016-07-08 18:20:27,176 -[INFO] execute post...
+2016-07-08 18:20:28,076 -[INFO] get response from http server..
+2016-07-08 18:20:28,077 -[INFO] response status: HTTP/1.1 200 OK
+2016-07-08 18:20:28,080 -[INFO] __GetZoneResult_ = {
+    mts:'1514572',
+    province:'黑龙江',
+    catName:'中国移动',
+    telString:'15145725230',
+	areaVid:'30496',
+	ispVid:'3236139',
+	carrier:'黑龙江移动'
+}
+
+2016-07-08 18:39:51,726 -[INFO] create HttpGet:https://tcc.taobao.com/cc/json/mobile_tel_segment.htm?tel=15145725230
+2016-07-08 18:39:51,730 -[INFO] execute post...
+2016-07-08 18:39:52,659 -[INFO] get response from http server..
+2016-07-08 18:39:52,659 -[INFO] response status: HTTP/1.1 200 OK
+2016-07-08 18:39:52,662 -[INFO] __GetZoneResult_ = {
+    mts:'1514572',
+    province:'黑龙江',
+    catName:'中国移动',
+    telString:'15145725230',
+	areaVid:'30496',
+	ispVid:'3236139',
+	carrier:'黑龙江移动'
+}
+
+2016-07-08 18:41:42,226 -[INFO] create HttpGet:https://tcc.taobao.com/cc/json/mobile_tel_segment.htm?tel=15145725230
+2016-07-08 18:41:42,229 -[INFO] execute post...
+2016-07-08 18:41:43,209 -[INFO] get response from http server..
+2016-07-08 18:41:43,209 -[INFO] response status: HTTP/1.1 200 OK
+2016-07-08 18:41:43,211 -[INFO] __GetZoneResult_ = {
+    mts:'1514572',
+    province:'黑龙江',
+    catName:'中国移动',
+    telString:'15145725230',
+	areaVid:'30496',
+	ispVid:'3236139',
+	carrier:'黑龙江移动'
+}
+

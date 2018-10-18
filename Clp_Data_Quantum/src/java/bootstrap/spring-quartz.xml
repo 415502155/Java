@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
+         
+    <!-- Auto Cash Quartz start -->
+    <bean id="autoCashQuartz" class="com.bestinfo.quartz.AutoCashQuartz"/>
+    <bean id="autoCashDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject">
+            <ref bean="autoCashQuartz" />
+        </property>
+        <property name="targetMethod">
+            <value>masterThread</value> 
+        </property>
+    </bean>
+    <bean id="autoCashTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail">
+            <ref bean="autoCashDetail" />
+        </property>
+        <property name="cronExpression">
+            <value>0 0 15 * * ?</value>
+        </property>
+    </bean>
+    <!-- Auto Cash Quartz end -->
+    
+    <!-- Terminalkey Quartz start -->
+    <bean id="TerminalkeyQuartz" class="com.bestinfo.quartz.TerminalkeyQuartz"/>
+    <bean id="TerminalkeyDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject">
+            <ref bean="TerminalkeyQuartz" />
+        </property>
+        <property name="targetMethod">
+            <value>masterThread</value> 
+        </property>
+    </bean>
+    <bean id="TerminalkeyTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail">
+            <ref bean="TerminalkeyDetail" />
+        </property>
+        <property name="cronExpression">
+            <value>* * 23 * * ?</value>
+        </property>
+    </bean>
+    <!-- Auto Cash Quartz end -->
+    
+    <bean id="schedulerFactory" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <property name="triggers">
+            <list>
+                <ref local="autoCashTrigger" />
+                <ref local="TerminalkeyTrigger" />
+            </list>
+        </property>
+        <property name="startupDelay" value="1"></property>  
+    </bean>
+</beans>

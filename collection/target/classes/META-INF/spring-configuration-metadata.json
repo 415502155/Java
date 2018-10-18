@@ -1,0 +1,38 @@
+{
+  "groups": [
+    {
+      "name": "config",
+      "type": "com.java.collection.config.Config",
+      "sourceType": "com.java.collection.config.Config"
+    },
+    {
+      "name": "spring.datasource",
+      "type": "javax.sql.DataSource",
+      "sourceType": "com.java.collection.App",
+      "sourceMethod": "public javax.sql.DataSource dataSource() "
+    }
+  ],
+  "properties": [
+    {
+      "name": "config.host",
+      "type": "java.lang.String",
+      "sourceType": "com.java.collection.config.Config"
+    },
+    {
+      "name": "config.password",
+      "type": "java.lang.String",
+      "sourceType": "com.java.collection.config.Config"
+    },
+    {
+      "name": "config.url",
+      "type": "java.lang.String",
+      "sourceType": "com.java.collection.config.Config"
+    },
+    {
+      "name": "config.username",
+      "type": "java.lang.String",
+      "sourceType": "com.java.collection.config.Config"
+    }
+  ],
+  "hints": []
+}

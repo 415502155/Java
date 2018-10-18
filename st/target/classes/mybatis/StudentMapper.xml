@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.guoan.demo.mapper.StudentMapper">
+	<sql id="Student_Base_Column_List">
+		ID,NAME,C_ID,CNAME    
+  	</sql>
+  	<sql id="Class_Base_Column_List">
+		ID,NAME   
+  	</sql>
+	<resultMap id="StudentResultMap" type="com.guoan.demo.vo.StudentVo" >
+		<id column="ID" property="id" jdbcType="BIGINT"/>
+	    <result column="NAME" property="name" jdbcType="VARCHAR" />
+	    <result column="C_ID" property="cId" jdbcType="INTEGER" />
+	    <result column="CLASS_NAME" property="className" jdbcType="VARCHAR" />
+  	</resultMap>
+  	
+  	<resultMap id="ClassResultMap" type="com.guoan.demo.entity.Class" >
+		<id column="ID" property="id" jdbcType="BIGINT"/>
+	    <result column="NAME" property="name" jdbcType="VARCHAR" />
+  	</resultMap>
+  	
+	<!-- 添加学生 -->
+	<insert id="addStudent" parameterType="com.guoan.demo.entity.Student">
+  		INSERT INTO STUDENT
+  			(NAME,C_ID)
+  		VALUES
+  			(#{name, jdbcType=VARCHAR},#{cId,jdbcType=INTEGER});
+	</insert>
+	<!-- 查询所有学生 -->
+	<select id="searchAllStudent" resultMap="StudentResultMap">
+		SELECT S.ID,S.NAME,S.C_ID,S.AVAILABLE,C.NAME AS CLASS_NAME 
+			FROM STUDENT S LEFT JOIN CLASS C 
+			ON  S.C_ID=C.ID WHERE S.AVAILABLE = 1;
+	</select> 
+	<!-- 通过班级查询学生 -->
+	<select id="searchStudentByClass" parameterType="java.lang.Integer" resultMap="StudentResultMap">
+		SELECT S.ID,S.NAME,S.C_ID,S.AVAILABLE,C.NAME AS CLASS_NAME 
+			FROM STUDENT S LEFT JOIN CLASS C 
+			ON  S.C_ID=C.ID WHERE S.AVAILABLE = 1 AND C_ID = #{cId,jdbcType=INTEGER};
+	</select> 
+		
+ 	<!-- 获取班级信息 -->
+ 	<select id="getClassList" resultMap="ClassResultMap">
+ 		SELECT
+	    <include refid="Class_Base_Column_List" />
+	    FROM CLASS WHERE AVAILABLE = 1 ORDER BY ID ASC;
+ 	</select>
+ 	<!-- 修改学生姓名 -->
+ 	<update id="editStudent" parameterType="com.guoan.demo.entity.Student">
+ 		UPDATE STUDENT 
+ 			SET NAME = #{name, jdbcType=VARCHAR}
+ 			WHERE ID = #{id,jdbcType=BIGINT}
+ 	</update>
+ 	<!-- 删除学生 -->
+ 	<update id="deleteStudent" parameterType="java.lang.Long">
+ 		UPDATE STUDENT
+ 			SET AVAILABLE = 0
+ 			WHERE ID = #{cId,jdbcType=BIGINT}
+ 	</update>
+ 	<!-- 根据学生姓名查询学生 -->
+ 	<select id="searchStudentByName" parameterType="java.lang.String" resultMap="StudentResultMap">
+		SELECT S.ID,S.NAME,S.C_ID,S.AVAILABLE,C.NAME AS CLASS_NAME 
+		FROM STUDENT S LEFT JOIN CLASS C 
+		ON  S.C_ID=C.ID WHERE S.AVAILABLE = 1
+		<if test="_parameter !=null and _parameter != ''">
+  	 		AND S.NAME LIKE CONCAT('%',#{name, jdbcType=VARCHAR},'%' )
+  		</if>
+		
+ 	</select>
+ 	
+ 	
+ 	
+ 	
+ 	
+ 	
+ 	
+ 	
+ 	
+ 	
+ 	
+</mapper>

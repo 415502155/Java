@@ -1,0 +1,17 @@
+@charset "utf-8";
+/* 学生操作 */
+#class_list li{
+	list-style: none;
+}
+#class_list_template{
+	display: none;
+}
+.return{
+	color:red;
+}
+#student_list li{
+	list-style: none;
+}
+#student_list_template{
+	display: none;
+}

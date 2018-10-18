@@ -1,0 +1,178 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+package com.bestinfo.controller.clpdata;
+
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.bestinfo.bean.ticket.TicketBet;
+import com.bestinfo.service.clpdata.ITicketBetInfoSer;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import org.apache.log4j.Logger;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+/**
+ *
+ * @author Administrator
+ */
+@Controller
+@RequestMapping(value = "/ticket")
+public class TacketBetInfoCtr {
+     private final Logger logger = Logger.getLogger(TacketBetInfoCtr.class);
+
+    @Resource
+    private ITicketBetInfoSer ttfs;
+    private static int state = 0;
+    private int ts=5;
+    Integer game_id=1;
+    Integer draw_id=30;
+    /**
+     * queryall
+     * @param request
+     * @return 
+     */
+    @RequestMapping(value = "/queryall")
+    @ResponseBody
+    public String queryInfo(HttpServletRequest request) {   //  
+        //Integer game_id=Integer.parseInt(request.getParameter("game_id"));
+        //Integer draw_id=Integer.parseInt(request.getParameter("draw_id"));
+        Integer game_id=1;
+        Integer draw_id=30;
+        logger.info("jin lai le !");
+        String resultString="";  
+        try {
+             List<Map> list=ttfs.getTicketBetsList(game_id,draw_id);
+             logger.info("list >>>>:"+list);
+             resultString=JSONArray.toJSONString(list);
+        } catch (Exception e) {
+            logger.error("query TicketBet list info error,error info(" + e.getMessage() + ")!");
+            //e.printStackTrace();
+        }       
+        return resultString;
+    }
+    
+    @RequestMapping(value = "/querypage")
+    @ResponseBody
+    public String queryPageInfo(HttpServletRequest request) {   //  
+         final Lock l = new ReentrantLock();  
+         final StringBuilder sb = null;
+         HttpSession session=null;
+         List <Map> list = new LinkedList<Map>();
+         Map map=null;
+         //logger.info(game_id+"sssssssssssss"+draw_id);
+         int zts =ttfs.getTicketInfoCount(game_id, draw_id);
+         //logger.info("总条数："+zts);
+         final int cs =zts/ts+1;
+         //logger.info("循环次数："+cs);
+        Thread  A = new Thread(new Runnable(){  
+            @Override
+            public void run() {
+                while (state<=cs) {
+                    l.lock();
+                    if(state%3==0){
+                        System.out.println("A");  
+                        //state ++;   
+                        int ys=state+1;                        
+                        int ends=ys*ts;
+                        int starts=state*ts+1;                       
+                        String resultStringA="";  
+                        try {
+                            logger.info("A 111111111111111111111111");
+                            List<TicketBet> list=ttfs.getTicketInfoPage(game_id,draw_id,ends,starts);
+                            resultStringA=JSONArray.toJSONString(list);
+                            logger.info("A 222222222222222222222222");
+                            //sb.append(resultStringA);
+                            String keyString=String.valueOf(state);
+                            logger.info("A 333333333333333333333333");
+                            //session.setAttribute(keyString, resultStringA);
+                            logger.info("resultStringAAAAAAAAA:"+resultStringA);
+                            logger.info("sb:"+resultStringA);
+                            System.out.println("123456789");
+                            System.out.println("resultStringAAAAAAAAA:"+resultStringA);
+                            System.out.println("sb:"+resultStringA);
+                        } catch (Exception e) {
+                            //e.printStackTrace();
+                        }
+                        state ++; 
+                    }
+                    l.unlock();
+                }
+            }
+        });  
+        Thread B = new Thread(new Runnable(){  
+            @Override  
+            public void run() {  
+                while (state<=cs) {  
+                    l.lock();  
+                    if(state%3==1){  
+                        System.out.println("B");  
+                        logger.info("B");
+                        //state ++;
+                         int ys=state+1;                        
+                        int ends=ys*ts;
+                        int starts=state*ts+1;                       
+                        String resultStringB="";  
+                        try {
+                            List<TicketBet> list=ttfs.getTicketInfoPage(game_id,draw_id,ends,starts);
+                            resultStringB=JSONArray.toJSONString(list);
+                            //sb.append(resultStringB);
+                            logger.info("resultStringBBBBBBBBB:"+resultStringB);
+                            logger.info("sb B:"+resultStringB);
+                        } catch (Exception e) {
+                            //e.printStackTrace();
+                        }
+                        state ++; 
+                    }  
+                    l.unlock();  
+                }  
+            }  
+        });  
+        Thread C = new Thread(new Runnable(){  
+            @Override  
+            public void run() {  
+                while (state<=cs) {  
+                    l.lock();  
+                    if(state%3==2){  
+                        System.out.println("C");  
+                        logger.info("C");
+                        //state ++; 
+                         int ys=state+1;                        
+                        int ends=ys*ts;
+                        int starts=state*ts+1;                       
+                        String resultStringC="";  
+                        try {
+                            List<TicketBet> list=ttfs.getTicketInfoPage(game_id,draw_id,ends,starts);
+                            resultStringC=JSONArray.toJSONString(list);
+                            //sb.append(resultStringC);
+                            logger.info("resultStringCCCCCC:"+resultStringC);
+                            logger.info("sb C:"+resultStringC);
+                        } catch (Exception e) {
+                            //e.printStackTrace();
+                        }
+                        state ++; 
+                    }  
+                    l.unlock();  
+                }  
+            }  
+        });  
+        A.start();  
+        B.start();  
+        C.start();  
+        //System.out.println("sb....:"+sb);
+        //String resString =JSONObject.toJSONString(sb);
+        String resString=JSONObject.toJSONString(sb);
+        return "success";
+    }
+}

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ehcache.xsd">
+    <diskStore path="java.io.tmpdir/quantum_manager"/>
+    
+    <!-- server1 的cacheManagerPeerProviderFactory配置 -->
+    <cacheManagerPeerProviderFactory 
+        class="net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory" 
+        properties="hostName=localhost,
+        port=40001,
+        socketTimeoutMillis=2000,
+        peerDiscovery=manual,
+        rmiUrls="/>
+    <!--//192.168.0.201:40003/cosmosCache|//192.168.0.204:40002/cosmosCache-->
+    <defaultCache maxElementsInMemory="10000" eternal="false" timeToIdleSeconds="30" timeToLiveSeconds="30" overflowToDisk="false"/>
+    
+    <cacheManagerPeerListenerFactory
+        class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"
+        properties="hostName=localhost, port=40001,
+        socketTimeoutMillis=2000"/>
+        
+    <cache name="cosmosCache"
+           maxElementsInMemory="10000"
+           eternal="true"
+           overflowToDisk="true"
+           diskPersistent="true">
+        
+        <!-- 监听RMI同步缓存对象配置 注册相应的的缓存监听类，用于处理缓存事件，如put,remove,update,和expire -->
+        <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+            properties="replicateAsynchronously=false"/>
+        <!-- 用于在初始化缓存，以及自动设置 -->
+        <bootstrapCacheLoaderFactory  class="net.sf.ehcache.distribution.RMIBootstrapCacheLoaderFactory"/> 
+    </cache>
+    
+    <cache 
+        name="QuantumCache"  
+        maxElementsOnDisk="20000"  
+        maxElementsInMemory="2000"  
+        eternal="true"  
+        overflowToDisk="true"  
+        diskPersistent="true"/>  
+</ehcache>
+
