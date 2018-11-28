@@ -1,0 +1,135 @@
+package sng.entity;
+
+import java.io.Serializable;
+import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+/**
+ * 用户认证信息 
+ * Title: UserAuthentication
+ * Description:记录用户认证信息 
+ * Company: 世纪伟业
+ * @author 马国庆
+ * @date 2018年10月23日上午10:51
+ */
+@Entity
+@Table(name = "user_authentication")
+public class UserAuthentication implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4960908365292603248L;
+
+	public UserAuthentication() {
+		super();
+	}
+
+	public UserAuthentication(Integer userAuthId, Integer userRegisterId, Date authTime, Integer authStatus,
+			Integer isDel, Date insertTime, Date updateTime, Date delTime) {
+		super();
+		this.userAuthId = userAuthId;
+		this.userRegisterId = userRegisterId;
+		this.authTime = authTime;
+		this.authStatus = authStatus;
+		this.isDel = isDel;
+		this.insertTime = insertTime;
+		this.updateTime = updateTime;
+		this.delTime = delTime;
+	}
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	@Column(name = "user_auth_id")
+	private Integer userAuthId; // 用户认证表主键
+
+	@Column(name = "user_register_id")
+	private Integer userRegisterId;// 用户注册表ID
+
+	@Column(name = "auth_time")
+	private Date authTime;// 认证时间
+
+	@Column(name = "auth_status")
+	private Integer authStatus;// 是否认证（成功、失败）
+
+	@Column(name = "is_del")
+	private Integer isDel;// 删除标记 是否删除(0:否；1：是)
+
+	@Column(name = "insert_time")
+	private Date insertTime;// 插入时间
+
+	@Column(name = "update_time")
+	private Date updateTime;// 更新时间
+
+	@Column(name = "del_time")
+	private Date delTime;// 删除时间
+
+	public Integer getUserAuthId() {
+		return userAuthId;
+	}
+
+	public void setUserAuthId(Integer userAuthId) {
+		this.userAuthId = userAuthId;
+	}
+
+	public Integer getUserRegisterId() {
+		return userRegisterId;
+	}
+
+	public void setUserRegisterId(Integer userRegisterId) {
+		this.userRegisterId = userRegisterId;
+	}
+
+	public Date getAuthTime() {
+		return authTime;
+	}
+
+	public void setAuthTime(Date authTime) {
+		this.authTime = authTime;
+	}
+
+	public Integer getAuthStatus() {
+		return authStatus;
+	}
+
+	public void setAuthStatus(Integer authStatus) {
+		this.authStatus = authStatus;
+	}
+
+	public Integer getIsDel() {
+		return isDel;
+	}
+
+	public void setIsDel(Integer isDel) {
+		this.isDel = isDel;
+	}
+
+	public Date getInsertTime() {
+		return insertTime;
+	}
+
+	public void setInsertTime(Date insertTime) {
+		this.insertTime = insertTime;
+	}
+
+	public Date getUpdateTime() {
+		return updateTime;
+	}
+
+	public void setUpdateTime(Date updateTime) {
+		this.updateTime = updateTime;
+	}
+
+	public Date getDelTime() {
+		return delTime;
+	}
+
+	public void setDelTime(Date delTime) {
+		this.delTime = delTime;
+	}
+}

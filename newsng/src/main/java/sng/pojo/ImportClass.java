@@ -1,0 +1,28 @@
+package sng.pojo;
+import sng.entity.Classes;
+/***
+ * 
+ *  @Company sjwy
+ *  @Title: importClasses.java 
+ *  @Description: 批量导入班级 pojo
+ *	@author: shy
+ *  @date: 2018年11月6日 下午1:31:32
+ */
+public class ImportClass {
+	
+	private static final long serialVersionUID = 1L;
+	private Classes classes;
+	private String tech_names;
+	public Classes getClasses() {
+		return classes;
+	}
+	public void setClasses(Classes classes) {
+		this.classes = classes;
+	}
+	public String getTech_names() {
+		return tech_names;
+	}
+	public void setTech_names(String tech_names) {
+		this.tech_names = tech_names;
+	}
+}

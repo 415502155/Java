@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>打卡记录</title>
+	<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+	<!--<link rel="shortcut icon" href="/favicon.ico">-->
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<!--ui包-->
+	<link rel="stylesheet" href="../../../css/sm.css">
+	<link rel="stylesheet" href="../../../css/layout.css">
+	<link rel='stylesheet prefetch' href='../../../js/photoSwipe/photoswipe.css'>
+	<link rel='stylesheet prefetch' href='../../../js/photoSwipe/default-skin/default-skin.css'>
+
+	<script src='../../../js/zepto.min.js'></script>
+	<script src='../../../js/sm.min.js'></script>
+
+	<!--图片放大-->
+	<script src='../../../js/photoSwipe/photoswipe.min.js'></script>
+	<script src='../../../js/photoSwipe/photoswipe-ui-default.js'></script>
+	<script src='../../../js/config.js'></script>
+
+    <style>
+		.childName { padding-right: 10px;}
+		.item-title-row { padding: 5px 0}
+		.item-subtitle { padding: 10px 0; }
+		.list-block.media-list .item-media img {
+			border-radius: 1%;
+		}
+		.list-block.media-list .item-inner, .list-block li.media-item .item-inner {
+			padding-top: 1rem;
+			padding-bottom: .9rem;
+		}
+		.list-block.media-list .item-inner {
+			padding-top: .5rem;
+			padding-bottom: .8rem;
+			border:none
+		}
+
+		.list-block .item-subtitle {
+			line-height: 48px;
+			padding: 10px 0 0 0;
+		}
+		.list-block .item-content { border-bottom: 1px solid #e7e7e7;}
+		.list-block li:last-child .item-content {border-bottom:none}
+		.item-media {
+			width:108px;
+			height:72px;
+		}
+		.list-block.media-list .item-media, .list-block li.media-item .item-media {
+			padding-top: .54rem;
+			padding-bottom: .5rem;
+		}
+
+		.lastData {
+			margin-bottom: 1rem;
+		}
+		.noData_line .noData__tips {
+			background: #ffffff url("../../../images/empty.png") center top no-repeat;
+			padding: 110px 0 0 0;
+		}
+		.noData_line {border:none}
+
+	</style>
+</head>
+<body>
+	<div class="page-group">
+		<div class="page page-current" id="set">
+			<div class="content native-scroll">
+				<div class="content-block-title" id="nowDate"></div>
+				<div class="list-block media-list toDetail">
+					<ul id="allList">
+
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!--图片查看器-->
+	<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="pswp__bg"></div>
+		<div class="pswp__scroll-wrap">
+			<div class="pswp__container">
+				<div class="pswp__item"></div>
+				<div class="pswp__item"></div>
+				<div class="pswp__item"></div>
+			</div>
+			<div class="pswp__ui pswp__ui--hidden">
+				<div class="pswp__top-bar">
+					<div class="pswp__counter"></div>
+					<button class="pswp__button pswp__button--close" title="关闭"></button>
+					<!--<button class="pswp__button pswp__button&#45;&#45;share" title="Share"></button>-->
+					<div class="pswp__preloader">
+						<div class="pswp__preloader__icn">
+							<div class="pswp__preloader__cut">
+								<div class="pswp__preloader__donut"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+					<div class="pswp__share-tooltip"></div>
+				</div>
+				<div class="pswp__caption">
+					<div class="pswp__caption__center"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!--图片查看器 END-->
+</body>
+</html>
+
+<script>
+    sessionStorage.tsDate=GetUrlParam("date");
+    sessionStorage.classDetail=1;
+$(function () {
+    var parameter=JSON.parse(decodeURI(GetUrlParam("parameter")));
+    $("#nowDate").text(parameter.attnDate);
+    $("title").text(parameter.studentName+"打卡记录");
+
+    //打卡记录
+    getDataNoLoading(domainName+"/shijiwxy/wechat/portal/studentAttendance/getStudentSwipingCardHistory.htm", parameter,function(res){
+        if(res.code==200 && res.success==true){
+            console.info(res)
+            var obj=res.data;
+            var html="";
+
+            var m=0;
+            if(obj.length>0){
+
+                for(var n=obj.length-1;n>=0;n--){
+
+                    if(obj[n].card_id!==null) {
+                        m+=1;
+                        var imageHtml = '<div class="item-media">' +
+                            '<figure itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject" style="position: relative;">' +
+                            '<a href="javascript:void(0)" itemprop="contentUrl" class="external" data-size="1920x1080">' +
+                            '<img src="" width="108" height="72"  data-sid="' + obj[n].id_str + '"  itemprop="thumbnail" alt="" style="display: none;">' +
+                            '</a>' +
+                            '<div class="imgLoading"  style="background: #e4e4e4;line-height:100px;font-size: .72rem;color: #aaa7a7;"><span class="iconloadingtip"></span></div>' +
+                            '</figure></div>';
+                        var css = "";
+
+
+                        html += '<li>' +
+                            '<div class="item-content">' +
+                            //'<img src="../../../images/ts_uping.jpg" width="108" height="72"   onerror="nofind();" data-sid="'+obj[n].s_id+'"></div>'+//onload="getimg(this)"
+                            imageHtml +
+                            '<div class="item-inner">' +
+                            /*  '<div class="item-title-row">'+
+                          '<div class="item-title">下午入校</div>'+
+                          '</div>'+*/
+                            '<div class="item-subtitle"  >打卡时间：' + obj[n].card_time.substr(11, 8) + '</div>' +
+                            '</div>' +
+                            '</div>' +
+                            '</li>';
+                    }
+                }
+            }
+
+            if(m==0){
+
+                html += '<li class="noData noData_line lastData"><span class="noData__tips">暂无考勤记录</span></li>';
+                $("#allList").css("background","#fff");
+
+			}
+
+            $("#allList").html(html).show();
+
+            //加载图片
+            $("[data-sid]").each(function () {
+                var opObj=$(this);
+                var parameter={
+                    sid:opObj.attr("data-sid")
+                }
+                getDataNoLoading(domainName + "/eduWeixin/weixin/getsign", parameter,function(res){
+                    if(res.code==200 && res.success==true){
+                        var obj=res.data;
+                        opObj.attr("src",obj.pic).attr("onerror","nofind(this)").attr("onload","showImg(this)");//.attr("onload","getimg(this)")
+                        // $("#cerImg").prepend("<img   onload=\"getimg(this)\" onerror=\"nofind(this);\" src=\""+obj.pic +"\" width=\"100%\">");
+                        opObj.parent().attr("href",obj.pic);
+                    }else{
+                       // $.alert(res.message);
+                    	 opObj.attr("src","../../../images/ts_defaultImg.png").attr("onload","showImg(this)").attr("onerror","nofind(this)");
+                         opObj.parent().attr("href","../../../images/ts_defaultImg.png").attr("data-size","108x72");
+                    }
+                },"GET");
+            })
+
+            //图片预览
+            initPhotoSwipeFromDOM('.toDetail');
+
+        }else{
+            $.alert(res.message);
+        }
+    },"GET");
+
+
+
+});
+function nofind(Domlement){
+
+   /*  Domlement.src="../../../images/ts_uping.jpg";
+    $(Domlement).parent().attr("href","../../../images/ts_uping.jpg"); */
+    Domlement.src="../../../images/ts_defaultImg.png";
+    $(Domlement).parent().attr("href","../../../images/ts_defaultImg.png").attr("data-size","108x72");
+    Domlement.onerror=null;
+    initPhotoSwipeFromDOM('.toDetail');
+    //$("#cerImg div").html("暂无图片");
+}
+
+function showImg(obj){
+    $(obj).show();
+    if($(obj).parent().next().length>0){
+        $(obj).parent().next().hide();
+    }
+}
+</script>

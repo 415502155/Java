@@ -1,0 +1,993 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="copyright" content="5tree.com">
+    <meta name="referrer" content="always">
+    <title>智慧教育云平台</title>
+    <link rel="stylesheet" href="css/ggui.css">
+    <!--图标库-->
+    <link rel="stylesheet" href="css/font-awesome.min.css" media="all">
+    <!--地址栏ico图标-->
+    <link rel="shortcut icon" href="images/favicon.ico"/>
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <!-- 对话框 -->
+    <script type="text/javascript" src="plus/layer/layer.min.js"></script>
+    <!--时间控件-->
+    <link rel="stylesheet" href="plus/jedate/skin/jedate.css">
+    <script type="text/javascript" src="plus/jedate/jquery.jedate.min.js"></script>
+    <!--通知页-->
+    <link rel="stylesheet" href="css/notice/notice.css">
+    <style>
+        .appIcon {
+            font-size: 18px;
+            position: absolute;
+            top: 10px;
+            left: 20px;
+            font-size: 18px;
+        }
+
+        .header-set {
+            position: absolute;
+            background: #fff;
+            width: 120px;
+            margin-top: 0px;
+            box-shadow: 5px 0 5px rgba(150, 150, 150, 0.64);
+            display: none
+        }
+
+        .header-set div {
+            height: 36px;
+            line-height: 36px;
+            border-bottom: 1px #eaeaea solid
+        }
+
+        .indeIte {
+            margin-top: 25px
+        }
+
+        .indeInp {
+            margin-right: 42px
+        }
+
+        .bod-con-pay1-cY {
+            padding-left: 53px;
+            margin-top: 11px
+        }
+
+        .bod-con-pay1-c-a {
+            width: 70px;
+            height: 23px;
+            border-radius: 10%;
+            margin-left: 7px
+        }
+
+        .bod-con-pay1-a {
+            padding-left: 24px
+        }
+
+        .bod-con-pay1-a {
+            padding-left: 24px
+        }
+
+        .bod-con-spay5 {
+            padding-left: 54px;
+            margin-top: 15px
+        }
+
+        .bod-con-spay5-a {
+            width: 146px;
+            height: 24px;
+            border: 1px solid #C3C8CD;
+            padding-left: 14px
+        }
+
+        #leftNav li {
+            display: none
+        }
+
+        #loadbox {
+            min-width: 960px
+        }
+
+        .imgBox_wrap {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 100001;
+            filter: progid:DXImageTransform.Microsoft.gradient(enabled='true', startColorstr='#B2000000', endColorstr='#B2000000');
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        .first_screen_main {
+            position: relative;
+            min-width: 1228px;
+            height: 400px;
+        }
+
+        .imgBox_wrap .imgBox_pic {
+            position: absolute;
+            /* top: 50%;
+             left: 50%;*/
+            /* transform: translate(-50%,-50%);
+             -webkit-transform: translate(-50%,-50%);
+             -moz-transform: translate(-50%,-50%);
+             -ms-transform: translate(-50%,-50%);
+             -o-transform: translate(-50%,-50%);*/
+        }
+
+        .imgBox_wrap .imgBox_close {
+            width: 30px;
+            height: 30px;
+            position: absolute;
+            top: 50px;
+            right: 70px;
+            background: url(images/close.png) no-repeat center center;
+            border-radius: 50%;
+            cursor: pointer
+        }
+
+        img {
+            border: 0 none;
+            vertical-align: top
+        }
+
+        pre {
+            white-space: pre-wrap;
+            white-space: -moz-pre-wrap;
+            white-space: -pre-wrap;
+            white-space: -o-pre-wrap;
+            word-wrap: break-word
+
+        }
+    </style>
+</head>
+<body class="viewFramework-sidebar-full" style="overflow: hidden">
+<div class="imgBox_wrap" id="newUserPopup" style="display: none;">
+    <div class="imgBox_pic">
+        <img src=""/>
+    </div>
+    <div class="imgBox_close" id="close">
+    </div>
+</div>
+<!--top-->
+<div class="topbar">
+    <!--系统名称-->
+    <div class="logobox pull-left " style="background: #0a5ca3; text-align: center">
+        <img src="images/5treeLogo.png">
+    </div>
+    <div class="schoolName pull-left">
+        <span class="h2" id="orgName"></span>
+        <span class="h4" id="nowADD" style="color:#4caf50;margin-left:6px;">智慧教育云平台</span>
+    </div>
+    <!--系统名称End-->
+    <!--管理员信息-->
+    <div class="userInfo pull-right">
+        <ul>
+            <li>
+                <span class="userHead"><img src="images/user_head.jpg" alt=""/></span>
+                <span class="userName" id="teacherName"></span>
+            </li>
+            <li title="个人设置" id="toSeeNews">
+                <i class="fa fa-cog fa-fw" style="font-size: 16px;"></i>
+                <!--<span class="newsMessagesTips">5</span>-->
+                <div class="header-set" id="header-set">
+                    <div title="去修改密码" id="resetPSW">修改密码</div>
+                    <!-- <div title="去修改执教科目" id="resetSubject">职教科目</div>-->
+                    <!-- <div id="copyUrl">复制链接</div> -->
+                </div>
+            </li>
+            <li title="退出登录" id="quit">
+                <i class="fa fa-power-off" style="font-size: 16px;"></i>
+            </li>
+        </ul>
+    </div>
+</div>
+<!--top End-->
+
+<!--left-->
+<div class="viewFramework-sidebar" id="left">
+    <!--左侧菜单-->
+    <div class="leftNav" id="leftNav">
+        <!--<div id="IMg">
+            <img src="images/LOGO.png" class="img-circle bod-left1-img"/>
+        </div>-->
+        <ul>
+            <li title="前往校园通知" data-id="1" class="active">
+                <i class="fa fa-bell-o appIcon"></i>
+                <span class="appName-text">校园通知</span>
+            </li>
+            <li title="前往教师通知" data-id="2">
+                <i class="fa fa-list appIcon"></i>
+                <span class="appName-text">教师通知</span>
+            </li>
+            <li title="前往布置作业" data-id="3">
+                <i class="fa fa-file-text-o appIcon"></i>
+                <span class="appName-text">布置作业</span>
+            </li>
+            <li title="前往考勤请假" data-id="4">
+                <i class="fa fa-calendar appIcon"></i>
+                <span class="appName-text">考勤请假</span>
+            </li>
+            <li title="前往工资管理" data-id="5">
+                <i class="fa fa-money appIcon"></i>
+                <span class="appName-text">工资管理</span>
+            </li>
+            <li title="前往校园支付" data-id="6">
+                <i class="fa fa-credit-card appIcon"></i>
+                <span class="appName-text">校园支付</span>
+            </li>
+            <li title="前往基础数据" data-id="7" style="display: none">
+                <i class="fa fa-database appIcon"></i>
+                <span class="appName-text">基础数据</span>
+            </li>
+            <li title="前往操作日志" data-id="8" style="display: none">
+                <i class="fa fa-info-circle appIcon"></i>
+                <span class="appName-text">操作日志</span>
+            </li>
+            <li title="前往问卷调查" data-id="9">
+                <i class="fa fa-pencil-square-o appIcon"></i>
+                <span class="appName-text">问卷调查</span>
+            </li>
+            <li title="前往新闻推送" data-id="a">
+                <i class="fa fa-check-square-o appIcon"></i>
+                <span class="appName-text">新闻推送</span>
+            </li>
+            <li title="前往班级博客" data-id="blog">
+                <i class="fa fa-newspaper-o appIcon"></i>
+                <span class="appName-text">班级博客</span>
+            </li>
+            <li title="前往食谱管理" data-id="cook">
+                <i class="fa fa-cutlery appIcon"></i>
+                <span class="appName-text">食谱管理</span>
+            </li>
+            <li title="前往校长信箱" data-id="dmail">
+                <i class="fa fa-envelope-o appIcon"></i>
+                <span class="appName-text">校长信箱</span>
+            </li>
+            <li title="前往用餐统计" data-id="e">
+                <i class="fa fa-bar-chart appIcon"></i>
+                <span class="appName-text">用餐统计</span>
+            </li>
+            <li title="前往信息收集" data-id="f">
+                <i class="fa fa-file-pdf-o appIcon"></i>
+                <span class="appName-text">信息收集</span>
+            </li>
+        </ul>
+    </div>
+    <!--左侧菜单 End-->
+</div>
+<!--left end-->
+<!--right-->
+<div class="viewFramework-product" id="loadbox"></div>
+<!--right end-->
+<!--foot-->
+<div class="fold_swith" id="fold_swith" title="折叠菜单">
+    <div class="rightbottom">
+        <span>版权所有 天津市世纪伟业科技发展有限公司</span>
+    </div>
+</div>
+<!--foot end-->
+<!--数据加载提示-->
+<div class="loading-bg" loading-id="loadbg" style=" display: none;"></div>
+<div class="loadingimg" loading-id="loadimg" style=" display: none;"><img src="images/loading-2.gif">
+    <div>数据加载中，请稍后...</div>
+</div>
+<!--数据加载提示 END-->
+<!-- 上传表格加载提示 -->
+<div class="loading-img" uploadimg style="display: none;"><img src="images/loading-2.gif">
+    <div>文件上传中...请不要刷新页面</div>
+</div>
+
+<!--图片查看器-->
+<div id="gallery" class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="pswp__bg"></div>
+    <div class="pswp__scroll-wrap">
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+        <div class="pswp__ui pswp__ui--hidden">
+            <div class="pswp__top-bar">
+                <div class="pswp__counter"></div>
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- <div class="pswp__loading-indicator"><div class="pswp__loading-indicator__line"></div></div> -->
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip">
+                    <!-- <a href="#" class="pswp__share--facebook"></a>
+                    <a href="#" class="pswp__share--twitter"></a>
+                    <a href="#" class="pswp__share--pinterest"></a>
+                    <a href="#" download class="pswp__share--download"></a> -->
+                </div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button>
+            <div class="pswp__caption">
+                <div class="pswp__caption__center">
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+</div>
+<!--图片查看器 END-->
+</body>
+</html>
+<!-- 公用控件封装-->
+<script type="text/javascript" src="js/Plug-in/jquery.form.js"></script>
+<script type="text/javascript" src="js/base.js"></script>
+<script type="text/javascript" src="js/Plug-in/webuploader.js"></script>
+<script type="text/javascript" src="js/Plug-in/jquery-validate.js"></script>
+<script src="js/exportExcel.js"></script>
+<script>
+    //设置字体
+    window.onhashchange = function () {
+
+        var hash = window.location.hash;
+        var id = hash.substr(1);
+        if (id == "NaN") {
+            id = 1;
+        }
+        //临时解决方案
+        if ($("#blog_classList").length == 1 && id == "blog") {
+            return false
+        }
+        //临时解决方案
+        if ($("#downCook").length == 1 && id == "cook") {
+            return false
+        }
+
+        changeHash(id);
+        session();
+    };
+
+    if (typeof rlids !== "object" && rlids !== null) {
+        rlids = rlids.substring(0, rlids.length - 1).split(",");//将身份标识数组化,避免indexOf判断有误情况
+    }
+
+    //权限
+    //*管理员(1), 校长(2), 任课教师(3), 班主任(4), 年级组长(5), 学生组管理员(6), 部门管理员(7),
+    //教师组管理员(8), 功能管理员(9), 分校校长(10) 财务管理员(17) 财务审核员(18)  考勤管理员(19)*/
+    //后增加管理员：考勤管理员(19),校长邮箱管理员（23），食谱管理员（22），用餐统计管理员（21）
+
+    var Nav = $('#leftNav').children('ul');
+    //console.log(rlids)
+    //0 校园通知    1 教师通知    2 布置作业    3考勤请假    4 发布工资  5校园支付  6基础数据   7 操作日志
+
+    //权限(控制显示)
+    if (rlids.indexOf('18') != -1) {
+        Nav.find('li').eq('1').show();
+        Nav.find('li').eq('5').show();
+    } else {
+        Nav.find('li').eq('1').show();
+    }
+    ;
+    if (rlids.indexOf('17') != -1) {
+        Nav.find('li').eq('1').show();
+        Nav.find('li').eq('4').show();
+        Nav.find('li').eq('5').show();
+    } else {
+        Nav.find('li').eq('1').show();
+    }
+    ;
+    //if (rlids.indexOf('19') != -1) {
+    /*管理员(1), 校长(2), 任课教师(3), 班主任(4), 年级组长(5), 学生组管理员(6), 部门管理员(7),
+     * 教师组管理员(8), 功能管理员(9), 分校校长(10) 财务管理员(17) 财务审核员(18)  考勤管理员(19),用餐统计管理员(21)*/
+
+    var Nav = $('#leftNav').children('ul');
+
+    //0 校园通知    1 教师通知    2 布置作业    3考勤请假    4 发布工资  5校园支付  6基础数据   7 操作日志
+
+
+    //权限(控制显示)
+    if (rlids.indexOf('18') != -1) {
+        Nav.find('li').eq('1').show();
+        Nav.find('li').eq('5').show();
+    } else {
+        Nav.find('li').eq('1').show();
+    }
+    ;
+    if (rlids.indexOf('17') != -1) {
+        Nav.find('li').eq('1').show();
+        Nav.find('li').eq('4').show();
+        Nav.find('li').eq('5').show();
+    } else {
+        Nav.find('li').eq('1').show();
+    }
+    ;
+    if (rlids.indexOf('19') != -1) {
+        Nav.find('li').eq('3').show();
+    } else {
+        if(rlids.indexOf('20') != -1){
+            Nav.find('li').eq('8').show();
+        }
+
+    }
+    if (rlids.indexOf('5') != -1) {
+        Nav.find('li').eq('0').show();
+        Nav.find('li').eq('1').show();
+        Nav.find('li').eq('2').show();
+        Nav.find('li').eq('3').show();
+    } else {
+        Nav.find('li').eq('1').show();
+    }
+    ;
+    if (rlids.indexOf('3') != -1 || rlids.indexOf('4') != -1) {
+        Nav.find('li').eq('0').show();
+        Nav.find('li').eq('1').show();
+        Nav.find('li').eq('2').show();
+        Nav.find('li').eq('3').show();
+    } else {
+        Nav.find('li').eq('1').show();
+    }
+    ;
+    if (rlids.indexOf('19') != -1) {
+        Nav.find('li').eq('3').show();
+    }
+    if (rlids.indexOf('1') != -1 || rlids.indexOf('2') != -1 || rlids.indexOf('10') != -1) {
+        Nav.find('li').eq('0').show();
+        Nav.find('li').eq('1').show();
+        Nav.find('li').eq('2').show();
+        Nav.find('li').eq('3').show();
+        Nav.find('li').eq('4').show();
+        Nav.find('li').eq('5').show();
+        /* Nav.find('li').eq('6').show();
+         Nav.find('li').eq('7').show();*/
+    } else {
+        Nav.find('li').eq('1').show();
+    }
+    ;
+
+
+    if (rlids.indexOf('1') != -1) {
+        Nav.find('li').eq('10').show();
+
+    }
+
+    //校长邮箱管理
+    if (rlids.indexOf('23') != -1 ) {
+        //校长信箱
+        Nav.find('li').eq('12').show();
+    }
+    //用餐统计
+    if (rlids.indexOf('21') != -1) {
+        Nav.find('li').eq('13').show();
+    }
+
+    //新闻推送
+    if (rlids.indexOf('24') != -1 || rlids.indexOf('1') != -1) {
+        Nav.find('li').eq('9').show();
+    }
+
+    //食谱管理员
+    if (rlids.indexOf('22') != -1) {
+        Nav.find('li').eq('11').show();
+    }
+
+    //问卷管理员
+    if (rlids.indexOf('20') != -1 || rlids.indexOf('1') != -1) {
+        Nav.find('li').eq('8').show();
+    }
+
+    //班级博客== 班主任、任课教师、管理员、校长、分校校长、年级组长
+    if (rlids.indexOf('1') != -1 || rlids.indexOf('2') != -1 || rlids.indexOf('3') != -1 || rlids.indexOf('4') != -1 || rlids.indexOf('5') != -1 || rlids.indexOf('10') != -1) {
+        Nav.find('li').eq('10').show();
+    }
+
+    //信息收集
+    Nav.find('li').eq('14').show();
+    //黄彩斐专用
+ /*   $.post(domain + "/shijiwxy/admin/newsShare/isadmin.htm", {tech_id: sessionStorage.tech_id}, function (result) {
+        var hasAuth = 'true' === result;
+        if (hasAuth) {
+            Nav.find('li').eq('9').show();
+        }
+    });*/
+
+
+    $(function () {
+        //赋值
+        $("#orgName").text(orgName);
+        $("#teacherName").text(useName + " 老师");
+        //退出登录
+        $("#quit").click(function () {
+            myConfirm("你确定要退出登录吗？", function () {
+                //登录
+                sessionStorage.removeItem('token');
+                sessionStorage.removeItem('udid');
+                sessionStorage.removeItem('sub');
+                session();
+                window.location.href = 'login.html';
+            }, null, null);
+        });
+        //个人设置
+        $("#toSeeNews").hover(function () {
+            $("#header-set").fadeToggle();
+        });
+        //修改密码
+        $("#resetPSW").on("click", function () {
+            var str = '';
+            str =
+                '<div class="gui-form-item" style="margin-top: 23px;">' +
+                '<div class="gui-inline">' +
+                '<label class="gui-form-label">新密码</label>' +
+                '<div class="gui-input-inline">' +
+                '<input type="password" id="passwd" class="gui-input gui-unselect " placeholder="请输入新密码">' +
+                '</div></div></div>' +
+                '<div class="gui-form-item"><div class="gui-inline">' +
+                '<label class="gui-form-label">手机验证码</label>' +
+                '<div class="gui-input-inline">' +
+                '<input type="text" placeholder="请输入短信验证码" class="gui-input"  id="code"/>' +
+                '</div></div></div>' +
+                '<div class="gui-input-inline" style="border-color:#fff">' +
+                '<button class="gui-btn gui-btn-normal" id="obtain" style="margin-left: 28px;"><i class="fa fa-comment" aria-hidden="true"></i>获取短信验证码</button>' +
+                '</div>';
+            mydialogForm(str, "修改密码", null, ["410px", "290px"], ["确认修改", "取消"], [function (y) {
+                var code = $('#code').val();
+                var passwd = $('#passwd').val();
+                if (passwd.length < 6) {
+                    myAlert('密码长度不能小于6位', 2, code);
+                    return false;
+                }
+                if (!code) {
+                    myAlert('请输入验证码', 2, code);
+                } else if (!passwd) {
+                    myAlert('请输入新密码', 2, code);
+                } else {
+                    //验证验证码
+
+                    getData(
+                        domain + '/esb/validCode',
+                        {"token": token, "udid": udid, "version": 0, "phone": Phone, "code": code},
+                        function successfn(d) {
+                            if (d.code == "200" && d.success == true) {
+                                getData(
+                                    domain + '/esb/reSetPassword',
+                                    {
+                                        "token": token,
+                                        "udid": udid,
+                                        "version": 0,
+                                        "phone": Phone,
+                                        "code": code,
+                                        "passwd": passwd
+                                    },
+                                    function successfn(d) {
+                                        if (d.code == "200" && d.success == true) {
+                                            myAlert('密码设置成功', 1, null);
+                                        } else {
+                                            var code = d.code;
+                                            myAlert(d.message, 2, code);
+                                        }
+                                        ;
+                                    }, 'GET'
+                                );
+                            } else {
+                                var code = d.code;
+                                myAlert(d.message, 2, code);
+                            }
+                            ;
+                        }, 'GET'
+                    );
+                    layer.close(y);
+                }
+                ;
+            }, null]);
+            //获取短信验证码
+            $('#obtain').on("click", function () {
+                var passwd = $('#passwd').val();
+                if (passwd) {
+                    getData(
+                        domain + '/esb/sendValidCodeWX',
+                        {"token": token, "udid": udid, "version": 0, "phone": Phone},
+                        function successfn(d) {
+                            if (d.code == "200" && d.success == true) {
+                                myAlert('短信发送成功', 1, null);
+                                var countDown = 30000;
+                                var Time = setInterval(function () {
+                                    countDown = countDown - 1000;
+                                    if (countDown >= 1000) {
+                                        $('#obtain').text(countDown / 1000 + "s后可发送").css({
+                                            "color": "#fff",
+                                            "background": "#aaa9b1",
+                                            "pointer-events": "none"
+                                        });
+                                        TimeState = false;
+                                    } else {
+                                        $('#obtain').text("获取短信验证码").css({
+                                            "color": "",
+                                            "background": "",
+                                            "pointer-events": ""
+                                        });
+                                        clearInterval(Time);
+                                        TimeState = true;
+                                    }
+                                }, 1000);
+                            } else {
+                                var code = d.code;
+                                myAlert(d.message, 2, code);
+                            }
+                            ;
+                        }, 'GET'
+                    );
+                } else {
+                    myAlert('请输入新的密码', 2, code);
+                }
+            });
+        });
+
+        //   $("#copyUrl").on('click',function(){
+        //       var copystr = '';
+        //       copystr += '<div class="gui-form-item" style="margin-top: 23px;">'+
+
+        //                 '</div>'+
+        //                 '<div class="gui-input-inline" style="border-color:#fff">'+
+        //                 '<input type="text" disabled="true" id="theUrl" value="https://www.baidu.com">'+
+        //                 '<button class="gui-btn gui-btn-normal" id="obtain" style="margin-left: 28px;"><i class="fa fa-comment" aria-hidden="true"></i>复制链接</button>'+
+        //                 '</div>';
+        //                 mydialogForm(copystr,"复制链接",null,["410px","290px"],[],[function (y){
+
+
+        //         },null]);
+        //         var url = $('#theUrl').val();
+        //         $("#obtain").click(function(){
+        //             window.clipboardData.setData("Text",url);
+        //             myAlert('复制成功',1,null);
+        //         })
+        //   })
+
+        //选择科目开关
+        //修改执教科目
+        $("#resetSubject").click(function () {
+            modify();
+        });
+        //加载栏目
+        $("#leftNav li").click(function () {
+            var loadId = $(this).attr("data-id");
+            toPage(loadId)
+        });
+        //刷新
+        var hash = window.location.hash;
+        var id = hash.substr(1);
+        if (id == "NaN") {
+            //id = 1;
+            //默认加载显示菜单的第一项
+            changeHash($("#leftNav ul li:visible:eq(0)").attr("data-id"))
+        } else {
+            changeHash(id);
+        }
+
+
+    });
+
+    function getIndex(index) {
+        var first = index.toString().substr(0, 1);
+        var rIndex = first.charCodeAt();
+        return rIndex > 57 ? (rIndex - 87) : parseInt(index.toString().substr(0, 1));
+    }
+
+    function changeHash(id) {
+        var index = '';
+        if (rlids.indexOf('1') != -1 || rlids.indexOf('2') != -1 || rlids.indexOf('3') != -1 || rlids.indexOf('4') != -1 || rlids.indexOf('5') != -1 || rlids.indexOf('10') != -1) {
+            index = id ? id : 1;
+        } else {
+            index = id ? id : 2;
+        }
+        window.location.hash = "#" + index;
+
+        //默认的显示样式
+        $("#leftNav li.active").removeClass("active");
+        var noIndx = getIndex(index) - 1;
+        $("#leftNav li:eq(" + noIndx + ")").addClass("active");
+        var url = "";
+        //权限
+        /*管理员(1), 校长(2), 任课教师(3), 班主任(4), 年级组长(5), 学生组管理员(6), 部门管理员(7),
+         * 教师组管理员(8), 功能管理员(9), 分校校长(10) 财务管理员(17) 财务审核员(18), 考勤管理员(19)*/
+        //后添加 ：用餐统计管理员 21
+
+
+        //控制跳转
+        //switch()
+        index = '' + index;
+        switch (index) {
+            case '1':
+                //前往校园通知
+                if (rlids.indexOf('1') != -1 || rlids.indexOf('2') != -1 || rlids.indexOf('3') != -1 || rlids.indexOf('4') != -1 || rlids.indexOf('5') != -1 || rlids.indexOf('10') != -1) {
+                    url = "html/notice/index.html";
+                    break;
+                } else {
+                    myAlert('您暂时没有访问校园通知权限，请先申请权限', 2, null);
+                    return false;
+                }
+            case '12':
+                //前往校园通知发布记录
+                url = "html/notice/notice_sent.html";
+                break;
+            case '13':
+                //前往校园通知发送详情
+                url = "html/notice/notice_details.html";
+                break;
+            case '14':
+                //前往校园通知发送详情
+                url = "html/notice/contentDetails.html";
+                break;
+            case '2':
+                //前往教师通知
+                url = "html/tNotice/index.html";
+                break;
+            case '21':
+                //前往教师通知发布记录
+                url = "html/tNotice/Tnotice_sent.html";
+                break;
+            case '22':
+                //前往教师通知发送详情
+                url = "html/tNotice/Tnotice_details.html";
+                break;
+            case '23':
+                //前往教师通知发送详情
+                url = "html/tNotice/contentDetails.html";
+                break;
+            case '3':
+                //前往作业通知发布页
+                if (rlids.indexOf('1') != -1 || rlids.indexOf('2') != -1 || rlids.indexOf('3') != -1 || rlids.indexOf('4') != -1 || rlids.indexOf('5') != -1 || rlids.indexOf('10') != -1) {
+                    url = "html/homeWork/index.html";
+                    break;
+                } else {
+                    myAlert('您暂时没有访问作业通知权限，请先申请权限', 2, null);
+                    return false;
+                }
+            case '31':
+                //前往作业通知发布记录
+                url = "html/homeWork/hWork_sent.html";
+                break;
+            case '32':
+                //前往作业通知详情
+                url = "html/homeWork/hWork_details.html";
+                break;
+            case '33':
+                //前往作业通知详情
+                url = "html/homeWork/contentDetails.html";
+                break;
+            case '4':
+                //前往班级考勤/学生考勤
+                if (rlids.indexOf('1') != -1 || rlids.indexOf('2') != -1 || rlids.indexOf('3') != -1 || rlids.indexOf('4') != -1 || rlids.indexOf('5') != -1 || rlids.indexOf('10') != -1 || rlids.indexOf('19') != -1) {
+                    url = "html/timesheet/class_list.html";
+                    break;
+                } else {
+                    myAlert('您暂时没有访问考新记录权限，请先申请权限', 2, null);
+                    break;
+                }
+
+            case '41':
+                url = "html/timesheet/student_list.html";
+                break;
+            case '42':
+                url = "html/timesheet/hardware_list.html";
+                break;
+
+            //考勤记录
+            case '43':
+                url = "html/timesheet/hardware_index.html";
+                break;
+
+            case '44':
+                url = "html/timesheet/hardware_set.html";
+                break;
+
+
+            case '5':
+                //前往工资发布
+                if (rlids.indexOf('1') != -1 || rlids.indexOf('2') != -1 || rlids.indexOf('17') != -1 || rlids.indexOf('10') != -1) {
+                    url = "html/wages/wage_payoff.html";
+                    break;
+                } else {
+                    myAlert('您暂时没有访问工资发布权限，请先申请权限', 2, null);
+                    return false;
+                }
+
+            case '51':
+                //前往工资发布记录
+                url = "html/wages/wage-record.html";
+                break;
+            case '52':
+                //前往工资发布记录
+                url = "html/wages/wage-ferify.html";
+                break;
+            case '521':
+                //前往工资发布记录详情
+                url = "html/wages/wage-details.html";
+                break;
+            case '6':
+                //前往支付--统一收费
+                if (rlids.indexOf('18') != -1 || rlids.indexOf('1') != -1 || rlids.indexOf('2') != -1 || rlids.indexOf('17') != -1 || rlids.indexOf('10') != -1) {
+                    url = "html/pay/index.html";
+                    break;
+                } else {
+                    myAlert('您暂时没有访问支付通知权限，请先申请权限', 2, null);
+                    return false;
+                }
+            case '611':
+                //前往支付--统一收费发布收费页
+                url = "html/pay/pay_confirm.html";
+                break;
+            case '61':
+                //前往支付--个性化收费
+                url = "html/pay/personal.html";
+                break;
+            case '612':
+                //前往支付--个性化收费
+                url = "html/pay/pay_Verification.html";
+                break;
+            case '62':
+                //前往支付--列表
+                url = "html/pay/school_sent.html";
+                break;
+            case '621':
+                //前往支付统计页
+                url = "html/pay/pay_Statistics.html";
+                break;
+            case '622':
+                //前往支付编辑页(统一收费)
+                url = "html/pay/pay_compileUni.html";
+                break;
+            case '623':
+                //前往支付编辑页(个性化收费)
+                url = "html/pay/pay_compileIndiv.html";
+                break;
+            case '63':
+                //前往支付--退费审核页
+                url = "html/pay/pay_examine.html";
+                break;
+            case '7':
+                url = "html/baseData/index.html";
+                break;
+            case '8':
+                url = "html/log/index.html";
+                break;
+            case '9':
+                //前往问卷调查
+                url = "html/question/index.html";
+                break;
+            case '91':
+                url = "html/question/new_question.html";
+                break;
+            case '92':
+                url = "html/question/power_set.html";
+                break;
+            case '911':
+                url = "html/question/question_details.html";
+                break;
+            case '912':
+                url = "html/question/question_details_out.html";
+                break;
+            case '913':
+                url = "html/question/preview_page.html";
+                break;
+            case 'a':
+                //前往新闻推送
+                url = domain + "/shijiwxy/admin/newsShare/index.htm";
+                // url = "/shijiwxy/admin/newsShare/index.htm";
+                break;
+            case 'a1':
+                //前往新闻推送
+                url = "/shijiwxy/admin/newsShare/sent.htm";
+                break;
+            case 'a2':
+                //前往新闻推送
+                url = "/shijiwxy/admin/newsShare/setting.htm";
+                break;
+            case 'blog':
+                //前往班级博客
+                url = "html/blog/index.html";
+                break;
+            case 'cook':
+                //前往食谱管理
+                url = "html/cook/index.html";
+                break;
+
+
+            case 'dmail':
+                //前往食谱管理
+                url = "html/mail/index.html";
+                break;
+            case 'e'://用餐统计
+                url = "html/dinerStatistic/index.html";
+                break;
+            case 'f'://发送信息
+                url = "html/sendMessage/index.html";
+                break;
+            case 'f1':
+                url = "html/sendMessage/sendMessages.html";
+                break;
+            case 'f2':
+                url = "html/sendMessage/messageInfo.html";
+                break;
+            case 'f3':
+            url = "html/sendMessage/infoDetails.html";
+            break;
+            default:
+                url = "html/log/index.html";
+        }
+        ;
+        //填充表格
+        var data = {};
+        data.user_id = sessionStorage.user_id;
+        data.org_id = sessionStorage.org_id;
+        data.tech_id = sessionStorage.tech_id;
+        data.use = sessionStorage.use;
+
+        getHTML(url, function (r) {
+            $("#loadbox").html(r)
+        }, data);
+    };
+
+
+
+    function needCheck(index) {
+        //黄彩斐专用，校验A开头的新闻推送权限
+        if (index.substr(0, 1) == "a") {
+            //if (index.indexOf('a') >= 0) {
+            return true;
+        } else {
+            return false;
+        }
+    };
+
+    function toPage(id) {
+        var index = id ? id : 1;
+        window.location.hash = "#" + index;
+        //默认的显示样式
+    };
+
+    //加载不同应用页面
+    function getHTML(url, okCallback, data, ajaxmethod) {
+        var tempbg = $('.loading-bg').attr('loading-id');
+        var tempimg = $('.loadingimg').attr('loading-id');
+        $.ajax({
+            url: url,
+            data: data,
+            async: true,
+            type: ajaxmethod,
+            /*  dataType:'json',*/
+            beforeSend: function () {
+                //$.showPreloader(tipText);
+                loadbgOpen()
+            },
+            success: function (result, textStatus, jqXHR) {
+                if (jqXHR.status == 200) {
+                    //回调
+                    okCallback(result);
+                }
+                ;
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert(textStatus)
+            },
+            complete: function () {
+                loadbgOver(tempbg, tempimg);
+
+            },
+        });
+    };
+
+</script>

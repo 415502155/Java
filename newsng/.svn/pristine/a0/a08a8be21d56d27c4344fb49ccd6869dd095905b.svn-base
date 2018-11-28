@@ -1,0 +1,208 @@
+package sng.service;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import sng.entity.Classes;
+import sng.entity.Cooperative;
+import sng.entity.StudentClass;
+import sng.entity.TeacherClass;
+import sng.pojo.ClassTeacher;
+import sng.pojo.ClassToTeacher;
+import sng.pojo.ImportClass;
+import sng.pojo.SessionInfo;
+import sng.util.Paging;
+import sng.util.ReturnResult;
+
+import java.io.InputStream;
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+/***
+ * 
+ *  @Company sjwy
+ *  @Title: ClassService.java 
+ *  @Description: 班級管理
+ *	@author: shy
+ *  @date: 2018年10月23日 下午1:25:55
+ */
+@Service
+@Transactional
+public interface ClassService {
+	/***
+	 * 
+	 *  @Description: 添加/编辑  班级
+	 *  @param classes
+	 * @throws ParseException 
+	 */
+	void save(Map<String, Object> reqMap, SessionInfo sessionInfo) throws ParseException;	
+	/***
+	 * 
+	 *  @Description: 根据条件查询班级列表
+	 *  @param orgId
+	 *  @param termId
+	 *  @param clasType
+	 *  @param categoryId
+	 *  @param subjectId
+	 *  @param camId
+	 *  @param classWeek
+	 *  @param tech_names
+	 *  @return
+	 */
+	Paging<ClassToTeacher> getClassList(Integer orgId, Integer termId, Integer clasType, Integer categoryId, Integer subjectId, Integer camId, Integer classWeek, String techNames, Paging<ClassToTeacher> page);
+	/***
+	 * 
+	 *  @Description: 根据条件查询班级列表(不分页)
+	 *  @param orgId
+	 *  @param termId
+	 *  @param clasType
+	 *  @param categoryId
+	 *  @param subjectId
+	 *  @param camId
+	 *  @param classWeek
+	 *  @param techNames
+	 *  @return
+	 */
+	List<ClassToTeacher> getClassList(Integer orgId, Integer termId, Integer clasType, Integer categoryId, Integer subjectId, Integer camId, Integer classWeek, String techNames);
+
+	/***
+	 * 
+	 *  @Description: 根据查询条件导出班级id列表
+	 *  @param orgId
+	 *  @param termId
+	 *  @param clasType
+	 *  @param categoryId
+	 *  @param subjectId
+	 *  @param camId
+	 *  @param classWeek
+	 *  @param tech_names
+	 *  @param ids 
+	 *  @param isAll
+	 *  @param page
+	 *  @return
+	 */
+	List<ClassToTeacher> getClassIdList(Integer orgId, Integer termId, Integer clasType, Integer categoryId, Integer subjectId, Integer camId, Integer classWeek, String techNames, String ids, Integer isAll, Paging<ClassToTeacher> page);
+	/***
+	 * 
+	 *  @Description: 根据班级id查询学生列表
+	 *  @param orgId
+	 *  @param clasId
+	 *  @return
+	 */
+	List<Map<String, Object>> getStudentList(Integer orgId, Integer clasId, String status);
+	
+	Map getById(Integer orgId, Integer clasId);
+	
+	void update(Map<String, Object> reqMap, SessionInfo sessionInfo, List<Map<String, Object>> techList);
+	/***
+	 * 
+	 *  @Description: 获取班级下的老师
+	 *  @param orgId
+	 *  @param clasId
+	 *  @return
+	 */
+	List<Map<String, Object>> getTecherIds(Integer orgId, Integer clasId);
+	
+	/***
+	 * 
+	 *  @Description: 根据证件号码查询学员信息和所在班级信息
+	 *  @param orgId
+	 *  @param studCard
+	 *  @return
+	 */
+	List<Map<String, Object>> getStudentInfo(Integer orgId, String studCard);
+	/***
+	 * 
+	 *  @Description: 插班
+	 *  @param reqMap
+	 *  @param sessionInfo
+	 *  @param orgId
+	 *  @param studName
+	 *  @param studId
+	 *  @param clasId
+	 *  @param clasType
+	 *  @param tuitionFee
+	 */
+	void joinClass(Map<String, Object> reqMap, SessionInfo sessionInfo, Integer orgId, String studName, Integer studId, Integer clasId, Integer clasType, String tuitionFee);
+	/***
+	 * 
+	 *  @Description: 查询当前班级下的信息
+	 *  @param orgId
+	 *  @param clasId
+	 *  @return
+	 */
+	List<Map<String, Object>> getCurClassInfo(Integer orgId, Integer clasId);
+	
+	void delClass(Integer orgId, Integer clasId);
+	/***
+	 * 
+	 *  @Description: 当前班级的学员数 
+	 *  @param orgId
+	 *  @param clasId
+	 *  @return
+	 */
+	Integer getClassNum(Integer orgId, Integer clasId);
+	/***
+	 * 
+	 *  @Description: 当前班级的学费数
+	 *  @param orgId
+	 *  @param clasId
+	 *  @return
+	 */
+	BigDecimal getClassFees(Integer orgId, Integer clasId);
+	
+	Integer getClassCount(Integer orgId, Integer termId, String clasName );
+	
+	Map getClassListByTerm(Integer orgId, Integer termId, Integer clasType);
+	
+	boolean existsClassromm(Integer camId, String building, String floor, String classroomName);
+	
+	boolean existsCategory(Integer orgId, String categoryName);
+	
+	boolean existsSubject(Integer orgId, String subjectName);
+	/***
+	 * 
+	 *  @Description: 获取当前校区下的所有教室
+	 *  @param camId
+	 *  @return
+	 */
+	Map getClassromm(Integer camId);
+	/***
+	 * 
+	 *  @Description: 获取当前机构下的所有类目
+	 *  @param orgId
+	 *  @return
+	 */
+	Map getCategory(Integer orgId);
+	
+	Map getSubject(Integer orgId);
+	
+	Map getTeacher(Integer orgId);
+	
+	Map getCooperative(Integer orgId);
+	
+	Map getCampus(Integer orgId);
+	/***
+	 * 
+	 *  @Description: 获取当前机构下（学员_证件号码) 的所有学员
+	 *  @param orgId
+	 *  @return
+	 */
+	Map getStudent(Integer orgId);
+
+	void saveClass(ImportClass iClass, Map allTechMap, SessionInfo sessionInfo);
+	
+	Map importClass(HttpSession session, SessionInfo sessionInfo, InputStream fin, Integer orgId, Integer termId);
+
+	Map importStudent(HttpSession session, SessionInfo sessionInfo, InputStream fin, Integer orgId, Integer termId);
+
+	void saveStudentClass(StudentClass sc);
+	
+	void downloadErrorExcel(HttpSession session, HttpServletRequest request, HttpServletResponse response, Integer type);
+}

@@ -1,0 +1,74 @@
+package sng.pojo;
+
+public class CampusAndClassRoomPojo {
+	
+	/**
+	 * 教室id
+	 */
+	private Integer classroom_id;
+	/**
+	 * 校区ID
+	 */
+	private Integer cam_id;
+	/**
+	 * 校区名称
+	 */
+	private String cam_name;
+	/***
+	 * 教室名称
+	 */
+	private String classroom_name;
+	/***
+	 * 所在教学楼
+	 */
+	private String teaching_building;
+	/***
+	 * 所在楼层
+	 */
+	private String currentfloor;
+	public Integer getClassroom_id() {
+		return classroom_id;
+	}
+	public void setClassroom_id(Integer classroom_id) {
+		this.classroom_id = classroom_id;
+	}
+	public Integer getCam_id() {
+		return cam_id;
+	}
+	public void setCam_id(Integer cam_id) {
+		this.cam_id = cam_id;
+	}
+	public String getCam_name() {
+		return cam_name;
+	}
+	public void setCam_name(String cam_name) {
+		this.cam_name = cam_name;
+	}
+	public String getClassroom_name() {
+		return classroom_name;
+	}
+	public void setClassroom_name(String classroom_name) {
+		this.classroom_name = classroom_name;
+	}
+	public String getTeaching_building() {
+		return teaching_building;
+	}
+	public void setTeaching_building(String teaching_building) {
+		this.teaching_building = teaching_building;
+	}
+	public String getCurrentfloor() {
+		return currentfloor;
+	}
+	public void setCurrentfloor(String currentfloor) {
+		this.currentfloor = currentfloor;
+	}
+	@Override
+	public String toString() {
+		return "CampusAndClassRoomPojo [classroom_id=" + classroom_id + ", cam_id=" + cam_id + ", cam_name=" + cam_name
+				+ ", classroom_name=" + classroom_name + ", teaching_building=" + teaching_building + ", currentfloor="
+				+ currentfloor + "]";
+	}
+	
+	
+
+}

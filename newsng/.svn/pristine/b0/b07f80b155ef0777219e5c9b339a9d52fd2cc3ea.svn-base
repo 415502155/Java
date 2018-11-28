@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title>作业详情</title>
+		<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+		<link rel="shortcut icon" href="/favicon.ico">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<!--ui包-->
+		<link rel="stylesheet" href="../../../css/sm.css">
+		<link rel="stylesheet" href="../../../css/layout.css">
+		<link rel='stylesheet prefetch' href='../../../js/photoSwipe/photoswipe.css'>
+		<link rel='stylesheet prefetch' href='../../../js/photoSwipe/default-skin/default-skin.css'>
+		<style>
+			.list-block .list-group-title { padding: .6rem .75rem .4rem;border-bottom: 1px solid #e7e7e7; ;cursor: pointer}
+			.label-checkbox {border-bottom: 1px solid #e7e7e7;}
+
+			.icon-down { position: absolute; right: .75rem;}
+
+			.item-title-row { line-height: 1.4rem}
+			.chooseText {padding: 4px 40px 0; font-size:.83rem;position: absolute;}
+			.list-block.media-list .list-group-title .item-media {padding:0}
+			.studentDetail {
+				width: 50%;
+				height: 100%;
+				position: absolute;
+				right: 0;
+				background: #0a8ddf18;
+				z-index: 9;
+				top: 0;
+				cursor: pointer;
+			}
+			.list-block .color-danger { color: #f6383a;}
+			.list-block ul {border: none}
+			.list-block ul:first-child {border-top: 1px solid #e7e7e7;}
+			 .list-block ul li:last-child {border-bottom: 1px solid #e7e7e7;}
+		</style>
+	</head>
+	<body>
+		<div class="page-group">
+			<div class="page page-current" id="noticeD">
+                <!--内容显示区-->
+			    <div class="content native-scroll" >
+
+
+
+					<div class="content-block-title" style="margin-top:1rem" >接收详情</div>
+					<div class="list-block" id="allClass">
+						<ul>
+							<!--		<li class="item-content">
+                                        <div class="item-inner">
+                                            <div class="item-title">流水号</div>
+                                            <div class="item-after">568458d154d</div>
+                                        </div>
+                                    </li>
+                                    <li class="item-content">
+                                        <div class="item-inner">
+                                            <div class="item-title">支付金额</div>
+                                            <div class="item-after">280.00元</div>
+                                        </div>
+                                    </li>
+                                    <li class="item-content">
+                                        <div class="item-inner">
+                                            <div class="item-title">支付时间</div>
+                                            <div class="item-after">2017-02-25 00:00:00</div>
+                                        </div>
+                                    </li>
+        -->
+						</ul>
+						<!--<div class="list-block-label">您的校服费已支付</div>-->
+					</div>
+
+			    </div>
+				<!--内容显示区 End-->
+			</div>
+		</div>
+	</body>
+</html>
+
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script>
+
+    var noticeID=GetUrlParam("nid");
+	 $(function(){
+         //要求回执的通知
+
+             var receiptPorts=domainName+"/eduWeixin/notice/noticetk";
+
+             var base=JSON.parse(sessionStorage.baseUser);
+             var parameter={
+                 token:base.token,
+                 // 登录获得token
+                 udid:base.udid,
+                 // 登录获得udid
+                 version:3,
+                 uid:base.orguser.user_id,//base.orguser.teacher.tech_id,
+                 org_id:base.orguser.org_id,
+				 nid:noticeID
+             }
+
+             getData(receiptPorts,parameter,function(result){
+
+                 if(result.code==200 && result.success==true){
+
+                     var classHmtl="";
+                     var data=result.data.classes;
+
+                     for(var i=0;i<data.length;i++){
+                    	 classHmtl +='<div class="list-group" id="'+data[i].clas_id+'"><ul><li class="list-group-title off" >'+
+                         data[i].clas_name+'<span class="icon icon-down toTop"></span>'+
+                         '</li>';
+
+						if(data[i].cstudents.length>0){
+                            for(var m=data[i].cstudents.length-1;m>=0;m--){
+                                classHmtl +='<li id="'+data[i].cstudents[m].stud_id+'"  class="item-content" style="display: none">'+
+                                    '<div class="item-inner">'+
+                                    '<div class="item-title "><span class="studentName">'+data[i].cstudents[m].stud_name+'</span></div>'+
+                                    '<div class="item-after"></div>'+
+                                    '</div>'+
+                                    '</li>';
+                            }
+						}
+						 classHmtl +='</ul></div>';
+                     }
+
+                     $("#allClass").html(classHmtl);
+
+                     if(result.data.remind_time!==null){
+
+                   	  var times=result.now-result.data.remind_time;
+
+                    if(1800000-times>0){
+                   		$("#tipBtn").find("span").html("("+Math.ceil((1800000-times)/60000)+"分钟后可提醒)");
+                   		$("#tipBtn").addClass("button-light").removeClass("button-fill");
+                   	  }
+
+                      $("#tipBtn").attr("data-countdown",times);
+                      if(1800000-times>=0){
+                          //倒计时
+                          var queryR=setInterval(function(){
+                              var timeM=parseInt($("#tipBtn").attr("data-countdown"))-60000;
+                              if(timeM>0){
+                                  $("#tipBtn").attr("data-countdown",timeM);
+
+                                  $("#tipBtn").find("span").html("("+Math.ceil(timeM/60000)+"分钟后可提醒)");
+                              }else{
+                                  $("#tipBtn").find("span").text();
+                                  clearInterval(queryR);
+                              }
+
+                          }, 60000);
+                      }
+
+                    }
+
+                 }else{
+                     $.alert(result.msg);
+                 }
+             });
+
+
+         //折叠班级
+         $('body').on('click',".list-group-title", function(event){
+             if($(this).hasClass("off")){
+                 $(this).nextAll().show();
+                 $(this).removeClass("off");
+                 $(this).find(".icon-down").removeClass("toTop").addClass("todown");
+             }else{
+                 $(this).nextAll().hide();
+                 $(this).addClass("off");
+                 $(this).find(".icon-down").addClass("toTop").removeClass("todown");
+             }
+             //var studentObj=$(this).closest(".list-group").find("li:gt(0)");
+         });
+
+         $("#tipBtn").click(function(){
+             var $this=$(this);
+             if($this.hasClass("button-light")){
+                 return false
+               }
+             var receiptPorts=domainName+"/eduWeixin/notice/noticeremind";
+             var parameter={
+            	notice_id:noticeID
+             }
+             getData(receiptPorts,parameter,function(result){
+                 if(result.code==200 && result.success==true){
+                     $.alert("提醒成功！");
+                     var times=result.now-result.data;
+                     $("#tipBtn").find("span").html("("+Math.ceil((1800000-times)/60000)+"分钟后可提醒)");
+                     $("#tipBtn").attr("data-countdown",times).addClass("button-light").removeClass("button-fill");
+                     //倒计时
+                    var queryR=setInterval(function(){
+                         var timeM=parseInt($("#tipBtn").attr("data-countdown"))-60000;
+                         if(1800000-times>=0){
+                        	 $("#tipBtn").attr("data-countdown",timeM).addClass("button-light").removeClass("button-fill");
+
+                             $("#tipBtn").find("span").html("("+Math.ceil((1800000-times)/60000)+"分钟后可提醒)");
+                         }else{
+                        	 $("#tipBtn").find("span").text();
+                             clearInterval(queryR);
+                         }
+
+                     },60000);
+
+
+                 }else{
+                     $.alert(result.msg);
+                 }
+             });
+         });
+	 });
+</script>

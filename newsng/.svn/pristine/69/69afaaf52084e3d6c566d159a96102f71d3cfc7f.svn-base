@@ -1,0 +1,768 @@
+package sng.controller.weixin;
+
+import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import sng.comparator.ChargeDetailSorter;
+import sng.comparator.ChargeDetailTListSorter;
+import sng.comparator.ChargeSorter;
+import sng.controller.common.BaseAction;
+import sng.entity.Charge;
+import sng.entity.ChargeDetail;
+import sng.entity.ChargeRecord;
+import sng.pojo.Result;
+import sng.pojo.base.Organization;
+import sng.pojo.base.Parent;
+import sng.pojo.base.Teacher;
+import sng.service.ChargeDetailService;
+import sng.service.ChargeRecordService;
+import sng.service.ChargeService;
+import sng.util.Constant;
+import sng.util.ESBPropertyReader;
+import sng.util.JsonUtil;
+import sng.util.MoneyUtil;
+import unionpay.acp.sdk.AcpService;
+import unionpay.acp.sdk.LogUtil;
+import unionpay.acp.sdk.SDKConfig;
+
+import com.alibaba.fastjson.JSONArray;
+import com.fasterxml.jackson.core.type.TypeReference;
+
+
+@RestController
+@RequestMapping("/wechat/portal/charge")
+public class ChargeController extends BaseAction{
+
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	
+	private static String UNION_PAY_RESULT = ESBPropertyReader.getProperty("unionPay");
+	
+	
+	@Autowired
+	private ChargeService chargeService;
+	@Autowired
+	private ChargeDetailService chargeDetailService;
+	@Autowired
+	private ChargeRecordService chargeRecordService;
+	@Autowired
+	private RabbitTemplate rabbitTemplate;
+	
+	
+	/********************************************教师移动端********************************************/
+	/**
+	 * 获取缴费列表（教师）
+	 * 交费管理列表页面， 上拉或下来更新当前列表数据
+	 * @param max 当前最大的主键
+	 * @param min 当前最小的主键
+	 * @param num 每次刷新查询的条数
+	 * @return clist：班主任用户管辖所有班级的缴费信息 
+	 * @return sysTime:服务器时间
+	 */
+	@RequestMapping(value = "/getTList.json")
+	public Result<Map<String, Object>> getTList(HttpServletRequest request,
+			@RequestParam(name = "max", defaultValue="0") Integer max,
+			@RequestParam(name = "min", defaultValue="0") Integer min,
+			@RequestParam(name = "num", defaultValue=Constant.NUM_PER_PAGE_STRING) Integer num,
+			HttpServletResponse response, HttpSession session) throws Exception {
+		response.setHeader("Content-type", "text/html;charset=UTF-8");  
+		response.setCharacterEncoding("UTF-8"); 
+		Result<Map<String, Object>> result = new Result<Map<String, Object>>();	
+		String classIds = "";
+		try {		
+			String orgUserId = request.getAttribute("user_id").toString();
+			Teacher teacher = this.getTechByUId(orgUserId);
+			String teacher_id = teacher.getTech_id().toString();
+			classIds = this.getCIDSById(teacher_id);
+		} catch (Exception e) {
+			logger.error("获取登录信息不完整！");
+			result.setMessage("获取登录信息不完整！");
+			result.setSuccess(false);
+		}
+		Map<String, Object> map = new HashMap<String, Object>();
+		try {
+			List<Charge> list = chargeService.getTList(classIds,max,min,num);
+			ChargeSorter mc = new ChargeSorter();  
+			Collections.sort(list,mc); 
+			map.put("list", list);
+			result.setMessage("获取成功");
+			result.setSuccess(true);
+		} catch (Exception e) {
+			e.printStackTrace();
+			result.setMessage("获取失败");
+			result.setSuccess(false);
+		}
+		map.put("sysTime", (new Date()).getTime());
+		result.setData(map);
+		return result;
+	}
+	
+	/**
+	 * 获取学生缴费详情列表（教师）
+	 * 获取教师交费进度页的信息
+	 * @param cid 收费表主表主键
+	 * @return list：当前班主任管辖的、当前缴费项下的全部学生的缴费信息列表
+	 * @return systime:服务器时间
+	 */
+	@RequestMapping(value = "/getTDetail.json")
+	public Result<Map<String, Object>> getTDetail(HttpServletRequest request, 
+			@RequestParam(name = "cid") String cid,
+			HttpServletResponse response, HttpSession session) throws Exception {
+		response.setHeader("Content-type", "text/html;charset=UTF-8");  
+		response.setCharacterEncoding("UTF-8"); 
+		Result<Map<String, Object>> result = new Result<Map<String, Object>>();	
+		String classIds = "";
+		try {		
+			String orgUserId = request.getAttribute("user_id").toString();
+			Teacher teacher = this.getTechByUId(orgUserId);
+			String teacher_id = teacher.getTech_id().toString();
+			classIds = this.getCIDSById(teacher_id);
+		} catch (Exception e) {
+			logger.error("获取登录信息不完整！");
+			result.setMessage("获取登录信息不完整！");
+			result.setSuccess(false);
+		}
+		Map<String, Object> map = new HashMap<String, Object>();
+		try {
+			List<ChargeDetail> list = chargeDetailService.getListByCIdForTeacher(Integer.parseInt(cid),classIds);
+			list = MoneyUtil.fromFENtoYUAN(list,new String[]{"txnAmt"});
+			ChargeDetailTListSorter mc = new ChargeDetailTListSorter();  
+			Collections.sort(list,mc); 
+			map.put("list", list);
+			result.setMessage("获取成功");
+			result.setSuccess(true);
+		} catch (Exception e) {
+			e.printStackTrace();
+			result.setMessage("获取失败");
+			result.setSuccess(false);
+		}
+		map.put("systime", (new Date()).getTime());
+		result.setData(map);
+		return result;
+	}
+	
+	/**
+	 * 获取学生可操作内容（教师）
+	 * @param sid:学生主键
+	 * @param cid：收费表主表主键
+	 * @return list:学生的家长列表，包含家长关系和手机号码
+	 * @return charge:学生的支付情况
+	 */
+	@RequestMapping(value = "/getStudentDetail.json")
+	public Result<Map<String, Object>> getStudentDetail(HttpServletRequest request, 
+			@RequestParam(name = "stud_id") String stud_id,
+			@RequestParam(name = "cid") String cid,
+			HttpServletResponse response, HttpSession session) throws Exception {
+		response.setHeader("Content-type", "text/html;charset=UTF-8");  
+		response.setCharacterEncoding("UTF-8"); 
+		Result<Map<String, Object>> result = new Result<Map<String, Object>>();	
+		Map<String, Object> documentMap = new HashMap<String, Object>();
+		Map<String, Object> map = new HashMap<String, Object>();
+		documentMap.put("stud_id", stud_id);
+		String msg = "";
+		result.setSuccess(true);
+		try {
+			ChargeDetail cd = chargeDetailService.getDetailForTeacher(Integer.parseInt(stud_id),Integer.parseInt(cid));
+			cd.setMoney(MoneyUtil.fromFENtoYUAN(cd.getTxnAmt()));
+			map.put("charge", cd);
+		} catch (Exception e) {
+			msg += "获取支付信息失败!";
+			result.setSuccess(false);
+		}
+		try {
+			String documentResult = this.callPostUrl(request, "api/student/getParentPhone", documentMap);
+			Result<List<Parent>> pResult = JsonUtil.getObjectFromJson(documentResult, new TypeReference<Result<List<Parent>>>() { });
+			List<Parent> list = new ArrayList<Parent>();
+			for (Parent p : pResult.getData()) {
+				if(StringUtils.isNotEmpty(p.getMobile())){
+					list.add(p);
+				}
+			}
+			map.put("list",list);
+		} catch (Exception e) {
+			e.printStackTrace();
+			msg += "获取家长信息失败!";
+			map.put("list", new JSONArray());
+		}
+		if(StringUtils.isNotEmpty(msg)){
+			result.setMessage(msg);
+		}else{
+			result.setMessage("获取成功");
+		}
+		result.setData(map);
+		return result;
+	}
+	
+	/**
+	 * 未缴费提醒
+	 * 教师发起提醒所有未缴费的学生
+	 * @param cid：主订单主键
+	 */
+	@RequestMapping(value = "/remind.json")
+	public Result<String> remind(HttpServletRequest request, 
+			@RequestParam(name = "cid") String cid,
+			HttpServletResponse response, HttpSession session) throws Exception {
+		response.setHeader("Content-type", "text/html;charset=UTF-8");  
+		response.setCharacterEncoding("UTF-8"); 
+		Result<String> result = new Result<String>();
+		String teacher_id = "";
+		String classIds = "";
+		String org_id = "";
+		try {		
+			String orgUserId = request.getAttribute("user_id").toString();
+			Teacher teacher = this.getTechByUId(orgUserId);
+			teacher_id = teacher.getTech_id().toString();
+			org_id = request.getAttribute("org_id").toString();
+			classIds = this.getCIDSById(teacher_id);
+		} catch (Exception e) {
+			logger.error("获取登录信息不完整！");
+			result.setMessage("获取登录信息不完整！");
+			result.setSuccess(false);
+		}
+		Map<String, Object> messageMap = new HashMap<String, Object>();
+		messageMap.put("cid", cid);
+		messageMap.put("classIds", classIds);
+		messageMap.put("org_id", org_id);
+		try {
+			rabbitTemplate.convertAndSend("charge_remind_exchange", null, messageMap);
+			result.setSuccess(true);
+			result.setMessage("已通过微信和短信发送提醒消息");
+			logger.info("【缴费提醒】教师tech_id"+teacher_id+"于"+new SimpleDateFormat("yyyyMMddHHmmss").format(new Date().getTime())+"发起了对订单cid"+cid+"的未交费提醒");
+		} catch (Exception e) {
+			e.printStackTrace();
+			result.setSuccess(false);
+			result.setMessage("提醒失败");
+		}
+		return result;
+	}
+	
+	/**
+	 * 申请代缴
+	 * 教师线下收费后确认已代收代缴
+	 * cd_id：家长分订单主键
+	 */
+	@RequestMapping(value = "/paid.json")
+	public Result<Integer> paid(HttpServletRequest request, 
+			@RequestParam(name = "cd_id") String cd_id,
+			HttpServletResponse response, HttpSession session) throws Exception {
+		response.setHeader("Content-type", "text/html;charset=UTF-8");  
+		response.setCharacterEncoding("UTF-8"); 
+		Result<Integer> result = new Result<Integer>();	
+		String teacherId = "";
+		String teacherName = "";
+		String orgUserId = "";
+		try {		
+			orgUserId = request.getAttribute("user_id").toString();
+			Teacher teacher = this.getTechByUId(orgUserId);
+			teacherId = teacher.getTech_id().toString();
+			teacherName = teacher.getTech_name();
+		} catch (Exception e) {
+			logger.error("获取登录信息不完整！");
+			result.setMessage("获取登录信息不完整！");
+			result.setSuccess(false);
+			return result;
+		}
+		result.setSuccess(true);
+		//加乐观锁
+		Date lockDate = new Date();
+		try {
+			ChargeDetail temp = new ChargeDetail();
+			temp.setCd_id(Integer.parseInt(cd_id));
+			Integer counter = chargeDetailService.lockChargeDetail(lockDate,temp);
+			if(counter==1){
+				ChargeDetail cd = chargeDetailService.getById(Integer.parseInt(cd_id));
+				if(cd.getOffline_pay().equals(Constant.CHARGE_DETAIL_STATUS_NEVER)
+						&&cd.getOnline_pay().equals(Constant.CHARGE_DETAIL_STATUS_NEVER)
+						&&cd.getStatus().equals(Constant.CHARGE_DETAIL_STATUS_NEVER)){
+					//开始支付
+					cd.setOffline_pay(Constant.CHARGE_DETAIL_STATUS_OK);
+					cd.setStatus(Constant.CHARGE_DETAIL_STATUS_OK);
+					cd.setTxnAmt(MoneyUtil.fromYUANtoFEN(cd.getMoney()));
+					cd.setTxnTime(new Date());
+					Date payDate = new Date();
+					cd.setModify_time(payDate);
+					Integer pay = chargeDetailService.updateWithLock(cd,lockDate);
+					//创建支付记录
+					if(pay==1){
+						//添加支付记录
+						ChargeRecord cr = new ChargeRecord();
+						cr.setTxnType(Constant.TXNTYPE_SJWY_OFFLINE_PAY);
+						cr.setCid(cd.getCid());
+						cr.setCd_id(cd.getCd_id());
+						cr.setTxnAmt(cd.getTxnAmt());
+						cr.setTxnTime(payDate);
+						cr.setInsert_time(new Date());
+						cr.setOrg_user_id(Integer.parseInt(orgUserId));
+						cr.setUser_identify(Constant.IDENTITY_TEACHER);
+						cr.setUser_type_id(Integer.parseInt(teacherId));
+						cr.setUser_type_name(teacherName);
+						chargeRecordService.save(cr);
+						//更新支付总表
+						ChargeRecord query = new ChargeRecord();
+						query.setCid(cd.getCid());
+						List<ChargeRecord> list = chargeRecordService.getList(query);
+						Integer no_pay_num = chargeDetailService.countNoPay(cd.getCid());
+						Charge charge = chargeService.getById(cd.getCid());
+						charge.setNopay_num(no_pay_num);
+						chargeService.updateStatus(list,charge);
+						logger.info("【线下支付成功】支付ChargeDetail主键:"+cd.getCd_id());
+					}else{
+						cd.setOffline_pay(Constant.CHARGE_DETAIL_STATUS_NEVER);
+						cd.setStatus(Constant.CHARGE_DETAIL_STATUS_NEVER);
+						cd.setTxnAmt(null);
+						cd.setTxnTime(null);
+						cd.setModify_time(payDate);
+						chargeDetailService.update(cd);
+						logger.error("【线下支付失败】校验账单乐观锁时失败。ChargeDetail主键:"+cd_id);
+						result.setMessage("请求失败！原因：账单状态变动，请确认后重试！");
+						result.setSuccess(false);
+					}
+				}else{
+					result.setMessage("请求失败！原因：账单状态变动，请确认后重试！");
+					result.setSuccess(false);
+				}
+			}else{
+				logger.error("【线下支付错误】为支付订单设置乐观锁时失败。ChargeDetail主键:"+cd_id);
+				result.setMessage("请求失败！原因：数据库异常，请稍候重试！");
+				result.setSuccess(false);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error("【线下支付错误】支付订单时发生错误。ChargeDetail主键:"+cd_id);
+			result.setMessage("请求失败！原因：数据库异常，请稍候重试！");
+			result.setSuccess(false);
+		}
+		return result;
+	}
+	
+	/**
+	 * 申请退费
+	 * 教师发起为学生申请退款
+	 * cd_id：收费表（家长分表）主键
+	 * money：要退费的金额
+	 */
+	@RequestMapping(value = "/refund.json")
+	public Result<Integer> refund(HttpServletRequest request,
+			@RequestParam(name = "cd_id") String cd_id, 
+			@RequestParam(name = "money") String money, 
+			@RequestParam(name = "type") String type, 
+			HttpServletResponse response, HttpSession session) throws Exception {
+		response.setHeader("Content-type", "text/html;charset=UTF-8");  
+		response.setCharacterEncoding("UTF-8"); 
+		Result<Integer> result = new Result<Integer>();	
+		String teacherId = "";
+		String teacherName = "";
+		String orgUserId = "";
+		try {		
+			orgUserId = request.getAttribute("user_id").toString();
+			Teacher teacher = this.getTechByUId(orgUserId);
+			teacherId = teacher.getTech_id().toString();
+			teacherName = teacher.getTech_name();
+		} catch (Exception e) {
+			logger.error("获取登录信息不完整！");
+			result.setMessage("获取登录信息不完整！");
+			result.setSuccess(false);
+			return result;
+		}
+		if(!NumberUtils.isParsable(money)){
+			result.setMessage("金额格式不正确！");
+			result.setSuccess(false);
+			return result;
+		}else if(money.contains(".")&&money.split("\\.")[1].length()>2){
+			result.setMessage("输入金额只能精确到分！");
+			result.setSuccess(false);
+			return result;
+		}else if(new BigDecimal(MoneyUtil.fromYUANtoFEN(money)).compareTo(new BigDecimal(Constant.MAX_MONEY))>0){
+			result.setMessage("输入金额过大！");
+			result.setSuccess(false);
+			return result;
+		}else if(new BigDecimal(MoneyUtil.fromYUANtoFEN(money)).compareTo(new BigDecimal(Constant.MIN_MONEY))<0){
+			result.setMessage("金额输入有误！");
+			result.setSuccess(false);
+			return result;
+		}
+		result.setSuccess(true);
+		//加乐观锁
+		Date lockDate = new Date();
+		String refundMoney = MoneyUtil.fromYUANtoFEN(money);
+		try {
+			ChargeDetail temp = new ChargeDetail();
+			temp.setCd_id(Integer.parseInt(cd_id));
+			Integer counter = chargeDetailService.lockChargeDetail(lockDate,temp);
+			if(counter==1){
+				ChargeDetail cd = chargeDetailService.getByIdForRefund(temp.getCd_id());
+				//验证退款条件
+				if(MoneyUtil.isFirstLarger(refundMoney,cd.getTxnAmt())){
+					result.setMessage("请求失败！原因：可退金额不足，请确认后重试！");
+					result.setSuccess(false);
+				}else if(cd.getRefund().equals(Constant.NO)){
+					result.setMessage("请求失败！原因：该项收费已经关闭退费入口！");
+					result.setSuccess(false);
+				}else if(!Constant.CHARGE_DETAIL_STATUS_OK.equals(cd.getStatus())){
+					result.setMessage("请求失败！原因：该项收费状态异常，请刷新后重试！");
+					result.setSuccess(false);
+				}else{
+					ChargeRecord cr = new ChargeRecord();
+					//开始退款
+					if(type.equals(Constant.CHARGE_TYPE_UNIONPAY)&&cd.getOnline_pay().equals(Constant.CHARGE_DETAIL_STATUS_OK)&&cd.getStatus().equals(Constant.CHARGE_DETAIL_STATUS_OK)){
+						cd.setOnline_pay(Constant.CHARGE_DETAIL_STATUS_REFUND_APPLY);
+						cr.setTxnType(Constant.TXNTYPE_SJWY_ONLINE_REFUND_APPLY);
+					}else if(type.equals(Constant.CHARGE_TYPE_CASH)&&cd.getOffline_pay().equals(Constant.CHARGE_DETAIL_STATUS_OK)&&cd.getStatus().equals(Constant.CHARGE_DETAIL_STATUS_OK)){
+						cd.setOffline_pay(Constant.CHARGE_DETAIL_STATUS_REFUND_APPLY);
+						cr.setTxnType(Constant.TXNTYPE_SJWY_OFFLINE_REFUND_APPLY);
+					}
+					cd.setStatus(Constant.CHARGE_DETAIL_STATUS_REFUND_APPLY);
+					Date refundDate = new Date();
+					cd.setModify_time(refundDate);
+					Integer refund = chargeDetailService.updateWithLock(cd,lockDate);
+					//创建退款记录
+					if(refund==1){
+						cr.setCid(cd.getCid());
+						cr.setCd_id(cd.getCd_id());
+						cr.setTxnAmt(refundMoney);
+						cr.setTxnTime(refundDate);
+						cr.setInsert_time(new Date());
+						cr.setOrg_user_id(Integer.parseInt(orgUserId));
+						cr.setUser_identify(Constant.IDENTITY_TEACHER);
+						cr.setUser_type_id(Integer.parseInt(teacherId));
+						cr.setUser_type_name(teacherName);
+						chargeRecordService.save(cr);
+						logger.info("【申请退款】教师tech_id"+teacherId+"于"+new SimpleDateFormat("yyyyMMddHHmmss").format(new Date().getTime())+"发起了对订单cd_id"+cd_id+"的退费申请");
+					}else{
+						logger.error("【退款失败】校验账单乐观锁时失败。ChargeDetail主键:"+cd_id);
+						result.setMessage("请求失败！原因：账单状态变动，请确认后重试！");
+						result.setSuccess(false);
+					}
+				}
+			}else{
+				logger.error("【退款错误】为退款订单设置乐观锁时失败。ChargeDetail主键:"+cd_id);
+				result.setMessage("请求失败！原因：数据库异常，请稍候重试！");
+				result.setSuccess(false);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error("【退款错误】退款时发生异常。ChargeDetail主键:"+cd_id);
+			result.setMessage("请求失败！原因：数据库异常，请稍候重试！");
+			result.setSuccess(false);
+		}
+		return result;
+	}
+	
+	/**
+	 * 支付统计
+	 * @param request
+	 * @param response
+	 * @param session
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/charges.json")
+	public Result<List<Charge>> charges(HttpServletRequest request,HttpServletResponse response, HttpSession session) throws Exception {
+		response.setHeader("Content-type", "text/html;charset=UTF-8");  
+		response.setCharacterEncoding("UTF-8"); 
+		Result<List<Charge>> result = new Result<List<Charge>>();	
+		try {
+			List<Charge> list = new ArrayList<Charge>();
+			Integer org_id = Integer.parseInt(request.getAttribute("org_id").toString());
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+			String date = request.getParameter("date").toString();
+			try {
+				list = chargeService.getTodayCharge(org_id,formatter.parse(date));
+			} catch (Exception e) {
+				list = chargeService.getTodayCharge(org_id,new Date());
+			}
+			for (Charge charge : list) {
+				BigDecimal b1 = new BigDecimal(charge.getSs_num()+"");   
+				BigDecimal b2 = new BigDecimal(charge.getYs_num()+"");
+				try {
+					charge.setNote(b1.divide(b2,4,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal("100")).doubleValue()+"%");
+				} catch (Exception e) {
+					charge.setNote("N/A %");
+				}
+			}
+			result.setData(list);
+		} catch (Exception e) {
+			result.setMessage("获取失败");
+			result.setSuccess(false);
+		}
+		result.setMessage("获取成功");
+		result.setSuccess(true);
+		return result;
+	}
+	/**
+	 * 获取学生缴费详情统计列表（统计页面）
+	 * @param cid 收费表主表主键
+	 * @return list：当前班级的全部学生的缴费信息列表
+	 * @return systime:服务器时间
+	 */
+	@RequestMapping(value = "/getTDetailForClass.json")
+	public Result<Map<String, Object>> getTDetailForClass(HttpServletRequest request, 
+			@RequestParam(name = "cid") String cid,
+			@RequestParam(name = "clas_id") String clas_id,
+			HttpServletResponse response, HttpSession session) throws Exception {
+		response.setHeader("Content-type", "text/html;charset=UTF-8");  
+		response.setCharacterEncoding("UTF-8"); 
+		Result<Map<String, Object>> result = new Result<Map<String, Object>>();	
+		Map<String, Object> map = new HashMap<String, Object>();
+		try {
+			List<ChargeDetail> list = chargeDetailService.getListByCIdForTeacher(Integer.parseInt(cid),clas_id);
+			list = MoneyUtil.fromFENtoYUAN(list,new String[]{"txnAmt"});
+			map.put("list", list);
+			result.setMessage("获取成功");
+			result.setSuccess(true);
+		} catch (Exception e) {
+			e.printStackTrace();
+			result.setMessage("获取失败");
+			result.setSuccess(false);
+		}
+		map.put("sysTime", (new Date()).getTime());
+		result.setData(map);
+		return result;
+	}
+	
+	/********************************************家长移动端********************************************/
+	/**
+	 * 获取缴费列表
+	 * 家长获取自己指定孩子的所有缴费列表
+	 * @param stud_id：选中孩子的学生主键
+	 */
+	@RequestMapping(value = "/getSList.json")
+	public Result<Map<String,Object>> getSList(HttpServletRequest request,
+			@RequestParam(name = "stud_id") String stud_id,
+			@RequestParam(name = "max", defaultValue="0") Integer max,
+			@RequestParam(name = "min", defaultValue="0") Integer min,
+			@RequestParam(name = "num", defaultValue=Constant.NUM_PER_PAGE_STRING) Integer num, 
+			HttpServletResponse response, HttpSession session) throws Exception {
+		response.setHeader("Content-type", "text/html;charset=UTF-8");  
+		response.setCharacterEncoding("UTF-8"); 
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("sysTime", (new Date()).getTime());
+		Result<Map<String,Object>> result = new Result<Map<String,Object>>();
+		try {
+			List<ChargeDetail> list = chargeDetailService.getDetailForParent(Integer.parseInt(stud_id),max,min,num);
+			ChargeDetailSorter mc = new ChargeDetailSorter();  
+			Collections.sort(list,mc); 
+			map.put("list", list);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		result.setSuccess(true);
+		result.setCode(200);
+		result.setData(map);
+		return result;
+	}
+	
+	/**
+	 * @Title : pay 
+	 * @功能描述:提交线上缴费 
+	 * @返回类型：void 
+	 * @throws ：
+	 */
+	@RequestMapping(value = "/pay.htm")
+	public void pay(HttpServletRequest request,
+			@RequestParam(name = "cd_id") String cd_id,
+			HttpServletResponse response, HttpSession session) throws Exception {
+		String org_name = "";
+		String identity = "";
+		String parent_id = "";
+		String user_id = "";
+		String parent_name = "";
+		String openid = "";
+		String org_id = "";
+		Result<Map<String,Object>> result = new Result<Map<String,Object>>();
+		try {	
+			org_id = request.getAttribute("org_id").toString();
+			Organization org = this.getOrgByUId(org_id);
+			org_name = org.getOrg_name_cn();
+			identity = request.getAttribute("identity").toString();
+			user_id = request.getAttribute("user_id").toString();
+			openid = request.getAttribute("open_id").toString();
+		} catch (Exception e) {
+			logger.error("获取登录信息不完整！");
+			result.setMessage("获取登录信息不完整！");
+			result.setSuccess(false);
+			request.setAttribute("result", result);
+		}
+		try {
+			Parent parent = this.getParentByUId(user_id);
+			parent_id = parent.getParent_id().toString();
+			parent_name = parent.getParent_name();
+		} catch (Exception e) {
+		}
+		result.setSuccess(true);
+		//取出的orderDesc字段临时存放的是光大支付account表里的url字段值，后面使用完毕后会恢复并更新回去
+		ChargeDetail cd = chargeDetailService.getByIdForPayWithCEBUrl(Integer.parseInt(cd_id));
+		if(null==cd){
+			result.setSuccess(false);
+			result.setMessage("请求失败！原因：缴费项不存在，请刷新后重试！");
+			request.setAttribute("result", result);
+			request.getRequestDispatcher(UNION_PAY_RESULT).forward(request, response);
+		}else if(!cd.getStatus().equals(Constant.CHARGE_DETAIL_STATUS_NEVER)||
+					!cd.getOnline_pay().equals(Constant.CHARGE_DETAIL_STATUS_NEVER)||
+					!cd.getOffline_pay().equals(Constant.CHARGE_DETAIL_STATUS_NEVER)){
+			result.setSuccess(false);
+			result.setMessage("请求失败！原因：缴费项状态异常，已经完成缴费或退费！");
+			request.setAttribute("result", result);
+			request.getRequestDispatcher(UNION_PAY_RESULT).forward(request, response);
+		}else if(cd.getStart_time().getTime()>(new Date()).getTime()){
+			result.setSuccess(false);
+			result.setMessage("请求失败！原因：缴费尚未开始！");			
+			request.setAttribute("result", result);
+			request.getRequestDispatcher(UNION_PAY_RESULT).forward(request, response);
+		}else if(cd.getEnd_time().getTime()<(new Date()).getTime()){
+			result.setSuccess(false);
+			result.setMessage("请求失败！原因：缴费已经结束！");			
+			request.setAttribute("result", result);
+			request.getRequestDispatcher(UNION_PAY_RESULT).forward(request, response);
+		}else if(!cd.getTxnAmt().equals("0")&&null!=cd.getTxnAmt()){
+			result.setSuccess(false);
+			result.setMessage("请求失败！原因：缴费金额异常！");			
+			request.setAttribute("result", result);
+			request.getRequestDispatcher(UNION_PAY_RESULT).forward(request, response);
+		}else if(cd.getC_status()!=Constant.CHARGE_STATUS_PUSH_OK){
+			result.setSuccess(false);
+			result.setMessage("请求失败！原因：缴费通知状态改变，请刷新后重试！");			
+			request.setAttribute("result", result);
+			request.getRequestDispatcher(UNION_PAY_RESULT).forward(request, response);
+		}else{
+			//取出临时存在orderDesc字段里的光大url信息备用
+			String url = cd.getOrderDesc();
+			//再将原本的orderDesc信息还原
+			cd.setOrderDesc(cd.getItem());
+			//光大支付流程
+			if(Constant.ACCTYPE_CEB.intValue()==cd.getAccType().intValue()){
+				chargeDetailService.update(cd);
+				// 小于0表示该逻辑块关闭，不进行查询验证
+				if(Constant.CHARGE_QUERY_TIMEOUT_MILLISECONDS>=0){
+					SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+					Calendar c = Calendar.getInstance();
+					Date clickTime = c.getTime();
+					c.add(Calendar.MILLISECOND, Constant.CHARGE_QUERY_TIMEOUT_MILLISECONDS);
+					Date queryTime = c.getTime();
+					Map<String, Object> map = new HashMap<String, Object>();
+					map.put("orderId", cd.getOrder_id());
+					map.put("merId", cd.getMerId());
+					map.put("clickTime", new SimpleDateFormat("yyyyMMddHHmmss").format(clickTime));
+					if(!sdf.format(clickTime).equals(sdf.format(queryTime))){
+						map.put("queryTime", new SimpleDateFormat("yyyyMMddHHmmss").format(queryTime));
+					}
+					rabbitTemplate.convertAndSend("charge_query_delay_exchange", null, map);
+				}
+				response.sendRedirect(url+"&userNo="+cd.getCd_id()+"&filed1="+user_id);
+			}else if(Constant.ACCTYPE_UNIONPAY.intValue()==cd.getAccType().intValue()){
+				//记录尝试支付时间，以备发生异常时查看
+				//银联：页面跳转前更新该字段（光大：跳转后由查询缴费接口更新）
+				cd.setTry_time(new Date());
+				chargeDetailService.update(cd);
+				
+				Map<String, String> requestData = new HashMap<String, String>();
+				
+				/***银联全渠道系统，产品参数，除了encoding自行选择外其他不需修改***/
+				requestData.put("version", SDKConfig.getConfig().getVersion());   			  //版本号，全渠道默认值
+				requestData.put("encoding", "UTF-8"); 			  //字符集编码，可以使用UTF-8,GBK两种方式
+				requestData.put("signMethod", SDKConfig.getConfig().getSignMethod()); //签名方法
+				requestData.put("txnType", "01");               			  //交易类型 ，01：消费
+				requestData.put("txnSubType", "01");            			  //交易子类型， 01：自助消费
+				requestData.put("bizType", "000201");           			  //业务类型，B2C网关支付，手机wap支付
+				requestData.put("channelType", "07");           			  //渠道类型，这个字段区分B2C网关支付和手机wap支付；07：PC,平板  08：手机
+				
+				Base64 base64 = new Base64();
+				String reqREserved = cd_id+"|"+user_id+"|"+parent_id+"|"+parent_name+"|"+org_id+"|"+org_name+"|"+openid+"|"+identity+"|"+cd.getItem()+"|"+cd.getStud_id();
+				byte[] textByte = reqREserved.getBytes("UTF-8");
+				String encodedText = base64.encodeToString(textByte);
+				
+				//编码
+				/***商户接入参数***/
+				requestData.put("merId", cd.getMerId());    	          			  //商户号码，请改成自己申请的正式商户号或者open上注册得来的777290058112538测试商户号
+				requestData.put("accessType", "0");             			  //接入类型，0：直连商户 
+				requestData.put("orderId",cd.getOrder_id());             //商户订单号，8-40位数字字母，不能含“-”或“_”，可以自行定制规则		
+				requestData.put("txnTime", new SimpleDateFormat("yyyyMMddHHmmss").format(new Date().getTime()));        //订单发送时间，取系统时间，格式为YYYYMMDDhhmmss，必须取当前时间，否则会报txnTime无效
+				requestData.put("currencyCode", "156");         			  //交易币种（境内商户一般是156 人民币）		
+				requestData.put("txnAmt", MoneyUtil.fromYUANtoFEN(cd.getMoney()));             			      //交易金额，单位分，不要带小数点
+				requestData.put("reqReserved",  encodedText);  //请求方保留域，如需使用请启用即可；透传字段（可以实现商户自定义参数的追踪）本交易的后台通知,对本交易的交易状态查询交易、对账文件中均会原样返回，商户可以按需上传，长度为1-1024个字节。出现&={}[]符号时可能导致查询接口应答报文解析失败，建议尽量只传字母数字并使用|分割，或者可以最外层做一次base64编码(base64编码之后出现的等号不会导致解析失败可以不用管)。		
+				requestData.put("frontUrl", SDKConfig.getConfig().getFrontUrl());
+				requestData.put("backUrl", SDKConfig.getConfig().getBackUrl());
+				requestData.put("payTimeout", new SimpleDateFormat("yyyyMMddHHmmss").format(new Date().getTime() + 15 * 60 * 1000));
+				/**请求参数设置完毕，以下对请求参数进行签名并生成html表单，将表单写入浏览器跳转打开银联页面**/
+				Map<String, String> submitFromData = AcpService.signByCertInfo(requestData,cd.getSignCert(), cd.getPwd(), "utf-8");
+				
+				String requestFrontUrl = SDKConfig.getConfig().getFrontRequestUrl();  //获取请求银联的前台地址：对应属性文件acp_sdk.properties文件中的acpsdk.frontTransUrl
+				String html = AcpService.createAutoFormHtml(requestFrontUrl, submitFromData,"UTF-8");   //生成自动跳转的Html表单
+				
+				LogUtil.writeLog("打印请求HTML，此为请求报文，为联调排查问题的依据："+html);
+				
+				// 小于0表示该逻辑块关闭，不进行查询验证
+				if(Constant.CHARGE_QUERY_TIMEOUT_MILLISECONDS>=0){
+					SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+					Calendar c = Calendar.getInstance();
+					Date clickTime = c.getTime();
+					c.add(Calendar.MILLISECOND, Constant.CHARGE_QUERY_TIMEOUT_MILLISECONDS);
+					Date queryTime = c.getTime();
+					Map<String, Object> map = new HashMap<String, Object>();
+					map.put("orderId", cd.getOrder_id());
+					map.put("merId", cd.getMerId());
+					map.put("clickTime", new SimpleDateFormat("yyyyMMddHHmmss").format(clickTime));
+					if(!sdf.format(clickTime).equals(sdf.format(queryTime))){
+						map.put("queryTime", new SimpleDateFormat("yyyyMMddHHmmss").format(queryTime));
+					}
+					rabbitTemplate.convertAndSend("charge_query_delay_exchange", null, map);
+				}
+				//将生成的html写到浏览器中完成自动跳转打开银联支付页面；这里调用signData之后，将html写到浏览器跳转到银联页面之前均不能对html中的表单项的名称和值进行修改，如果修改会导致验签不通过
+				response.getWriter().write(html);
+			}else{
+				LogUtil.writeErrorLog("没有查询到匹配的账户类型");
+			}
+		}
+	}
+	
+	/**
+	 * 获取缴费列表
+	 * 家长获取自己指定孩子的所有缴费列表
+	 * @param stud_id：选中孩子的学生主键
+	 */
+	@RequestMapping(value = "/getPayType.json")
+	public Result<String> getPayType(HttpServletRequest request,
+			@RequestParam(name = "cd_id") String cdid,HttpServletResponse response, HttpSession session) throws Exception {
+		response.setHeader("Content-type", "text/html;charset=UTF-8");  
+		response.setCharacterEncoding("UTF-8"); 
+
+		Result<String> result = new Result<String>();
+		String payType = "-1";
+		try {
+			payType = chargeDetailService.getPayType(cdid);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		result.setSuccess(true);
+		result.setCode(200);
+		result.setData(payType);
+		return result;
+	}
+	
+}

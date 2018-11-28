@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title>工资列表</title>
+		<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+		<!--<link rel="shortcut icon" href="/favicon.ico">-->
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<!--ui包-->
+		<link rel="stylesheet" href="../../../css/sm.css">
+		<link rel="stylesheet" href="../../../css/layout.css">
+		<style type="text/css">
+		.infinite-scroll-preloader {
+			margin-top: -20px;
+		}
+		.list-block .item-title {
+		    font-size: medium;
+		}
+		</style>
+	</head>
+	<body>
+	<div class="page-group">
+		<div id="page-infinite-scroll-bottom" class="page page-current">
+		<!-- 添加 class infinite-scroll 和 data-distance  向下无限滚动可不加infinite-scroll-bottom类，这里加上是为了和下面的向上无限滚动区分-->
+			<div class="content infinite-scroll infinite-scroll-bottom  pull-to-refresh-content" data-distance="100">
+				<!-- 默认的下拉刷新层 -->
+				<div class="pull-to-refresh-layer">
+					<div class="preloader"></div>
+					<div class="pull-to-refresh-arrow"></div>
+				</div>
+				<div class="list-block" style="margin-top: 0" id="addData">
+				</div>
+				<!-- 上滑加载提示符 -->
+				<div class="infinite-scroll-preloader">
+					<div class="preloader"></div>
+				</div>
+			</div>
+	   </div>
+	</div>
+	</body>
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.js'></script>
+<script src="../../../js/config.js"></script>
+<script src='https://res.wx.qq.com/open/js/jweixin-1.2.0.js'></script>
+<script>
+var baseP=getJPermissions(JSON.parse(sessionStorage.baseUser).orguser.org_id);
+wx.config({
+    debug: false,
+    appId: baseP.appId,
+    timestamp: baseP.timestamp,
+    nonceStr: baseP.nonceStr,
+    signature: baseP.signature,
+    jsApiList: [
+        'checkJsApi',
+        'onMenuShareTimeline',
+        'onMenuShareAppMessage',
+        'onMenuShareQQ',
+        'onMenuShareWeibo',
+        'onMenuShareQZone',
+        'hideMenuItems',
+        'showMenuItems',
+        'hideAllNonBaseMenuItem',
+        'showAllNonBaseMenuItem',
+        'translateVoice',
+        'startRecord',
+        'stopRecord',
+        'onVoiceRecordEnd',
+        'playVoice',
+        'onVoicePlayEnd',
+        'pauseVoice',
+        'stopVoice',
+        'uploadVoice',
+        'downloadVoice',
+        'chooseImage',
+        'previewImage',
+        'uploadImage',
+        'downloadImage',
+        'getNetworkType',
+        'openLocation',
+        'getLocation',
+        'hideOptionMenu',
+        'showOptionMenu',
+        'closeWindow',
+        'scanQRCode',
+        'chooseWXPay',
+        'openProductSpecificView',
+    ]
+});
+wx.ready(function (){
+	//隐藏非基础类菜单
+	wx.hideAllNonBaseMenuItem();
+})
+</script>
+<script >
+
+    //后退刷新
+    window.addEventListener('pagehide', function(event) {
+        sessionStorage.home=1;
+    });
+
+    var maxId="",minId="";
+	var base=JSON.parse(sessionStorage.baseUser);
+    var parameter={
+		token:base.token,
+        // 登录获得token
+        udid:base.udid,
+        // 登录获得udid
+        version:3,
+        // 默认0web 1ios 2android 3h5
+        // 选中孩子的学生主键
+        num:15,
+        // 每次刷新时追加显示的条数
+        tech_id:base.orguser.teacher.tech_id,
+        org_id:base.orguser.org_id,
+		recordId:"",
+		date:"",
+		direction:""
+    }
+
+    var loading = false;
+
+    $(function () {
+        'use strict';
+        addItems();
+        //无限滚动
+        $(document).on("pageInit", "#page-infinite-scroll-bottom", function(e, id, page) {
+            $(page).on('infinite', function() {
+                // 如果正在加载，则退出
+                if (loading){return false;}
+                // 设置flag
+                loading=true;
+                addItems();
+            });
+        });
+
+        //初始化
+        $.init();
+
+        $("#addData").on("click", "li", function(e, id, page) {
+            var cid=$(this).attr("id");
+            if(cid=="none"){
+            	return false
+            }
+            window.location="detail.html?recordID="+cid;
+        });
+
+    });
+
+
+
+    function addItems() {
+
+        var obj=$("#addData ul").eq($("#addData ul").length-1).find("li:last-child");
+        parameter.recordId=obj.attr("id");
+        parameter.date=obj.attr("data-date")==undefined?"":obj.attr("data-date");
+        parameter.direction=1;
+        if($("#none").length==1){
+            return false
+		}
+
+        getDataNoLoading(domainName+"/shijiwxy/wechat/portal/teacherSalary/list.json", parameter,function(res){
+
+            if(res.code==200 && res.success==true){
+                loading=false;
+                var html = '';
+                if(res.data.salaryList==undefined||res.data.salaryList.length==0){
+                    if($("#none").length==1){
+                        return false
+                    }
+                    html +='<ul style="border: none"> <li id="none" class="noData noData_line lastData" ><span class="noData__tips">我是有底线的</span></li></ul>';
+                    parameter.min="none";
+                    $(".infinite-scroll-preloader").hide()
+
+                }else{
+                    if(res.data.salaryList.length>0){
+                        var listObj=res.data.salaryList;
+                        var sum=0;
+                        // 生成新条目的HTML
+                        for (var i=0;i< listObj.length; i++) {
+                        	if($("#"+listObj[i].date).length==0){
+                        		html +=
+                                    '<div class="content-block-title text-center" id="'+listObj[i].date+'">'+listObj[i].date+'</div><ul class="list-container">';
+                        	}else{
+                        		html +='<ul class="list-container" style="border-top:none">';
+                        	}
+
+                            for (var m=0;m< listObj[i].wageGeneralList.length; m++) {
+                        	    sum+=1;
+                                html += '<li class="item-content item-link"  id="'+listObj[i].wageGeneralList[m].id+'" data-date="'+listObj[i].date+'">' +
+                                    '<div class="item-inner">'+
+                                    '<div class="item-title">'+listObj[i].wageGeneralList[m].title+'</div>'+
+                                    '<div class="item-after"> </div>'+
+                                    '</div>' +
+                                    '</li>';
+                                if(m==listObj[i].wageGeneralList.length-1){
+                                    parameter.min=listObj[i].wageGeneralList[m].id;
+                                }
+                            }
+                            html += '</ul>';
+                        }
+
+                        if(sum<10){
+                            html += ' <li id="none" class="noData noData_line lastData" ><span class="noData__tips">我是有底线的</span></li>';
+
+                            // 删除加载提示符
+                            $('.infinite-scroll-preloader').hide();
+                        }
+
+                    }else{
+
+                        if($("#addData li").length==0){
+                            $('#addData').empty();
+                            html += '<div class="error-img"><p class="error-text">还没有什么内容哦~</p></div>';
+                        }else{
+                            var text="我是有底线的";
+                            html +=' <li id="none" class="noData noData_line lastData"><span class="noData__tips">'+text+'</span></li>';
+                        }
+                        // 删除加载提示符
+                        $('.infinite-scroll-preloader').remove();
+
+                    }
+
+
+                }
+             // 删除加载提示符
+                $('.infinite-scroll-preloader').hide();
+                // 添加新条目
+                $('#addData').append(html);
+              //空数据样式
+                if($('#addData .error-text').length>0){
+                    noContentImg($('#addData .error-text'), 'images/empty.png');
+                }
+
+                $.refreshScroller();
+
+            }else{
+                $.alert(res.message);
+            }
+        },"GET");
+    }
+
+    //加载最新的数据
+    $(document).on('refresh', '.pull-to-refresh-content',function(e) {
+
+        parameter.recordId=$("#addData  li:first-child").attr("id")=="none"?"":$("#addData  li:first-child").attr("id");;
+        parameter.date=$("#addData  li:first-child").attr("data-date")==undefined?"":$("#addData  li:first-child").attr("data-date");
+
+        parameter.direction=0;
+        loading = true;
+        getDataNoLoading(domainName+"/shijiwxy/wechat/portal/teacherSalary/list.json", parameter,function(res){
+
+            if(res.code==200 && res.success==true){
+                var html = '';
+                if(res.data.salaryList==undefined||res.data.salaryList.length==0){
+
+                    html +='<ul style="border: none"> <li id="none" class="noData noData_line lastData" ><span class="noData__tips">我是有底线的</span></li></ul>';
+                    parameter.min="none";
+                    $(".infinite-scroll-preloader").hide()
+
+                }else{
+                    var html = '';
+                    if(res.data.salaryList.length>0){
+
+                        var listObj=res.data.salaryList;
+                        // 生成新条目的HTML
+                        for (var i=0;i< listObj.length; i++) {
+
+                            if($("#"+listObj[i].date).length>0){
+
+                                //$("#"+listObj[i].date).remove();
+
+                                for (var m=0;m< listObj[i].wageGeneralList.length; m++) {
+                                    html += '<li class="item-content item-link"  id="'+listObj[i].wageGeneralList[m].id+'" data-date="'+listObj[i].date+'">' +
+                                        '<div class="item-inner">'+
+                                        '<div class="item-title">'+listObj[i].wageGeneralList[m].title+'</div>'+
+                                        '<div class="item-after"> </div>'+
+                                        '</div>' +
+                                        '</li>';
+                                    if(m==0){
+                                        maxId=listObj[i].wageGeneralList[m].id;
+                                    }
+                                }
+                                $("#"+listObj[i].date).next().prepend(html);
+
+							}else{
+
+                                html +=
+                                    '<div class="content-block-title text-center" id="'+listObj[i].date+'">'+listObj[i].date+'</div><ul class="list-container">';
+
+                                for (var m=0;m< listObj[i].wageGeneralList.length; m++) {
+                                    html += '<li class="item-content item-link"  id="'+listObj[i].wageGeneralList[m].id+'">' +
+                                        '<div class="item-inner">'+
+                                        '<div class="item-title">'+listObj[i].wageGeneralList[m].title+'</div>'+
+                                        '<div class="item-after"> </div>'+
+                                        '</div>' +
+                                        '</li>';
+                                    if(m==0){
+                                        maxId=listObj[i].wageGeneralList[m].id;
+                                    }
+                                }
+                                html += '</ul>';
+                                // 添加新条目
+                                $('#addData').prepend(html);
+							}
+
+                        }
+                    }
+                    loading = false;
+                }
+                $.pullToRefreshDone('.pull-to-refresh-content');
+            }else{
+                $.alert(res.message);
+            }
+        },"GET");
+    });
+
+</script>

@@ -1,0 +1,198 @@
+var token = localStorage.getItem('token');
+var udid = localStorage.getItem('udid');
+var domain = localStorage.getItem('domain');
+var org_id = localStorage.getItem('org_id');
+var rlids = localStorage.getItem('rlids');
+var user_id = localStorage.getItem('user_id');
+$(function(){
+	 //常规选择   
+    $("#test04").jeDate({
+    	isinitVal:true,
+    	initDate:[{hh:00,mm:00,ss:00},false],
+        format: "YYYY-MM-DD hh:mm:ss"
+    });
+     $("#test05").jeDate({
+     	isinitVal:true,
+    	initDate:[{hh:00,mm:00,ss:00},false],
+        format: "YYYY-MM-DD hh:mm:ss"
+    });
+})
+//渲染
+var tech_id;
+	//权限判断
+	if(rlids == 1){
+		tech_id = 0;
+	}else{
+		tech_id = user_id
+	}
+	 requestData(
+	 	domain+'/shijiwxy/portal/salaryManagement/salaryNoticeHistory.json',
+		{"token":token,"udid":udid,"version":0,"org_id":org_id,"tech_id":tech_id,"pageSize":10,"currentPageNum":1,"selectYear":''},
+		'GET',
+     	'JSON',
+     	function successfn(d){
+     		if(d.code == "200" && d.success == true){
+     			//console.log(d)
+     			lo(d.data.recordList)
+     			$('.bod-con-se3-PAGE').text('第1页  >')
+     		}else{
+     			alert('加载失败')
+     		}
+     	},
+		function error(e){
+     		alert('失败了')
+        }
+	)
+
+//每页显示条数
+$('.bod-con-se3-page').click(function(){
+	//日期筛选
+	var selectYear;
+	selectYear = $('#test04').val();
+	if(selectYear){
+		selectYear = selectYear
+	}else{
+		selectYear = ''
+	}
+	var tech_id;
+	//权限判断
+	if(rlids == 1){
+		tech_id = 0;
+	}else{
+		tech_id = user_id
+	}
+	//页码
+	var pag = $('.bod-con-se3-PAGE').text();
+	num = pag.slice(1,-4);
+	//点击显示的条数
+	var pageSize;	
+	pageSize = this.innerText;	
+	requestData(
+	 	domain+'/shijiwxy/portal/salaryManagement/salaryNoticeHistory.json',
+		{"token":token,"udid":udid,"version":0,"org_id":org_id,"tech_id":tech_id,"pageSize":pageSize,"currentPageNum":num,"selectYear":selectYear},
+		'GET',
+     	'JSON',
+     	function successfn(d){
+     		if(d.code == "200" && d.success == true){
+     			console.log(d)
+     			lo(d.data.recordList)
+     			$('.bod-con-se3-PAGE').text('第1页  >')
+     		}else{
+     			alert('加载失败')
+     		}
+     	},
+		function error(e){
+     		alert('失败了')
+        }
+	)
+})
+//点击换页
+$('.bod-con-se3-PAGE').click(function(){
+	//日期筛选
+	var selectYear;
+	selectYear = $('#test04').val();
+	if(selectYear){
+		selectYear = selectYear
+	}else{
+		selectYear = ''
+	}
+	var tech_id;
+	//权限判断
+	if(rlids == 1){
+		tech_id = 0;
+	}else{
+		tech_id = user_id
+	}
+	//页码
+	var pag = $('.bod-con-se3-PAGE').text();
+	num = pag.slice(1,-1);
+	//点击显示的条数
+	var pageSize	
+	pageSize = this.innerText;
+	var pag = $('.bod-con-se3-PAGE').text();
+	//console.log(pag)
+	num = pag.slice(1,-4);
+	//console.log(num)
+	num = ++num;
+	requestData(
+	 	domain+'/shijiwxy/portal/salaryManagement/salaryNoticeHistory.json',
+		{"token":token,"udid":udid,"version":0,"org_id":org_id,"tech_id":tech_id,"pageSize":10,"currentPageNum":num,"selectYear":selectYear},
+		'GET',
+     	'JSON',
+     	function successfn(d){
+     		if(d.code == "200" && d.success == true){
+     			console.log(d)
+     			lo(d.data.recordList)  			
+     			$('.bod-con-se3-PAGE').text('第'+num+'页  >')
+     		}else{
+     			alert('加载失败')
+     		}
+     	},
+		function error(e){
+     		alert('请求失败')
+        }
+	)
+})
+//查看明细
+$('tbody').on('click','.bod-con-det-a',function(){
+	
+	var index = $(this).parent().parent().parent().find('td').eq('0').text();
+	console.log(index)
+	localStorage.setItem('index',index);
+	window.history.pushState(null, null,domain+'/shijiwxy/web/html/Wage/wage-details.html')
+	linkArticlelitt(domain+'/shijiwxy/web/html/Wage/wage-details.html',true,'wage-details')
+})
+//渲染函数
+function lo(data){
+	$('tBody').html('');
+	var tr;
+	var operation;
+	//退费
+	var Refund;
+	if(data){
+		data.forEach(function(e){
+//		if(e.status == '已撤回'){
+//			operation = <p class="clearFix">'+
+//					'<span class="bod-con-det-a">查看明细</span><span class="bod-con-det-b">撤回</span>'+
+//					'</p>
+//		}else if(e.status == 3){
+//			state = '缴费中';
+//			operation = '<p class="clearFix">'+
+//					'<span class="bod-con-se2-a">编辑</span><span class="bod-con-se2-b">统计</span>'+
+//					'</p>'
+//		}else if(e.status == 4){
+//			state = '创建失败';
+//			operation = '';
+//		}else if(e.status == 6){
+//			state = '已结束';
+//			operation = '<p class="clearFix">'+
+//					'<span class="bod-con-se2-b">统计</span>'+
+//					'</p>'
+//		};
+		//判断是否撤回
+//		if(e.refund == 0){
+//			Refund = '关闭退费'			
+//		}else if(e.refund == 1){
+//			state = '开启退费';
+//		}
+		
+		 tr += '<tr d="'+e.cid+'">'+
+					'<td>'+e.wages_id+'</td>'+
+					'<td>'+e.title+'</td>'+
+					'<td>'+e.date+'</td>'+
+					'<td>'+e.tech_name+'</td>'+
+					'<td>'+e.status+'</td>'+
+					'<td>'+e.num+'</td>'+
+					'<td>'+e.insert_time+'</td>'+
+					'<td><p class="clearFix">'+
+					'<span class="bod-con-det-a">查看明细</span>'+
+					'</p></td>'
+															
+	})
+	}
+	
+	if(tr){
+		$('tBody').html(tr)
+	}else{$('tBody').html("暂无数据")}
+
+}

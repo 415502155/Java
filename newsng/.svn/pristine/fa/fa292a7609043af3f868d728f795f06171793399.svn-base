@@ -1,0 +1,173 @@
+package sng.entity;
+
+import java.io.Serializable;
+import java.util.Date;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+/**
+ * 教师表实体类 
+ * Title: Teacher 
+ * Description: 教师详细信息
+ *  Company: 世纪伟业
+ */
+@Entity
+@Table(name = "teacher")
+public class Teacher implements Serializable {
+	/**
+	* 
+	*/
+	private static final long serialVersionUID = 1L;
+
+	private Integer tech_id;// 教师id
+	private Integer org_id;// 机构id
+	private Integer user_id;// 用户表ID
+	private String tech_name;// 教师名称
+	private Integer dep_id;// 部门id
+	private String tech_card;// 教师卡号
+	private String tech_note;// 备注
+	private String tech_head;// 头像
+	private String tech_nick;// 昵称
+	private String json;// 属性(sex:0:男，1:女birthdayentrytime入职时间nation民族addres地址)
+	private Date birthday;// 生日
+	private Integer sex;// 用户性别(0:男，1:女，NULL:保密)
+	private Date insert_time;// 创建时间
+	private Date update_time;// 更新时间
+	private Date del_time;// 删除时间
+	private Integer is_del;// 是否删除（0否 1是）
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	public Integer getTech_id() {
+		return tech_id;
+	}
+
+	public void setTech_id(Integer tech_id) {
+		this.tech_id = tech_id;
+	}
+
+	public Integer getOrg_id() {
+		return org_id;
+	}
+
+	public void setOrg_id(Integer org_id) {
+		this.org_id = org_id;
+	}
+
+	public Integer getUser_id() {
+		return user_id;
+	}
+
+	public void setUser_id(Integer user_id) {
+		this.user_id = user_id;
+	}
+
+	public String getTech_name() {
+		return tech_name;
+	}
+
+	public void setTech_name(String tech_name) {
+		this.tech_name = tech_name;
+	}
+
+	public Integer getDep_id() {
+		return dep_id;
+	}
+
+	public void setDep_id(Integer dep_id) {
+		this.dep_id = dep_id;
+	}
+
+	public String getTech_card() {
+		return tech_card;
+	}
+
+	public void setTech_card(String tech_card) {
+		this.tech_card = tech_card;
+	}
+
+	public String getTech_note() {
+		return tech_note;
+	}
+
+	public void setTech_note(String tech_note) {
+		this.tech_note = tech_note;
+	}
+
+	public String getTech_head() {
+		return tech_head;
+	}
+
+	public void setTech_head(String tech_head) {
+		this.tech_head = tech_head;
+	}
+
+	public String getTech_nick() {
+		return tech_nick;
+	}
+
+	public void setTech_nick(String tech_nick) {
+		this.tech_nick = tech_nick;
+	}
+
+	public String getJson() {
+		return json;
+	}
+
+	public void setJson(String json) {
+		this.json = json;
+	}
+
+	public Date getBirthday() {
+		return birthday;
+	}
+
+	public void setBirthday(Date birthday) {
+		this.birthday = birthday;
+	}
+
+	public Integer getSex() {
+		return sex;
+	}
+
+	public void setSex(Integer sex) {
+		this.sex = sex;
+	}
+
+	public Date getInsert_time() {
+		return insert_time;
+	}
+
+	public void setInsert_time(Date insert_time) {
+		this.insert_time = insert_time;
+	}
+
+	public Date getUpdate_time() {
+		return update_time;
+	}
+
+	public void setUpdate_time(Date update_time) {
+		this.update_time = update_time;
+	}
+
+	public Date getDel_time() {
+		return del_time;
+	}
+
+	public void setDel_time(Date del_time) {
+		this.del_time = del_time;
+	}
+
+	public Integer getIs_del() {
+		return is_del;
+	}
+
+	public void setIs_del(Integer is_del) {
+		this.is_del = is_del;
+	}
+
+}

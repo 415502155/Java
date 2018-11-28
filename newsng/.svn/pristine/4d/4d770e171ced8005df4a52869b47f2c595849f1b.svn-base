@@ -1,0 +1,488 @@
+//菜单，name为空表示不生成菜单
+var nav={
+    "1":{
+        "name":"用户中心",
+        "url":"userCenter/index.html",
+        "isShow":true,
+        "icon":"fa-users",
+        "describe":"该功能可以查看所有的认证和未认证的学员资料",
+        "subShow":false,
+        "nextNav":{
+            "11":{
+                "name":"用户管理",
+                "url":"userCenter/index.html",
+                "describe":"用户管理列表"
+            },
+            "12":{
+                "name":"",
+                "url":"userCenter/index.html",
+                "describe":"用户管理详情"
+            }
+        }
+    },
+    "2":{
+        "name":"学员通知",
+        "url":"userCenter/index.html",
+        "isShow":true,
+        "icon":"fa-bell-o",
+        "describe":"该功能可以给学员发送通知，查看通知记录",
+        "subShow":false,
+        "nextNav":{
+            "21":{
+                "name":"发送通知",
+                "url":"userCenter/index.html",
+                "describe":"发布通知页面"
+            },
+            "22":{
+                "name":"发送记录",
+                "url":"userCenter/index.html",
+                "describe":"所有的通知列表页面"
+            },
+            "22":{
+                "name":"",
+                "url":"userCenter/index.html",
+                "describe":"查看通知的发送的班级"
+            },
+        }
+    },
+    "3":null,//教师通知
+    "4":{
+        "name":"网上招生",
+        "url":"userCenter/index.html",
+        "isShow":true,
+        "icon":"fa-tachometer",
+        "describe":"该功能可以创建招生计划，查看招生记录",
+        "subShow":false,
+        "nextNav":{
+            "41":{
+                "name":"创建招生",
+                "url":"userCenter/index.html",
+                "describe":"发布通知页面"
+            },
+            "42":{
+                "name":"招生记录",
+                "url":"userCenter/index.html",
+                "describe":"所有的通知列表页面"
+            }
+        }
+    },
+    "5":{"name":"学员管理",
+        "url":"userCenter/index.html",
+        "isShow":true,
+        "icon":"fa-address-card-o",
+        "describe":"该功能可以学员的转班，退费，催缴，删除，打印凭证操作",
+        "subShow":false,
+        "nextNav":{
+            "51":{
+                "name":"学员管理",
+                "url":"userCenter/index.html",
+                "describe":"学员转班，退费，催缴，删除，打印凭证页面"
+            }
+        }
+    },
+    "6":{"name":"班级管理",
+        "url":"userCenter/index.html",
+        "isShow":true,
+        "icon":"fa-newspaper-o",
+        "describe":"下载开课统计表，缴费明细，下载各班考勤表花名册页面",
+        "subShow":false,
+        "nextNav":{
+            "61":{
+                "name":"创建班级",
+                "url":"userCenter/index.html",
+                "describe":"学员转班，退费，催缴，删除，打印凭证页面"
+            },
+            "62":{
+                "name":"导入班级",
+                "url":"userCenter/loadExcel.html",
+                "describe":"通过上传excel导入学生数据页面"
+            },
+            "63":{
+                "name":"管理班级",
+                "url":"userCenter/index.html",
+                "describe":"学员转班，退费，催缴，删除，打印凭证页面"
+            }
+        }
+    },
+    "7":{"name":"财务管理",
+        "url":"userCenter/index.html",
+        "isShow":true,
+        "icon":"fa-credit-card",
+        "describe":"该功能可以缴费查看、进行退费，财务统计的操作！",
+        "subShow":false,
+        "nextNav":{
+            "71":{
+                "name":"退费处理",
+                "url":"userCenter/index.html",
+                "describe":"学员退费页面"
+            },
+            "72":{
+                "name":"财务统计",
+                "url":"userCenter/loadExcel.html",
+                "describe":"导出财务统计列表"
+            }
+        }
+    },
+    "8":{"name":"打印导出",
+        "url":"userCenter/index.html",
+        "isShow":true,
+        "icon":"fa-print",
+        "describe":"该功能可以打印票据、开课统计表，缴费明细，下载各班考勤表花名册",
+        "subShow":false,
+        "nextNav":{
+            "81":{
+                "name":"筛选导出",
+                "url":"userCenter/index.html",
+                "describe":"下载开课统计表，缴费明细，下载各班考勤表花名册页面"
+            }
+        }
+    },
+    "9":null,//工资发布
+    "a":null,//新闻推送
+    "b":null,//问卷调查
+    "c":null,//校长邮箱
+    "d":{"name":"教师管理",
+        "url":"userCenter/index.html",
+        "subShow":true,
+        "icon":"fa-user-circle-o",
+        "describe":"该功能可以进行教师的添加、编辑、停用、删除操作",
+        "subShow":false,
+        "nextNav":{
+            "d1":{
+                "name":"创建教师",
+                "url":"userCenter/add.html",
+                "describe":"添加新教师页面"
+            },
+            "d2":{
+                "name":"教师管理",
+                "url":"userCenter/list.html",
+                "describe":"教师查看删除页面"
+            }
+        }
+    },
+    "e":{"name":"操作日志",
+        "url":"userCenter/index.html",
+        "isShow":true,
+        "icon":"fa-exclamation-circle",
+        "describe":"该功能可以查看操作日志",
+        "subShow":false,
+        "nextNav":{
+            "e1":{
+                "name":"操作查询",
+                "url":"userCenter/add.html",
+                "describe":"按操作动作，操作内容，开始结束进行操作插叙操作的页面"
+            }
+        }
+    },
+    "f":{
+        "name":"基础设置",
+        "url":"baseSet/index.html",
+        "isShow":true,
+        "icon":"fa-cog",
+        "describe":"该功能可以进行校区、科目、学期、教室、合作机构、凭证规则添加管理设置",
+        "subShow":true,
+        "nextNav":{
+            "f1":{
+                "name":"校区管理",
+                "url":"baseSet/campus/add.html",
+                "describe":"校区的增加及编辑，删除",
+                "isShow":true,
+                "icon":"fa-building",
+                "nextNav":{
+                    "f11":{
+                        "name":"校区创建",
+                        "url":"baseSet/campus/add.html",
+                        "describe":"添加编辑学期页面！"
+                    },
+                    "f12":{
+                        "name":"校区管理",
+                        "url":"baseSet/campus/list.html",
+                        "describe":"校区查看及删除页面！"
+                    },
+                }
+            },
+            "f2":{
+                "name":"科目管理",
+                "url":"baseSet/subject/list.html",
+                "describe":"科目及类目的增加，编辑删除页面",
+                "isShow":true,
+                "icon":"fa-puzzle-piece",
+                "nextNav":{
+                    "f21":{
+                        "name":"创建科目",
+                        "url":"baseSet/subject/addSubject.html",
+                        "describe":"科目添加编辑页面！"
+                    },
+                    "f22":{
+                        "name":"创建类目",
+                        "url":"baseSet/subject/addCategory.html",
+                        "describe":"类目增加及编辑页面！"
+                    },
+                    "f23":{
+                        "name":"科目管理",
+                        "url":"baseSet/subject/list.html",
+                        "describe":"科目管理（列表）查看及删除页面！"
+                    }
+                }
+            },
+            "f3":{
+                "name":"学期管理",
+                "url":"baseSet/list.html",
+                "describe":"学期查看，增加及管理页面",
+                "isShow":true,
+                "icon":"fa-clock-o",
+                "nextNav":{
+                    "f31":{
+                        "name":"学期创建",
+                        "url":"baseSet/add.html",
+                        "describe":"添加编辑学期页面！"
+                    },
+                    "f32":{
+                        "name":"学期管理",
+                        "url":"baseSet/list.html",
+                        "describe":"校区查看及删除页面！"
+                    },
+                }
+            }
+            ,
+            "f4":{
+                "name":"教室管理",
+                "url":"baseSet/list.html",
+                "describe":"教室添加及管理页面",
+                "isShow":true,
+                "icon":"fa-braille",
+                "nextNav":{
+                    "f41":{
+                        "name":"创建教室",
+                        "url":"baseSet/add.html",
+                        "describe":"添加编辑教室页面！"
+                    },
+                    "f42":{
+                        "name":"教室管理",
+                        "url":"baseSet/list.html",
+                        "describe":"教室管理（列表）页面！"
+                    },
+                }
+            },
+            "f5":{
+                "name":"合作管理",
+                "url":"baseSet/list.html",
+                "describe":"合作机构管理页面",
+                "isShow":true,
+                "icon":"fa-graduation-cap",
+                "nextNav":{
+                    "f51":{
+                        "name":"创建机构",
+                        "url":"baseSet/add.html",
+                        "describe":"添加编辑机构页面！"
+                    },
+                    "f52":{
+                        "name":"机构管理",
+                        "url":"baseSet/list.html",
+                        "describe":"合作机构管理（列表）页面！"
+                    },
+                }
+            }
+            ,
+            "f6":{
+                "name":"凭证管理",
+                "url":"baseSet/printSet.html",
+                "describe":"打印设置页面",
+                "isShow":true,
+                "icon":"fa-newspaper-o"
+            }
+            ,
+            "f7":{
+                "name":"规则设置",
+                "url":"baseSet/list.html",
+                "describe":"缴费规则和认证设置页面",
+                "isShow":true,
+                "icon":"fa-sliders",
+                "nextNav":{
+                    "f71":{
+                        "name":"缴费设置",
+                        "url":"baseSet/paymentSet.html",
+                        "describe":"缴费规则设置页面！"
+                    },
+                    "f72":{
+                        "name":"认证设置",
+                        "url":"baseSet/certificationSet.html",
+                        "describe":"学生身份认证提示信息设置页面！"
+                    },
+                }
+            }
+        }
+    },
+    "g":{
+        "name":"权限管理",
+        "url":"userCenter/index.html",
+        "isShow":true,
+        "icon":"fa-id-card",
+        "describe":"该功能可以查看操作日志",
+        "subShow":true,
+        "nextNav":{
+                    "g1":{
+                        "name":"管理权限",
+                        "url":"baseSet/list.html",
+                        "describe":"管理角色创建，角色管理功能",
+                        "isShow":true,
+                        "icon":"fa-id-badge",
+                        "nextNav":{
+                            "f91":{
+                                "name":"缴费设置",
+                                "url":"baseSet/paymentSet.html",
+                                "describe":"缴费规则设置页面！"
+                            },
+                            "f92":{
+                                "name":"认证设置",
+                                "url":"baseSet/certificationSet.html",
+                                "describe":"学生身份认证提示信息设置页面！"
+                            },
+                        }
+                    },
+                    "g2":{
+                        "name":"角色设置",
+                        "url":"baseSet/list.html",
+                        "describe":"角色创建及管理页面",
+                        "isShow":true,
+                        "icon":"fa-user-secret",
+                        "nextNav":{
+                            "fa1":{
+                                "name":"角色创建",
+                                "url":"baseSet/paymentSet.html",
+                                "describe":"角色创建页面！"
+                            },
+                            "fa2":{
+                                "name":"认证设置",
+                                "url":"baseSet/certificationSet.html",
+                                "describe":"角色管理页面！"
+                            },
+                        }
+                    }
+        }
+    }
+
+};
+
+var navHtml="";
+var router={"404":"../common/404.html"};
+//菜单
+for (var i in nav){
+   var obj=nav[i];
+    if(obj !== null){
+
+        navHtml += "<li title='"+obj.describe+"' data-id='"+i+"'>" +
+            "<i class='fa "+obj.icon+" appIcon'></i>" +
+            "<span class='appName-text'>"+obj.name+"</span>" +
+            "</li>";
+
+        if(obj.subShow==true){
+            navHtml+= "<ul class='sub_nav'>";
+            for(var m in obj.nextNav){
+                var subobj=obj.nextNav[m];
+                navHtml += "<li title='"+subobj.describe+"' data-id='"+m+"'>" +
+                    "<i class='fa "+subobj.icon+" appIcon'></i>" +
+                    "<span class='appName-text'>"+subobj.name+"</span>" +
+                    "</li>";
+            }
+
+            navHtml+= "</ul>";
+        }
+
+
+
+        //注册子路由
+        router[i]=obj.url;
+        //注册子路由
+        for(var m in obj.nextNav){
+            router[m]=obj.nextNav[m].url;
+        }
+
+        //生成面包屑
+
+
+
+    }
+
+}
+$("#leftNav ul").html(navHtml);
+
+function toPage(id) {
+    var index = id ? id : 1;
+    window.location.hash = "#" + index;
+    //默认的显示样式
+};
+
+//加载不同应用页面
+function getHTML(url, okCallback, data, ajaxmethod) {
+    var tempbg = $('.loading-bg').attr('loading-id');
+    var tempimg = $('.loadingimg').attr('loading-id');
+    $.ajax({
+        url: url,
+        data: data,
+        async: true,
+        type: ajaxmethod,
+        /*  dataType:'json',*/
+        beforeSend: function () {
+            //$.showPreloader(tipText);
+            loadbgOpen()
+        },
+        success: function (result, textStatus, jqXHR) {
+            //console.log(result)
+            console.log(textStatus)
+            console.log(jqXHR)
+            if (jqXHR.status == 200) {
+                //回调
+                okCallback(result);
+            }
+            ;
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            if(XMLHttpRequest.status=="404"){
+                var url = router[404];
+                getHTML(url, function (r) {
+                    $("#loadbox").html(r)
+                },{});
+            }
+        },
+        complete: function () {
+            loadbgOver(tempbg, tempimg);
+
+        },
+    });
+};
+
+
+/*function getIndex(index) {
+    var first = index.toString().substr(0, 1);
+    var rIndex = first.charCodeAt();
+    return rIndex > 57 ? (rIndex - 87) : parseInt(index.toString().substr(0, 1));
+}*/
+
+function changeHash(id) {
+
+    if(router[id] !== undefined){
+        //默认的显示样式
+        $("#leftNav li.active").removeClass("active");
+
+
+        //如果包含子菜单则子菜单。
+        if($("#leftNav li[data-id="+idstr+"]").next().is("ul.sub_nav")){
+            var idstr=id.substr(0,1);
+            $("#leftNav li[data-id="+id+"]").addClass("active");
+        }else{
+            var idstr=id.substr(0,1);
+            $("#leftNav li[data-id="+idstr+"]").addClass("active");
+        }
+
+
+        var url = router[id];
+    }else{
+        //路由未注册，404
+        var url = router[404];
+    }
+    getHTML(url, function (r) {
+        $("#loadbox").html(r)
+    },{});
+
+};

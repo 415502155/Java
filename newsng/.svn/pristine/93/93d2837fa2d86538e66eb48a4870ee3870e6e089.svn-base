@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>提交问卷</title>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+    <link rel="shortcut icon" href="../../favicon.ico">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <!--ui包-->
+    <!-- <link rel="stylesheet" href="//at.alicdn.com/t/font_431334_smk25a436zyhw7b9.css"> -->
+    <link rel="stylesheet" href="../../../css/sm.css">
+    <link rel="stylesheet" href="../../../css/layout.css">
+    <style>
+        body{
+            background-color:#fff
+        }
+        .content1{
+            margin:3rem 3rem 0
+        }
+        .content1 img{
+            width:80%;
+            display:block;
+            margin:0 auto
+        }
+        .thanks-text{
+            text-indent: 0;
+            color:#CECFD0;
+            text-align: center;
+            margin-bottom:1rem
+        }
+        .content2 button{
+            margin:0.5rem auto;
+            width:8rem;
+        }
+        #look_result{
+            background:#06C09B;
+            box-shadow: none;
+            display: none
+        }
+        #backto_list{
+            background: transparent;
+            border:1px solid #DCDDDF;
+            box-shadow: none;
+            color:#989898
+        }
+    </style>
+</head>
+
+<body>
+    <div class="content1">
+        <img src="../../../images/sub-success.png" alt="">
+    </div>
+    <div class="content2">
+        <p class="thanks-text">您已成功填写问卷,感谢您的参与!</p>
+        <button class="button button-fill" type="button" id="look_result">查看结果</button>
+        <button class="button button-fill" type="button" id="backto_list">返回问卷列表</button>
+    </div>
+</body>
+
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script src="../../../js/question/question.js"></script>
+<script>
+    
+    $(function(){
+        console.log(GetUrlParam("answerId"));
+        var isShow = GetUrlParam("isShow"),surveyId = GetUrlParam("surveyId");//type = GetUrlParam("type");
+        isShow != 1 ? $("#look_result").hide():$("#look_result").css("display","block");
+
+        sessionStorage.fromWeixin != 1? null: $("#backto_list").hide();//如果从微信模板登录,什么也不展示
+        $("#look_result").on("click",function (){
+            location.href = "show_result.html?surveyId="+surveyId;
+        })
+        $("#backto_list").on("click",function (){
+            sessionStorage.questionRefresh = 1;
+            if(sessionStorage.answerDone){
+                history.go(-1);
+            }else{
+                history.go(-2);
+            }
+        })
+    })
+    
+</script>

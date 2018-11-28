@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>时间考勤</title>
+	<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+	<!--<link rel="shortcut icon" href="/favicon.ico">-->
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<!--ui包-->
+	<link rel="stylesheet" href="../../../css/sm.css">
+	<link rel="stylesheet" href="../../../css/layout.css">
+	<script src='../../../js/zepto.min.js'></script>
+	<script src='../../../js/sm.min.js'></script>
+	<script src='../../../js/config.js'></script>
+	<script>
+		function getimg(obj){
+		    $(obj).show();
+		    $(obj).next().hide();
+		}
+	</script>
+</head>
+<body>
+	<div class="page-group">
+		<div class="page page-current" id="set">
+			<div class="content native-scroll">
+				<div class="content-block-title" id="schoolName"></div>
+				<div class="list-block">
+					<ul>
+						<li class="item-content " id="toEditName">
+							<div class="item-inner">
+								<div class="item-title">学生姓名</div>
+								<div class="item-after" id="studentName"></div>
+							</div>
+						</li>
+						<li class="item-content " >
+							<div class="item-inner" >
+								<div class="item-title">打卡时间</div>
+								<div class="item-after" id="studentrTime">0000-00-00 00:00:00</div>
+							</div>
+						</li>
+					</ul>
+				</div>
+				<div class="content-block-title">考勤照片</div>
+				<div class="list-block" id="childrens">
+					<ul>
+						<li class="item-content item-link toDetail" style="padding-left: 0 ;min-height: 100px;" id="cerImg">
+							 <div class="imgLoading" style="background: #e4e4e4;line-height: 200px;font-size: .72rem;color: #aaa7a7;"><span class="iconloadingtip"></span></div>
+						</li>
+					</ul>
+					<div class="list-block-label text-center" id="imgLoadTip"></div>
+				</div>
+
+				<!--<div class="content-block-title" style="padding:1rem .75rem;">为保证正常接收校方通知，请务必填写真实资料。</div>-->
+			</div>
+		</div>
+	</div>
+
+
+
+</body>
+</html>
+
+<script>
+$(function () {
+    var parameter={
+        sid:"183977752179769344"
+    }
+    getDataNoLoading(domainName + "/eduWeixin/weixin/getsign", parameter,function(res){
+        if(res.code==200 && res.success==true){
+            var obj=res.data;
+            $("#studentName").text(obj.userName);
+            $("#studentrTime").text(obj.card_time);
+            $("#schoolName").text(obj.schoolName);
+            $("#cerImg").prepend("<img   onload=\"getimg(this)\" onerror=\"nofind();\" src=\""+obj.pic +"\" width=\"100%\">");
+        }else{
+            $.alert(res.message);
+        }
+    },"GET");
+
+});
+function nofind(){
+    var img=event.srcElement;
+    img.onerror=null;
+    $("#cerImg div").html("暂无图片");
+}
+
+</script>

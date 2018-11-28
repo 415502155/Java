@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>博客详情</title>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+    <link rel="shortcut icon" href="../../favicon.ico">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <!--ui包-->
+    <!-- <link rel="stylesheet" href="//at.alicdn.com/t/font_431334_smk25a436zyhw7b9.css"> -->
+    <link rel="stylesheet" href="../../../css/sm.css">
+    <link rel="stylesheet" href="../../../css/layout.css">
+    <style>
+        a{color:#3d4145}
+        span.icon {
+            /* background: #4792ed; */
+            color: #fff;
+            padding: 5px;
+            border-radius: 50%
+        }
+
+        .list-block .item-content {
+            cursor: pointer
+        }
+        
+        /* [blog-id]{
+            color:#415499;
+        } */
+        .content-block-title {
+            height: 1rem;
+            line-height: 1rem;
+            text-align: center
+        }
+        
+        .blog-img{
+            width:7rem;
+            margin-right:.5rem;
+            height:7rem
+        }
+
+        .del {
+            font-size: 0.7rem;
+            color: red
+        }
+
+        .red {
+            color: red;
+            transition: all 1s ease 0s
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page-group">
+        <div class="page page-current" id="mainPage">
+            <div class="content native-scroll" id="blog_list">
+
+            </div>
+        </div>
+        <!--前往评论博客页面-->
+        <div class="page" id='commentPage'>
+            <div class="content">
+                <header class="bar bar-nav">
+                    <a class="button button-link button-nav pull-left back" href="#mainPage" style="padding-right:3rem;"><span class="icon icon-left"></span>返回</a>
+                    <a href="#mainPage" class="button button-link button-nav pull-right"  id="toSave-Content" style="padding-left:3rem;"> 确定</a>
+                    <h1 class="title" style="cursor: pointer;">发表评论</h1>
+                </header>
+                <div class="content native-scroll">
+                    <div class="list-block media-list" style="margin:0;background:#fff;box-shadow: 2px 2px 5px #e4e4e4;padding-bottom: 0" id="allStudent" >
+                        <ul data-load="">
+                            <li class="align-top">
+                                <div class="item-content">
+                                    <div class="item-inner">
+                                        <!--评论内容-->
+                                        <div class="item-input">
+                                            <textarea placeholder="请输入评论" id="commentPage-content" maxlength="240"  style="height:16rem"></textarea>
+                                        </div>
+                                        <!--评论内容 End-->
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+
+                    </div>
+                    <div class="list-block-label" style="text-align: right;padding:.5rem;color:#f2f2f2;"><span id="contentLength">0</span>/240</div>
+                </div>
+            </div>
+        </div>
+        <!-- 评论博客 End-->
+    </div>
+</body>
+
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script>
+    //设置返回首页标识
+    sessionStorage.echart = 1;
+
+    //后退刷新
+    window.addEventListener('pageshow', function (event) {
+        if (sessionStorage.echartBlog == 1) {
+            sessionStorage.removeItem("echartBlog");
+            window.location.reload();
+        }
+    });
+    $(function () {
+        if (!sessionStorage.baseUser) {
+            $('#blog_list').empty();
+            $('#blog_list').append(
+                '<div class="error-img"><p class="error-text">网络不是很给力哦~</p><p>请检查网络设置</p><button type="button" id="reloadpage">刷新一下~</button></div>'
+            );
+            noContentImg($('#blog_list .error-text'), 'images/neterror.png');
+        } else {
+            console.log(JSON.parse(sessionStorage.baseUser).orguser.identityDatas[0].mapRK.concat(JSON.parse(
+                sessionStorage.baseUser).orguser.identityDatas[0].mapBZR));
+            var nowDate = GetUrlParam("date");
+            var parameter = {
+                token: JSON.parse(sessionStorage.baseUser).token,
+                udid: JSON.parse(sessionStorage.baseUser).udid,
+                version: 3,
+                date: nowDate + ''
+            }
+            $('.content-block-title').text(nowDate);
+            console.log(nowDate);
+            getData(domainName + '/shijiwxy/wechat/portal/blog/getByDate.json', parameter, function (res) {
+                if (res.code == 200 && res.success == true) {
+                    var htmls='',imgs='',dz_text='',pl_text='',is_dz = '';
+                    for (var i = 0; i < res.data.length; i++) {
+                        imgs = '';dz_text='';pl_text='';
+                        res.data[i].dz_num !=0 ? dz_text = res.data[i].dz_num : dz_text = '点赞';
+                        res.data[i].pl_num !=0 ? pl_text = res.data[i].pl_num : pl_text = '评论';
+                        res.data[i].exist_dz !=0 ? is_dz = 'blog-icon-like' : is_dz = 'blog-icon-nolike';
+                        for (var j = 0; j < res.data[i].imgUrls.length; j++) {
+                            imgs += '<img class="blog-img" src="' + res.data[i].imgUrls[j] + '"/>';
+                        }
+                        htmls += '<div class="blog-box">'+
+                            '<div class="content-block-title">' + res.data[i].insert_time +
+                            '</div>' +
+                            '<div class="card">' +
+                            '<div class="card-header">' +
+                            '<div class="item-title">' + res.data[i].tech_name + '</div>' +
+                            '<a class="item-after del">删除</a>' +
+                            '</div>' +
+                            '<div class="card-content" id="'+ res.data[i].blog_id +'"  blog-id="' + res.data[i].blog_id + '">' +
+                            '<div class="card-content-inner">' +
+                            '<div class="item-inner">'+ res.data[i].content +'</div>'+ imgs +
+                            '</div>' +
+                            '</div>' +
+                            '<div class="card-footer">' +
+                            '<div class="item-inner">' +
+                            '<a href="javascript:;" class="toLike">'+
+                            '<i class="blog-icon '+ is_dz +'"></i>' +
+                            '<span class="dz">'+ dz_text +'</span> ' +
+                            '</a>'+
+                            '<a href="javascript:;" class="toComment" style="margin-left:1rem">'+
+                            '<i class="blog-icon blog-icon-pl"></i>' +
+                            '<span class="pl">'+ pl_text +'</span> ' +
+                            '</a>'+
+                            // '<a href="javascript:;" class="dz">分享</a> ' +
+                            '<span class="fx"></span> ' +
+                            '</div>' +
+                            '<a class="item-after info" blog-id="' + res.data[i].blog_id + '">详情></a> ' +
+                            '</div>' +
+                            '<div class="card-footer">' +
+                            '<div class="item-inner">'+ res.data[i].clas_ids +'</div>' +
+                            '<div class="item-after" clas-name="'+ res.data[i].clas_ids +'" clas-id="' + res.data[i].clas_id + '">进入班级></div>' +
+                            '</div>' +
+                            '</div>'+
+                            '</div>'
+                    }
+                    $('#blog_list').append(htmls);
+                    $('[blog-id]').on('click',function(){
+                        var blogId = $(this).attr('blog-id')
+                        window.location.href = '../blog/Blog_text.html?blog_id=' + blogId;
+                    })
+                    
+                    $('[clas-id]').on('click',function(){
+                        var classId = $(this).attr('clas-id');
+                        var clas_name = $(this).attr('clas-name');
+                        //window.location.href = '../blog/Class_list.html?clas-id=' + classId;
+                        window.location="../blog/list.html?clas_id="+classId +"&clas_name="+clas_name;
+                    })
+                    console.log(res.data);
+                    if (res.data.length <= 0) {
+                        $('#blog_list').empty();
+                        $('#blog_list').append('<div class="error-img"><p class="error-text">还没有什么内容哦~</p></div>');
+                        noContentImg($('#blog_list .error-text'), 'images/empty.png');
+                    }
+                } else {
+                    $('#blog_list').empty();
+                    $('#blog_list').append(
+                        '<div class="error-img"><p class="error-text">网络不是很给力哦~</p><p>请检查网络设置</p><button type="button" id="reloadpage">刷新一下~</button></div>'
+                    );
+                    noContentImg($('#blog_list .error-text'), 'images/neterror.png');
+                }
+
+                //点击删除博客操作
+                $(".blog-box").on('click','.del',function (e) {
+
+                    var blog_id=$(this).parent().next().attr("blog-id");
+                    var $this = $(this).parents('.blog-box');
+                    var parameter={
+                        token:JSON.parse(sessionStorage.baseUser).token,
+                        udid: JSON.parse(sessionStorage.baseUser).udid,
+                        version:3,
+                        blog_id:blog_id
+                    };
+                    $.confirm('确定删除?', '',function () {
+                        getData(domainName+"/shijiwxy/wechat/portal/blog/deleteBlog.json",parameter,function(res){
+                            if(res.data==-1){
+                                $.toast("博客已经不存在了！");
+                                $this.remove();
+                                return false;
+                            };
+                            if(res.code==200 && res.success==true){
+                                $this.remove();
+                                $.toast("删除成功");
+                                sessionStorage.echartBlog = 1;
+                            }else{
+                                $.alert("删除失败！");
+                            };
+                        },"POST",false);
+                    },null,"确定","取消")
+                });
+
+
+                //从列表评论
+                $("body").on("click",".toComment",function(e){
+                    var blog_id=$(this).parent().next().attr("blog-id");
+                    sessionStorage.blogId=blog_id;//当前所选博客ID
+                    //清空评论内容
+                    $("#commentPage-content").val("");
+                    $.router.loadPage("#commentPage");
+                });
+
+                //保存评论
+                $("#toSave-Content").click(function(){
+                    var MyDay=new Date().toLocaleString().replace(/\//g,"-"); /*创建当前时间*/
+                    var content=$("#commentPage-content").val().replace(/(^\s*)|(\s*$)/g, "");//评论内容
+                    var parameter={
+                        token:JSON.parse(sessionStorage.baseUser).token,
+                        udid: JSON.parse(sessionStorage.baseUser).udid,
+                        version:3,
+                        blog_id:sessionStorage.blogId,
+                        identity:1,
+                        type:1,//1评论2点赞
+                        content:content,
+                        tech_id:JSON.parse(sessionStorage.baseUser).orguser.teacher.tech_id,//当前登录教师的id ,
+                        tech_name:JSON.parse(sessionStorage.baseUser).orguser.teacher.tech_name,//当前登录教师的name,
+                    }
+
+                    if(content.length>240){
+                        $.alert("评论最多不能超过240个字！");
+                        return false;
+                    };
+
+                    if(content.length<2){
+                        $.alert("评论内容至少2个字！");
+                        return false;
+                    };
+
+                    getData(domainName+"/shijiwxy/wechat/portal/blog/blogInteractsave.json",parameter,function(res){
+                        console.log(res)
+                        if(res.code==200 && res.success==true){
+                            if(res.data==-1){
+                                $.toast("该博客已经不存在了！");
+                                setTimeout(function(){$.router.back()},600);
+                                return false;
+                            }
+
+                            // var newplHtml ='<div class="blogContent-wrap" id="'+res.data+'">'+
+                            //     '<div class="pl-top">'+
+                            //     '<span class="footiconSize"><i class="blog-icon blog-icon-pl"></i></span>'+
+                            //     '<span class="blog-icon-text">'+
+                            //     '<span class="pl-author">我</span>'+
+                            //     '<span class="pl-time">'+MyDay+'</span>'+
+                            //     '</span>'+
+                            //     '<span class="pl-toDel">删除</span>'+
+                            //     '</div>'+
+                            //     '<textarea  class="textareaWrap">'+content+'</textarea>'+
+                            //     '</div>';
+
+                            // $("#blogContent-list").append(newplHtml);
+
+                            // //如果评论成功删除无评论提示
+                            // if($("#noPL")){
+                            //     $("#noPL").remove();
+                            // }
+
+                            //更新评论数
+                            var pl_number=parseInt($("#"+sessionStorage.blogId).next().find(".toComment .pl").text());
+                            //判断是否为数字
+                            if(isNaN(pl_number)){
+                                pl_number=1;
+                            }else{
+                                pl_number+=1;
+                            }
+
+                            $("#"+sessionStorage.blogId).next().find(".toComment .pl").text(pl_number);
+
+                            $.toast("评论成功！");
+
+                            setTimeout(function () {
+                                setTimeout(function(){$.router.back()},600);
+                            },300);
+                            // setTimeout(function () {
+                            //     $('.textareaWrap').height("0");
+                            //     $('.textareaWrap').each(function () {
+                            //         this.setAttribute('style', 'height:' + (this.scrollHeight) + 'px;overflow-y:hidden;');
+                            //     }).on('input', function () {
+                            //         this.style.height = 'auto';
+                            //         this.style.height = (this.scrollHeight) + 'px';
+                            //     });
+
+                            //     //滑动到内容底部
+                            //     var wrapHeight=parseInt($("#blogDetail .pl-wrap").height());
+                            //     $("#blogDetail .content ").scrollTop(wrapHeight);
+
+                            // },600);
+
+                        }else{
+                            $.alert("评论失败!");
+                        };
+                    },"POST",false);
+
+                    return false
+                });
+
+            })
+            
+             //点赞
+            $("body").on("click",".toLike",function(e){
+
+                    var $this=$(this);
+                    var blog_id=$(this).parent().next().attr("blog-id");
+
+                    console.info($this.find(".toLike .blog-icon").hasClass("blog-icon-like"));
+
+                    if($this.find(".toLike .blog-icon").hasClass("blog-icon-like")){
+                        $.toast("此篇博客已经点过赞");
+                        return false
+                    }
+                    
+                    var parameter={
+                        token:JSON.parse(sessionStorage.baseUser).token,
+                        udid: JSON.parse(sessionStorage.baseUser).udid,
+                        version:3,
+                        blog_id:blog_id,
+                        identity:1,
+                        type:0,//1评论0点赞
+                        content:"",
+                        tech_id:JSON.parse(sessionStorage.baseUser).orguser.teacher.tech_id,//当前登录教师的id ,
+                        tech_name:JSON.parse(sessionStorage.baseUser).orguser.teacher.tech_name,//当前登录教师的name,
+                    };
+
+                    if(!$(this).hasClass("red")){
+                        getData(domainName+"/shijiwxy/wechat/portal/blog/blogInteractsave.json",parameter,function(res){
+                            if(res.code==200 && res.success==true){
+                                /*判断是否删除的*/
+                                if(res.data==-1){
+                                    $.toast(res.message);
+                                    $("#"+blog_id).remove();
+                                    return false;
+                                }
+                                $.toast("成功点赞");
+
+                                //点赞数更新
+                                var number=parseInt($("#"+blog_id).next().find(".toLike .dz").text());
+                                //判断是否为数字
+                                if(!isNaN(parseFloat(number)) && isFinite(number)){
+                                    number += 1;
+                                }else{
+                                    number = 1;
+                                }
+                                $this.find(".toLike .dz").text(number);
+                                $this.find(".toLike .blog-icon").removeClass("blog-icon-nolike").addClass("blog-icon-like");
+
+                            }else{
+                                $.alert("点赞失败！");
+                            };
+                        },"POST",false);
+                    }
+
+            });
+            
+            
+        }
+
+        if ($('#reloadpage')) {
+            $('#reloadpage').on('click', function () {
+                window.location.reload();
+            })
+        }
+    })
+</script>

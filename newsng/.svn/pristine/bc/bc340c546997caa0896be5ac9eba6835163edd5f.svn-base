@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>问卷详情</title>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+    <link rel="shortcut icon" href="../../favicon.ico">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <!--ui包-->
+    <link rel="stylesheet" href="../../../css/sm.css">
+    <link rel="stylesheet" href="../../../css/layout.css">
+    <link rel='stylesheet prefetch' href='../../../js/photoSwipe/photoswipe.css'>
+    <link rel='stylesheet prefetch' href='../../../js/photoSwipe/default-skin/default-skin.css'>
+
+    <style>
+        /* 公共样式 */
+        body{
+            background-color:#F4F5F7;
+            overflow-y:scroll;
+            -webkit-overflow-scrolling: touch
+        }
+        .fl{float:left}
+        .fr{float:right}
+        .clearfix{zoom: 1}
+        .clearfix:after{content:'';display: block;clear: both}
+        /* 公共样式end */
+        .content-padded{
+            font-size:0.7rem
+        }
+        .q-title{
+            word-break:break-all
+        }
+        .question-type{
+            font-size: 0.7rem;
+            font-weight: normal;
+            color: #fff;
+            padding: 0.1rem 0.2rem;
+            border-radius: 5px;
+            background-color: #8cc44c;
+            margin-right:0.2rem
+        }
+        .q-info{
+            margin:0.4rem 0;
+        }
+        .q-info p{
+            text-indent:0;
+            color:#999
+        }
+        #close_question{
+                background: none;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                padding: 0.2rem;
+                color: #666
+        }
+        .look-info{
+            margin-left:1rem;
+            color:#475883;
+            text-decoration: underline
+        }
+        .q-introduce{
+            line-height:1.1rem
+        }
+        .q-introduce img{
+            width:100%;
+            margin-top:0.4rem
+        }
+        .q-option{
+            border-radius: 0.5rem;
+            background-color:#fff;
+            padding:0.8rem;
+            margin:1rem 0;
+            word-break: break-all
+        }
+        .q-option img{
+            width:100%;
+            display: block
+        }
+        .option-select{
+            position: relative;
+            border-bottom:1px solid #eee;
+            line-height:2rem;
+            display: block
+        }
+        .option-select:last-of-type{
+            border-bottom:0
+        }
+        [q-type] .option-select .select-img{
+            width: 0.8rem;
+            height: 0.8rem;
+            display: inline-block;
+            position: absolute;
+            top: 0.6rem;
+            left: 0
+        }
+        [q-type="1"] .option-select .select-img{
+            background: url(../../../images/radio-checkbox.jpg) no-repeat;
+            background-size: 2.4rem 0.8rem;
+            background-position-x:-0.8rem
+        }
+        [q-type="1"] .option-select input:checked+.select-img{
+            background: url(../../../images/radio-checkbox.jpg) no-repeat;
+            background-size: 2.4rem 0.8rem;
+            background-position-x:-1.6rem
+        }
+        [q-type="2"] .option-select .select-img{
+            background: url(../../../images/radio-checkbox.jpg) no-repeat;
+            background-size: 2.4rem 0.8rem;
+            background-position-x:-0.8rem
+        }
+        [q-type="2"] .option-select input:checked+.select-img{
+            background: url(../../../images/radio-checkbox.jpg) no-repeat;
+            background-size: 2.4rem 0.8rem;
+            background-position-x:0rem
+        }
+        .option-text{
+            display: block;
+            padding-top:0.5rem
+        }
+        .option-title{
+            font-weight: 600
+        }
+        .option-title img{
+            width:100%
+        }
+        .option-required{
+            color:red
+        }
+        .option-type{
+            text-indent: 0;
+            /* color:#009DD9 */
+            font-weight: normal
+        }
+        .text-answer{
+            border-radius:0.2rem;
+            border-color:#ebebeb;
+            margin:1rem 0;
+            -webkit-appearance: none;
+            appearance: none
+        }
+        #q_submit{
+            display: block;
+            margin: 1rem auto;
+            color:#fff;
+            padding:0 5rem
+        }
+        .my-gallery{
+            padding:0;
+            margin-top:0.4rem
+        }
+        .result-per{
+            position: relative;
+            display: inline-block;
+            width: 70%;
+            background-color: #eee;
+            height: 0.4rem;
+            border-radius: 1rem
+        }
+        .result-per i{
+            width: 70%;
+            height: 0.4rem;
+            /* background-color: #0ff; */
+            display: inline-block;
+            border-radius: 1rem;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: -webkit-linear-gradient(left, #50D0F4 , #4A6BE5); /* Safari 5.1 - 6.0 */
+            background: -o-linear-gradient(right, #50D0F4, #4A6BE5); /* Opera 11.1 - 12.0 */
+            background: -moz-linear-gradient(right, #50D0F4, #4A6BE5); /* Firefox 3.6 - 15 */
+            background: linear-gradient(to right, #50D0F4 ,#4A6BE5) /* 标准的语法 */
+        }
+        .look-list{
+            background: none;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 0.2rem;
+            line-height: 1rem;
+            position: absolute;
+            bottom: 2.2rem;
+            right: 0.6rem
+        }
+        .option-select .my-gallery{
+            width:50%;
+            display:inline-block;
+        }
+        .my-gallery figure{
+            margin-bottom:0
+        }
+        .answer-num{
+            margin-top:1rem;
+            text-align: center
+        }
+        .answer-num span{
+            width: 6rem;
+            border: 1px solid #ccc
+        }
+        .num-left{
+            display: inline-block;
+            border-radius: 3rem 0 0 3rem;
+            padding: 0.5rem 0
+        }
+        .num-right{
+            display: inline-block;
+            border-radius: 0 3rem 3rem 0;
+            padding: 0.5rem 0
+        }
+        .toast-fix{
+            position: fixed
+        }
+    </style>
+</head>
+
+<body>
+<div class="page-group">
+    <div class="page-current" id="noticeD" >
+        <div class="content native-scroll" style="background:#fff">
+            <div class="content-padded">
+
+            </div>
+        </div>
+    </div>
+</div>
+    <!--图片查看器-->
+    <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="pswp__bg"></div>
+        <div class="pswp__scroll-wrap">
+            <div class="pswp__container">
+                <div class="pswp__item"></div>
+                <div class="pswp__item"></div>
+                <div class="pswp__item"></div>
+            </div>
+            <div class="pswp__ui pswp__ui--hidden">
+                <div class="pswp__top-bar">
+                    <div class="pswp__counter"></div>
+                    <button class="pswp__button pswp__button--close" title="关闭"></button>
+                    <!--<button class="pswp__button pswp__button&#45;&#45;share" title="Share"></button>-->
+                    <div class="pswp__preloader">
+                        <div class="pswp__preloader__icn">
+                            <div class="pswp__preloader__cut">
+                                <div class="pswp__preloader__donut"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                    <div class="pswp__share-tooltip"></div>
+                </div>
+                <div class="pswp__caption">
+                    <div class="pswp__caption__center"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--图片查看器 END-->
+</body>
+
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script src='../../../js/photoSwipe/photoswipe.js'></script>
+<script src='../../../js/photoSwipe/photoswipe-ui-default.js'></script>
+<script src="../../../js/question/question.js"></script>
+<script>
+   //设置返回首页标识
+    sessionStorage.echart = 1;
+    sessionStorage.questionRefresh = 1;
+    //后退刷新
+    window.addEventListener('pageshow', function (event) {
+        if (sessionStorage.echartBlog == 1) {
+            sessionStorage.removeItem("echartBlog");
+            window.location.reload();
+        }
+    });
+    $(function(){
+        var baseUser = JSON.parse(sessionStorage.baseUser);
+        var surveyId = GetUrlParam("surveyId"),answerId = GetUrlParam("answerId")||"",is_show = 0,qType = 0,justLook = GetUrlParam("justLook");
+        var param = {
+            token:baseUser.token,
+            udid:baseUser.udid,
+            version:3,
+            surveyId:surveyId
+        }
+        getData(domainName + "/shijiwxy/survey/getSurveyDetail.htm",param,function (res){
+            if(res.code !== 200 && res.success !== true){
+                $.hidePreloader();
+                if(isDel(res.message)){
+                    location.href="question_deleted.html";
+                };
+                $.alert(res.message);
+                // throw new Error(res.message);
+            }
+            //console.log(res);
+            var survey = res.data.survey,html = '',titimg = '';
+            var stem = JSON.parse(survey.stem);sessionStorage.a = JSON.stringify(stem);
+            is_show = survey.is_show;
+            qType = survey.type;
+            sessionStorage.o_groups = survey.send_scope;
+            if(survey.img!==""){
+                try {
+                    var imgs = survey.img.split(",");
+                    titimg += '<div class="my-gallery" id="" data-pswp-uid="1">'
+                    for(var i=0;i<imgs.length;i++){
+                        titimg += ("<figure itemprop=\"associatedMedia\" itemscope=\"\" itemtype=\"http://schema.org/ImageObject\">\n                                        <a href=\"" + changeImgUrl(imgs[i]) + "\" itemprop=\"contentUrl\" class=\"external\" data-size=\"750x740\"><img src=\"" + changeImgUrl(imgs[i]) + "\" onload=\"getWH(this)\" itemprop=\"thumbnail\" alt=\"\" ></a>\n                                    </figure>");
+                        // titimg += `<figure itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject">
+                        //                 <a href="${changeImgUrl(imgs[i])}" itemprop="contentUrl" class="external" data-size="750x740"><img src="${changeImgUrl(imgs[i])}" onload="getWH(this)" itemprop="thumbnail" alt="" ></a>
+                        //             </figure>`
+                    }
+                    titimg += '</div>'
+                } catch (error) {
+                    $.alert(error);
+                }
+            }
+            if(qType !== 1 && justLook !== "1" && sessionStorage.fromWeixin != 1){
+                if(transformTime(survey.end_time) < new Date().getTime()){
+                    survey.status = 4;
+                }
+                html += ("<div id=\"" + survey.id + "\" class=\"q-header clearfix\">\n                        <h3 class=\"q-title fl\"><span class=\"question-type\">" + (survey.type !== 0 ? "校外" : "校内")  +  "</span>"+ survey.title +"</h3>\n                        <button id=\"close_question\" class=\"fr\" >" + (survey.status !== 3 ? "已关闭" : "关闭问卷") + "</button>\n                        <div class=\"q-info\">\n                            <p class=\"q-num\" style=\"clear: both\">调研人数/提交人数: " + survey.total_num + "/" + survey.submit_num + " <a href=\"javascript:;\" class=\"look-info\" groups=\"" + JSON.parse(survey.send_scope).groupIds + "\">查看</a></p>\n                            <p class=\"q-end-time\">截止时间:" + survey.end_time + "</p>\n                        </div>\n                        <div class=\"q-introduce\">\n                            " + survey.info + "\n                            " + titimg + "\n                        </div>\n                    </div>");
+                // html += `<div id="${survey.id}" class="q-header clearfix">
+                //             <h3 class="q-title fl"><span class="question-type">${survey.type !== 0?"校外":"校内"}</span>${survey.title}</h3>
+                //             <button id="close_question" class="fr" >${survey.status !== 3?"已关闭":"关闭问卷"}</button>
+                //         <div class="q-info">
+                //             <p class="q-num" style="clear: both">调研人数/提交人数: ${survey.total_num}/${survey.submit_num} <a href="javascript:;" class="look-info" groups="${JSON.parse(survey.send_scope).groupIds}">查看</a></p>
+                //             <p class="q-end-time">截止时间:${survey.end_time}</p>
+                //         </div>
+                //         <div class="q-introduce">
+                //             ${survey.info}
+                //             ${titimg}
+                //         </div>
+                //     </div>`
+                html += '<div class="q-content">';
+                for(var i in stem){
+                    var detail = '';//存储题目答题情况
+                    try {
+                        //stem[i].detail.length>0?detail = JSON.stringify(stem[i].detail):"";
+                        detail = JSON.stringify(stem[i]);
+                    } catch (error) {
+
+                    }
+                    html += ("<div class=\"q-option\" q-type=\"" + stem[i].type + "\" question-id=\"" + i + "\" detail='" + detail + "'>\n                            <div class=\"option-title\">\n                                <p class=\"option-type\">" + (stem[i].type === "2" ? "[多选题]" : "") + "</p>\n                                " + i + "." + stem[i].title + "\n                            </div>");
+                    // html += `<div class="q-option" q-type="${stem[i].type}" question-id="${i}" detail='${detail}'>
+                    //         <div class="option-title">
+                    //             <p class="option-type">${stem[i].type === "2"? "[多选题]":""}</p>
+                    //             ${i}.${stem[i].title}
+                    //         </div>`
+                    if(stem[i].type !== "3"){
+                        for(var j in stem[i].options){
+                            var optionImg = '',optionImgs = stem[i].options[j].img;
+                            if(stem[i].options[j].img.length>0){
+                                optionImg += ("<div class=\"my-gallery\" id=\"\" data-pswp-uid=\"a" + i + "\">\n                                                <figure itemprop=\"associatedMedia\" itemscope=\"\" itemtype=\"http://schema.org/ImageObject\" >\n                                                    <a id=\"ttt\" href=\"" + changeImgUrl(optionImgs[0].url) + "\" itemprop=\"contentUrl\" class=\"external\" data-size=\"750x740\"><img src=\"" + changeImgUrl(optionImgs[0].url) + "\" onload=\"getWH(this)\" itemprop=\"thumbnail\" alt=\"\" ></a>\n                                                </figure>\n                                            </div>");
+                                // optionImg += `<div class="my-gallery" id="" data-pswp-uid="a${i}">
+                                //                 <figure itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject" >
+                                //                     <a id="ttt" href="${changeImgUrl(optionImgs[0].url)}" itemprop="contentUrl" class="external" data-size="750x740"><img src="${changeImgUrl(optionImgs[0].url)}" onload="getWH(this)" itemprop="thumbnail" alt="" ></a>
+                                //                 </figure>
+                                //             </div>`
+                            }
+                            html += ("<label class=\"option-select\" max=\"" + stem[i].max_choose + "\">\n                                        <span class=\"option-text\">" + j + "." + stem[i].options[j].title + "</span>\n                                        " + optionImg + "\n                                        <button class=\"look-list\" type=\"button\" order=\"" + i + "\" choose=\"" + j + "\">查看名单</button>\n                                        <div class=\"result-per\" per=\"" + stem[i].options[j].percent + "\"><i style='width:" + stem[i].options[j].percent + "'></i></div>\n                                        <span class=\"result-per-txt\" >" + stem[i].options[j].num + "票 " + stem[i].options[j].percent + "</span>\n                                    </label>");
+                            // html += `<label class="option-select" max="${stem[i].max_choose}">
+                            //             <span class="option-text">${j}.${stem[i].options[j].title}</span>
+                            //             ${optionImg}
+                            //             <button class="look-list" type="button" order="${i}" choose="${j}">查看名单</button>
+                            //             <div class="result-per" per="${stem[i].options[j].percent}"><i style='width:${stem[i].options[j].percent}'></i></div>
+                            //             <span class="result-per-txt" >${stem[i].options[j].num}票 ${stem[i].options[j].percent}</span>
+                            //         </label>`
+                        }
+                        html += '</div>'
+                    }else{
+                        var answerNum = 0;
+                        for(var j =0;j<stem[i].detail.length;j++){
+                            if(stem[i].detail[j].answer.trim()!==""){
+                                answerNum += 1;
+                            }
+                        }
+                        html += ("<div class=\"answer-num\">\n                                    <span class=\"num-left\">提交回答人数</span><span class=\"num-right\">" + answerNum + "</span>\n                                </div></div>");
+                        // html += `<div class="answer-num">
+                        //             <span class="num-left">提交回答人数</span><span class="num-right">${stem[i].detail.length}</span>
+                        //         </div></div>`
+                    }
+                }
+                html += '</div>'
+            }else{
+                html += ("<div id=\"" + survey.id + "\" class=\"q-header clearfix\">\n                        <h3 class=\"q-title fl\"><span class=\"question-type\">" + (survey.type !== 0 ? "校外" : "校内") + "</span>" + survey.title + "</h3>\n                        <button id=\"close_question\" class=\"fr\" style=\"display:none\" >" + (survey.status !== 3 ? "已关闭" : "关闭问卷") + "</button>\n                        <div class=\"q-info\">\n                            <p class=\"q-num\" style=\"margin-top: 1.6rem\">发布教师: " + survey.create_name + "</p>\n                            <p class=\"q-end-time\">截止时间:" + survey.end_time + "</p>\n                        </div>\n                        <div class=\"q-introduce\">\n                            " + survey.info + "\n                            " + titimg + "\n                        </div>\n                    </div>");
+                // html += `<div id="${survey.id}" class="q-header clearfix">
+                //         <h3 class="q-title fl"><span class="question-type">${survey.type !== 0?"校外":"校内"}</span>${survey.title}</h3>
+                //         <button id="close_question" class="fr" style="display:${justLook === "1"?"none":"block"}" >${survey.status !== 3?"已关闭":"关闭问卷"}</button>
+                //         <div class="q-info">
+                //             <p class="q-num" style="clear: both">提交人数: ${survey.submit_num}</p>
+                //             <p class="q-end-time">截止时间:${survey.end_time}</p>
+                //         </div>
+                //         <div class="q-introduce">
+                //             ${survey.info}
+                //             ${titimg}
+                //         </div>
+                //     </div>`
+                html += '<div class="q-content">';
+                for(var i in stem){
+                    html += ("<div class=\"q-option\" q-type=\"" + stem[i].type + "\" question-id=\"" + i + "\">\n                            <div class=\"option-title\">\n                                <p class=\"option-type\">" + (stem[i].type === "2" ? "[多选题]" : "") + "</p>\n                                " + i + "." + stem[i].title + "\n                            </div>");
+                    // html += `<div class="q-option" q-type="${stem[i].type}" question-id="${i}">
+                    //         <div class="option-title">
+                    //             <p class="option-type">${stem[i].type === "2"? "[多选题]":""}</p>
+                    //             ${i}.${stem[i].title}
+                    //         </div>`
+                    if(stem[i].type !== "3"){
+                        for(var j in stem[i].options){
+                            var optionImg = '',optionImgs = stem[i].options[j].img;
+                            if(stem[i].options[j].img.length>0){
+                                optionImg += ("<div class=\"my-gallery\" id=\"\" data-pswp-uid=\"a" + i + "\">\n                                                <figure itemprop=\"associatedMedia\" itemscope=\"\" itemtype=\"http://schema.org/ImageObject\" >\n                                                    <a id=\"ttt\" href=\"" + changeImgUrl(optionImgs[0].url) + "\" itemprop=\"contentUrl\" class=\"external\" data-size=\"750x740\"><img src=\"" + changeImgUrl(optionImgs[0].url) + "\" onload=\"getWH(this)\" itemprop=\"thumbnail\" alt=\"\" ></a>\n                                                </figure>\n                                            </div>");
+                                // optionImg += `<div class="my-gallery" id="" data-pswp-uid="a${i}">
+                                //                 <figure itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject" >
+                                //                     <a id="ttt" href="${changeImgUrl(optionImgs[0].url)}" itemprop="contentUrl" class="external" data-size="750x740"><img src="${changeImgUrl(optionImgs[0].url)}" onload="getWH(this)" itemprop="thumbnail" alt="" ></a>
+                                //                 </figure>
+                                //             </div>`
+                            }
+                            html += ("<label class=\"option-select\" max=\"" + stem[i].max_choose + "\">\n                                        <span class=\"option-text\">" + j + "." + stem[i].options[j].title + "</span>\n                                        " + optionImg + "\n                                        <div class=\"result-per\" per=\"" + stem[i].options[j].percent + "\"><i style='width:" + stem[i].options[j].percent + "'></i></div>\n                                        <span class=\"result-per-txt\" >" + stem[i].options[j].num + "票 " + stem[i].options[j].percent + "</span>\n                                    </label>");
+                            // html += `<label class="option-select" max="${stem[i].max_choose}">
+                            //             <span class="option-text">${j}.${stem[i].options[j].title}</span>
+                            //             ${optionImg}
+                            //             <div class="result-per" per="${stem[i].options[j].percent}"><i style='width:${stem[i].options[j].percent}'></i></div>
+                            //             <span class="result-per-txt" >${stem[i].options[j].num}票 ${stem[i].options[j].percent}</span>
+                            //         </label>`
+                        }
+                        html += '</div>'
+                    }else{
+                        var answerNum = 0;
+                        for(var j =0;j<stem[i].detail.length;j++){
+                            if(stem[i].detail[j].answer.trim()!==""){
+                                answerNum += 1;
+                            }
+                        }
+                        html += ("<div class=\"answer-num\">\n                                    <span class=\"num-left\">提交回答人数</span><span class=\"num-right\">" + answerNum + "</span>\n                                </div></div>");
+                        // html += `<div class="answer-num">
+                        //             <span class="num-left">提交回答人数</span><span class="num-right">${stem[i].detail.length}</span>
+                        //         </div></div>`
+                    }
+                }
+                html += '</div>'
+            }
+
+            $(".content-padded").append(html);
+            if(sessionStorage.closed){
+                $("#close_question").text("已关闭");
+            }
+             //设置图片放大
+            initPhotoSwipeFromDOM(".my-gallery");
+        })
+        //查看调研
+        $("body").on("click",".look-info",function (){
+            param["id"] = surveyId;
+            param["groupIds"] = $(this).attr("groups");
+            getData(domainName + "/shijiwxy/survey/getSubmitDetail.htm",param,function (res){
+                if(res.code == 200 && res.success == true){
+                    sessionStorage.submitDetail = JSON.stringify(res.data);
+                    location.href = "survey_list.html";
+                }
+                console.log(res);
+            })
+        })
+
+        //查看选项名单
+        $("body").on("click",".look-list",function (){
+            sessionStorage.optionDetail = $(this).parents('.q-option').attr("detail");
+            location.href="option_list.html?order="+$(this).attr("order")+"&choose="+$(this).attr("choose");
+        })
+
+        //关闭问卷
+        $("body").on("click","#close_question",function (){
+            if($(this).text()!=="关闭问卷"){
+                throw new Error("问卷已关闭!");
+            }
+            $.confirm("关闭问卷后，此问卷将不能接收新答卷，是否确认关闭？","关闭问卷",function () {
+                param["id"] = surveyId;
+                param["loginId"] = baseUser.orguser.teacher.tech_id;
+                getData(domainName + '/shijiwxy/survey/closeSurvey.htm',param,function (res){
+                    if(res.code == 200 && res.success == true){
+                        sessionStorage.questionRefresh = 1;//返回列表刷新
+                        $.toast("问卷已关闭");
+                        $("#close_question").text("已关闭");
+                        $("body").off("click","#close_question");
+                    }
+                },"POST")
+            },null,"确定关闭","取消")
+        })
+    })
+</script>

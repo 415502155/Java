@@ -1,0 +1,457 @@
+<!--发布通知-->
+
+<div class="content-wrap" id="sub_loadBox">
+
+    <div id="step_no1">
+        <div class="search">
+            <select class="gui-input" id="allTerm">
+                <option value="">学期</option>
+            </select>
+            <select class="gui-input" id="classType">
+                <option value="">班级类型</option>
+            </select>
+            <select class="gui-input" id="allCategory">
+                <option value="100">选择类目</option>
+                <option value="1">舞蹈类</option>
+                <option value="0">音乐类</option>
+            </select>
+            <select class="gui-input" id="subject">
+                <option value="100">选择科目</option>
+                <option value="1">芭蕾舞</option>
+                <option value="0">现代舞</option>
+            </select>
+            <select class="gui-input" id="allCampus">
+                <option value="100">选择校区</option>
+            </select>
+            <select class="gui-input" id="allTime">
+                <option value="">上课时间</option>
+            </select>
+
+            <div class="gui-input-group">
+                <input type="text" class="gui-input" id="content" placeholder="请输入班级名称！" style="width: 120px"/>
+                <button class="gui-btn  gui-btn-normal" id="sentSearch"><i class="fa fa-search"></i>搜索</button>
+            </div>
+
+        </div>
+        <div class="bod-con-fer-form">
+            <table align="center" class="tab tablesorter-blue">
+                <thead>
+                <tr>
+                    <th><input type="checkbox" name="allClass" onclick="all_click(this,'class')"></th>
+                    <th>序号</th>
+                    <th>班级名称</th>
+                    <th>类型</th>
+                    <th>校区</th>
+                    <th>教室</th>
+                    <th>开课日期</th>
+                    <th>上课时间</th>
+                    <th>教师</th>
+                    <th>学费</th>
+                    <th>人数</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td><input type="checkbox" name="class"></td>
+                    <td>1</td>
+                    <td>儿童画（儿162-1-2B）</td>
+                    <td>老生班</td>
+                    <td>东马路</td>
+                    <td>主教学406室</td>
+                    <td>18-12-03</td>
+                    <td>周日 9:00-10：00</td>
+                    <td>刘丽</td>
+                    <td>750</td>
+                    <td>20/20</td>
+                </tr>
+                <tr>
+                    <td><input type="checkbox" name="class"></td>
+                    <td>2</td>
+                    <td>舞蹈（儿162-1-2B）</td>
+                    <td>新生班</td>
+                    <td>东马路</td>
+                    <td>主教学306室</td>
+                    <td>18-12-03</td>
+                    <td>周日 9:00-10：00</td>
+                    <td>刘丽</td>
+                    <td>750</td>
+                    <td>20/20</td>
+                </tr>
+                <tr>
+                    <td><input type="checkbox" name="class"></td>
+                    <td>3</td>
+                    <td>钢琴（儿162-1-2B）</td>
+                    <td>老生班</td>
+                    <td>炫连</td>
+                    <td>主教学206室</td>
+                    <td>18-12-03</td>
+                    <td>周日 9:00-10：00</td>
+                    <td>张海洋</td>
+                    <td>750</td>
+                    <td>20/20</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- 分页 -->
+        <div class="gui-page-wapper" style="margin:20px 0;line-height: 28px; padding-left: 10px;">
+            <ul class="gui-page" id="limitUi">
+                <span class="gui-page-total">共<span class="numberShow" id="allpage">151</span>页 <span class="numberShow"
+                                                                                                      id="allData">15065</span>数据</span>
+                <!---->
+                <li title="上一页" class="gui-page-prev gui-page-disabled">
+                    <a><i class="fa fa-angle-left"></i></a>
+                </li>
+                <li title="1" class="gui-page-item gui-page-item-active">
+                    <a>1</a>
+                </li>
+                <li title="2" class="gui-page-item">
+                    <a>2</a>
+                </li>
+                <li title="3" class="gui-page-item">
+                    <a>3</a>
+                </li>
+                <li title="向后 5 页" class="gui-page-item-jump-next">
+                    <a><i class="fa fa-ellipsis-h"></i></a>
+                </li>
+                <li title="10" class="gui-page-item">
+                    <a>10</a>
+                </li>
+                <li title="下一页" class="gui-page-next">
+                    <a>
+                    </a><a><i class="fa fa-angle-right"></i></a>
+                </li>
+            </ul>
+
+            <span class="gui-page-options-elevator" style="padding-left: 10px;">
+                每页条数：
+                <select id="limit" class="">
+                     <option value="20">20</option>
+                     <option value="50">50</option>
+                     <option value="100">100</option>
+                </select>
+            </span>
+
+            <span class="gui-page-options">
+            <span class="gui-page-options-elevator">跳至第
+            <input id="page" class="gui-input">
+             页</span>
+           </span>
+        </div>
+        <!--分页END-->
+
+        <!--统计查询-->
+        <div class="dataStatistics">
+            <i class="fa fa-bar-chart"></i>: 班级数：<span class="numberShow" id="sum_classes"><i
+                class="fa fa-circle-o-notch fa-spin"></i></span> 学生数：<span class="numberShow"id="sum_students"><i
+                class="fa fa-circle-o-notch fa-spin"></i></span>
+        </div>
+        <!--统计查询 END-->
+
+        <!-- 数据操作-->
+        <div class="dataTool" >
+            <div class="pull-left">
+                <label for="isAll">
+                    <input type="checkbox" id="isAll" name="allClass" onclick="toAll()">选择全部分页数据
+                </label>
+            </div>
+            <div class="pull-right">
+                <button class="gui-btn  gui-btn-normal" id="addPlan"><i class="fa fa-plus-square-o"></i>创建招生（<span>0</span>班）</button>
+                <button class="gui-btn  gui-btn-warm" id="delChanged"><i class="fa fa-trash-o"></i>清空所选</button>
+                <button class="gui-btn  gui-btn-primary" id="cancel"><i class="fa fa-close"></i>取消</button>
+            </div>
+        </div>
+        <!-- 数据操作 END-->
+
+    </div>
+
+    <div id="step_no2" style="padding-top:20px;display: none">
+        <form class="gui-form gui-form-label-right" id="add-form" novalidate="novalidate">
+            <div class="line"></div>
+            <div class="gui-form-item"><label class="gui-form-item-label">招生范围</label>
+                <div class="gui-form-item-content">
+                    <span style="padding: 0 6px;" id="changedTermId">2018第一学期</span>/<span style="padding: 0 6px;" id="changedClassType">老生班</span>(<span class="numberShow" id="changedClasses">153</span>个班级)
+                    <span class="formlink" title="修改从招生计划已选择班级" style="margin-left: 20px" id="backFirst">修改选择班级<em></em></span>
+                </div>
+            </div>
+            <div class="line"></div>
+            <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">招生名称</label>
+                <div class="gui-form-item-content">
+                    <input type="text" name="planTitle" id="planTitle" placeholder="请输入招生名称" class="gui-input" style="width: 240px" maxlength="20">
+                </div>
+            </div>
+
+            <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">开始日期</label>
+                <div class="gui-form-item-content">
+                    <input type="text" name="planStart" id="planStart" placeholder="选择日期" data-date="YYYY-MM-DD" readonly class="gui-input">
+                </div>
+            </div>
+            <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">结束日期</label>
+                <div class="gui-form-item-content">
+                    <input type="text" name="planEnd" id="planEnd" placeholder="选择日期" data-date="YYYY-MM-DD hh:mm:ss" readonly class="gui-input" >
+                </div>
+            </div>
+
+            <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">招生须知</label>
+                <div class="gui-form-item-content">
+                    <textarea placeholder="请输入招生须知..." name="planContent" id="planContent" rows="2" class="gui-textarea" maxlength="100"></textarea>
+                </div>
+            </div>
+            <div class="gui-form-item topBorder">
+                <label class="gui-form-item-label">是否开启</label>
+                <div class="gui-form-item-content">
+                    <div class="gui-checkbox-group" style="padding-top: 6px;">
+                        <span class="switch-off" themeColor="#86b7ea" id="isRefundAudit"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="line"></div>
+            <div class="gui-form-item">
+                <div class="gui-form-item-content">
+                    <button type="submit" class="gui-btn gui-btn-normal" id="save"><i class="fa fa-save"></i><span>保存发布</span></button>
+                    <button type="button" class="gui-btn gui-btn-primary" id="back"><i class="fa fa-angle-left"></i><span>取消返回</span></button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<script type="text/javascript" src="plus/validate/jquery-validate.js"></script>
+<script src="js/countUp.js"></script>
+<script>
+    $(function () {
+
+        //判断是编辑还是创建
+        var planId=option.getUrlParam("planId");
+        if(planId!==""){
+            $("#cancel").show();
+        }else {
+            $("#cancel").hide();
+        }
+
+        //第一步
+        var firstData={
+            "termId":"",
+            "classType":"",
+            "classIds":[],
+        };
+
+        //获取被选班级列表
+        showHtml();
+
+
+        //到第二步
+        $("#addPlan").click(function () {
+
+            if(firstData.classIds.length==0){
+                myAlert("至少选择一个班级！",2,null,null);
+                return false
+            }
+
+            //界面更新
+            $("#step_no1").slideUp(300);
+            $("#step_no2").slideDown(300);
+
+        });
+
+        //返回到第一步
+        $("#backFirst").click(function () {
+            //界面更新
+            $("#step_no2").slideUp(300);
+            $("#step_no1").slideDown(300)
+        });
+
+
+
+        //目前是演示，实际是ajax回调
+        setTimeout(function () {
+            countup("sum_Certificationed", 4000);
+            countup("sum_unCertificationed", 50);
+        }, 2000);
+
+        //下拉
+        allSelect();
+        //开关
+        honeySwitch.init();
+
+
+
+
+
+
+
+
+
+
+        //校验规则
+        $("#add-form").validate({
+            rules: {
+                planTitle: {
+                    required: true,
+                    minlength:2,
+                    maxlength:20
+                },
+                planStart: {
+                    required: true
+                },
+                planEnd: {
+                    required: true
+                },
+                planContent: {
+                    required: true
+                }
+
+            },
+            messages: {
+                planTitle: {
+                    required: '请输入招生名称',
+                    minlength:'教室名称最少2个字符',
+                    maxlength:'教室名称不能超过20个字'
+
+                },
+                planStart: {
+                    required: '请选择开始时间'
+                },
+                planEnd: {
+                    required: '请选择结束时间'
+                },
+                planContent: {
+                    required: '请输入招生须知'
+                }
+            },
+            errorPlacement: function(error, element) {
+                error.appendTo(element.parent().after())
+            },
+            errorClass: 'gui-form-item-error',
+            errorElement: 'span',
+            submitHandler: function(form) {
+
+
+           /*   termId
+                classType
+                content
+                title
+                endTimeStr
+                planSwitch
+                beginTimeStr
+                classIds
+                */
+
+
+                //保存或者更新校区信息
+                var save={
+                    "parameter":{
+                        "org_id":option.org_id,
+                        "token":option.token,
+
+                        "termId":firstData.termId,
+                        "classType":firstData.classType,
+                        "classIds":firstData.classIds,
+
+                        "title":"",
+                        "planSwitch":"",
+                        "beginTimeStr":"",
+                        "endTimeStr":"",
+                        "content":"",
+
+                    },
+                    "url":domain+"baseSet/campusManage/createAndUpdateCampus.json"
+                };
+
+                //保存或者更新校区
+                getData(save.url,save.parameter,function (data) {
+
+                    if(data.code==200 && data.success==true){
+                        myAlert("保存成功",1,data.code,function () {
+                            window.location.href="#f12"
+                        });
+                    }else {
+                        myAlert(data.msg,2,data.code,null);
+                    }
+                },"POST",false)
+            }
+        });
+
+        //提交
+        $("#save").click(function () {
+            $("#add-form").submit();
+        });
+
+
+    })
+
+    //列表
+    function showHtml(limit,page) {
+        var cam_list={
+            "parameter":{
+                "org_id":option.org_id,
+
+                "termId":"",
+                "classType":"",
+                "categoryId":"",
+                "subjectId":"",
+                "classWeek":"",
+                "keyword":"",
+                "planId":"",
+
+                "limit":limit?limit:20,
+                "page":page?page:1,
+            },
+            "url":domain+"/plan/list.json"
+        };
+        getData(cam_list.url,cam_list.parameter,function (res) {
+            console.log(res)
+            if(res.code==200 && res.success==true){
+
+                var data=res.data,html="";
+
+                //如果当前页是第一页从新渲染
+                if(data.page==1){
+                    //生成页数(总条数，总页数，)
+                    $("#creatPage").createPage({
+                        pageCount:data.totalPage,
+                        current:data.page,
+                        url:cam_list.url,
+                        backFn:function(page){
+                            var limit=$("#limit").val();
+                            showHtml(limit,page)
+                        }
+                    });
+                }
+
+                //总页数
+                $("#allPage").text(data.size);
+                //总条数
+                $("#allTotal").text(data.total);
+
+                for(var n=0,m=data.data.length;n<m;n++){
+                    var toShow=(parseInt(data.page)-1)*parseInt(data.limit);
+                    var camObj=data.data[n];
+                    html+=" <tr>" +
+                        "        <td>"+(n+toShow+1)+"</td>" +
+                        "        <td>"+camObj.title+"</td>" +
+                        "        <td>"+camObj.beginTimeStr+"</td>" +
+                        "        <td>"+camObj.endTimeStr+"</td>" +
+                        "        <td>"+option.classType[camObj.classType]+"</td>" +
+                        "        <td>"+(camObj.planSwitch==1?"开启中":"已关闭")+"</td>" +
+                        "        <td>"+camObj.classCount+"</td>" +
+                        "        <td>"+camObj.progress+"</td>" +
+                        "        <td>"+camObj.tuition+"</td>" +
+                        "        <td class=\"operation\" >" +
+                        "        <span  class=\"editTerm\" data-id=\""+camObj.planId+"\" >编辑<em></em></span>" +
+                        "     </td>" +
+                        "    </tr>"
+
+                }
+
+                $("#planList").html(html)
+
+            }else {
+                myAlert(res.msg,2,res.code,null);
+            }
+        },"POST",false)
+    }
+
+</script>
+
+
+

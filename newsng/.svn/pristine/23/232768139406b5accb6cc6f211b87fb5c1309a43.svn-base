@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>问卷详情</title>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+    <link rel="shortcut icon" href="../../favicon.ico">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <!--ui包-->
+    <!-- <link rel="stylesheet" href="//at.alicdn.com/t/font_431334_smk25a436zyhw7b9.css"> -->
+    <link rel="stylesheet" href="../../../css/sm.css">
+    <link rel="stylesheet" href="../../../css/layout.css">
+    <style>
+        .content-block-title {height: 1rem;line-height: 1rem;text-align: center}
+        .card{margin:0}
+        .card-header span{text-overflow: ellipsis;overflow: hidden;white-space: nowrap;line-height: 1rem}
+        .question-cont p {text-indent: 0;color: #999;line-height: 1.2rem}
+        .tab{position: relative}
+        [data-status="0"]{color:red}
+        [data-status="1"]{color:#ccc}
+        .go-detail{color:#999}
+        [question-type]{color:#fff;padding:0.1rem;border-radius: 0.3rem;font-size:0.6rem; margin-right: 0.4rem}
+        [question-type="0"]{background-color:#8cc44c}
+        [question-type="1"]{background-color:#4793EC}
+        [status="3"]{color:red}
+        [status="4"]{color:#999}
+        .is-fill{color:#999}
+        .go-fill{color:#4793ec}
+        .list-block ul{border:0}
+        .question-title{height:1rem}
+        .tabs{min-height:800px}
+        /* .tabs .pull-to-refresh-content{top:-3.2rem} */
+    </style>
+</head>
+<body>
+    <div class="page-group">
+        <div class="page page-current" id="page-infinite-scroll-bottom">
+            <div class="content" data-ptr-distance="55">
+                <div class="buttons-tab" style="display: none">
+                    <a href="#tab1" class="tab-link active button">我发送的</a>
+                    <a href="#tab2" class="tab-link button">我收到的</a>
+                </div>
+                <div class="content-block">
+                    <div class="tabs">
+                        <!-- <div id="tab1" class="tab active infinite-scroll pull-to-refresh-content"> -->
+                            <!-- 默认的下拉刷新层 -->
+                            <!-- <div class="pull-to-refresh-layer">
+                                <div class="preloader"></div>
+                                <div class="pull-to-refresh-arrow"></div>
+                            </div> -->
+                        <div id="tab1" class="tab active infinite-scroll">
+                            <div class="list-block">
+                                <ul class="list-container">
+                                </ul>
+                            </div>
+                            <!-- 加载提示符 -->
+                            <div class="infinite-scroll-preloader">
+                                <div class="preloader">
+                                </div>
+                            </div>
+                        </div>
+                        <div id="tab2" class="tab infinite-scroll">
+                            <!-- 默认的下拉刷新层 -->
+                            <!-- <div class="pull-to-refresh-layer">
+                                <div class="preloader"></div>
+                                <div class="pull-to-refresh-arrow"></div>
+                            </div> -->
+
+                            <div class="list-block">
+                                <ul class="list-container">
+                                </ul>
+                            </div>
+                            <!-- 加载提示符 -->
+                            <div class="infinite-scroll-preloader">
+                                <div class="preloader">
+                                </div>
+                            </div>  
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script src="../../../js/question/question.js"></script>
+<script>
+    //设置返回首页标识
+    if(sessionStorage.questionRefresh){
+        sessionStorage.removeItem("questionRefresh");
+        location.reload();
+    }
+    sessionStorage.removeItem("fromWeixin");
+    sessionStorage.removeItem("answerDone");
+    sessionStorage.removeItem("closed");
+    //获取权限
+
+    var power = JSON.parse(sessionStorage.baseUser).orguser.rlids.substring(0,JSON.parse(sessionStorage.baseUser).orguser.rlids.length-1).split(",");
+    
+    // $(".content").scroll(function (){
+    //     if($(this)[0].scrollTop>200){
+    //         $.destroyPullToRefresh(".pull-to-refresh-content");
+    //     }else if($(this)[0].scrollTop < 2){
+    //         $.initPullToRefresh('.pull-to-refresh-content');
+    //     }
+    // })
+            
+    // 添加'refresh'监听器
+    // $(document).on('refresh', '.active.pull-to-refresh-content',function(e) {      
+    //     // 模拟2s的加载过程
+    //     setTimeout(function() {
+    //         var cardNumber = $(e.target).find('.card').length + 1;
+    //         var cardHTML = '<div class="card">' +
+    //                         '<div class="card-header">card'+cardNumber+'</div>' +
+    //                         '<div class="card-content">' +
+    //                             '<div class="card-content-inner">' +
+    //                                 '这里是第' + cardNumber + '个card，下拉刷新会出现第' + (cardNumber + 1) + '个card。' +
+    //                             '</div>' +
+    //                         '</div>' +
+    //                     '</div>';
+    
+    //         $(e.target).find('.card-container').prepend(cardHTML);
+    //         // 加载完毕需要重置
+    //         $.pullToRefreshDone('.active.pull-to-refresh-content');
+    //     }, 1000);
+    // });
+
+    var justLook = 1;
+
+    //进入页面初始加载
+    getData(domainName + '/shijiwxy/survey/getSurveyList.htm',{
+        token:JSON.parse(sessionStorage.baseUser).token,
+        udid:JSON.parse(sessionStorage.baseUser).udid,
+        version:3,
+        userId:JSON.parse(sessionStorage.baseUser).orguser.teacher.tech_id,
+        techId:JSON.parse(sessionStorage.baseUser).orguser.teacher.tech_id,
+        //currentPageNum:1,
+        //pageSize:20,
+        max:'',
+        min:'',
+        orgId:JSON.parse(sessionStorage.baseUser).orguser.org_id,
+        type:1
+    },function (res){
+        //权限判断
+        
+        if(power.indexOf("1")==-1&&power.indexOf("20")==-1){
+            $(".buttons-tab").hide();
+            $(".buttons-tab a").eq(1).trigger("click");
+            justLook = 1;
+        }else{
+            $(".buttons-tab").css("display","flex");
+            justLook = 0;
+        }
+        if(sessionStorage.pageSent!==undefined){
+            setTimeout(function () {
+                if(sessionStorage.pageSent=="1"){
+                    $(".buttons-tab a").eq(0).trigger("click");
+                }else{
+                    $(".buttons-tab a").eq(1).trigger("click");
+                }
+                sessionStorage.removeItem("pageSent");
+            },100)
+        }
+        // 生成新条目的HTML
+        var html = '',dataList = res.data.surveyList;
+        for (var i = 0; i < dataList.length; i++) {
+            if(transformTime(dataList[i].endTime)< new Date().getTime()){
+                dataList[i].surveyStatus = 4;
+            }
+            var status = '';
+            if(dataList[i].anwserStatus !== 1){//未填写
+                if(dataList[i].surveyStatus !== 3){//收集中
+                    status = "已结束";
+                }else{
+                    status = "未填写";
+                }
+            }else{
+                status = "已填写";
+            }
+            html += ("<li data-id=\"" + dataList[i].surveyId + "\" class=\"\">\n                        <div class=\"content-block-title\">" + dataList[i].startTime + "</div>\n                        <div class=\"card question-cont\" data-id=\"" + dataList[i].surveyId + "\" answer-id=\"" + dataList[i].answerId + "\" is-show=\"" + dataList[i].isShow + "\" answered=\"" + dataList[i].anwserStatus + "\">\n                            <div class=\"card-header\"><span>" + dataList[i].title + "</span></div>\n                            <div class=\"card-content\">\n                            <div class=\"card-content-inner\">\n                                <p>发布教师 : " + dataList[i].teacherName + "</p>\n                                <p>截止时间 : " + dataList[i].endTime + "</p>\n                            </div>\n                            </div>\n                            <div class=\"card-footer\">\n                                <a class=\"is-fill\" href=\"javascript:;\" class=\"link\" status=\"" + status + "\">" + status + "</a>\n                                <a class=\"go-fill\" href=\"javascript:;\" class=\"link\">" + (status !== "未填写" ? "查看详情>" : "去填写>") + "</a>\n                            </div>\n                        </div>\n                    </li>");
+            // html += `<li data-id="${dataList[i].surveyId}" class="">
+            //             <div class="content-block-title">${dataList[i].startTime}</div>
+            //             <div class="card question-cont" data-id="${dataList[i].surveyId}" answer-id="${dataList[i].answerId}" is-show="${dataList[i].isShow}" answered="${dataList[i].anwserStatus}">
+            //                 <div class="card-header"><span>${dataList[i].title}</span></div>
+            //                 <div class="card-content">
+            //                 <div class="card-content-inner">
+            //                     <p>发布教师 : ${dataList[i].teacherName}</p>
+            //                     <p>截止时间 : ${dataList[i].endTime}</p>
+            //                 </div>
+            //                 </div>
+            //                 <div class="card-footer">
+            //                     <a class="is-fill" href="javascript:;" class="link" status="${status}">${status}</a>
+            //                     <a class="go-fill" href="javascript:;" class="link">${status !== "未填写"?"查看详情>":"去填写>"}</a>
+            //                 </div>
+            //             </div>
+            //         </li>`
+        }
+        if(!dataList.length>0){
+            $('#tab2').empty().append('<div class="error-img"><p class="error-text">还没有收到问卷~</p></div>');
+            noContentImg($('#tab2 .error-text'), 'images/empty.png');
+        }else if(dataList.length < 20){
+            $('#tab2 .list-container').append(html);
+            $('#tab2 .list-container').append('<li id="none" class="noData noData_line lastData"><span class="noData__tips">'+'我是有底线的'+'</span></li>');
+            $('#tab2 .infinite-scroll-preloader').remove();
+        }
+        else{
+            // 添加新条目
+            $('#tab2 .list-container').append(html);
+        }
+        
+        //将未填写变红
+        $(".is-fill").each(function (){
+            if($(this).text()=="未填写"){
+                $(this).css("color","red");
+            }
+        })
+        //将查看详情变灰
+        $(".go-fill").each(function (){
+            if($(this).text().indexOf("查看详情") !== -1){
+                $(this).css("color","#999");
+            }
+        })
+        loading = false;
+    })
+
+
+
+    //无限滚动
+    $(document).on("pageInit", "#page-infinite-scroll-bottom", function (e, id, page) {
+        var loading = false;
+        // 每次加载添加多少条目
+        var itemsPerLoad = 20;
+        // 最多可加载的条目
+        var maxItems = 100;
+        var lastIndex = 1,lastIndex1 = 2;
+        
+        function addItems(tabIndex) {
+            if($(".active .noData").length !== 0){
+                loading = false;
+                return false;
+            }
+            var parameter = {
+                token:JSON.parse(sessionStorage.baseUser).token,
+                udid:JSON.parse(sessionStorage.baseUser).udid,
+                version:3,
+                userId:JSON.parse(sessionStorage.baseUser).orguser.teacher.tech_id,
+                techId:JSON.parse(sessionStorage.baseUser).orguser.teacher.tech_id,
+                // currentPageNum:lastIndex,
+                // pageSize:itemsPerLoad,
+                // max:$('.infinite-scroll.active .list-container li').eq(0).attr("data-id"),
+                max:"",
+                min:$('.infinite-scroll.active .list-container li').eq($('.infinite-scroll.active .list-container li').length - 1).attr("data-id"),
+                orgId:JSON.parse(sessionStorage.baseUser).orguser.org_id,
+                type:1
+            }
+            if(tabIndex!=1){
+                var ports=domainName + "/shijiwxy/survey/getTeacherSendSurveyList.htm";
+                // parameter.min=$("#tab1 ul li:last-child").attr("id");
+            }else{
+                var ports=domainName + "/shijiwxy/survey/getSurveyList.htm";
+                // parameter.min=$("#tab2 ul li:last-child").attr("id");
+                parameter["currentPageNum"] = lastIndex1;
+            }
+            getDataNoLoading(ports,parameter,function(res) {
+                //console.log(res);
+                maxItems = typeof res.data.surveyList!=="undefined"?res.data.surveyList.length + $('.infinite-scroll.active .list-container li').length : res.data.mySurveyList.length + $('.infinite-scroll.active .list-container li').length;
+                tabIndex != 1 ? lastIndex = Math.ceil(maxItems/itemsPerLoad)+1 : lastIndex1 = Math.ceil(maxItems/itemsPerLoad)+1;
+                //lastIndex = Math.ceil(maxItems/itemsPerLoad)+1;
+                if(maxItems == 0){
+                    $('.infinite-scroll.active').empty();
+                    $('.infinite-scroll.active').append('<div class="error-img"><p class="error-text">还没有收到问卷~</p></div>');
+                    noContentImg($('.infinite-scroll.active .error-text'), 'images/empty.png');
+                    return false;
+                }
+                // 生成新条目的HTML
+                var html = '',dataList = res.data.surveyList||res.data.mySurveyList,number = itemsPerLoad;
+                if(dataList.length >= itemsPerLoad){
+                    number = itemsPerLoad;
+                }else if(dataList.length < itemsPerLoad){
+                    number = dataList.length;
+                    // 加载完毕，则注销无限加载事件，以防不必要的加载
+                    //$.detachInfiniteScroll($('.infinite-scroll'));
+                    // 删除加载提示符
+                    //$('.infinite-scroll-preloader').remove();
+                    //$('.infinite-scroll .list-container').append('<li id="none" class="noData noData_line lastData"><span class="noData__tips">'+'我是有底线的'+'</span></li>');
+                }
+                for (var i = 0; i < number; i++) {
+                    if(transformTime(dataList[i].endTime) < new Date().getTime()){
+                        dataList[i].status = 4;
+                        dataList[i].surveyStatus = 4;
+                    }
+                    if(tabIndex!=1){
+                        //如果能够发问卷,加载我发送的
+                        if((power.indexOf("1")!=-1&&power.indexOf("20")!=-1)){
+                        
+                            if(dataList[i].status<3){
+                            // continue;
+                            }
+                            html += '<li data-id="'+ dataList[i].id +'" class="">'+
+                                    '<div class="content-block-title">'+ dataList[i].startTime +'</div>'+
+                                    '<div class="card question-cont" data-id="'+ dataList[i].id +'" type="'+ dataList[i].type +'">'+
+                                        '<div class="card-header"><span class="question-title"><span class="" question-type="'+ dataList[i].type +'">'+ (dataList[i].type!==0?"校外":"校内") +'</span>'+ dataList[i].title +'</span></div>'+
+                                        '<div class="card-content">'+
+                                        '<div class="card-content-inner">'+
+                                            '<p>调研人数/提交人数 : '+ dataList[i].totalCount +'/'+ dataList[i].submitCount +'</p>'+
+                                            '<p>截止时间 : '+ dataList[i].endTime +'</p>'+
+                                        '</div>'+
+                                        '</div>'+
+                                        '<div class="card-footer">'+
+                                            '<a class="status" status="'+ dataList[i].status +'" href="javascript:;" class="link">'+ (dataList[i].status!==4?"收集中":"已关闭") +'</a>'+
+                                            '<a class="go-detail" href="javascript:;" class="link">查看详情></a>'+
+                                        '</div>'+
+                                    '</div>'+
+                                '</li>'
+                            }else{
+                                html = '';
+                            }
+                    }else{
+                        var status = '';
+                        if(dataList[i].anwserStatus !== 1){//未填写
+                            if(dataList[i].surveyStatus !== 3){//收集中
+                                status = "已结束";
+                            }else{
+                                status = "未填写";
+                            }
+                        }else{
+                            status = "已填写";
+                        }
+                        html += ("<li data-id=\"" + dataList[i].surveyId + "\" class=\"\" >\n                                    <div class=\"content-block-title\">" + dataList[i].startTime + "</div>\n                                    <div class=\"card question-cont\" data-id=\"" + dataList[i].surveyId + "\" answer-id=\"" + dataList[i].answerId + "\" is-show=\"" + dataList[i].isShow + "\" answered=\"" + dataList[i].anwserStatus + "\">\n                                        <div class=\"card-header\"><span>" + dataList[i].title + "</span></div>\n                                        <div class=\"card-content\">\n                                        <div class=\"card-content-inner\">\n                                            <p>发布教师 : " + dataList[i].teacherName + "</p>\n                                            <p>截止时间 : " + dataList[i].endTime + "</p>\n                                        </div>\n                                        </div>\n                                        <div class=\"card-footer\">\n                                            <a class=\"is-fill\" href=\"javascript:;\" class=\"link\" status=\"" + status + "\">" + status + "</a>\n                                            <a class=\"go-fill\" href=\"javascript:;\" class=\"link\">" + (status !== "未填写" ? "查看详情>" : "去填写>") + "</a>\n                                        </div>\n                                    </div>\n                                </li>");
+                        // html += `<li data-id="${dataList[i].surveyId}" class="" >
+                        //             <div class="content-block-title">${dataList[i].startTime}</div>
+                        //             <div class="card question-cont" data-id="${dataList[i].surveyId}" answer-id="${dataList[i].answerId}" is-show="${dataList[i].isShow}" answered="${dataList[i].anwserStatus}">
+                        //                 <div class="card-header"><span>${dataList[i].title}</span></div>
+                        //                 <div class="card-content">
+                        //                 <div class="card-content-inner">
+                        //                     <p>发布教师 : ${dataList[i].teacherName}</p>
+                        //                     <p>截止时间 : ${dataList[i].endTime}</p>
+                        //                 </div>
+                        //                 </div>
+                        //                 <div class="card-footer">
+                        //                     <a class="is-fill" href="javascript:;" class="link" status="${status}">${status}</a>
+                        //                     <a class="go-fill" href="javascript:;" class="link">${status !== "未填写"?"查看详情>":"去填写>"}</a>
+                        //                 </div>
+                        //             </div>
+                        //         </li>`
+                    }
+                }
+                // 添加新条目
+                $('.active.infinite-scroll .list-container').append(html);
+                 //将未填写变红
+                $("#tab2 .is-fill").each(function (){
+                    if($(this).text()=="未填写"){
+                        $(this).css("color","red");
+                    }
+                })
+                //将查看详情变灰
+                $(".go-fill").each(function (){
+                    if($(this).text().indexOf("查看详情") !== -1){
+                        $(this).css("color","#999");
+                    }
+                })
+                loading = false;
+                if(number<itemsPerLoad && ($(".active .noData").length == 0)){
+                    $('.active .list-container').append('<li id="none" class="noData noData_line lastData"><span class="noData__tips">'+'我是有底线的'+'</span></li>');
+                    $('.active .infinite-scroll-preloader').remove();
+                }
+                //console.log(lastIndex,lastIndex1)
+            })
+        }
+        addItems(0)
+        $(page).on('infinite', function () {
+            // 如果正在加载，则退出
+            if (loading) return;
+            // 设置flag
+            loading = true;
+            //loading = false;
+            var tabIndex = 0;
+            if ($(this).find('.infinite-scroll.active').attr('id') == "tab1") {
+                tabIndex = 0;
+            }
+            if ($(this).find('.infinite-scroll.active').attr('id') == "tab2") {
+                tabIndex = 1;
+            }
+            addItems(tabIndex);
+            // 更新最后加载的序号
+            lastIndex = $('.list-container li').length;
+            //$.refreshScroller();
+        });
+    });
+    //初始化
+    $.init();
+
+    //后退刷新
+    window.addEventListener('pageshow', function (event) {
+        if (sessionStorage.echartBlog == 1) {
+            sessionStorage.removeItem("echartBlog");
+            window.location.reload();
+        }
+    });
+
+    //跳转页面
+    $("#tab1").on("click",".question-cont",function (){
+        console.log($(this).find("[question-type]").attr("question-type"));
+        sessionStorage.pageSent = 1;
+        if($(this).find(".status").text() == "已关闭"){
+            sessionStorage.closed = 1;
+        }
+        location.href = "show_result.html?surveyId="+$(this).attr("data-id")+"&type="+$(this).attr("type");
+    })
+
+    $("#tab2").on("click",".question-cont",function (){
+        sessionStorage.pageSent = 0;
+        if($(this).find(".is-fill").text().indexOf("已结束") !== -1){
+            sessionStorage.answerDone = 1;
+            location.href = "question_closed.html";//跳转到问卷关闭页面
+        }else if($(this).find(".is-fill").text().indexOf("已填写") !== -1){
+            sessionStorage.answerDone = 1;
+            location.href = "sub_question.html?surveyId="+$(this).attr("data-id")+"&answerId="+$(this).attr("answer-id")+"&isShow="+$(this).attr("is-show")+"&justLook="+justLook;//跳转到提交问卷成功
+        }else{
+            location.href = "question_details.html?surveyId="+$(this).attr('data-id')+"&answerId="+$(this).attr('answer-id')+"&answered="+$(this).attr("answered");//跳转到空问卷
+        }
+    })
+
+    //无问卷提示
+    // $('#tab1').empty().append('<div class="error-img"><p class="error-text">还没有发送过问卷~</p><p>请登录yun.5tree.cn创建并发送问卷</p></div>');
+    // noContentImg($('#tab1 .error-text'), 'images/empty.png');
+</script>

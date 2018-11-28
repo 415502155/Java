@@ -1,0 +1,104 @@
+package sng.service.impl;
+
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import sng.dao.LoggerDao;
+import sng.entity.OperationLog;
+import sng.pojo.SessionInfo;
+import sng.service.LoggerService;
+import sng.util.CommonUtils;
+import sng.util.Constant;
+import sng.util.Paging;
+
+@Component
+@Service
+@Transactional("transactionManager")
+public class LoggerServiceImpl implements LoggerService {
+
+	@Autowired
+	LoggerDao loggerDao;
+
+	@Override
+	public Paging<OperationLog> getListWithPaging(Integer orgId, Integer action, String startTime, String endTime,
+			String content, Paging<OperationLog> page, Integer isAll) {
+		// TODO Auto-generated method stub
+		return loggerDao.getListWithPaging(orgId, action, startTime, endTime, content, page, isAll);
+	}
+
+	@SuppressWarnings("rawtypes")
+	@Override
+	public Paging<Map> getListMapWithPaging(Integer orgId, Integer action, String startTime, String endTime,
+			String content, Paging<Map> page) {
+		Paging<Map> paging = loggerDao.getListMapWithPaging(orgId, action, startTime, endTime, content, page);
+		List<Map> list = paging.getData();
+		if (null != list && list.size() > 0) {
+			for (Map m : list) {
+				//将 操作时间 和 添加时间  Timestamp格式转换 为yyyy-MM-dd HH:mm:ss
+				Timestamp operTime = (Timestamp) m.get("operation_time");
+				String operationTime = CommonUtils.dateFormat(operTime, null);
+				m.put("operation_time", operationTime);
+				Timestamp insTime = (Timestamp) m.get("insert_time");
+				String insertTime = CommonUtils.dateFormat(insTime, null);
+				m.put("insert_time", insertTime);
+			}
+		}
+		return paging;
+	}
+
+	@Override
+	public void save(Integer orgId, Integer camId, Integer targetId, Integer targetType, String targetName,
+			Integer action, String content, Integer userType, Integer userTypeId, String userTypeName, SessionInfo sessionInfo) {
+		if (StringUtils.isEmpty(targetName)) {
+			//根据 班级ID或学员ID 操作对象类型(班级或学员) 查询班级名称或学员名称
+			//targetName = sessionInfo
+		}
+		if (StringUtils.isEmpty(userTypeName)) {
+			userTypeName = sessionInfo.getLoginName();
+		}
+		OperationLog log = new OperationLog();
+		log.setOrg_id(orgId);
+		log.setCam_id(camId);
+		log.setTarget_id(targetId);
+		log.setTarget_type(targetType);
+		log.setTarget_name(targetName);
+		log.setAction(action);
+		log.setContent(content);
+		log.setUser_type(userTypeId);
+		log.setUser_type_id(userTypeId);
+		log.setUser_type_name(userTypeName);
+		log.setOperation_time(new Date());
+		log.setInsert_time(new Date());
+		log.setIs_del(Constant.IS_DEL_NO);
+		loggerDao.save(log);
+	}
+
+	@Override
+	public List<OperationLog> getList(String ids, Integer isAll) {
+		List<OperationLog> list = new ArrayList<OperationLog>();
+		String[] strArray = null;  
+        strArray = ids.split(","); //拆分字符为"," ,然后把结果交给数组strArray 
+        for (int i = 0; i < strArray.length; i++) {
+        	OperationLog log = loggerDao.getById(Integer.parseInt(strArray[i]));
+        	list.add(log);
+        }
+		return list;
+	}
+
+	@Override
+	public List<OperationLog> getList(Integer orgId, Integer action, String startTime, String endTime, String content,
+			Paging<OperationLog> page, Integer isAll) {
+		// TODO Auto-generated method stub
+		return loggerDao.getList(orgId, action, startTime, endTime, content, page, isAll);
+	}
+	
+}

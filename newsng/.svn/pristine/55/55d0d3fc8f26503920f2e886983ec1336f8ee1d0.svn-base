@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>意见反馈</title>
+	<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+	<link rel="shortcut icon" href="/favicon.ico">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<meta http-equiv="Access-Control-Allow-Origin" content="*">
+	<!--ui包-->
+	<link rel="stylesheet" href="../../../css/sm.css">
+	<link rel="stylesheet" href="../../../css/layout.css">
+	<style>
+		.list-block .item-inner { border-bottom: none}
+		.list-block .list-group-title { padding: .4rem .75rem;border-bottom: 1px solid #e7e7e7;}
+		.label-checkbox {border-bottom: 1px solid #e7e7e7;}
+		.list-block ul {
+			border-bottom: none;
+		}
+		.item-title-row { line-height: 1.4rem}
+		.chooseText {padding: 4px 40px 0; font-size:.83rem;position: absolute;}
+		.list-block.media-list .list-group-title .item-media {padding:0}
+		.studentDetail,.classDetail {
+			width: 50%;
+			height: 100%;
+			position: absolute;
+			right: 0;
+			z-index: 9;
+			top: 0;
+			cursor: pointer;
+		}
+
+		.weui-uploader__file {
+			float: left;
+			margin-right: 9px;
+			margin-bottom: 9px;
+			width: 79px;
+			height: 79px;
+			background: no-repeat center center;
+			background-size: cover;
+			position: relative;
+		}
+
+		.delete{
+			width: 30px;
+			height: 30px;
+			background:#f6383a;
+			border-radius: 4px;
+			position: absolute;
+			right: -5px;
+			top: -12px;
+			color: #fff;
+			text-align: center;
+			line-height: 30px;
+		}
+		.uploader__bd {
+			overflow: inherit;
+		}
+		#classDetail .item-after{
+			color:#f6383a;
+		}
+	</style>
+</head>
+<body>
+<div class="page-group">
+	<div class="page page-current" id="sendNotice">
+
+		<div class="content native-scroll">
+			<!--邮箱内容-->
+			<div class="content-block-title">产品建议</div>
+			<div class="list-block" style="margin: 0;">
+				<ul>
+					<li class="align-top">
+						<div class="item-content">
+							<div class="item-inner">
+								<!--通知内容-->
+								<div class="item-input">
+									<!--内容-->
+									<textarea placeholder="欢迎向我们提出建议让我们更好的为您服务…" id="noticeText" maxlength="500" ></textarea>
+									<!--内容-->
+									<!--通知内容 End-->
+								</div>
+							</div>
+						</div>
+					</li>
+					<li>
+						<div class="item-content">
+							<div class="item-inner">
+								<div class="item-title"> </div>
+								<div class="item-after"><span id="noticeLength">0</span>/500</div>
+							</div>
+						</div>
+					</li>
+				</ul>
+				<div class="list-block-label" id="tooLtip" style="margin-bottom: .5rem; height:.6rem"><span class="button-danger"></span></div>
+			</div>
+			<!--邮箱内容 END-->
+
+			<div class="content-block-title">联系电话</div>
+			<div class="list-block" style="margin:0; border-bottom: 1px solid #e7e7e7;">
+				<ul>
+					<li>
+						<div class="item-content">
+							<div class="item-inner">
+								<div class="item-input">
+									<input type="text" id="tel" placeholder="选填，便于我们与您联系" maxlength="24" onkeypress="if (event.keyCode!=46 && event.keyCode!=45 && (event.keyCode<48 || event.keyCode>57)) event.returnValue=false">
+								</div>
+							</div>
+						</div>
+					</li>
+				</ul>
+			</div>
+
+			<!--操作-->
+			<div class="content-block">
+				<a href="javascript:void(0)" class="button button-fill" id="toSend">提交</a>
+			</div>
+			<!--操作 End-->
+		</div>
+	</div>
+</div>
+
+
+
+</body>
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script src='https://res.wx.qq.com/open/js/jweixin-1.2.0.js'></script>
+<script>
+    $(function () {
+
+        //监控通知字数
+        $("#noticeText").keyup(function () {
+            var cnChar = $(this).val()
+            var entryLen = cnChar.length;//算出实际的字符长度
+            $("#noticeLength").text(entryLen);
+
+        }).change(function () {
+            var cnChar = $(this).val()
+            var entryLen = cnChar.length;//算出实际的字符长度
+            $("#noticeLength").text(entryLen);
+        });
+
+        //粘贴事件
+        $("#noticeText").bind("cut paste", function (e) {
+            var $this = $(this);
+            setTimeout(function () {
+                var cnChar = $this.val()
+                var entryLen = cnChar.length;//算出实际的字符长度
+                $("#noticeLength").text(entryLen);
+            }, 10)
+        });
+
+
+        //从本地获取草稿
+        if (localStorage.mailText !== undefined) {
+            $("#noticeText").val(localStorage.mailText).change();
+        } else {
+            $("#noticeText").val("");
+        }
+        //每10秒保存一次通知内容
+        setInterval(function () {
+            var notice = $("#noticeText").val();
+            if (localStorage.feedbackText !== "") {
+                localStorage.feedbackText = notice;
+            }
+        }, 10000);
+
+        $("#toSend").click(function () {
+
+           /* if($("#sendTimes").val()==3){
+                $.alert("您今日给校长写信次数过多，请明天再试");
+                return false
+            },刘洋说改后台校验*/
+
+            var content= $.trim($("#noticeText").val());
+            if(content.length<2){
+                $.alert("建议或意见不能少于2个字");
+                return false
+			}
+
+            if(content.length>500){
+                $.alert("建议活或意见不能多于500字");
+                return false
+            }
+
+            var base=JSON.parse(sessionStorage.baseUser);
+
+            var studentObj=JSON.parse(sessionStorage.nowStudent);
+            var parentObj=base.orguser;
+            var parameter={
+                token:base.token,
+                // 登录获得token
+                udid:base.udid,
+                // 登录获得udid
+                version:3,
+                content:content,
+                identity:0,
+                login_name:parentObj.user_loginname,
+                mobile:$("#tel").val(),
+                org_name:parentObj.organization.org_name_cn,
+                name:studentObj.stud_name+" "+studentObj.relation_name
+            },ports=domainName+"/shijiwxy/feedback/save.json";
+
+            getData(ports,parameter,function(res){
+                if(res.code==200 && res.success==true){
+                	
+                	localStorage.removeItem("feedbackText");
+                	
+                    $.alert("反馈成功，感谢您的来信","提示",function () {
+                        window.location="../set/index.html"
+                    });
+                }else {
+                    $.alert(res.message)
+                }
+            },"POST");
+
+    	});
+    });
+</script>

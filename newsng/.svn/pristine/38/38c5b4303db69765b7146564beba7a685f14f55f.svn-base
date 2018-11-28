@@ -1,0 +1,252 @@
+package sng.filter;
+
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.util.Date;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang3.StringUtils;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+import org.springframework.web.multipart.support.DefaultMultipartHttpServletRequest;
+
+import sng.pojo.Login;
+import sng.pojo.OrgUser;
+import sng.pojo.Result;
+import sng.pojo.UcUser;
+import sng.pojo.UcuserOrguser;
+import sng.pojo.UserAccount;
+import sng.util.ESBPropertyReader;
+import sng.util.EnumException;
+import sng.util.JsonUtil;
+import sng.util.RedisUtil;
+import sng.util.Utils;
+import sng.util.WebContext;
+
+public class AuthFilter {
+
+	@Autowired
+	private RedisTemplate<String, Object> redisTemplate;
+
+	@Autowired
+	RedisUtil redisUtil;
+
+	public Object doBefore(ProceedingJoinPoint jp) throws Throwable {
+		System.out.println("log PermissionAspect Before method: " + jp.getTarget().getClass().getName() + "."
+				+ jp.getSignature().getName());
+
+		Method soruceMethod = getSourceMethod(jp);
+		if (soruceMethod != null) {
+			Result<?> result = new Result<>();
+			// HttpServletResponse response = WebContext.getInstance().getResponse();
+			// response.setContentType("application/json;charset=utf-8");
+			if ("login".equals(soruceMethod.getName()) || "wxCallback".equals(soruceMethod.getName())
+					|| "index".equals(soruceMethod.getName()) || "loginFromESB".equals(soruceMethod.getName())
+					|| "processSwipingStudentCard".equals(soruceMethod.getName())) {
+				return jp.proceed();
+			}
+			HttpServletRequest request = WebContext.getInstance().getRequest();
+			String token = request.getParameter("token");
+			String udid = request.getParameter("udid");
+			String version = "0";
+			if (request.getParameter("version") != null) {
+				version = request.getParameter("version");
+			}
+			if (StringUtils.isBlank(token)) {
+				// 再从head中获取一次
+				token = request.getHeader("token");
+				udid = request.getHeader("udid");
+			}
+			Object[] args = jp.getArgs();
+			for (Object arg : args) {
+				if (arg != null && arg.getClass() == DefaultMultipartHttpServletRequest.class) {
+					MultipartHttpServletRequest multiReq = (MultipartHttpServletRequest) arg;
+					token = multiReq.getParameter("token");
+					udid = multiReq.getParameter("udid");
+					version = multiReq.getParameter("version") != null ? multiReq.getParameter("version") : "0";
+				}
+			}
+			if (StringUtils.isNotBlank(token) && StringUtils.isNotBlank(udid)) {
+				String[] params = token.split("\\_");
+				if (params.length >= 5) {
+
+					String tokenseg = params[4];
+					String md5str = params[0];
+					String insertime = params[1];
+					String user_id = params[2];
+					String type = params[3];
+					Long expired = 0L;
+					switch (version) {
+						case "0":
+							expired = Long.parseLong(ESBPropertyReader.getProperty("expired0"));
+							break;
+						case "1":
+							expired = Long.parseLong(ESBPropertyReader.getProperty("expired1"));
+							break;
+						case "2":
+							expired = Long.parseLong(ESBPropertyReader.getProperty("expired2"));
+							break;
+						default:
+							expired = Long.parseLong(ESBPropertyReader.getProperty("expired3"));
+							break;
+					}
+
+					Long extratime = this.getExtratime(type, user_id);
+					Long expiretime = (expired * 1000 + Long.parseLong(insertime)) + extratime;
+					Long nowtime = (new Date()).getTime();
+					if (expiretime >= nowtime) {
+						String user_salt = "";
+						UserAccount ua = null;
+						OrgUser user = this.getUserById(user_id);
+						if (user != null) {
+							user_salt = user.getUser_salt();
+							UcuserOrguser uuser = this.getUcuserOrguserById(user_id);
+							if (uuser != null) {
+								ua = this.getUserAccount(uuser.getUc_id().toString(), version, "1");
+
+							} else {
+								ua = this.getUserAccount(user.getUser_loginname(), version, "0");
+							}
+						}
+						String md5 = Utils.MD5(insertime + ":" + user_id + ":" + type + ":" + user_salt + ":" + tokenseg + ":"
+								+ ESBPropertyReader.getProperty("secret"));
+						if (ua != null && md5.equals(md5str)) {
+							String udidseg = udid.substring(udid.length() - 8);
+							Long timespan = Math.abs(ua.getUpdated_time().getTime() - Long.parseLong(insertime));
+							if (udidseg.equals(tokenseg) && udid.equals(ua.getUdid()) && timespan < 10000) {
+								request.setAttribute("user_id", user_id);
+								request.setAttribute("org_id", user.getOrg_id());
+								// request.setAttribute("org_name", user.getOrganization().getOrg_name_cn());
+								request.setAttribute("open_id", user.getOpenid());
+								request.setAttribute("identity", user.getIdentity());
+
+								// if(user.getIdentity()==Constant.IDENTITY_TEACHER){
+								// request.setAttribute("tech_id", user.getTeacher().getTech_id());
+								// request.setAttribute("tech_name", user.getTeacher().getTech_name());
+								// List<Map<String, Object>> list = user.getIdentityDatas();
+								// String clasids = "";
+								// if(list!=null){
+								// for(int i=0;i<list.size();i++){
+								// Map<String, Object> map = list.get(i);
+								// Object obj = map.get("mapBZR");
+								// if(obj!=null){
+								// @SuppressWarnings("unchecked")
+								// List<Map<String, Object>> list1 = ((List<Map<String, Object>>)obj);
+								// for(int j=0;j<list1.size();j++){
+								// Map<String, Object> map1 = list1.get(i);
+								// clasids = clasids+map1.get("clas_id")+",";
+								// }
+								// }
+								//
+								// }
+								// }
+								// request.setAttribute("clasids", clasids);
+								//
+								// }else if(user.getIdentity()==Constant.IDENTITY_PARENT){
+								// request.setAttribute("parent_id", user.getParent().getParent_id());
+								// request.setAttribute("parent_name", user.getParent().getParent_name());
+								// }
+
+								Long addtime = (new Date()).getTime() - Long.parseLong(insertime);
+								Login login = new Login();
+								login.setType(type);
+								login.setUser_id(user_id);
+								login.setExtratime(addtime);
+								this.addLogin(login);
+								return jp.proceed();
+							} else {
+								result.setMessage(EnumException.common_must_login.getMsg());
+								result.setCode(EnumException.common_must_login.getValue());
+							}
+						} else {
+							result.setMessage(EnumException.common_must_login.getMsg());
+							result.setCode(EnumException.common_must_login.getValue());
+						}
+					} else {
+						result.setMessage(EnumException.common_token_expire.getMsg());
+						result.setCode(EnumException.common_token_expire.getValue());
+					}
+				} else {
+					result.setMessage(EnumException.common_params_error.getMsg());
+					result.setCode(EnumException.common_params_error.getValue());
+				}
+			} else {
+				result.setMessage(EnumException.common_params_error.getMsg());
+				result.setCode(EnumException.common_params_error.getValue());
+			}
+			result.setSuccess(false);
+			return result;
+		} else {
+
+			return jp.proceed();
+		}
+
+	}
+
+	private Method getSourceMethod(ProceedingJoinPoint jp) {
+		Method proxyMethod = ((MethodSignature) jp.getSignature()).getMethod();
+		try {
+			return jp.getTarget().getClass().getMethod(proxyMethod.getName(), proxyMethod.getParameterTypes());
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public long getExtratime(String type, String user_id) {
+		Long exttime = 0L;
+		Object obj = redisUtil.get("login:" + type + ":" + user_id);
+		if (obj != null)
+			exttime = Long.parseLong(obj.toString());
+		return exttime;
+	}
+
+	public boolean addLogin(Login login) {
+
+		return redisUtil.set("login:" + login.getType() + ":" + login.getUser_id(), login.getExtratime().toString());
+
+	}
+
+	public UserAccount getUserAccount(String targetid, String version, String type) throws IOException {
+		UserAccount user = null;
+		String key = "useraccount:" + type + ":" + version + ":" + targetid;
+		Object obj = redisUtil.get(key);
+		if (obj != null)
+			user = JsonUtil.getObjectFromJson(obj.toString(), UserAccount.class);
+		return user;
+	}
+
+	public OrgUser getUserById(String id) throws IOException {
+		OrgUser user = null;
+		String key = "orguser:" + id;
+		Object obj = redisUtil.get(key);
+		if (obj != null)
+			user = JsonUtil.getObjectFromJson(obj.toString(), OrgUser.class);
+		return user;
+	}
+
+	public UcuserOrguser getUcuserOrguserById(String id) throws IOException {
+		UcuserOrguser user = null;
+		String key = "org2uc:" + id;
+		Object obj = redisUtil.get(key);
+		if (obj != null)
+			user = JsonUtil.getObjectFromJson(obj.toString(), UcuserOrguser.class);
+		return user;
+	}
+
+	public UcUser getUcUserById(String id) throws IOException {
+		UcUser user = null;
+		String key = "ucuser:" + id;
+		Object obj = redisUtil.get(key);
+		if (obj != null)
+			user = JsonUtil.getObjectFromJson(obj.toString(), UcUser.class);
+		return user;
+	}
+
+}

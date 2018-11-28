@@ -1,0 +1,17 @@
+.active{background: #9c9c9c;color: #f7f7f7;}
+.bod-con{width: 894px;border:1px solid #c6c6c6;background: #fff;margin-top: 12px;padding:6px 20px 30px 20px;}
+.bod-con-pay1{line-height:30px;font-size:14px;margin:20px 0 55px 0;padding:10px 0 10px 15px; border-top:1px dotted #9c9c9c ;border-bottom:1px dotted #9c9c9c;}
+.bod-con-pay1-a{padding-left: 37px;}
+.bod-con .bod-con-pay1-a-b{margin:0;margin-left: 10px;height: 26px;width:192px;padding-left: 10px;display: inline-block;}
+.bod-con .bod-con-pay1-b{border:0;margin-top: 20px;padding: 0;position: relative;padding-left: 25px;}
+.bod-con .bod-con-pay1-b p{float: left;}
+.bod-con .bod-con-pay1-b-b{margin-left: 10px;border:1px solid #BBBBBB;width:179px;height:27px;line-height: 20px;text-align: center;margin-top: 3px;}
+.bod-con-pay1-c{padding-left: 10px;}
+.bod-con-pay1-c p{float: left;margin-top: 10px;}
+.bod-con .bod-con-pay1-c-b{margin-left: 10px;color:#999999;font-size: 12px;margin-top: 10px;}
+.bod-con .bod-con-pay1-c-c{margin-left: 10px;color:#08cdfe;text-decoration:underline;font-size: 12px;cursor:pointer;margin-top: 10px;}
+.bod-con-pay1-d{width:120px;height:40px;line-height: 40px;margin:15px 0 8px 5px;text-align: center;background: #0fa5e3; color: #fff;position: relative;}
+.bod-con-pay1-b-c{position: absolute;left:101px;top:8px;z-index: 8;}
+.bod-con-pay1-cgz{position:absolute;top:0;left:0;display: inline-block;margin-left: 7px;opacity: 0;width: 120px;height: 40px;}
+.bod-con-pay-tim{border:0;width: 155px;height: 29px;border: 1px solid #B5BBC8;float: left;margin-left:10px;border-radius: 5px;text-align: center;}
+.bod-con-pay-timi{position: absolute;left: 110px;z-index: 2;}

@@ -1,0 +1,39 @@
+package sng.pojo;
+
+public class SessionInfo {
+	private Integer userId;
+	private Integer orgId;
+	private String token;
+	private Integer camId;
+	private Integer identity;
+	public Integer getUserId() {
+		return userId;
+	}
+	public void setUserId(Integer userId) {
+		this.userId = userId;
+	}
+	public Integer getOrgId() {
+		return orgId;
+	}
+	public void setOrgId(Integer orgId) {
+		this.orgId = orgId;
+	}
+	public String getToken() {
+		return token;
+	}
+	public void setToken(String token) {
+		this.token = token;
+	}
+	public Integer getCamId() {
+		return camId;
+	}
+	public void setCamId(Integer camId) {
+		this.camId = camId;
+	}
+	public Integer getIdentity() {
+		return identity;
+	}
+	public void setIdentity(Integer identity) {
+		this.identity = identity;
+	}
+}

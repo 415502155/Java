@@ -1,0 +1,677 @@
+<style>
+
+    .toolbox ul li {
+        float: left;
+        margin-right: 4px;
+        line-height: 30px;
+        position: relative;
+        list-style: none;
+    }
+    .toolbox ul li.title {
+        font-size: 16px;
+        padding: 0 10px;
+    }
+
+    /*打印听课凭证*/
+    .print_toolbox {
+        margin: 20px 0 0;
+        position: relative;
+        height: 180px;
+        width:960px
+    }
+
+    .print_showbox {
+        height: 560px;
+        line-height: 36px;
+        text-align: center;
+        border: 1px #d4d4d4 solid;
+        margin-bottom: 30px;
+        background: #fff;
+        font-size: 14px;
+        /*padding-top: 160px;*/
+        width: 960px;
+        position: relative;
+        overflow: hidden;
+    }
+    .printClosed {
+        position: absolute;
+        background: #FF5722;
+        top: -12px;
+        right: -12px;
+        width: 24px;
+        height: 24px;
+        line-height: 21px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+    .print_toolbox ul {
+        background-color: #fafafa;
+        background-image: -moz-linear-gradient(top, #f0f0f0, #f2f2f2);
+        background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#f0f0f0),
+        to(#f2f2f2));
+        background-image: -webkit-linear-gradient(top, #f0f0f0, #f2f2f2);
+        background-image: -o-linear-gradient(top, #f0f0f0, #f2f2f2);
+        background-image: linear-gradient(to bottom, #f0f0f0, #f2f2f2);
+        box-shadow: 0px 2px 5px #d3d6da;
+        position: absolute;
+        border: 1px #d4d4d4 solid;
+        top: 0px;
+        left: 0;
+       /* max-height: 100%;*/
+        border-radius: 2px;
+        z-index: 1000;
+        padding: 15px;
+    }
+
+    .print_toolbox ul li {
+       /* width: 60px;
+        height: 30px;
+        display: inline-block;
+        !* margin: 5px; *!
+        line-height: 30px;
+        text-align: center;
+        color: #fff;
+        margin-bottom: 10px;
+        background: #1BBB99;
+        border: 1px #14A888 solid;
+        border-radius: 2px;*/
+        margin-bottom: 5px;
+        margin-left: 5px;
+        cursor: move;
+        width: 124px;
+
+    }
+
+    .printbtn-box {
+        padding: 0 0 30px;
+        text-align: center
+    }
+
+    .print_toolbox button { margin-bottom: 5px; margin-left: 5px; cursor: move}
+</style>
+<div style="padding: 40PX;">
+    <form class="gui-form gui-form-label-right" id="add-form" novalidate="novalidate">
+
+        <div class="wrap" style="margin:0 auto;  ">
+            <div class="gui-form-item"><label class="gui-form-item-label">凭证尺寸</label>
+                <div class="gui-form-item-content">
+                    <input type="text" name="username" placeholder="请输入宽度" class="gui-input" value="" maxlength="50" style="margin-right: 5px" id="paperWidth">*
+                    <input type="text" name="username" placeholder="请输入高度" class="gui-input" value="" maxlength="50"  id="paperHeight">（单位：mm）
+                    <button type="button" class="gui-btn gui-btn-normal" id="upimg-btn"><i class="fa fa-save"></i><span>选择图片</span></button>
+                </div>
+            </div>
+
+            <div class="print_box">
+                <div class="print_toolbox">
+                    <ul>
+                       <!-- <li id="type_1" class="ui-draggable"  >凭证编号
+                            <div class="printClosed">x</div>
+                        </li>-->
+
+                        <li id="type_1"  class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">主标题</li>
+                        <li id="type_2"  class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">副标题</li>
+                        <li id="type_3"  class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">学期</li>
+                        <li id="type_4"  class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">学员姓名</li>
+                        <li id="type_5"  class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">证件号</li>
+                        <li id="type_6"  class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">教师姓名</li>
+                        <li id="type_7"  class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">科目班级</li>
+                        <li id="type_8"  class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">班级类型</li>
+                        <li id="type_9"  class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">课时数</li>
+                        <li id="type_10"  class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">开课日期</li>
+                        <li id="type_11"  class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">上课时间</li>
+                        <li id="type_12"  class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">学费标准</li>
+                        <li id="type_13"  class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">校区</li>
+                        <li id="type_14"  class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">教室</li>
+                        <li id="type_15"  class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">班容量</li>
+                        <li id="type_16"  class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">缴费方式</li>
+                        <li id="type_17"  class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">缴费金额</li>
+                        <li id="type_18"  class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">缴费金额大写</li>
+                        <li id="type_19"  class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">缴费时间</li>
+                        <li id="type_20"  class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">凭证编号</li>
+                        <li id="type_21"  class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">凭证日期</li>
+                        <li id="type_22"  class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">操作人</li>
+                        <li id="type_23"  class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">自定义1</li>
+                        <li id="type_24"  class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">自定义2</li>
+                        <li id="type_25"  class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">自定义3</li>
+                        <li id="type_26"  class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">自定义4</li>
+                        <li id="type_27"  class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">自定义5</li>
+                        <li id="type_28"  class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">自定义6</li>
+                  <!--      <li id="type_29"  class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">自定义7</li>
+                        <li id="type_30"  class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">自定义8</li>-->
+
+                    </ul>
+                </div>
+                <div class="print_showbox ui-droppable ui-state-highlight" id="print_showbox">
+                    <img id="ImgPr" style="position:absolute;top:-0px;left:-2px;max-width: unset;"   src="images/print.jpg">
+                </div>
+                <input type="file" id="up" style="display:none">
+            </div>
+
+            <div class="clear"></div>
+            <div class="printbtn-box">
+                <button class="gui-btn gui-btn gui-btn-normal" id="preview">
+                    <i class="fa fa-eye"></i>测试打印
+                </button>
+                <button class="gui-btn" id="updata-btn">
+                    <i class="fa fa-save"></i>保存
+                </button>
+            </div>
+        </div>
+    </form>
+
+</div>
+<script type="text/javascript" src="js/print//jqueryui-core-drag.js"></script>
+<script type="text/javascript" src="js/print/LodopFuncs.js"></script>
+<script type="text/javascript" src="js/print/uploadPreview.min.js"></script>
+<script>
+    //重置温馨提示打印项位置
+    function resetPromptMessageCoordinate() {
+        // 将温馨提示打印项归位
+        $("#type_18 .printClosed ,#type_19 .printClosed").click();
+        $("#promptMessage_1_content").val("");
+        $("#promptMessage_2_content").val("");
+    }
+
+    var localADDinfo={};
+
+    var button = {
+        "type_1": {
+            "top": 15,
+            "left": 15
+        },
+        "type_2": {
+            "top": 15,
+            "left": 148.140625
+        },
+        "type_3": {
+            "top": 15,
+            "left": 280.28125
+        },
+        "type_4": {
+            "top": 15,
+            "left": 412.421875
+        },
+        "type_5": {
+            "top": 15,
+            "left": 544.5625
+        },
+        "type_6": {
+            "top": 15,
+            "left": 676.703125
+        },
+        "type_7": {
+            "top": 15,
+            "left": 808.84375
+        },
+        "type_8": {
+            "top": 52,
+            "left": 15
+        },
+        "type_9": {
+            "top": 52,
+            "left": 147.140625
+        },
+        "type_10": {
+            "top": 52,
+            "left": 279.28125
+        },
+        "type_11": {
+            "top": 52,
+            "left": 411.421875
+        },
+        "type_12": {
+            "top": 52,
+            "left": 543.5625
+        },
+        "type_13": {
+            "top": 52,
+            "left": 675.703125
+        },
+        "type_14": {
+            "top": 52,
+            "left": 807.84375
+        },
+        "type_15": {
+            "top": 89,
+            "left": 15
+        },
+        "type_16": {
+            "top": 89,
+            "left": 147.140625
+        },
+        "type_17": {
+            "top": 89,
+            "left": 279.28125
+        },
+        "type_18": {
+            "top": 89,
+            "left": 411.421875
+        },
+        "type_19": {
+            "top": 89,
+            "left": 543.5625
+        },
+        "type_20": {
+            "top": 89,
+            "left": 675.703125
+        },
+        "type_21": {
+            "top": 89,
+            "left": 807.84375
+        },
+        "type_22": {
+            "top": 126,
+            "left": 15
+        },
+        "type_23": {
+            "top": 126,
+            "left": 147.140625
+        },
+        "type_24": {
+            "top": 126,
+            "left": 279.28125
+        },
+        "type_25": {
+            "top": 126,
+            "left": 411.421875
+        },
+        "type_26": {
+            "top": 126,
+            "left": 543.5625
+        },
+        "type_27": {
+            "top": 126,
+            "left": 675.703125
+        },
+        "type_28": {
+            "top": 126,
+            "left": 807.84375
+        }
+    };
+
+
+
+
+
+
+
+    $(function() {
+
+
+        //选择背景图
+        $("#upimg-btn").click(function() {
+            $("#up").click();
+        });
+        //图片预览
+        $("#up").uploadPreview({
+            Img: "ImgPr",
+            ImgType: ["gif", "jpeg", "jpg", "bmp", "png"]
+        });
+
+
+
+        //获取凭证信息
+        var get={
+            "parameter":{
+                "org_id":option.org_id,
+                "rule_id": $("#rule_id").val(),
+            },
+            "url":domain+"/voucher/model/info.htm"
+        };
+
+        getData(get.url,get.parameter,function (result) {
+            if(result.code==200 && result.success==true){
+
+                var toTata = result.data;
+
+                $("#paperHeight").val(toTata.background_length);
+                $("#paperWidth").val(toTata.background_width);
+
+               /* for (var p in toTata) {
+                    //通过文字获取id
+                    var positionObj = judgmentType(toTata[p].content);
+                    $("#" + positionObj.nowId).css({
+                        "top": toTata[p].top + positionObj.top+10,
+                        "left": toTata[p].left + positionObj.left,
+                    });
+                    $("#" + positionObj.nowId).attr("data-save", "yes");
+                    $("#" + positionObj.nowId).append("<div class=\"printClosed\">x</div>");
+                }
+                $("#paperHeight").val(result.classLicensePaper.height);
+                $("#paperWidth").val(result.classLicensePaper.width);*/
+
+                localADDinfo=toTata.voucher_content;
+
+                for (var p in toTata.voucher_content) {
+
+
+                    //通过文字获取id
+                    var obj = toTata.voucher_content[p];
+                    if(obj.top!==0){
+                        $("#" + p).css({
+                            "top": obj.top,
+                            "left": obj.left,
+                        });
+                        $("#" + p).attr("data-save", "yes");
+                        $("#" + p).append("<div class=\"printClosed\">x</div>");
+                    }
+
+
+
+                }
+
+
+            }else {
+                myAlert(result.msg,2,data.code,null);
+            }
+        },"POST",false)
+
+
+
+
+
+
+
+
+
+        //选择背景图
+        $("#uplogoimg-btn").click(function() {
+            $("#up").trigger("click");
+        });
+        //图片预览
+        $("#up").uploadPreview({
+            Img: "ImgPr",
+            ImgType: ["gif", "jpeg", "jpg", "bmp", "png"]
+        });
+
+        // 增加显示当前组织的学期select
+        /*
+            $.ajax({
+            type: "GET",
+            url: "${path}/print/getTermSelectByOrgID.htm",
+            dataType: "json",
+            success: function(data) {
+                var str = "";
+                $.each(data, function(index, obj) {
+                    str += "<option value=\"" + obj.id + "\">" + obj.termName + "</option>";
+                });
+                $("#termSelect4ClassTemplate").append(str);
+            },
+            error: function(msg) {
+                myAlert("cztip", "操作提示", "网络异常:" + msg, null);
+            }
+            });
+            */
+        resetPromptMessageCoordinate();
+    });
+
+
+
+
+</script>
+<script type="text/javascript">
+    //本地存储按钮的位置信息
+    var toolPosition = {};
+    var updata = [];
+
+    $(function() {
+        $(".print_toolbox ul li").off("click", "div");
+        //验证正整数
+        $("body").on("keyup", "[datatype=positiveInteger]", function() {
+            var reg = /[^\d.]|\./g;
+            var str = $(this).val();
+            var $this = $(this);
+            if(reg.test(str)) {
+                //myTips("errortip",1,"只能输入正整数！",function(){$this.focus();});
+                alert("只能输入正整数！")
+            }
+            $(this).val($(this).val().replace(/[^\d.]|\./g, ''));
+        });
+
+        //拖动
+        $(".print_toolbox ul li").draggable({
+            revert: "invalid",
+            containment: "#print_showbox",
+            opacity: 0.35,
+            stop: function(event, ui) {
+                var top = $(this).position().top - 124,
+                    left = $(this).position().left;
+                //存入本地
+                toolPosition[$(this)[0].id] = ({
+                    top: top,
+                    left: left,
+                    content: $(this)[0].innerHTML
+                });
+
+                //清空数组里的信息
+                updata.splice(0, updata.length);
+                //按钮位置信息
+                $(this).attr("data-save", "yes");
+                if($(this).find("div").length == 0 && $(this).position().top > 57) {
+                    $(this).append("<div class=\"printClosed\">x</div>");
+                }
+            }
+        });
+
+        /*双击*/
+        $(".print_toolbox ul li").on("click", "div", function() {
+            //还原位置
+
+            $(this).parent().removeAttr("style").css("position", "relative");
+            $(this).parent().removeAttr("data-save");
+            //删除存储的位置信息
+            var nowId = $(this).parent().attr("id");
+            $(this).remove();
+            delete toolPosition[nowId];
+        });
+
+        $("#print_showbox").droppable({
+            activeClass: "ui-state-hover",
+            hoverClass: "ui-state-active",
+            drop: function(event, ui) {
+                console.info(event)
+                $(this).addClass("ui-state-highlight").find("p").html("Dropped!");
+            }
+        });
+
+        //保存
+        $("#updata-btn").click(function() {
+            var paperHeight = $.trim($("#paperHeight").val());
+            var paperWidth = $.trim($("#paperWidth").val());
+
+            //验证是否设置纸张高度、宽度
+            if(paperHeight == "") {
+                //myTips("errortip", 1, "纸张高度不能为空！", null);
+                alert("纸张高度不能为空！");
+                $("#paperHeight").focus();
+                return false;
+            }
+            if(paperWidth == "") {
+                //myTips("errortip", 1, "纸张宽度不能为空！", null);
+                alert("纸张宽度不能为空！");
+                $("#paperWidth").focus();
+                return false;
+            }
+
+            var hasPromptFlag = 0;
+
+            //获取本地数据
+            updata = [];
+
+            $(".print_toolbox ul li[data-save]").each(function() {
+                var top = $(this).position().top - 124,
+                    left = $(this).position().left,
+                    content = $(this).text().substring(0, $(this).text().length - 1);
+                if($(this).attr("id") == "type_18") {
+                    hasPromptFlag++;
+                    var promptMessage_1_content = $("#promptMessage_1_content").val();
+                    updata.push({
+                        top: top,
+                        left: left,
+                        content: content,
+                        promptMessage_content: promptMessage_1_content
+                    });
+                } else if($(this).attr("id") == "type_19") {
+                    hasPromptFlag++;
+                    var promptMessage_2_content = $("#promptMessage_2_content").val();
+                    updata.push({
+                        top: top,
+                        left: left,
+                        content: content,
+                        promptMessage_content: promptMessage_2_content
+                    });
+                } else {
+                    updata.push({
+                        top: top,
+                        left: left,
+                        content: content
+                    });
+                }
+            });
+
+            //验证是否选择打印项目
+            if(updata.length == 0) {
+                //myTips("errortip", 1, "请选择打印项目！", null);
+                alert("请选择打印项目！");
+                return false;
+            }
+
+            // 验证拖拽了提示，但是没有选择学期
+            var termID = $("#termSelect4ClassTemplate").val();
+            if(hasPromptFlag > 0) {
+                if("noSelectTerm" == termID) {
+                    //myTips("errortip", 1, "您选择的打印项中包含提示项，请选择一个学期再保存！", null);
+                    alert("您选择的打印项中包含提示项，请选择一个学期再保存！");
+                    return false;
+                }
+            }
+
+            console.info(updata);
+            $("#upData").val(JSON.stringify(updata));
+            console.info(JSON.stringify(updata));
+
+            var parent = {
+                "coorList": $("#upData").val(),
+                "paper_height": paperHeight,
+                "paper_width": paperWidth,
+                "termID": termID
+            }
+            console.info(parent);
+            /*	    //保存函数
+                    $.ajax({
+                        type: "GET",
+                        url: "${path}/print/addClassLicenseTemplate.htm",
+                        data: {
+                            "coorList": $("#upData").val(),
+                            "paper_height": paperHeight,
+                            "paper_width": paperWidth,
+                            "termID": termID
+                        },
+                        dataType: "json",
+                        success: function(result) {
+                            if (result.error == "0") {
+                                myTips("ok", 3, result.message, null);
+                            } else {
+                                myAlert("cztip", "操作提示", result.message, null);
+                            }
+                        },
+                        error: function(msg) {
+                            myAlert("cztip", "操作提示", "网络异常", null);
+                        }
+                    });*/
+        });
+
+
+
+
+        //打印预览
+        $("#preview").click(function() {
+            //获取本地数据
+            //var saveAll=
+            var paperHeight = $.trim($("#paperHeight").val());
+            var paperWidth = $.trim($("#paperWidth").val());
+            var unitPaper = "mm";
+
+            //验证是否设置纸张高度、宽度
+            if(paperHeight == "") {
+               // myTips("errortip", 1, "纸张高度不能为空！", null);
+                myAlert("纸张高度不能为空！",1,null,null)
+                $("#paperHeight").focus();
+                return false;
+            }
+            if(paperWidth == "") {
+                myAlert("纸张宽度不能为空！",1,null,null)
+                $("#paperWidth").focus();
+                return false;
+            }
+
+            var hasPromptFlag = 0;
+
+            updata = [];
+
+
+            $(".print_toolbox ul li[data-save]").each(function() {
+                var top = $(this).position().top - 180+10,//基准高度是以180开始计算的
+                    left = $(this).position().left+10,    //基准y轴为基准，已按钮的自身便宜量计算的
+                    content = localADDinfo[$(this).attr("id")].content;
+                    updata.push({
+                        top: top,
+                        left: left,
+                        content: content
+                    });
+
+            });
+
+            //验证是否选择打印项目
+            if(updata.length == 0) {
+                //myTips("errortip", 1, "请选择打印项目！", null);
+                myAlert("请选择打印项目！",1,null,null);
+                return false;
+            }
+
+            // 验证拖拽了提示，但是没有选择学期
+         /*   var termID = $("#termSelect4ClassTemplate").val();
+            if(hasPromptFlag > 0) {
+                if("noSelectTerm" == termID) {
+                    myAlert("您选择的打印项中包含提示项，请选择一个学期再保存！！",1,null,null);
+                    return false;
+                }
+            }*/
+
+            LODOP = getLodop();
+            printReadyState();
+            LODOP.PRINT_INITA(0, 0,"216mm", "140mm", "打印预览");
+            LODOP.SET_PRINT_PAGESIZE(1, paperWidth + unitPaper, paperHeight + unitPaper, "CreateCustomPage");
+            LODOP.SET_PRINT_STYLE("FontSize", 12);
+            LODOP.ADD_PRINT_SETUP_BKIMG("<img border='0' src='images/print.jpg'   style='top:-0px'>");
+            LODOP.SET_SHOW_MODE("BKIMG_PRINT",1);
+
+           // $("#upData").val(updata);
+            var coorInfoArray = updata;
+
+            console.log(updata)
+
+            var unit = "px";
+            $.each(coorInfoArray, function(i, item) {
+                var top = item.top + unit;
+                var left = item.left + unit;
+                LODOP.ADD_PRINT_TEXT(top, left,"216mm","140mm", item.content);
+            });
+
+            LODOP.PREVIEW();
+            //LODOP.PRINT();
+        });
+
+
+
+
+    });
+
+    //打印前判断打印WebSocket是否准备好
+    function printReadyState() {
+        if(!LODOP.webskt || LODOP.webskt.readyState != 1) {
+            printReadyState();
+        }
+    }
+</script>

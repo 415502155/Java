@@ -1,0 +1,415 @@
+package sng.service.impl;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.cglib.beans.BeanMap;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import sng.constant.Consts;
+import sng.dao.ApplyDao;
+import sng.dao.BaseDaoEx;
+import sng.entity.Apply;
+import sng.entity.Plan;
+import sng.entity.StudentClass;
+import sng.exception.EsbException;
+import sng.pojo.PlanClassVo;
+import sng.pojo.SessionInfo;
+import sng.util.CommonUtils;
+import sng.util.Paging;
+
+/**
+ * 报名
+ * @author s
+ *
+ */
+@Service
+@Transactional
+public class ApplyServiceImpl {
+	@Resource
+	private BaseDaoEx baseDaoEx;
+	@Resource
+	private ApplyDao applyDao;
+	@Resource
+	private PlanServiceImpl planServiceImpl;
+	
+	/**
+	 * 过期时间 默认4小时
+	 */
+	public static long EXPIRED_TIMES=4;
+	
+	/**
+	 * 招生计划列表-家长报名
+	 */
+	@Transactional(propagation=Propagation.NOT_SUPPORTED,readOnly=true)
+	public List<Plan> getPlanList(SessionInfo sessionInfo) {
+		int orgId=sessionInfo.getOrgId();
+		int isAuth=sessionInfo.getIsAuth();//是否认证
+		Integer userId=sessionInfo.getUserId();//当前登录者
+		Map<String,Object> params=new HashMap<>();
+		StringBuffer sb=new StringBuffer();
+		sb.append(" select plan_id as planId, title,begin_time as beginTime,end_time as endTime,content,class_type as classType from plan where is_del=0 and plan_switch=1 and org_id=:orgId ");
+		sb.append(" order by end_time desc ");
+		params.put("orgId", orgId);
+		
+		List<Plan> planList=baseDaoEx.queryListBySql(sb.toString(),Plan.class, params);
+		List<Plan> list=new ArrayList<>();
+		Integer studId=null;
+		if(userId!=null && isAuth==1) {//不为空时 则是登录用户，并且已认证时才有学员信息
+			Map<String,Object> studMap=this.queryStudent(userId);
+			if(studMap!=null) {
+				studId=(Integer)studMap.get("stud_id");				
+			}
+
+		}
+		for(Plan p : planList) {
+			int planId=p.getPlanId();
+			int classType=p.getClassType();
+			p=CommonUtils.generateBean(p, "beginTimeStr","endTimeStr","applyClassCount");
+			BeanMap beanMap=BeanMap.create(p);
+			beanMap.put("beginTimeStr", CommonUtils.dateFormat(p.getBeginTime(), null));
+			beanMap.put("endTimeStr", CommonUtils.dateFormat(p.getEndTime(), null));
+			
+			if(userId!=null && isAuth==1) {//登录用户，并且是已认证用户
+				//如果是老生班，则判断当前学生在不在此班，如果在则显示此班所对应的计划
+				if(classType==1) {//查询当前学生在此计划下的班级列表
+					List<Map<String,Object>> classList=this.getClass(planId, studId, "");
+					if(classList!=null && classList.size()>0) {
+						classList=this.getClass(planId, studId, "2,3,5");
+						beanMap.put("applyClassCount", classList.size());
+						p=(Plan)beanMap.getBean();
+						list.add(p);
+					}
+				}else {
+					List<Map<String,Object>> classList=this.getClass(planId, studId, "2,3,5");
+					beanMap.put("applyClassCount", String.valueOf(classList.size()));
+					p=(Plan)beanMap.getBean();
+					list.add(p);
+				}
+			}else {
+				beanMap.put("applyClassCount", 0);
+				p=(Plan)beanMap.getBean();
+				list.add(p);
+			}
+		}
+		
+		return list;
+	}
+	
+	/**
+	 * 通过家长userId查询学生信息
+	 */
+	private Map<String,Object> queryStudent(int userId) {
+		Map<String,Object> params=new HashMap<>();
+		StringBuffer sb=new StringBuffer();
+		sb.append(" select b.stud_id,b.parent_id,c.stud_name,c.birthday from edugate_base.parent a,edugate_base.student2parent b,edugate_base.student c ");
+		sb.append(" where a.parent_id=b.parent_id and b.stud_id=c.stud_id ");
+		sb.append(" and a.is_del=0 and b.is_del=0 and c.is_del=0 and a.user_id=:userId  ");
+		params.put("userId", userId);
+		List<Map<String,Object>> list=(List)baseDaoEx.queryListBySql(sb.toString(), params);
+		if(list!=null && list.size()>0) {
+			return list.get(0);
+		}
+		return null;
+	}
+	
+	/**
+	 * 查询当前学生在此计划下的班级列表
+	 */
+	private List<Map<String,Object>> getClass(int planId,int studId,String stuStatus) {
+		Map<String,Object> params=new HashMap<>();
+		StringBuffer sb=new StringBuffer();
+		sb.append(" select a.clas_id,a.clas_name from classes a,student_class b where a.is_del=0 and b.is_del=0 and a.clas_id=b.clas_id ");
+		if(!StringUtils.isBlank(stuStatus)) {
+			sb.append(" and b.stu_status in("+stuStatus+") ");
+		}
+		sb.append(" and a.plan_id=:planId and b.stud_id=:studId");
+		params.put("planId", planId);
+		params.put("studId", studId);
+		List<Map<String,Object>> classList=baseDaoEx.queryListBySql(sb.toString(), params);
+		return classList;
+	}
+	
+	/**
+	 * 按计划获取班级-用于报名
+	 */
+	@Transactional(propagation=Propagation.NOT_SUPPORTED,readOnly=true)
+	public Paging getPageClass(SessionInfo sessionInfo,Integer pageNo,Integer limit,Map<String,Object> paramMap) {
+		int orgId=sessionInfo.getOrgId();
+		int userId=sessionInfo.getUserId();
+		int isAuth=sessionInfo.getIsAuth();
+		String planId=(String)paramMap.get("planId");
+		Integer subjectId=(Integer)paramMap.get("subjectId");
+		String classWeek=(String)paramMap.get("classWeek");
+		
+		List<Object> params=new ArrayList<>();
+		StringBuffer sb=new StringBuffer();
+		sb.append(" select a.clas_id as classId,a.clas_name as className,a.clas_type as classType,a.class_start_date as classStartDate,a.class_begin_time as classBeginTime,a.class_over_time as classOverTime, ");
+		sb.append(" a.age_range as ageRange,a.usable_num as usableNum,class_unset_time as classUnsetTime, ");
+		sb.append(" a.class_week as classWeek,a.size as classSize,a.tuition_fees as tuitionFees,(a.ys_num-a.ss_num) as appplyCount,d.subject_name as subjectName, ");
+		sb.append(" b.cam_name as camName,c.classroom_name as classroomName,c.building,c.floor ");
+		sb.append(" from classes a  ");
+		sb.append(" left join campus b on a.cam_id=b.cam_id and a.org_id=b.org_id and b.is_del=0 ");
+		sb.append(" left join classroom c on a.classroom_id=c.classroom_id and c.is_del=0 ");
+		sb.append(" left join subject d on a.subject_id=d.subject_id and a.org_id=d.org_id and d.is_del=0 ");
+		sb.append(" where a.is_del=0 and a.org_id=? and a.plan_id=? ");
+		params.add(orgId);
+		params.add(planId);
+		Integer studId=null;
+		if(isAuth==1) {//只有认证的学生才可以取到学生信息
+			Map<String,Object> studentMap=this.queryStudent(userId);
+			Date birthday=(Date)studentMap.get("birthday");
+			sb.append(" and a.start_birthday<=? and a.end_birthday>=? ");
+			params.add(birthday);
+			params.add(birthday);
+			studId=(Integer)studentMap.get("stud_id");
+		}
+		if(subjectId!=null) {
+			sb.append(" and a.subject_id=? ");
+			params.add(subjectId);
+		}
+		if(!StringUtils.isBlank(classWeek)) {
+			sb.append(" and a.class_week=? ");
+			params.add(classWeek);
+		}
+		String countSql="select count(*) from ("+sb.toString()+") t";
+		sb.append(" order by a.clas_name ");
+		
+		Paging paging=baseDaoEx.queryPageBySql(sb.toString(), countSql, pageNo, limit, PlanClassVo.class, params);
+		List<PlanClassVo> planClassVoList=paging.getData();
+		List<PlanClassVo> voList=new ArrayList<>();
+		for(PlanClassVo vo : planClassVoList) {
+			Integer classId=vo.getClassId();
+			
+			Integer _classType=vo.getClassType();
+			String classTypeStr=Consts.CLASS_TYPE_MAP.get(String.valueOf(_classType));
+			vo.setClassTypeStr(classTypeStr);
+			
+			Integer _classWeek=vo.getClassWeek();
+			String classWeekStr=Consts.WEEK_MAP.get(String.valueOf(_classWeek));
+			vo.setClassWeekStr(classWeekStr);
+			
+			String classStartDateStr=CommonUtils.dateFormat(vo.getClassStartDate(), "yyyy-MM-dd");
+			vo.setClassStartDateStr(classStartDateStr);
+			
+			String classBeginTimeStr=CommonUtils.dateFormat(vo.getClassBeginTime(),"HH:mm");
+			vo.setClassBeginTimeStr(classBeginTimeStr);
+			
+			String classOverTimeStr=CommonUtils.dateFormat(vo.getClassOverTime(),"HH:mm");
+			vo.setClassOverTimeStr(classOverTimeStr);
+			
+			//查询教师
+			params=new ArrayList<>();
+			sb.setLength(0);;
+			sb.append(" select a.tech_name from edugate_base.teacher a,teacher_class b where a.is_del=0 and b.is_del=0 and a.tech_id=b.tech_id ");
+			sb.append(" and a.org_id=? and b.clas_id=? ");
+			params.add(orgId);
+			params.add(classId);
+			List<Map<String,Object>> techNameList=baseDaoEx.queryListBySql(sb.toString(), params);
+			String teachers="";
+			for(Map<String,Object> map : techNameList) {
+				String techName=(String)map.get("tech_name");
+				if(!StringUtils.isBlank(techName)) {
+					teachers+=techName+",";
+				}
+			}
+			if(!StringUtils.isBlank(teachers)) {
+				teachers=teachers.substring(0,teachers.length()-1);
+			}
+			vo.setTeachers(teachers);
+			
+			//查询学员班级关系表
+			if(isAuth==1) {
+				String isApply="0";
+				params=new ArrayList<>();
+				sb.setLength(0);;
+				sb.append("select stu_status as stuStatus from student_class where is_del=0 and stu_status in(2,3,5,6,7) and clas_id=? and stud_id=? ");
+				params.add(classId);
+				params.add(studId);
+				List<StudentClass> studentClassList=baseDaoEx.queryListBySql(sb.toString(), StudentClass.class, params);
+				if(studentClassList!=null && studentClassList.size()>0) {
+					isApply="1";//已报名
+				}
+				vo.setIsApply(isApply);
+			}
+			
+			
+			voList.add(vo);
+		}
+		paging.setData(voList);
+		return paging;
+	}
+	
+	/**
+	 * 根据计划id获取当前计划下的所有班级所属的科目列表
+	 */
+	@Transactional(propagation=Propagation.NOT_SUPPORTED,readOnly=true)
+	public List<Map<String,Object>> getPlanSubject(SessionInfo sessionInfo,Map<String,Object> paramMap) {
+		int orgId=sessionInfo.getOrgId();
+		int userId=sessionInfo.getUserId();
+		int isAuth=sessionInfo.getIsAuth();
+		String planId=(String)paramMap.get("planId");
+		
+		List<Object> params=new ArrayList<>();
+		StringBuffer sb=new StringBuffer();
+		sb.append(" select d.subject_id as subjectId,d.subject_name as subjectName ");
+		sb.append(" from classes a  ");
+		sb.append(" left join campus b on a.cam_id=b.cam_id and a.org_id=b.org_id and b.is_del=0 ");
+		sb.append(" left join classroom c on a.classroom_id=c.classroom_id and c.is_del=0 ");
+		sb.append(" left join subject d on a.subject_id=d.subject_id and a.org_id=d.org_id and d.is_del=0 ");
+		sb.append(" where a.is_del=0 and a.org_id=? and a.plan_id=? ");
+		params.add(orgId);
+		params.add(planId);
+		if(isAuth==1) {//只有认证的学生才可以取到学生信息
+			Map<String,Object> studentMap=this.queryStudent(userId);
+			Date birthday=(Date)studentMap.get("birthday");
+			sb.append(" and a.start_birthday<=? and a.end_birthday>=? ");
+			params.add(birthday);
+			params.add(birthday);
+		}
+		List<Map<String,Object>> subjectList=baseDaoEx.queryListBySql(sb.toString(), params);
+		return subjectList;
+	}
+	
+
+	@Transactional(propagation=Propagation.NOT_SUPPORTED,readOnly=true)
+	public Plan getPlanInfo(int planId) {
+		Plan plan=planServiceImpl.getPlanInfo(planId);
+		BeanMap beanMap=BeanMap.create(plan);
+		beanMap.put("beginTimeStr", CommonUtils.dateFormat(plan.getBeginTime(),null));
+		beanMap.put("endTimeStr", CommonUtils.dateFormat(plan.getEndTime(), null));
+		return plan;
+	}
+	
+	/**
+	 * 报名
+	 */
+	public List<Map<String,String>> doApply(SessionInfo sessionInfo,Map<String,Object> paramMap) throws EsbException {
+		int orgId=sessionInfo.getOrgId();
+		int userId=sessionInfo.getUserId();
+		String loginName=sessionInfo.getLoginName();
+		int isAuth=sessionInfo.getIsAuth();
+		if(isAuth==0) {//未认证
+			throw new EsbException("未认证");
+		}
+		StringBuffer sb=new StringBuffer();
+		List<Object> params=new ArrayList<>();
+		String classIds=(String)paramMap.get("classIds");
+		String[] classIdArr=classIds.split(",");
+		
+		Map<String,Object> studentMap=this.queryStudent(userId);
+		Integer studId=(Integer)studentMap.get("stud_id");
+		Date birthday=(Date)studentMap.get("birthday");
+		Integer parentId=(Integer)studentMap.get("parent_id");
+		
+		Date now=new Date();
+		
+		List<Map<String,String>> rsList=new ArrayList<>();
+		for(String classId : classIdArr) {
+			sb.setLength(0);;
+			params=new ArrayList<>();
+			sb.append("select a.clas_id,a.clas_name as className,b.subject_name as subjectName,a.usable_num as usableNum,a.cam_id as camId, ");
+			sb.append(" a.start_birthday as startBirthday,a.end_birthday as endBirthday,a.clas_type ");
+			sb.append(" from classes a ");
+			sb.append(" left join `subject` b on a.subject_id=b.subject_id and b.is_del=0 ");
+			sb.append(" where a.is_del=0 and a.org_id=? and a.clas_id=?");
+			params.add(orgId);
+			params.add(classId);
+			
+			String message="";//报名失败原因
+			List<Map<String, Object>> classesList=baseDaoEx.queryListBySql(sb.toString(), params);
+			Map<String,Object> classMap=classesList.get(0);
+			String className=(String)classMap.get("className");
+			String subjectName=(String)classMap.get("subjectName");
+			Integer usableNum=(Integer)classMap.get("usableNum");
+			Date startBirthday=(Date)classMap.get("startBirthday");
+			Date endBirthday=(Date)classMap.get("endBirthday");
+			Integer camId=(Integer)classMap.get("camId");
+			Integer classType=(Integer)classMap.get("clas_type");
+			
+//			if(birthday.getTime()<startBirthday.getTime() || birthday.getTime()>endBirthday.getTime()) {
+//				message="年龄不符";
+//			}
+			if(usableNum==null || usableNum<=0) {
+				message="已满";
+			}
+			
+			Map<String,String> rsMap=new HashMap<>();
+			rsMap.put("className", className);
+			rsMap.put("subjectName", subjectName);
+			rsMap.put("usableNum", String.valueOf(usableNum));
+			rsMap.put("message", message);
+			rsList.add(rsMap);
+			
+			//========调用存储过程之后 begin=====//
+			int applyResult=0;
+			if(StringUtils.isBlank(message)) {//报名成功
+				applyResult=1;
+				//插入支付详情表
+				//ChargeDetail chargeDetail=new ChargeDetail();
+				//orgId,studId classId camId
+				
+				long expiredTimes=EXPIRED_TIMES*60*60*1000;//过期时间默认4小时
+				Date payExpiredTime=new Date(now.getTime()+expiredTimes);
+				//如果是新生插入学员班级关系表，如果是老生更新学员班级关系表
+				if(classType==2) {//新生班
+					StudentClass studentClass=new StudentClass();
+					studentClass.setStudId(studId);
+					studentClass.setClasId(Integer.parseInt(classId));
+					studentClass.setCamId(camId);
+					studentClass.setStuStatus(3);
+					studentClass.setPayExpiredTime(payExpiredTime);
+					studentClass.setIsPrint(0);
+					studentClass.setIsDel(0);
+					studentClass.setInsertTime(now);
+					studentClass.setUpdateTime(now);
+					studentClass.setCreater(loginName);
+					baseDaoEx.saveOne(studentClass);
+				}else if(classType==1) {//老生班
+					String hql="from StudentClass where studId=? and stuStatus!='8' ";
+					params=new ArrayList<>();
+					params.add(studId);
+					List<StudentClass> studentClassList=baseDaoEx.queryListByHql(hql, params);
+					if(studentClassList!=null && studentClassList.size()>0) {
+						StudentClass studentClassNew=studentClassList.get(0);
+						studentClassNew.setStuStatus(3);
+						studentClassNew.setUpdateTime(now);
+						studentClassNew.setPayExpiredTime(payExpiredTime);
+						baseDaoEx.updateOne(studentClassNew);
+					}
+				}
+				
+				//修改班级可用名额
+//				Classes classes=baseDaoEx.findById(Classes.class, studId);
+//				classes.setUpdate_time(now);
+//				classes.setUsable_num(classes.getUsable_num()-1);
+//				baseDaoEx.updateOne(classes);
+			}
+			//插入报名表
+			Apply apply=new Apply();
+			apply.setOrgId(orgId);
+			apply.setCamId(camId);
+			apply.setClasId(Integer.parseInt(classId));
+			apply.setStudId(studId);
+			apply.setParentId(parentId);
+			apply.setResult(applyResult);
+			apply.setType(1);
+			apply.setIsDel(0);
+			apply.setInsertTime(now);
+			apply.setUpdateTime(now);
+			apply.setCreater(loginName);
+			baseDaoEx.saveOne(apply);
+			//======调用存储过程之后 end==============//
+			
+		}
+		return rsList;
+	}
+}

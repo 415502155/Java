@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>信息收集</title>
+	<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+	<link rel="shortcut icon" href="/favicon.ico">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<meta http-equiv="Access-Control-Allow-Origin" content="*">
+	<!--ui包-->
+	<link rel="stylesheet" href="../../../css/sm.css">
+	<link rel="stylesheet" href="../../../css/layout.css">
+    <link rel="stylesheet" href="../../../css/teacher.css">
+    <style>
+        .infinite-scroll-preloader {margin-top:-20px}
+        .list-block ul{border:0}
+        p{text-indent: 0}
+    </style>
+</head>
+<body>
+<div class="page-group">
+    <div class="page page-current" >
+        <div class="content infinite-scroll infinite-scroll-bottom" data-distance="100">
+            <div class="content-block">
+                <div class="list-block">
+                    <ul class="list-container">
+                    </ul>
+                </div>
+            </div>
+            <!-- 加载提示符 -->
+            <div class="infinite-scroll-preloader">
+                <div class="preloader"></div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script src='https://res.wx.qq.com/open/js/jweixin-1.2.0.js'></script>
+<script>
+    $(function(){
+        /* 无限滚动 */
+        // 加载flag
+        var loading = false;
+        // 最多可加载的条目
+        var maxItems = 100;
+
+        // 每次加载添加多少条目
+        var itemsPerLoad = 20;
+        function addItems(number, lastIndex) {
+                // 生成新条目的HTML
+                var html = '';
+                for (var i = lastIndex + 1; i <= lastIndex + number; i++) {
+                    //html += '<li class="item-content"><div class="item-inner"><div class="item-title">Item ' + i + '</div></div></li>';
+                    html += `<li data-id="${i}" class="this-msg">
+                                <div class="content-block-title text-center">2018-08-27 10:49:45</div>
+                                <div class="card question-cont" data-id="${i}" answer-id="" is-show="1" answered="1">
+                                    <div class="card-header"><span>刘旭 老师</span></div>
+                                    <div class="card-content">
+                                        <div class="card-content-inner">
+                                            <p>发布教师 : 唐志炜发布教师 : 唐志炜发布教师 : 唐志炜发布教师 : 唐志炜发布教师 : 唐志炜发布教师 : 唐志炜发布教师 : 唐志炜发布教师 : 唐志炜发布教师 : 唐志炜发布教师 : 唐志炜</p>
+                                            
+                                        </div>
+                                    </div>
+                                    <div class="card-footer">
+                                        <a class="is-fill" href="javascript:;" number="">发送人数/提交人数：1075/215</a>
+                                        <a class="go-fill" href="javascript:;" style="color: rgb(153, 153, 153);">正文  &gt;</a>
+                                    </div>
+                                </div>
+                            </li>`
+                }
+                // 添加新条目
+                $('.infinite-scroll-bottom .list-container').append(html);
+                
+            }
+            //预先加载20条
+        addItems(itemsPerLoad, 0);
+
+        // 上次加载的序号
+        var lastIndex = 20;
+
+        // 注册'infinite'事件处理函数
+        $(document).on('infinite', '.infinite-scroll-bottom',function() {
+            // 如果正在加载，则退出
+            if (loading) return;
+
+            // 设置flag
+            loading = true;
+
+            // 模拟1s的加载过程
+            setTimeout(function() {
+                // 重置加载flag
+                loading = false;
+
+                if (lastIndex >= maxItems) {
+                    // 加载完毕，则注销无限加载事件，以防不必要的加载
+                    $.detachInfiniteScroll($('.infinite-scroll'));
+                    // 删除加载提示符
+                    $('.infinite-scroll-preloader').remove();
+                    $('.infinite-scroll .list-container').append('<li id="none" class="noData noData_line lastData"><span class="noData__tips">'+'我是有底线的'+'</span></li>');
+                    return;
+                }
+
+                // 添加新条目
+                addItems(itemsPerLoad, lastIndex);
+                // 更新最后加载的序号
+                lastIndex = $('.list-container li').length;
+                //容器发生改变,如果是js滚动，需要刷新滚动
+                $.refreshScroller();
+            }, 1000);
+        });
+
+        //初始化
+        $.init();
+
+        /* 无限滚动end */
+
+        $("body").on("click",".this-msg",function(){
+            location.href = "msg_cont.html"
+        })
+    })
+</script>

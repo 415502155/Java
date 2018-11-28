@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>问卷详情</title>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+    <link rel="shortcut icon" href="../../favicon.ico">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <!--ui包-->
+    <link rel="stylesheet" href="../../../css/sm.css">
+    <link rel="stylesheet" href="../../../css/layout.css">
+    <style>
+        .question-option{padding: 1rem;background-color: #fff;line-height: 2rem;word-break: break-all}
+        .question-option p{text-indent: 0}
+        .title-img{width:100%}
+        .option-img{width:50%}
+        .list-block .item-divider, .list-block .list-group-title{background-color:#fff}
+        .list-block .item-divider, .list-block .list-group-title .chooseText{font-weight: normal}
+        .num-tips{color:#999;font-size:0.7rem}
+    </style>
+</head>
+
+<body>
+    <div class="page-group">
+        <div class="page page-current" id="mainPage">
+            <div class="content native-scroll" id="">
+                <div class="question-option">
+                    <!-- <h4 class="question-title">1.您觉得教师的地位是?</h4>
+                    <img class="title-img" src="../../../images/studentBanner.png" alt="">
+
+                    <p>他们选择了:</p>
+                    <p>C.没有注意过(3人/30%)</p>
+                    <img class="option-img" src="../../../images/studentBanner.png" alt=""> -->
+                </div>
+                <div class="content-block-title"></div>
+                <div class="list-block">
+                    <!-- <div class="list-group" id="">
+                        <ul>
+                            <li class="list-group-title off">
+                                <div class="item-media">
+                                    <span class="chooseText">全体教师 <span class="num-tips"> (2人)</span></span>
+                                    <span class="icon icon-down toTop"></span>
+                                </div>
+                            </li>
+                            <li id="" class="classLabel" data-grade="" style="display: none;">
+                                <div class="item-content">
+                                    <div class="item-inner">
+                                        <div class="item-title ">刘旭 </div>
+                                        <div class="item-after">未提交</div>
+                                    </div>
+                                </div>
+                                <div class="studentDetail"></div>
+                            </li>
+                            <li id="" class="classLabel" data-grade="" style="display: none;">
+                                <div class="item-content">
+                                    
+                                    <div class="item-inner">
+                                        <div class="item-title ">陈琪</div>
+                                        <div class="item-after">未提交</div>
+                                    </div>
+                                </div>
+                            </li>
+                            
+                        </ul>
+                    </div>
+                    <div class="list-group" id="">
+                        <ul>
+                            <li class="list-group-title off">
+                                <div class="item-media">
+                                    <span class="chooseText">17级01班 <span class="num-tips"> (2人)</span></span>
+                                    <span class="icon icon-down toTop"></span>
+                                </div>
+                            </li>
+                            <li id="" class="classLabel" data-grade="" style="display: none;">
+                                <div class="item-content">
+                                    <div class="item-inner">
+                                        <div class="item-title ">刘旭 </div>
+                                        <div class="item-after">未提交</div>
+                                    </div>
+                                </div>
+                                <div class="studentDetail"></div>
+                            </li>
+                            <li id="" class="classLabel" data-grade="" style="display: none;">
+                                <div class="item-content">
+                                    
+                                    <div class="item-inner">
+                                        <div class="item-title ">陈琪</div>
+                                        <div class="item-after">未提交</div>
+                                    </div>
+                                </div>
+                            </li>
+                            
+                        </ul>
+                    </div> -->
+
+                    
+                </div>  
+            </div>
+        </div>
+        
+    </div>
+</body>
+
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script src="../../../js/question/question.js"></script>
+<script>
+    //设置返回首页标识
+    sessionStorage.echart = 1;
+
+    //后退刷新
+    window.addEventListener('pageshow', function (event) {
+        if (sessionStorage.echartBlog == 1) {
+            sessionStorage.removeItem("echartBlog");
+            window.location.reload();
+        }
+    });
+
+    var dataList = JSON.parse(sessionStorage.optionDetail),order=GetUrlParam("order"),choose=GetUrlParam("choose"),groups = JSON.parse(sessionStorage.o_groups);
+    var optionHtml = '',timgHtml = '',optimgHtml='',opData = dataList.options,listHtml = '';
+    for (var i=0;i<dataList.img.length;i++){
+        timgHtml += '<img class="title-img" src="'+ changeImgUrl(dataList.img[i].url) +'" alt="">';
+    }
+    var optObj = {}
+    for (var k in opData){
+        if(k === choose){
+            optObj = opData[k];
+        }
+    }
+    if(optObj.img.length > 0){
+        var imgs = optObj.img
+        for(var _i=0;_i<imgs.length;_i++){
+            optimgHtml += '<img class="option-img" src="'+ changeImgUrl(imgs[_i].url) +'" alt="">';
+        }
+    }
+    optionHtml += ("<h4 class=\"question-title\">" + order + "." + dataList.title + "</h4>\n                    " + timgHtml + "\n                    <p>他们选择了:</p>\n                    <p>" + choose + "." + optObj.title + "(" + optObj.num + "人/" + optObj.percent + ")</p>\n                    " + optimgHtml);
+    // optionHtml += `<h4 class="question-title">${order}.${dataList.title}</h4>
+    //                 ${timgHtml}
+    //                 <p>他们选择了:</p>
+    //                 <p>${choose}.${optObj.title}(${optObj.num}人/${optObj.percent})</p>
+    //                 ${optimgHtml}`
+    $("#mainPage .question-option").append(optionHtml);
+
+    // var gids = [];
+    // groups.groupIds.split(",").forEach(function (i){gids.push(i.substring(2,i.length));});
+    // gids = gids.unique();
+    var answerDetail = tranformObj(optObj.detail);
+    function tranformObj(obj) {
+        var tempArr = [],
+            resObj = {};
+        for (var i = 0; i < obj.length; i++) {
+            var cid = obj[i].gid;
+            if (tempArr.indexOf(cid) === -1) {
+                tempArr.push(cid);
+            }
+        }
+        for (var _i = 0; _i < tempArr.length; _i++) {
+            var tempData = [];
+            for (var j = 0; j < obj.length; j++) {
+                var _cid = obj[j].gid;
+                if (tempArr[_i] === _cid) {
+                    tempData.push(obj[j]);
+                }
+            }
+            resObj["" + tempArr[_i]] = tempData;
+        }
+        return resObj;
+    }
+
+    var appDom = function (data){
+        for (var key in data) {
+            var mhtml = '',subNum=0;
+            for (var i = 0; i < data[key].length; i++) {
+                if(data[key][i].submitStatus !== 0){
+                    subNum += 1;
+                }
+                mhtml += ("<li id=\"\" class=\"classLabel\" data-grade=\"\" style=\"display: none;\">\n                                    <div class=\"item-content\">\n                                        <div class=\"item-inner\">\n                                            <div class=\"item-title class_name\">" + data[key][i].name + "</div>\n                                            <div class=\"item-after\"></div>\n                                        </div>\n                                    </div>\n                                </li>");
+                // mhtml += `<li id="" class="classLabel" data-grade="" style="display: none;">
+                //                     <div class="item-content">
+                //                         <div class="item-inner">
+                //                             <div class="item-title class_name">${data[key][i].name}</div>
+                //                             <div class="item-after"></div>
+                //                         </div>
+                //                     </div>
+                //                 </li>`
+            }
+            listHtml += ("<div class=\"list-group\" id=\"\">\n                        <ul>\n                            <li class=\"list-group-title off\">\n                                <div class=\"item-media\">\n                                    <span class=\"chooseText\">" + (data[key][0].identity !== 1 ? data[key][0].gname.split(' ')[1] : data[key][0].gname) + " <span class=\"num-tips\"> (" + data[key].length + "人)</span></span>\n                                    <span class=\"icon icon-down toTop\"></span>\n                                </div>\n                            </li>");
+            // listHtml += `<div class="list-group" id="">
+            //             <ul>
+            //                 <li class="list-group-title off">
+            //                     <div class="item-media">
+            //                         <span class="chooseText">${data[key][0].identity !== 1?data[key][0].gname.split(' ')[1]:data[key][0].gname} <span class="num-tips"> (${data[key].length}人)</span></span>
+            //                         <span class="icon icon-down toTop"></span>
+            //                     </div>
+            //                 </li>`
+
+                
+            listHtml += mhtml+'</ul></div>'
+        }
+        return listHtml;
+    }
+    $("#mainPage .list-block").append(appDom(answerDetail));
+
+    //console.log(tranformObj(answerDetail));
+    //折叠班级
+    $('body').on('click',".list-group-title", function(event){
+        if($(this).hasClass("off")){
+            $(this).nextAll().show();
+            $(this).removeClass("off");
+            $(this).find(".icon-down").removeClass("toTop").addClass("todown");
+        }else{
+            $(this).nextAll().hide();
+            $(this).addClass("off");
+            $(this).find(".icon-down").addClass("toTop").removeClass("todown");
+        }
+        
+    });
+</script>

@@ -1,0 +1,61 @@
+package sng.service.impl;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import sng.dao.AccountDao;
+import sng.dao.CampusDao;
+import sng.entity.Account;
+import sng.entity.Campus;
+import sng.service.AccountService;
+import sng.service.CampusService;
+import sng.util.PageInfo;
+
+@Component
+@Service
+@Transactional("transactionManager")
+public class CampusServiceImpl implements CampusService {
+
+	@Autowired
+	private CampusDao campusDao;
+	
+	@Override
+	public List<Campus> getList(Integer org_id, PageInfo page) {
+		// TODO Auto-generated method stub
+		return campusDao.getList(org_id, page);
+	}
+
+	@Override
+	public void save(Campus campus) {
+		campusDao.save(campus);
+	}
+
+	@Override
+	public void update(Campus campus) {
+		campusDao.update(campus);
+	}
+
+	@Override
+	public void delete(Campus campus) {
+		// TODO Auto-generated method stub
+		campusDao.delete(campus);
+	}
+
+	@Override
+	public Campus getCampusById(Integer orgId, Integer camId) {
+		// TODO Auto-generated method stub
+		return campusDao.getCampusById(orgId, camId);
+	}
+
+	@Override
+	public List<Map> getListMap(Integer orgId, PageInfo page) {
+		// TODO Auto-generated method stub
+		return campusDao.getListMap(orgId, page);
+	}
+	
+}

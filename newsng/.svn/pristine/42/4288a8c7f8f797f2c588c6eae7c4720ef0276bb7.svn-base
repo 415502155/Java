@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>博客正文</title>
+<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<link rel="stylesheet" href="//at.alicdn.com/t/font_431334_smk25a436zyhw7b9.css">
+<link rel="stylesheet" href="../../../css/sm.css">
+<!-- 图片放大 -->
+<link rel='stylesheet prefetch' href='../../../js/photoSwipe/photoswipe.css'>
+<link rel='stylesheet prefetch' href='../../../js/photoSwipe/default-skin/default-skin.css'>
+<style>
+	/*基本*/
+	body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,textarea,p,blockquote,th,td,input,select,textarea,button {
+	    margin:0;padding:0;
+	}
+	html,body{
+	    font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;
+	    background-size: 100%;
+	    font-size: 1rem;
+	    width:100%;
+	    height:100%;
+	    overflow: auto;
+
+	}
+	.iconfont {
+		font-size: 1.3rem;
+	}
+	.Blog a:visited {
+	    color:#7167ef;
+	}
+	.Blog a:hover {
+	    color:#7167ef;
+	}
+	.Blog a:active {
+	    color:#7167ef;
+	}
+	.Blog .main-list{
+		background: #fff;
+		text-align: left;
+		box-shadow: 0 0.625rem 1.25rem #e4e5e7;
+	}
+	.Blog .main-list .list1{
+		padding: 0 3%;
+		padding-top:10px;
+	}
+	.Blog .main-list .list1 span:first-child{
+		font-weight:bold;
+	}
+	.Blog .main-list .list1 span:last-child{
+		color:#405499;
+		float:right;
+		display:block;
+	}
+	.Blog .main-list .list2{
+		padding: 0 3%;
+		color:#adadad;
+		line-height: 1.5rem;
+
+	}
+	.Blog .main-list .list2 span:last-child{
+		float:right;
+		margin-left:5px;
+	}
+	.Blog .main-list .list2 span:nth-child(2){
+		float:right;
+		margin-left:5px;
+	}
+	.Blog .main-list .list3{
+		padding: 0 3%;
+		margin-bottom: 0.625rem ;
+	}
+	.Blog .main-list .list3 span{
+		width:100%;
+		display:inline-block;
+
+	}
+	.Blog .main-list .list3 img{
+		display:inline-block;
+	}
+	.Blog .main-list2{
+		box-shadow: 0 0.625rem 1.25rem #e4e5e7;
+		background: #fff;
+	}
+	.Blog .main-list2 .div1{
+		height:3.125rem ;
+		line-height: 3.125rem ;
+		border-bottom: 1px solid #f1f1f1;
+		padding:0 3%;
+	}
+	.Blog .main-list2 .div2{
+		border-bottom: 1px solid #f1f1f1;
+		padding:3% 3%;
+	}
+	.Blog .main-list2 .div1 span{
+		float:left;
+		display:inline-block;
+		margin-right:0.625rem ;
+	}
+	.Blog .main-list2 .pinglun1{
+		height:1.875rem ;
+		text-indent:0;
+	}
+	.Blog .main-list2 .pinglun1 span{
+		margin-right: 0.625rem;
+	}
+	.my-write{
+		width: 85%;
+		display: inline-block;
+	    word-wrap: break-word;
+	    overflow: hidden;
+	    padding-left: 8%;
+	}
+	.red{
+		color:red;
+		transition: all 1s ease 0s;
+	}
+	/*遮罩层*/
+	.bg-wrap{
+		position: fixed;
+	    top: 0;
+	    left: 0;
+	    z-index:99;
+	    width: 100%;
+	    height: 100%;
+	    background: rgba(0, 0, 0, .4);
+	}
+	.bg{
+		width: 80%;
+	    position: fixed;
+	    top: 10%;
+	    left: 10%;
+	    z-index: 100;
+	    background: #e8e8e8;
+	    border-radius: 5px;
+	    box-sizing: border-box;
+	    overflow: hidden;
+	    text-align: center;
+	}
+	.bg-textarea{
+		width: 90%;
+	    height: 90px;
+	    display: inline-block;
+	    padding:3px;
+	}
+	.bg-button{
+		width:50%;
+		height:2.2rem;
+		text-align: center;
+		line-height: 2.2rem;
+		display:inline-block;
+		float:left;
+		color:#0894ec;
+		box-sizing: border-box;
+	}
+	.bg-content{
+		text-align: center;
+		font-size: 1rem;
+		height:2rem;
+		line-height:2rem;
+		overflow: hidden;
+	}
+	.dz-num{
+		max-width:75%;
+		overflow:hidden;
+		height:3.125rem;
+	}
+	figure{
+		margin:0;
+		padding:0;
+	}
+	.all-dz-list{
+		padding: 0 3%;
+	    text-indent: 0;
+	    background: #fff;
+	    line-height: 1.5rem;
+	    border-bottom: 1px solid #eee;
+	    box-shadow: 0 0.625rem 1.25rem #e4e5e7;
+	}
+	.all-dz-hongxin{
+		width:10%;
+		padding:3% 0;
+		overflow: hidden;
+		display: inline-block;
+		color:#adadad;
+		float: left;
+	}
+	.all-dz-num{
+		width:90%;
+		padding:3% 0;
+		display: inline-block;
+	}
+	.all-dz-name{
+		/* display: ; */
+		color: #adadad;
+	}
+	.all-dz-text{
+		display: inline-block;
+		color:#405499;
+		padding-left:5px;
+	}
+	.gray{
+		color:#adadad;
+	}
+</style>
+</head>
+<body class="Blog" style="position:static;">
+		<div class="all-list content" style="margin-bottom:3.6rem;"></div>
+   		<div class="publib-btn" style="width:100%;position: absolute;bottom:0;background:#eee;">
+		<div id="publib" class="btn" style="width:80%;height:2.5rem ;line-height:2.5rem ;text-align: center;border-radius:1.25rem;color:#fff;background:#3db0ff;margin: 0.5rem auto;">发表评论</div>
+   		</div>
+   		<!--背景层-->
+   <!--		<div class="bg-wrap" style="display:none;"></div>
+   		<div class="bg" style="display:none;">
+   			<div class="bg-content">发布内容</div>
+	   		<textarea class="bg-textarea" placeholder="说点什么吧！"></textarea>
+   			<div class="bg-footer">
+   				<span class="bg-button" id="gono" style="border-right: 1px solid #ccc;">取消</span>
+   				<span class="bg-button" id="goyes">确定</span>
+   			</div>
+   		</div>-->
+   		<!--图片查看器-->
+		<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+			<div class="pswp__bg"></div>
+			<div class="pswp__scroll-wrap">
+				<div class="pswp__container">
+					<div class="pswp__item"></div>
+					<div class="pswp__item"></div>
+					<div class="pswp__item"></div>
+				</div>
+				<div class="pswp__ui pswp__ui--hidden">
+					<div class="pswp__top-bar">
+						<div class="pswp__counter"></div>
+						<button class="pswp__button pswp__button--close" title="关闭"></button>
+						<!--<button class="pswp__button pswp__button&#45;&#45;share" title="Share"></button>-->
+
+						<div class="pswp__preloader">
+							<div class="pswp__preloader__icn">
+								<div class="pswp__preloader__cut">
+									<div class="pswp__preloader__donut"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+						<div class="pswp__share-tooltip"></div>
+					</div>
+					<div class="pswp__caption">
+						<div class="pswp__caption__center"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+</body>
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.js'></script>
+<script src="../../../js/config.js"></script>
+<!-- 图片放大 -->
+<script src='../../../js/photoSwipe/photoswipe.min.js'></script>
+<script src='../../../js/photoSwipe/photoswipe-ui-default.js'></script>
+<script src='https://res.wx.qq.com/open/js/jweixin-1.2.0.js'></script>
+<script type="text/javascript">
+var baseP=getJPermissions(JSON.parse(sessionStorage.baseUser).orguser.org_id);
+wx.config({
+    debug: false,
+    appId: baseP.appId,
+    timestamp: baseP.timestamp,
+    nonceStr: baseP.nonceStr,
+    signature: baseP.signature,
+    jsApiList: [
+    ]
+});
+wx.ready(function (){
+    //隐藏非基础类菜单
+    wx.hideAllNonBaseMenuItem();
+})
+</script>
+
+<script>
+	//后退刷新
+    window.addEventListener('pagehide', function(event) {
+        sessionStorage.backBlog=1;
+    });
+	/*重新定义时间时间格式*/
+	Date.prototype.toLocaleString = function() {
+		return this.getFullYear() + "/" + (this.getMonth() + 1) + "/" + this.getDate() + "/ " + this.getHours() + ":" + (this.getMinutes()<10? "0"+this.getMinutes():this.getMinutes());
+	};
+	//获取详情数据
+	var base =JSON.parse(sessionStorage.baseUser);
+	var nowStudent=JSON.parse(sessionStorage.nowStudent);
+   	//从路径中取出参数
+	var myurl=window.location.href;
+	var	url=myurl.substring(myurl.indexOf('?')+1,myurl.length);
+	if(url.indexOf("&")!= -1){
+      	var BackUrl=url.split("&")[0];//上一页地址
+      	var blog_id=url.split("&")[1].split("=")[1];
+  	}
+	var identity=base.orguser["identity"];//身份  1教师 0家长
+	var ports=domainName+"/shijiwxy/wechat/portal/blog/getDetail.json";
+  	var parameter={
+          	token:base.token,
+          	udid:base.udid,
+          	version:3,
+          	blog_id:blog_id,
+          	tech_id:0,//当前登录家长id
+   	}
+  	getData(ports,parameter,function(res){
+      	if(res.code==200 && res.success==true){
+      		var data=res.data
+      		if(data.is_del==1){
+      				$.toast("博客已经不存在了！");
+					window.location=BackUrl;
+					return false;
+      		}
+			var commonTime = data.insert_time.replace(/\//g,"-");
+      		var htmlstr='<div class="main-list">'
+							+'<div class="list1"><span>'+data.tech_name+'</span><span class="ToDel" data='+data.blog_id+'>删除</span></div>'
+				   			+'<div class="list2">'
+				   				+'<span>'+commonTime+'</span>'
+				   				+'<span><i class="iconfont icon-xinxi"></i><span class="all_plList">'+data.plList.length+'</span></span>'
+				   				+'<span><i class="iconfont icon-hongxin"></i><span class="all_dz_num">'+data.dzList.length+'</span></span>'
+				   			+'</div>'
+				   			+'<div class="list3">'
+				   				+'<span style="margin-bottom:10px;">'+data.content+'</span>'
+				   				+'<div id="imgBox" class="row allimg my-gallery" style="padding:0 3%;width:100%;overflow: hidden;height: auto;padding-bottom:20px;" ></div>'
+				   			+'</div>'
+				  		+'</div>'
+				  		+'<div class="all-dz-list">'
+							+'<span class="all-dz-hongxin"><i class="iconfont icon-hongxin"></i></span>'
+							+'<span class="all-dz-num"><span class="all-dz-name"></span><span class="all-dz-text">点赞</span></span>'
+						+'</div>'
+						+'<div class="main-list2"></div>'
+			$(".all-list").append(htmlstr)
+			//家长端隐藏删除博客
+			if(identity==0){
+				$(".ToDel").hide();
+			}
+			//循环图片
+			var imgHtml="";
+			for(var m=0;m<=data.imgUrls.length-1;m++){
+							 	imgurl=data.imgUrls[m]
+							 	var newimg=imgurl.substring(0,imgurl.lastIndexOf("."))+"_200X200"+imgurl.substring(imgurl.lastIndexOf("."),imgurl.length);
+							 	imgHtml +='<figure style="background-image: url('+newimg+');background-size: cover; display: block;height: 90px;width: 90px;margin-bottom:5px;margin-left:5px;overflow:hidden;float:left;" itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject">'+
+								'<a href="'+imgurl+'" itemprop="contentUrl" data-size="1640x1136" style="display:none;">' +
+								'<img src="'+imgurl+'"  onload="getWH(this)" itemprop="thumbnail" width="100" height="100"  alt="" style="display:none;"/>' +
+								'</a>'+
+								'</figure>';
+			}
+			$("#imgBox").append(imgHtml);
+			//图片预览
+	        initPhotoSwipeFromDOM('.my-gallery');
+      		//循环取出评论的条数
+      		parentdiv='';
+			for(var i=0;i<=data.plList.length-1;i++){
+					commonTime = data.plList[i].insert_time.replace(/\//g,"-");
+					var relation=data.plList[i].relation;
+					if(relation==0){
+						str="父亲"
+					}else if(relation==1){
+						str="母亲"
+					}else if(relation==2){
+						str="爷爷"
+					}else if(relation==3){
+						str="奶奶"
+					}else if(relation==4){
+						str="外公"
+					}else if(relation==5){
+						str="外婆"
+					}else{
+						str="监护人";
+					}
+					//教师身份
+					if(data.plList[i].identity==1){
+						parentdiv+='<div class="div2">'
+								+'<div class="pinglun1">'
+									+'<span class="gray"><i class="iconfont icon-xinxi"></i></span>'
+									+'<span style="color:#2c2c2c">'+data.plList[i].tech_name+'</span>'
+									+'<span class="gray">'+commonTime+'</span>'
+								+'</div>'
+								+'<div class="pinglun2 style=" margin-bottom:="" 5px;"="">'
+									+'<span class="my-write">' + data.plList[i].content + '</span>'
+								+'</div>'
+							+'</div>'
+					}
+					//家长身份
+					if(data.plList[i].identity==0){
+						stud_id=nowStudent.stud_id;//登录人stud_id
+							parentdiv+='<div class="div2" stud_id='+data.plList[i].stud_id+'>'
+								+'<div class="pinglun1">'
+									+'<span class="gray"><i class="iconfont icon-xinxi"></i></span>'
+									+'<span style="color:#2c2c2c">'+data.plList[i].stud_name+str+'</span>'
+									+'<span class="gray">'+commonTime+'</span>'
+								+'</div>'
+								+'<div class="pinglun2" style=" margin-bottom:="" 5px;"="">'
+									+'<span class="my-write">' + data.plList[i].content + '</span>'
+								+'</div>'
+							+'</div>'
+					}
+
+      		};
+			$(".main-list2").empty().append(parentdiv);
+			//是自己评论的可以删除
+			stud_id=nowStudent.stud_id;
+			for(var i=0;i<=$(".div2").length-1;i++){
+				if( $($(".div2")[i]).attr("stud_id") ==stud_id){
+					var parentdiv='<span class="Del-PL" data='+data.plList[i].bi_id+' style="float:right;color:#405499;">删除</span>';
+					$($(".div2")[i]).find($(".pinglun2")).append(parentdiv)
+				}
+			}
+			//循环点赞的人数
+			var dzarr=[];
+			for(var i=0;i<=data.dzList.length-1;i++){
+				//判断登录人是否点过赞
+				if(data.dzList[i].parent_id==base.orguser.parent["parent_id"]){
+					//相等点过赞
+					$(".icon-hongxin").addClass("red");
+					$(".all-dz-text").hide();
+				}
+				//亲子关系（0：父亲，1：母亲，2：爷爷，3：奶奶，4：外公，5：外婆，6：其他）
+				var relation=data.dzList[i].relation
+				if(relation==0){
+					str="父亲"
+				}else if(relation==1){
+					str="母亲"
+				}else if(relation==2){
+					str="爷爷"
+				}else if(relation==3){
+					str="奶奶"
+				}else if(relation==4){
+					str="外公"
+				}else if(relation==5){
+					str="外婆"
+				}else{
+					str="监护人";
+				}
+
+				//取出点赞人数
+				if(data.dzList[i].identity==1){
+					dzarr.push(data.dzList[i].tech_name)
+				}else{
+					dzarr.push(data.dzList[i].stud_name+str)
+				}
+      		};
+      		if(data.dzList.length>0){
+      			$(".all-dz-name").text(dzarr);
+      		};
+
+      	}else{
+      		$.alert("获取数据失败 ");
+      	}
+   	});
+
+	//点赞
+	$("body").on("click",".all-dz-text",function(){
+		if(identity==0){
+			var parameter={
+			      	token:base.token,
+			      	udid:base.udid,
+			      	version:3,
+			      	blog_id:blog_id,
+			      	identity:identity,
+			      	type:0,//点赞
+			      	stud_id:nowStudent.stud_id,//当前登录家长的id ,
+			      	stud_name:nowStudent.stud_name,//当前登录教师的name ,
+			      	relation:nowStudent.relation,
+			      	parent_id:base.orguser.parent["parent_id"],
+			};
+
+			if(!$(".icon-hongxin").hasClass("red")){
+				getData(domainName+"/shijiwxy/wechat/portal/blog/blogInteractsave.json",parameter,function(res){
+		            if(res.code==200 && res.success==true){
+		            	window.location.reload();
+				    }else{
+				        $.alert("点赞失败");
+				    };
+				},"POST",false);
+			}
+		};
+	});
+	/*发表评论弹框*/
+	$("#publib").click(function(){
+		$(".bg-textarea").val("")
+		$(".bg").show();
+		$(".bg-wrap").show();
+	});
+
+	$("#goyes").click(function(){
+		var MyDay=new Date().toLocaleString().replace(/\//g,"-"); /*创建当前时间*/
+		var value=$.trim($(".bg-textarea").val())//评论内容
+		if(identity==0){
+			var parameter={
+			      	token:base.token,
+			      	udid:base.udid,
+			      	version:3,
+			      	blog_id:blog_id,
+			      	identity:identity,
+			      	type:1,//评论
+			      	content:value,
+			      	stud_id:nowStudent.stud_id,//当前登录家长的id ,
+				    stud_name:nowStudent.stud_name,//当前登录教师的name ,
+				    relation:nowStudent.relation,
+				    parent_id:base.orguser.parent["parent_id"],
+			}
+			if(value.length>240){
+				$.alert("最多评论240个字 ");
+				$(".bg-textarea").val("")
+				$(".modal-overlay").css("position","fixed")
+				$(".modal").css("position","fixed")
+				return false;
+			}else if(value==''||value.length<2){
+	    		$.alert("至少评论2个字 ");
+	    		$(".modal").css("position","fixed")
+	    		$(".modal-overlay").css("position","fixed");
+	    		$(".bg").hide();
+				$(".bg-wrap").hide();
+				return false;
+			}else{
+				getData(domainName+"/shijiwxy/wechat/portal/blog/blogInteractsave.json",parameter,function(res){
+					console.log(res)
+		            if(res.code==200 && res.success==true){
+		            	if(res.data==-1){
+		      				$.toast("博客已经不存在了！");
+							setTimeout(function(){ window.location=BackUrl},600);
+							return false;
+			      		}
+		            	$(".bg").hide();
+						$(".bg-wrap").hide();
+
+                        var relation=parseInt(nowStudent.relation);
+                        if(relation==0){
+                            var str="父亲"
+                        }else if(relation==1){
+                            var str="母亲"
+                        }else if(relation==2){
+                            var str="爷爷"
+                        }else if(relation==3){
+                            var str="奶奶"
+                        }else if(relation==4){
+                            var str="外公"
+                        }else if(relation==5){
+                            var str="外婆"
+                        }else{
+                            var str="监护人";
+                        }
+
+
+
+						strdiv='<div class="div2">'
+								+'<div class="pinglun1">'
+									+'<span class="gray"><i class="iconfont icon-xinxi"></i></span>'
+									+'<span style="color:#2c2c2c">'+nowStudent.stud_name+str+'</span>'
+									+'<span class="gray">'+MyDay+'</span>'
+								+'</div>'
+								+'<div class="pinglun2 style=" margin-bottom:="" 5px;"="">'
+									+'<span class="my-write">' + value + '</span>'
+									+'<span class="Del-PL" data='+res.data+' style="float:right;color:#405499;">删除</span>'
+								+'</div>'
+							+'</div>'
+			 			$(".main-list2").append(strdiv)
+			 			var old_plList=Number($(".all_plList").text())
+						$(".all_plList").text(old_plList+1)
+
+				    }else{
+				        $.alert("评论失败");
+				    };
+				},"POST",false);
+			};
+		};
+	});
+	$("#gono").click(function(){
+		$(".bg").hide();
+		$(".bg-wrap").hide();
+	});
+
+	/*删除评论*/
+	$("body").on("click",".Del-PL", function(){
+		var identity=base.orguser["identity"];
+		var recordId=$(this).attr("data");
+		var $this=$(this);
+		if(identity==0){
+			var parameter={
+			      	token:base.token,
+			      	udid:base.udid,
+			      	version:3,
+			      	recordId:recordId,
+		    }
+			getData(domainName+"/shijiwxy/wechat/portal/blog/deleteComment.json",parameter,function(res){
+	            if(res.code==200 && res.success==true){
+	            	$this.parent().parent().remove();
+				  	var old_plList=Number($(".all_plList").text())
+					$(".all_plList").text(old_plList-1)
+				  	$.toast("删除成功！");
+				  	$(".modal-overlay").hide();
+			    }else{
+			        $.alert("删除失败");
+			        $("body").css("display","fixd")
+			    }
+			},"POST");
+		};
+	});
+	//增加评论区滚动条
+	$(".content").scroller('refresh');
+</script>

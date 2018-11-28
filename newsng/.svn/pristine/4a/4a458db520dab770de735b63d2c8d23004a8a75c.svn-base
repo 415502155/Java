@@ -1,0 +1,1952 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>博客列表</title>
+	<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+	<!--<link rel="shortcut icon" href="/favicon.ico">-->
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<!--ui包-->
+	<link rel="stylesheet" href="../../../css/sm.css">
+	<link rel="stylesheet" href="../../../css/layout.css">
+	<link rel="stylesheet" href="../../../css/teacher.css">
+	<link rel='stylesheet prefetch' href='../../../js/photoSwipe/photoswipe.css'>
+	<link rel='stylesheet prefetch' href='../../../js/photoSwipe/default-skin/default-skin.css'>
+	<style type="text/css">
+
+		body {
+			background:url("../../../images/teacherblogbg.png");background-position: top;
+			background-size: contain;
+		}
+		.infinite-scroll-preloader {
+			margin-top: -10px;
+		}
+		.list-block {
+			background-image: url(../../../images/blog-head-bg.jpg);
+			background-position: top;
+			background-repeat: no-repeat;
+			background-size: contain;
+			background-color: #f5f5f5;
+			margin-bottom: 0;
+			padding-bottom: 1.24rem;
+		}
+		.card-footer a.link span+span {
+			margin-left: .15rem;
+		}
+		.smallImglist img {
+			height: 100%;
+			width: 100%;
+			object-fit: cover;
+			z-index: 0;
+			vertical-align: middle;
+			-o-object-fit: cover;
+			object-fit: cover;
+			position:absolute;
+		}
+		.my-gallery { margin-bottom: 0}
+		.my-gallery figure {
+			width:33.3%;
+			/*height:96px;*/
+			display: inline-block;
+			padding-left: .125rem;
+			padding-right: .125rem;
+			margin-bottom: .25rem;
+			vertical-align: top;
+			margin-bottom: .38rem;
+		}
+		.fourimg figure:nth-child(2n) { margin-right: 20px}
+		.oneimg figure { width:275px;}
+		.smallImglist .oneimg img {
+			 max-width: 100%;
+			 z-index: 0;
+			 vertical-align: middle;
+			 -o-object-fit: contain;
+			object-fit: contain;
+			position: inherit;
+			height: auto;
+			width: auto;
+		 }
+
+		.my-gallery figure a {
+			padding-bottom: 100%;
+			height: 0;
+			position: relative;
+			display: inline-block;
+			width: 100%;
+		}
+		.oneimg figure a {
+			padding-bottom: 0;
+			height: auto;
+		}
+		.blog_time {color: #b2b2b2; padding-top:6px;font-size: .75rem}
+		.card-header { height: 65px;}
+		.noData_line .noData__tips {background: none}
+
+		.pl-wrap{
+			position: relative;
+			-moz-box-sizing: border-box;
+			box-sizing: border-box;
+			-webkit-box-pack: justify;
+			-ms-flex-pack: justify;
+			-webkit-justify-content: space-between;
+			justify-content: space-between;
+			-webkit-box-align: center;
+			-ms-flex-align: center;
+			-webkit-align-items: center;
+			align-items: center;
+			border-bottom: 1px #ebebeb solid;
+			box-shadow: 2px 2px 3px #e4e4e4;
+			margin-bottom: 4.5rem;
+		}
+		.pl-wrap .blogLike-wrap {
+			line-height: 1.2rem;
+			padding: .2rem .75rem .4rem;
+			font-size: .85rem;
+			border-top: 1px #f1f1f1 solid;
+			background: #fff;
+			margin-bottom: 1rem;
+			box-shadow: 2px 2px 3px #e4e4e4;
+		}
+		.pl-wrap .blogContent-wrap {
+			line-height: 1.2rem;
+			padding: .5rem .75rem .5rem;
+			font-size: .85rem;
+			background: #fff;
+			border-top: 1px #efefef solid;
+			position: relative;
+		}
+		.blogContent-wrap span,.blogLike-wrap span {font-size: .76rem;}
+		/*#blogContent-list { box-shadow: 2px 2px 3px #e4e4e4;margin-bottom: 2rem}*/
+
+		.blog-toDel {
+			color: red;
+			position: absolute;
+			right: 0;
+			line-height: 2rem;
+			padding: 0 .76rem;
+			top: .5rem;
+		}
+
+		/*点赞*/
+		.like-names {
+			display:block;
+			margin-left: 30px;
+			margin-top:-20px;
+			color:#3559a4;
+		}
+		/*评论*/
+		.pl-author {color: #000;padding-right: 10px;}
+		.pl-time { }
+		.pl-toDel {
+			color: red;
+			position: absolute;
+			right: 0;
+			line-height: 2rem;
+			padding: 0 .76rem;
+			top: 0;
+		}
+		.pl-content {padding:.5rem 0 .5rem 1rem;word-wrap: break-word;}
+		.pl-operation {
+			padding: 0.76rem .76rem;
+			margin: 0;
+			background: #f5f5f5;
+			position: fixed;
+			bottom: 0;
+			border-top: 1px #ebebeb solid;
+			width: 100%;
+			box-shadow: 0px 1px 2px #ededed inset
+		}
+
+		.textareaWrap {
+			min-height: 26px;
+			line-height: 1.2rem;
+			_height: 30px;
+			margin-left: auto;
+			margin-right: auto;
+			padding: 3px;
+			outline: 0;
+			border: none;
+			word-wrap: break-word;
+			overflow-x: hidden;
+			overflow-y: auto;
+			-webkit-user-modify: read-write-plaintext-only;
+			padding: .76rem;
+			width: 100%;    min-height: 3rem;}
+		.card { margin: .96rem 0;border-radius:0}
+		.bar .button-nav.pull-left {
+			margin-left: 0rem;
+		}
+		.blogDetail-todel {
+			align-items: center;
+			color: red;
+			top: 0;
+			position: absolute;
+			right: 0;
+			margin: .76rem;
+			padding: .5rem 0;
+			display: none;
+		}
+	</style>
+</head>
+<body>
+	<div class="page-group">
+		<div id="page-infinite-scroll-bottom" class="page page-current" style="background: none;">
+			<header class="bar bar-nav">
+				<a class="button button-link button-nav pull-left " href="">
+					<!--<span class="icon icon-left"></span>-->
+					<span  id="className"></span>
+				</a>
+				<a style="display: none" class="button button-link button-nav pull-right" href="javascript:void(0)" id="toPublish">
+					发布博客<span class="icon icon-right"></span>
+				</a>
+			</header>
+			<!-- 添加 class infinite-scroll 和 data-distance  向下无限滚动可不加infinite-scroll-bottom类，这里加上是为了和下面的向上无限滚动区分-->
+			<div class="content infinite-scroll infinite-scroll-bottom  pull-to-refresh-content" data-distance="100" >
+				<!-- 默认的下拉刷新层 -->
+				<div class="pull-to-refresh-layer">
+					<div class="preloader"></div>
+					<div class="pull-to-refresh-arrow"></div>
+				</div>
+
+				<div class="list-block" style="margin-top: -2rem">
+					<ul class="list-container" style="border:none;padding-top:10.6rem;"  id="addData" >
+					</ul>
+				</div>
+				<!-- 加载提示符 -->
+				<div class="infinite-scroll-preloader">
+					<div class="preloader"></div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+
+
+	<!--图片查看器-->
+	<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="pswp__bg"></div>
+		<div class="pswp__scroll-wrap">
+			<div class="pswp__container">
+				<div class="pswp__item"></div>
+				<div class="pswp__item"></div>
+				<div class="pswp__item"></div>
+			</div>
+			<div class="pswp__ui pswp__ui--hidden">
+				<div class="pswp__top-bar">
+					<div class="pswp__counter"></div>
+					<button class="pswp__button pswp__button--close" title="关闭"></button>
+					<!--<button class="pswp__button pswp__button&#45;&#45;share" title="Share"></button>-->
+					<div class="pswp__preloader">
+						<div class="pswp__preloader__icn">
+							<div class="pswp__preloader__cut">
+								<div class="pswp__preloader__donut"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+					<div class="pswp__share-tooltip"></div>
+				</div>
+				<div class="pswp__caption">
+					<div class="pswp__caption__center"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!--图片查看器 END-->
+
+	<!--前往评论博客页面-->
+	<div class="page" id='commentPage'>
+		<div class="content">
+			<header class="bar bar-nav">
+				<a class="button button-link button-nav pull-left back" href="notice.html" style="padding-right:3rem;"><span class="icon icon-left"></span>返回</a>
+				<a href="list.html" class="button button-link button-nav pull-right"  id="toSave-Content" style="padding-left:3rem;"> 确定</a>
+				<h1 class="title" style="cursor: pointer;">发表评论</h1>
+			</header>
+			<div class="content native-scroll">
+				<div class="list-block media-list" style="margin:0;background:#fff;box-shadow: 2px 2px 5px #e4e4e4;padding-bottom: 0" id="allStudent" >
+					<ul data-load="">
+						<li class="align-top">
+							<div class="item-content">
+								<div class="item-inner">
+									<!--评论内容-->
+									<div class="item-input">
+										<textarea placeholder="请输入评论" id="commentPage-content" maxlength="240"  style="height:16rem"></textarea>
+									</div>
+									<!--评论内容 End-->
+								</div>
+							</div>
+						</li>
+					</ul>
+
+				</div>
+				<div class="list-block-label" style="text-align: right;padding:.5rem;color:#f2f2f2;"><span id="contentLength">0</span>/240</div>
+			</div>
+		</div>
+	</div>
+	<!-- 评论博客 End-->
+
+	<!--前往博客页面-->
+	<div class="page" id='blogDetail' >
+		<div class="content" style=" overflow: auto;-webkit-overflow-scrolling:touch;height:100vh;">
+				<div class="blog-wrap" style=" margin:0;background:#fff;">
+					<div valign="bottom" class="card-header color-white" style="line-height:1.1rem;padding:.5rem .75rem .2rem;">
+						<div class="author">
+							<span class="iconpright fontbolder" id="author"></span> <span class="fontbolder"></span>
+							<div class="subtitle" style="width:160px">
+								<span class="iconpright" id="createTime"></span>
+							</div>
+						</div>
+						<div class="subtitle blogDetail-todel" id="delBlog" >删除</div>
+					</div>
+
+					<!--文字内容显示区-->
+					<textarea  id="message" readonly="true" class="textareaWrap" onfocus="this.blur()"></textarea>
+					<!--文字内容显示区 END-->
+                    <div id="newShare"></div>
+					<!-- 图片显示区-->
+					<div class="smallImglist" id="blogDetail-img" >
+					</div>
+					<!-- 图片显示区 End-->
+				</div>
+
+				<div class="pl-wrap" style=" box-shadow:none; margin-bottom: 0rem;">
+					<!--点赞区-->
+					<div class="blogLike-wrap">
+						<span class="footiconSize" style="display: block;padding: 8px 0 0;"><i class="blog-icon blog-icon-nolike" id="liked"></i>
+						</span>
+						<span class="blog-icon-text like-names" id="likeShow" style="display: block;margin-left: 30px; margin-top:-22px;color:#3559a4;">点赞</span>
+					</div>
+					<!--点赞区 END-->
+
+					<!--评论区 END-->
+					<div id="blogContent-list">
+						<!--<div class="blogContent-wrap">
+							<span class="footiconSize"><i class="blog-icon blog-icon-pl"></i>
+							</span><span class="blog-icon-text"><span>暂无评论</span></span>
+						</div>
+						<div class="blogContent-wrap">
+							<div class="pl-top">
+								<span class="footiconSize"><i class="blog-icon blog-icon-pl"></i>
+								</span>
+								<span class="blog-icon-text">
+									<span class="pl-author">陈琦的爸爸</span>
+									<span class="pl-time">2018-03-18 00:00</span>
+								</span>
+								<span class="pl-time">删除</span>
+							</div>
+							<div  class="pl-content">易教上六经皆史也。古人不著书，古人未尝离事而言理，六经皆先王之政典也。</div>
+						</div>-->
+					</div>
+					<!--评论区 END-->
+
+				</div>
+				<div class="content-block pl-operation" style="position: inherit; bottom: initial">
+					<a href="javascript:void(0)" onclick="return false" class="button button-fill external" id="commentBtn">发表评论</a>
+				</div>
+		</div>
+	</div>
+	<!-- 博客详情 End-->
+
+</body>
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<!--<script>$.config = {router: false}</script>-->
+<script src='../../../js/sm.js'></script>
+<script src="../../../js/config.js"></script>
+<script src='../../../js/photoSwipe/photoswipe.js'></script>
+<script src='../../../js/photoSwipe/photoswipe-ui-default.js'></script>
+<script>
+
+    //设置返回统计时刷新标识
+    sessionStorage.echartBlog = 1;
+
+	/*重新定义时间时间格式*/
+	Date.prototype.toLocaleString = function() {
+		return this.getFullYear() + "/" + (this.getMonth() + 1) + "/" + this.getDate() + "/ " + this.getHours() + ":" + (this.getMinutes()<10? "0"+this.getMinutes():this.getMinutes());
+	};
+
+	var base=JSON.parse(sessionStorage.baseUser);
+	var clas_id=GetUrlParam("clas_id");
+    var tech_id=base.orguser.teacher["tech_id"];
+    var tech_name=base.orguser.teacher["tech_name"]
+    var loading=false;
+    var clas_name=GetUrlParam("clas_name");
+	if(clas_name!==""){
+        sessionStorage.blogClassName=decodeURIComponent(clas_name);
+	}
+
+    //确定查看的班级
+    clas_name !== ""? $('#className').text(decodeURIComponent(clas_name)) : $("#className").text(sessionStorage.blogClassName);
+
+  	var parameter={
+              	token:base.token,
+              	udid:base.udid,
+              	version:3,
+                org_id:base.orguser["org_id"],
+		        viewer_id:base.orguser.teacher["tech_id"],//
+              	clas_id:GetUrlParam("clas_id").split("#")[0],
+				identity:1,
+              	num:5,   //请求条数
+              	min:"",  //下拉刷新，传递页面中id的最大值
+              	max:"",  //下拉刷新，传递页面中id的最大值
+    };
+
+
+    $(function () {
+        'use strict';
+
+        var classid=GetUrlParam("clas_id").split("#")[0];
+
+        if(sessionStorage.publishPower!==undefined){
+            //判断是否具有发布权限
+            var classPower=JSON.parse(sessionStorage.publishPower);
+            for( var i in classPower){
+                for(var y in classPower[i].classList){
+                    if(y==classid){
+                        $('#toPublish').show();
+                        break;
+                    }
+                }
+            }
+		}else{
+
+            var localClassJson={};
+            var localClass=JSON.parse(sessionStorage.baseUser).orguser.identityDatas[0].mapRK.concat(JSON.parse(sessionStorage.baseUser).orguser.identityDatas[0].mapBZR);
+
+            for(var i=localClass.length-1;i>=0;i--){
+                var obj=localClass[i];
+                var gradeid=obj.grade_id;
+                //判断年级是否存在
+                if(localClassJson[gradeid]==undefined){
+                    localClassJson[obj.grade_id]={};
+                    localClassJson[obj.grade_id]["grade_name"]=obj.grade_name;
+
+                    localClassJson[obj.grade_id]["classList"]={};//班级信息
+                    localClassJson[obj.grade_id]["classList"][obj.clas_id]={};
+                    localClassJson[obj.grade_id]["classList"][obj.clas_id]["className"]=obj.clas_name;
+                    localClassJson[obj.grade_id]["classList"][obj.clas_id]["students"]=[];
+                }else{
+                    //判断班级是否重复
+                    if(localClassJson[gradeid]["classList"][obj.clas_id]==undefined){
+                        localClassJson[gradeid]["classList"][obj.clas_id]={};
+                        localClassJson[gradeid]["classList"][obj.clas_id]["className"]=obj.clas_name;
+                        localClassJson[gradeid]["classList"][obj.clas_id]["students"]=[];
+                    }
+                }
+            }
+
+            var classPower=localClassJson;
+            for( var i in classPower){
+                for(var y in classPower[i].classList){
+                    if(y==classid){
+                        $('#toPublish').show();
+                        break;
+                    }
+                }
+            }
+
+		}
+
+
+        addItems();
+        //无限滚动
+        $(document).on("pageInit", "#page-infinite-scroll-bottom", function(e, id, page) {
+            $(page).on('infinite', function() {
+                // 如果正在加载，则退出
+                if (loading) return;
+                // 设置flag
+                loading = true;
+                addItems();
+            });
+        });
+
+        //初始化
+        $.init();
+
+        //从列表评论
+        var goToComment = 1;
+        $("body").on("click",".toComment",function(e){
+            if(goToComment != 1){
+                return false;
+            }
+            goToComment = 0;
+            var blogId=$(this).closest("li").attr("id");
+            sessionStorage.blogId=blogId;//当前所选博客ID
+			//清空评论内容
+            $("#commentPage-content").val("");
+            $.router.loadPage("#commentPage");
+            setTimeout(function (){goToComment = 1;},2000)
+        });
+
+        //从详情点赞
+        $(".blogLike-wrap").on('click',function (){
+            if($(this).find(".blog-icon").hasClass("blog-icon-like")){
+                //$.toast("此篇博客已经点过赞");
+                return false
+			}
+
+			var parameter={
+                token:base.token,
+                udid:base.udid,
+                version:3,
+                blog_id:sessionStorage.blogId,
+                identity:1,
+                type:0,//1评论0点赞
+                content:"",
+                tech_id:tech_id,//当前登录教师的id ,
+                tech_name:tech_name,//当前登录教师的姓名 ,
+			};
+            getData(domainName+"/shijiwxy/wechat/portal/blog/blogInteractsave.json",parameter,function(res){
+                if(res.code==200 && res.success==true){
+                    /*判断是否删除的*/
+                    if(res.data==-1){
+                        $.toast(res.message);
+                        $.router.back();
+                        return false;
+                    }
+                    $.toast("成功点赞");
+                    if($("#likeShow").text()=="0人点赞"){
+                        $("#likeShow").text("我点赞");
+                    }else{
+                        $("#likeShow").text($("#likeShow").text().substring(0,$("#likeShow").text().indexOf("点赞"))+",我点赞");
+                    }
+
+                    if(isNaN(+$("#" + sessionStorage.blogId).find('.toLike .blog-icon-text').text())){
+                        $("#" + sessionStorage.blogId).find('.toLike .blog-icon-text').text('1');
+                    }else{
+                        $("#" + sessionStorage.blogId).find('.toLike .blog-icon-text').text(+$("#" + sessionStorage.blogId).find('.toLike .blog-icon-text').text()+1)
+                    }
+                    $("#liked").removeClass("blog-icon-nolike").addClass("blog-icon-like");
+                    $('#'+sessionStorage.blogId).find('.toLike .blog-icon').removeClass("blog-icon-nolike").addClass("blog-icon-like");
+                }else{
+                    $.alert("点赞失败！");
+                };
+            },"POST",false);
+        })
+
+        /*跳转到博客详情*/
+
+        $("body").on("click",".toDetail",function(e){
+
+            $.closeModal();
+
+            //默认显示博客详情顶部
+            $("#blogDetail .content ").scrollTop(0);
+            $("#delBlog").hide();
+            var blogId=$(this).closest("li").attr("id");
+            sessionStorage.nowBlogId = $(this).closest("li").attr("id");
+            //当前浏览博客
+
+            var ports=domainName+"/shijiwxy/wechat/portal/blog/getDetail.json";
+
+            var parameter={
+                token:base.token,
+                udid:base.udid,
+                version:3,
+                blog_id:blogId,
+                tech_id:tech_id//当前登录家长id
+            };
+            getDataNoLoading(ports,parameter,function(res){
+
+                if(res.code==200 && res.success==true){
+
+                    var blogObj=res.data;
+
+                    //sessionStorage.blogId==blogObj;
+                    //发布时间
+                    $("#createTime").text(blogObj.insert_time.replace(/\//g,"-"));
+
+                    var bzrMap=base.orguser.identityDatas[0].mapBZR;
+                    if(blogObj.tech_id==tech_id){
+                        var author="我";
+                        $("#delBlog").show();
+                        //$('#toPublish').show();
+                    }else if(bzrMap.length>0){
+
+                        var author=blogObj.tech_name==null?"":blogObj.tech_name+"老师";
+
+                        for(var m=0,n=bzrMap.length;m<=n-1;m++){
+                            //是班主任
+                            if(base.orguser.identityDatas[0].mapBZR[m]["clas_id"]==clas_id.split("#")[0]){
+                                $("#delBlog").show();
+                            };
+                        };
+                    }else{
+                        var author=blogObj.tech_name==null?"":blogObj.tech_name+"老师";
+                        $("#delBlog").hide();
+                    }
+
+                    //作者
+                    $("#author").text(author);
+
+
+                    //通知内容
+
+                    var cstr="";
+
+                    if(blogObj.newsShare!== undefined && blogObj.newsShare!== null){
+                        cstr = '';
+                        if(blogObj.newsShare.summary!==undefined && blogObj.newsShare.summary!== null){
+                            cstr += '<span style="line-height: 1.2rem;">'+blogObj.newsShare.summary+'</span>';
+                        }
+
+                        if(blogObj.newsShare.picurls!==null){
+                            cstr += '<a href="'+blogObj.newsShare.link+'" style="display: block;padding: 8px;background: #f5f5f5;margin-top: 10px;" class="external" title="查看详情"><div class="shareImg" ><img src="'+blogObj.newsShare.picurls[0]+'"  itemprop="thumbnail" alt="" ></div>'
+                            cstr += '<div class="shareTitle">'+blogObj.newsShare.title+'</div></a>';
+                        }else{
+                            cstr += '<a href="'+blogObj.newsShare.link+'" style="display: block;" class="external">' +
+                                '<div class="shareTitle shareNoImg">' +
+                                '<div class="icon"><img src="../../../images/shareIcon.jpg"></div>'+
+                                '<div class="noImgtitle">'+blogObj.newsShare.title+'</div>'+
+                                '</div>' +
+                                '</a>';
+                        }
+
+                        //通知内容
+                        $("#message").hide().val("");
+                        $("#newShare").html(cstr).show();
+
+                        $.router.loadPage("#blogDetail");
+                       // return false
+
+                    }else{
+                        $("#newShare").html("").hide();
+
+                        //通知内容
+                        $("#message").val(blogObj.content).show();
+
+
+
+                    }
+
+                 /*   if(blogObj.tech_id!==null){
+						if(blogObj.tech_id==tech_id){
+							var author="我";
+                            $("#delBlog").show();
+						}else{
+							var author=blogObj.tech_name==null?"":blogObj.tech_name+"老师";
+						}
+                    }else{
+                        var author="";
+					}*/
+
+
+
+
+                    //作者
+                    $("#author").text(author);
+
+
+                    if(blogObj.imgUrls!==null){
+                        //图片
+                        var imgStr="";
+                        var imgNumber=blogObj.imgUrls.length;
+
+                        //根据图片个数启用不同显示样式
+                        switch (imgNumber){
+                            case 1:
+                                var imgNumshow ='oneimg';
+                                break;
+                            case 4:
+                                var imgNumshow ='fourimg';
+                                break;
+                            default:
+                                var imgNumshow ='';
+                                break;
+                        }
+
+                        imgStr +='<div class="my-gallery '+imgNumshow+'" id="imgBox" data-pswp-uid="1">';
+
+                        for(var m=0,n=imgNumber;m<n;m++){
+
+                            var imgurl=blogObj.imgUrls[m];
+                            var newimg=imgurl.substring(0,imgurl.lastIndexOf("."))+"_200X200"+imgurl.substring(imgurl.lastIndexOf("."),imgurl.length);
+
+                            imgStr += '<figure itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject" >' +
+                                '<a href="'+imgurl+'" itemprop="contentUrl" class="external" data-size="750x740">' +
+                                '<img src="'+imgurl+'" onload="getWH(this)" itemprop="thumbnail" alt="" >' +
+                                '</a>' +
+                                '</figure>';
+                        }
+
+                        imgStr += '</div>';
+                        $("#blogDetail-img").html(imgStr);
+                    }
+
+                    //点赞
+                    var likeObj=res.data.dzList;
+                    var likeNameHtml=[];
+                    var is_me = 0;
+
+                    if(likeObj.length>0){
+                        $("#liked").removeClass("blog-icon-like").addClass("blog-icon-nolike");
+                        for(var i=0,x=likeObj.length;i<x;i++){
+                            if(likeObj[i].identity==1){
+                                if(likeObj[i].tech_name == JSON.parse(sessionStorage.baseUser).orguser.teacher.tech_name){
+                                    likeNameHtml.push("我");
+                                    is_me = 1;
+                                }else{
+                                    likeNameHtml.push(likeObj[i].tech_name+"老师");
+                                }
+
+                            }else{
+                                likeNameHtml.push(likeObj[i].stud_name+'的'+allRelation[likeObj[i].relation]);
+                            }
+                        }
+                        console.log(likeObj)
+                        if(is_me != 0){
+                            $("#liked").removeClass("blog-icon-nolike").addClass("blog-icon-like");
+                        }
+
+                    }else{
+                        $("#liked").removeClass("blog-icon-like").addClass("blog-icon-nolike");
+                        likeNameHtml.push("0人");
+                    }
+
+                    $("#likeShow").text(likeNameHtml.join(",")+"点赞");
+
+                    //点赞END
+
+					//评论
+					var plcontentHtml="";
+                    var plObj=res.data.plList;
+
+                    if(plObj.length>0){
+                        for(var i=0,x=plObj.length;i<x;i++){
+
+							var delHtml="";
+                            //判断评论人身份
+                            if(plObj[i].identity==0){
+
+                                var _authortHtml=plObj[i].stud_name+'的'+allRelation[plObj[i].relation];
+                            }else{
+
+                               var nowTeacher=parseInt(JSON.parse(sessionStorage.baseUser).orguser.teacher.tech_id);
+
+                               if(nowTeacher==parseInt(plObj[i].tech_id)){
+                                   var _authortHtml="我";
+							   }else{
+                                   var _authortHtml=plObj[i].tech_name+'老师';
+							   }
+
+                                if(plObj[i].tech_id==tech_id){
+                                    var delHtml='<span class="pl-toDel">删除</span>';
+                                };
+                            }
+
+                            /*判断博客删除权限*/
+                            var bzrMap=base.orguser.identityDatas[0].mapBZR;
+                            if(bzrMap.length>0){
+                                for(var m=0,n=bzrMap.length;m<=n-1;m++){
+                                    //是班主任
+                                    if(base.orguser.identityDatas[0].mapBZR[m]["clas_id"]==clas_id.split("#")[0]){
+                                        var delHtml='<span class="pl-toDel">删除</span>';
+                                        $("#delBlog").show();
+                                    };
+                                };
+                            }
+
+                            //评论时间
+                            var plTime=plObj[i].insert_time.replace(/\//g,"-");
+
+                            plcontentHtml+='<div class="blogContent-wrap" id="'+plObj[i].bi_id+'">'+
+											'<div class="pl-top">'+
+												'<span class="footiconSize"><i class="blog-icon blog-icon-pl"></i></span>'+
+												'<span class="blog-icon-text">'+
+													'<span class="pl-author">'+_authortHtml+'</span>'+
+													'<span class="pl-time">'+plTime+'</span>'+
+												'</span>'+ delHtml+
+											'</div>'+
+											'<textarea  readonly="true" class="textareaWrap pl-content" onfocus="this.blur()">'+plObj[i].content+'</textarea>'+
+								          '</div>';
+                        }
+
+                    }else{
+                        plcontentHtml+='<div class="blogContent-wrap" id="noPL">' +
+										'<span class="footiconSize"><i class="blog-icon blog-icon-pl"></i>' +
+										'</span><span class="blog-icon-text"><span>暂无评论</span></span>' +
+							          '</div>';
+                    }
+
+                    $("#blogContent-list").html(plcontentHtml);
+                   //评论END
+
+                    $.router.loadPage("#blogDetail");
+
+                    if( $("#message").val()!==""){
+                  	  $('.textareaWrap').height("0");
+                        $('.textareaWrap').each(function () {
+                            this.setAttribute('style', 'height:' + (this.scrollHeight) + 'px;overflow-y:hidden;');
+                        }).on('input', function () {
+                            this.style.height = 'auto';
+                            this.style.height = (this.scrollHeight) + 'px';
+                        });
+                    }
+
+                    $.hidePreloader();
+
+                    //图片预览
+                    initPhotoSwipeFromDOM('.my-gallery');
+                    sessionStorage.blogId=blogId;
+                    //自适应高度
+
+
+                    //默认跳转到顶部
+                    $("#blogDetail .content ").scrollTop(0);
+
+                }else{
+                    $.alert(res.message);
+                }
+            });
+
+        });
+
+        //前往评论
+        var commentBtn =1 ;
+		$("#commentBtn").click(function () {
+            if(commentBtn!=1){
+                return false;
+            }
+            commentBtn = 0;
+		    $("#commentPage-content").val("");
+            $.router.loadPage("#commentPage");
+            setTimeout(function () {commentBtn = 1;},2000);
+        });
+
+		var plsave=0;
+		//保存评论
+        $("#toSave-Content").click(function(){
+            $.closeModal();
+            var MyDay=new Date().toLocaleString().replace(/\//g,"-"); /*创建当前时间*/
+
+            var content=$("#commentPage-content").val().replace(/(^\s*)|(\s*$)/g, "");//评论内容
+            if(content.length>240){
+                $.alert("评论最多不能超过240个字！");
+                return false;
+            };
+
+            if(content.length<2){
+                $.alert("评论内容至少2个字！");
+                return false;
+            };
+
+            if(plsave==1){
+                return false
+			}
+            plsave=1;
+
+
+            var parameter={
+                token:base.token,
+                udid:base.udid,
+                version:3,
+                blog_id:sessionStorage.blogId,
+                identity:1,
+                type:1,//1评论2点赞
+                content:content,
+                tech_id:tech_id,//当前登录教师的id ,
+                tech_name:base.orguser.teacher["tech_name"],//当前登录教师的id ,
+            }
+
+
+
+            getData(domainName+"/shijiwxy/wechat/portal/blog/blogInteractsave.json",parameter,function(res){
+                plsave=0;
+                if(res.code==200 && res.success==true){
+                    if(res.data==-1){
+                        $.toast("该博客已经不存在了！");
+                        setTimeout(function(){ window.location=BackUrl},600);
+                        return false;
+                    }
+
+
+                    var newplHtml ='<div class="blogContent-wrap" id="'+res.data+'">'+
+                        '<div class="pl-top">'+
+                        '<span class="footiconSize"><i class="blog-icon blog-icon-pl"></i></span>'+
+                        '<span class="blog-icon-text">'+
+                        '<span class="pl-author">我</span>'+
+                        '<span class="pl-time">'+MyDay+'</span>'+
+                        '</span>'+
+                        '<span class="pl-toDel">删除</span>'+
+                        '</div>'+
+                        '<textarea onfocus="this.blur()" class="textareaWrap">'+content+'</textarea>'+
+                        '</div>';
+
+                    $("#blogContent-list").append(newplHtml);
+
+                    //如果评论成功删除无评论提示
+                    if($("#noPL")){
+                        $("#noPL").remove();
+					}
+
+                    //更新评论数
+                    var pl_number=parseInt($("#"+sessionStorage.blogId).find(".toComment .blog-icon-text").text());
+                    //判断是否为数字
+                    if(isNaN(pl_number)){
+                        pl_number=1;
+                    }else{
+                        pl_number+=1;
+                    }
+
+                    $("#"+sessionStorage.blogId).find(".toComment .blog-icon-text").text(pl_number);
+
+
+                    $.alert("评论成功！");
+
+                    setTimeout(function () {
+                        $.router.back();
+                    },300);
+                    setTimeout(function () {
+                        $('.textareaWrap').height("0");
+                        $('.textareaWrap').each(function () {
+                            this.setAttribute('style', 'height:' + (this.scrollHeight) + 'px;overflow-y:hidden;');
+                        }).on('input', function () {
+                            this.style.height = 'auto';
+                            this.style.height = (this.scrollHeight) + 'px';
+                        });
+
+                        //滑动到内容底部
+						var wrapHeight=parseInt($("#blogDetail .pl-wrap").height());
+                        $("#blogDetail .content ").scrollTop(wrapHeight);
+
+                    },600);
+
+
+                }else{
+                    $.alert("评论失败!");
+                };
+            },"POST",false);
+
+            return false
+        });
+
+    });
+
+
+    //加载老数据
+    function addItems() {
+
+        parameter.min=$("#addData li:last-child").attr("id");
+        if(parameter.min=="none"){
+            return false
+        }
+        parameter.max="";
+
+        getDataNoLoading(domainName+"/shijiwxy/wechat/portal/blog/list.json", parameter,function(res){
+
+            if(res.code==200 && res.success==true){
+                var html = '';
+                if(res.data.length > 0){
+
+                    var listObj=res.data;
+                    // 生成新条目的HTML
+                    for (var i=0;i<listObj.length; i++) {
+
+                        var commonTime = listObj[i].insert_time.replace(/\//g,"-");
+
+                        //博客内容
+                        if(listObj[i].content.length>60){
+                            var cstr=listObj[i].content.substring(0,60)+"..."
+                        }else{
+                            var cstr=listObj[i].content
+                        }
+
+
+                        if(listObj[i].newsShare!== undefined && listObj[i].newsShare!== null){
+                            cstr = '';
+                           if(listObj[i].newsShare.summary!==undefined && listObj[i].newsShare.summary!==null){
+                                cstr += '<span>'+listObj[i].newsShare.summary+'</span>';
+                            }
+
+							if(listObj[i].newsShare.picurls!==null){
+                            	cstr += '<a href="'+listObj[i].newsShare.link+'" style="display: block;padding:8px;background: #f5f5f5;margin-top: 10px;" class="external" title="查看详情"><div class="shareImg" ><img src="'+listObj[i].newsShare.picurls[0]+'"  itemprop="thumbnail" alt="" ></div>'
+                                cstr += '<div class="shareTitle">'+listObj[i].newsShare.title+'</div></a>';
+							}else{
+                                cstr += '<a href="'+listObj[i].newsShare.link+'" style="display: block;" class="external">' +
+											'<div class="shareTitle shareNoImg">' +
+										        '<div class="icon"><img src="../../../images/shareIcon.jpg"></div>'+
+									            '<div class="noImgtitle">'+listObj[i].newsShare.title+'</div>'+
+											'</div>' +
+										'</a>';
+							}
+
+                        }
+
+
+                        //图片
+                        var imgStr="";
+                        var imgNumber=listObj[i].imgUrls.length;
+
+                        //根据图片个数启用不同显示样式
+                        switch (imgNumber){
+							case 1:
+                                var imgNumshow ='oneimg';
+							    break;
+							case 4:
+							    var imgNumshow ='fourimg';
+							    break;
+							default:
+							    var imgNumshow ='';
+							    break;
+						}
+
+						 imgStr +='<div class="my-gallery '+imgNumshow+'" id="imgBox" data-pswp-uid="1">';
+
+                        for(var m=0,n=listObj[i].imgUrls.length-1;m<=n;m++){
+
+                            var imgurl=listObj[i].imgUrls[m];
+                            var newimg=imgurl.substring(0,imgurl.lastIndexOf("."))+"_200X200"+imgurl.substring(imgurl.lastIndexOf("."),imgurl.length);
+
+                            imgStr += '<figure itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject" >' +
+											'<a href="'+imgurl+'" itemprop="contentUrl" class="external" data-size="750x740">' +
+												'<img src="'+imgurl+'" onload="getWH(this)" itemprop="thumbnail" alt="" >' +
+											'</a>' +
+										'</figure>';
+                        }
+
+                        imgStr += '</div>';
+
+                        //判断本人是否点过赞
+						if(listObj[i].exist_dz==1){
+						    var likeSign='<span class="footiconSize"><i class="blog-icon blog-icon-like"></i>';
+
+						    var authorHtml= '<span class="iconpright blog-author-teacher">我</span>'
+						}else{
+                            var likeSign='<span class="footiconSize"><i class="blog-icon blog-icon-nolike"></i>';
+
+                            var authorHtml= '<span class="iconpright blog-author-teacher"  >'+listObj[i].tech_name+'</span>老师'
+                        }
+
+						//判断当前教师是否是班主任或者是发布人
+                        var nowTeacher = parseInt(JSON.parse(sessionStorage.baseUser).orguser.teacher.tech_id);
+                        if(listObj[i].tech_id==nowTeacher){
+                            var authorHtml= '<span class="iconpright blog-author-teacher">我</span>'
+                        }else{
+                            var authorHtml= '<span class="iconpright blog-author-teacher"  >'+listObj[i].tech_name+'</span>老师'
+                        }
+
+                        /*判断博客删除权限*/
+                        var bzrMap=base.orguser.identityDatas[0].mapBZR;
+                        var delBtn = ''
+                        if(listObj[i].tech_id==tech_id){
+                             delBtn='<span class="blog-toDel">删除</span>';
+                            //$('#toPublish').show();
+                        }else if(bzrMap.length>0){
+                                for(var m=0,n=bzrMap.length;m<=n-1;m++){
+                                    //是班主任
+                                    if(base.orguser.identityDatas[0].mapBZR[m]["clas_id"]==clas_id.split("#")[0]){
+                                         delBtn='<span class="blog-toDel">删除</span>';
+                                    };
+                                };
+						}else {
+                               delBtn='';
+						}
+
+
+                        html += '<li id="'+listObj[i].blog_id+'">' +
+                        '<div class="card demo-card-header-pic">' +
+                        '<div valign="bottom" class="card-header color-white">' +
+                        '<div class="author">' +
+                            authorHtml +
+                        '<div class="blog_time">'+commonTime+'</div>' +
+                        '</div>' +
+                            delBtn +
+                        '</div>' +
+                        '<div class="card-content">' +
+                        '<div class="card-content-inner blog-content">' +
+                            cstr +
+                        '</div>' +
+                        '<div class="smallImglist" >' +
+                            imgStr +//图片信息
+                        '</div>' +
+                        '</div>' +
+                        '<div class="card-footer" style="clear: both">' +
+                        '<a href="javescript:void(0)" class="link toLike">' +
+                            likeSign+
+                        '</span><span class="blog-icon-text">'+(listObj[i].dz_num==0?"点赞":listObj[i].dz_num)+'</span>' +
+                        '</a>' +
+                        '<a href="javascript:void(0)" class="link toComment" style="margin-left: -4.1rem;">' +
+                        '<span class="footiconSize"><i class="blog-icon blog-icon-pl"></i></span>' +
+                        '<span class="blog-icon-text">'+(listObj[i].pl_num==0?"评论":listObj[i].pl_num)+'</span>' +
+                        '</a>' +
+                      /*  '<a href="#" class="link toShare" style="margin-left: -1.1rem;">' +
+                        '<span class="footiconSize"><i class="blog-icon blog-icon-share"></i></span>' +
+                        '<span class="blog-icon-text">分享</span>' +
+                        '</a>' +*/
+                        '<a href="javascript:void(0)" class="link toDetail">详情<i class="icon icon-right iconpleft"></i></a>' +
+                        '</div>' +
+                        '</div>' +
+                        '</li>'
+
+                    }
+                    if(listObj.length<5){
+                        html += ' <li id="none" class="noData noData_line lastData" ><span class="noData__tips">我是有底线的</span></li>';
+
+                        // 删除加载提示符
+                        $('.infinite-scroll-preloader').hide();
+                    }
+
+                }else{
+
+                        if($("#addData li").length==0){
+                            $('#addData').empty();
+                            html += '<li class="error-img"><p class="error-text">还没有什么内容哦~</p></li>';
+                        }else{
+                            var text="我是有底线的";
+                            html +=' <li id="none" class="noData noData_line lastData"><span class="noData__tips">'+text+'</span></li>';
+                        }
+                        // 删除加载提示符
+                        $('.infinite-scroll-preloader').remove();
+
+                }
+                loading = false;
+
+                // 添加新条目
+                $('#addData').append(html);
+
+                if($('#addData .error-text').length > 0){
+                    noContentImg($('#addData .error-text'), 'images/empty.png');
+
+                    $('#addData').css("padding-top","0").parent().css("background","#fff");
+                }
+
+                //图片预览
+                initPhotoSwipeFromDOM('.my-gallery');
+                $.refreshScroller();
+
+            }else{
+                $.alert(res.message);
+            }
+        },"GET");
+    };
+
+
+    //点赞
+	$("body").on("click",".toLike",function(e){
+            $.closeModal();
+            var $this=$(this);
+			var blog_id=$this.closest("li").attr("id");
+
+			console.info($("#"+blog_id).find(".toLike .blog-icon").hasClass("blog-icon-like"));
+
+			if($("#"+blog_id).find(".toLike .blog-icon").hasClass("blog-icon-like")){
+                $.toast("此篇博客已经点过赞");
+                return false
+			}
+
+			var parameter={
+                token:base.token,
+                udid:base.udid,
+                version:3,
+                blog_id:blog_id,
+                identity:1,
+                type:0,//1评论0点赞
+                content:"",
+                tech_id:tech_id,//当前登录教师的id ,
+                tech_name:base.orguser.teacher["tech_name"],//当前登录教师的姓名 ,
+			};
+
+            if(!$(this).hasClass("red")){
+                getData(domainName+"/shijiwxy/wechat/portal/blog/blogInteractsave.json",parameter,function(res){
+                    if(res.code==200 && res.success==true){
+                        /*判断是否删除的*/
+                        if(res.data==-1){
+                            $.toast(res.message);
+                            $("#"+blog_id).remove();
+                            return false;
+                        }
+                        $.toast("成功点赞");
+
+                        //点赞数更新
+                        var number=parseInt($("#"+blog_id).find(".toLike .blog-icon-text").text());
+                        //判断是否为数字
+                        if(isNaN(number)){
+                            number=1;
+						}else{
+                            number+=1;
+						}
+                        $("#"+blog_id).find(".toLike .blog-icon-text").text(number);
+                        $("#"+blog_id).find(".toLike .blog-icon").removeClass("blog-icon-nolike").addClass("blog-icon-like");
+
+                    }else{
+                        $.alert("点赞失败！");
+                    };
+                },"POST",false);
+			}
+
+    });
+
+
+
+
+    /*删除评论*/
+    var nowLoading = 1;
+    $("#blogContent-list").on("click",".pl-toDel", function(){
+        $.closeModal();
+        if($(".toast").css("display") == "block"){
+            return false;
+        }
+        if(nowLoading == 0){
+
+            return false;
+        }
+        nowLoading = 0;
+        //评论ID，博客ID
+        var recordId=$(this).closest(".blogContent-wrap").attr("id"),blogId=sessionStorage.blogId;
+
+		var parameter={
+			token:base.token,
+			udid:base.udid,
+			version:3,
+			recordId:recordId,
+		};
+
+		getData(domainName+"/shijiwxy/wechat/portal/blog/deleteComment.json",parameter,function(res){
+			if(res.code==200 && res.success==true){
+				$.toast("评论删除成功！",1000);
+				//删除评论内容
+                $("#"+recordId).remove();
+
+                //如果删除所有的评论则给个无评论的提示！
+				if($("#blogContent-list .blogContent-wrap").length==0){
+
+                    var plcontentHtml='<div class="blogContent-wrap" id="noPL">' +
+                        '<span class="footiconSize"><i class="blog-icon blog-icon-pl"></i>' +
+                        '</span><span class="blog-icon-text"><span>暂无评论</span></span>' +
+                        '</div>';
+                    $("#blogContent-list").append(plcontentHtml);
+				};
+                //更新评论数
+                var pl_number=parseInt($("#"+sessionStorage.blogId).find(".toComment .blog-icon-text").text());
+
+                //判断是否为数字，为NaN则表示无评论否则-1；
+                if(isNaN(pl_number)){
+                    pl_number='评论';
+                }else{
+                    pl_number-=1;
+                }
+
+                $("#"+sessionStorage.blogId).find(".toComment .blog-icon-text").text(pl_number<0?"0":pl_number);
+
+			}else{
+				$.alert("删除失败");
+            }
+            setTimeout(function(){nowLoading = 1;},1000);
+		},"POST");
+    });
+
+    //后退刷新
+    window.addEventListener('pageshow', function(event) {
+        if(sessionStorage.backBlog==1){
+            sessionStorage.removeItem("backBlog");
+            window.location.reload();
+		}
+    });
+
+
+
+    //加载最新的数据
+    $(document).on('refresh', '.pull-to-refresh-content',function(e) {
+        parameter.min = "";
+        $("#addData li:first-child").attr("id") == 'none'? parameter.max = "" :  parameter.max=$("#addData li:first-child").attr("id");
+
+        getDataNoLoading(domainName+"/shijiwxy/wechat/portal/blog/list.json", parameter, function (res) {
+
+            if (res.code == 200 && res.success == true) {
+                var html = '';
+
+                if (res.data.length == 0) {
+
+                    var listObj=res.data;
+                    // 生成新条目的HTML
+                    for (var i=0;i<listObj.length; i++) {
+
+                        var commonTime = listObj[i].insert_time.replace(/\//g,"-");
+
+                        //博客内容
+                        if(listObj[i].content.length>60){
+                            var cstr=listObj[i].content.substring(0,60)+"..."
+                        }else{
+                            var cstr=listObj[i].content
+                        }
+
+                        //var blogcontent = '<span>'+listObj[i].content+'</span>';
+                        console.info(listObj[i].newsShare);
+                        console.info(typeof(listObj[i].newsShare));
+                        console.info(listObj[i].newsShare);
+
+                        if(listObj[i].newsShare!== undefined && listObj[i].newsShare!== null){
+                            cstr = '';
+                            if(listObj[i].newsShare.summary!==undefined && listObj[i].newsShare.summary!==null){
+                                cstr += '<span>'+listObj[i].newsShare.summary+'</span>';
+                            }
+                            if(listObj[i].newsShare.picurls!==null){
+                                cstr += '<a href="'+listObj[i].newsShare.link+'" style="display: block;margin-top: 10px;padding:8px;background: #f5f5f5;" class="external"><div class="shareImg" ><img src="'+listObj[i].newsShare.picurls[0]+'"  itemprop="thumbnail" alt="" ></div>'
+                                cstr += '<div class="shareTitle">'+listObj[i].newsShare.title+'</div></a>';
+                            }else{
+                                cstr += '<a href="'+listObj[i].newsShare.link+'" style="display: block;" class="external">' +
+                                    '<div class="shareTitle shareNoImg">' +
+                                    '<div class="icon"><img src="../../../images/shareIcon.jpg"></div>'+
+                                    '<div class="noImgtitle">'+listObj[i].newsShare.title+'</div>'+
+                                    '</div>' +
+                                    '</a>';
+                            }
+                        }
+
+
+
+
+
+                        //图片
+                        var imgStr="";
+                        var imgNumber=listObj[i].imgUrls.length;
+
+                        //根据图片个数启用不同显示样式
+                        switch (imgNumber){
+                            case 1:
+                                var imgNumshow ='oneimg';
+                                break;
+                            case 4:
+                                var imgNumshow ='fourimg';
+                                break;
+                            default:
+                                var imgNumshow ='';
+                                break;
+                        }
+
+                        imgStr +='<div class="my-gallery '+imgNumshow+'" id="imgBox" data-pswp-uid="1">';
+
+                        for(var m=0,n=listObj[i].imgUrls.length-1;m<=n;m++){
+
+                            var imgurl=listObj[i].imgUrls[m];
+                            var newimg=imgurl.substring(0,imgurl.lastIndexOf("."))+"_200X200"+imgurl.substring(imgurl.lastIndexOf("."),imgurl.length);
+
+                            imgStr += '<figure itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject" >' +
+                                '<a href="'+imgurl+'" itemprop="contentUrl" class="external" data-size="750x740">' +
+                                '<img src="'+imgurl+'" onload="getWH(this)" itemprop="thumbnail" alt="" >' +
+                                '</a>' +
+                                '</figure>';
+                        }
+
+                        imgStr += '</div>';
+
+                        //判断本人是否点过赞
+                        if(listObj[i].exist_dz==1){
+                            var likeSign='<span class="footiconSize"><i class="blog-icon blog-icon-like"></i>';
+
+                            var authorHtml= '<span class="iconpright blog-author-teacher">我</span>'
+                        }else{
+                            var likeSign='<span class="footiconSize"><i class="blog-icon blog-icon-nolike"></i>';
+
+                            var authorHtml= '<span class="iconpright blog-author-teacher"  >'+listObj[i].tech_name+'</span>老师'
+                        }
+
+                        //判断当前教师是否是班主任或者是发布人
+                        var nowTeacher = parseInt(JSON.parse(sessionStorage.baseUser).orguser.teacher.tech_id);
+                        if(listObj[i].tech_id==nowTeacher){
+                            var authorHtml= '<span class="iconpright blog-author-teacher">我</span>'
+                        }else{
+                            var authorHtml= '<span class="iconpright blog-author-teacher"  >'+listObj[i].tech_name+'</span>老师'
+                        }
+
+                        /*判断博客删除权限*/
+                        var bzrMap=base.orguser.identityDatas[0].mapBZR;
+                        var delBtn = ''
+                        if(listObj[i].tech_id==tech_id){
+                            delBtn='<span class="blog-toDel">删除</span>';
+                            //$('#toPublish').show();
+                        }else if(bzrMap.length>0){
+                            for(var m=0,n=bzrMap.length;m<=n-1;m++){
+                                //是班主任
+                                if(base.orguser.identityDatas[0].mapBZR[m]["clas_id"]==clas_id.split("#")[0]){
+                                    delBtn='<span class="blog-toDel">删除</span>';
+                                };
+                            };
+                        }else {
+                            delBtn='';
+                        }
+
+
+
+
+                        html += '<li id="'+listObj[i].blog_id+'">' +
+                            '<div class="card demo-card-header-pic">' +
+                            '<div valign="bottom" class="card-header color-white">' +
+                            '<div class="author">' +
+                            authorHtml +
+                            '<div class="blog_time">'+commonTime+'</div>' +
+                            '</div>' +
+                            delBtn +
+                            '</div>' +
+                            '<div class="card-content">' +
+                            '<div class="card-content-inner blog-content">' +
+                            cstr +
+                            '</div>' +
+                            '<div class="smallImglist" >' +
+                            imgStr +//图片信息
+                            '</div>' +
+                            '</div>' +
+                            '<div class="card-footer" style="clear: both">' +
+                            '<a href="javescript:void(0)" class="link toLike">' +
+                            likeSign+
+                            '</span><span class="blog-icon-text">'+(listObj[i].dz_num==0?"点赞":listObj[i].dz_num)+'</span>' +
+                            '</a>' +
+                            '<a href="javascript:void(0)" class="link toComment" style="margin-left: -4.1rem;">' +
+                            '<span class="footiconSize"><i class="blog-icon blog-icon-pl"></i></span>' +
+                            '<span class="blog-icon-text">'+(listObj[i].pl_num==0?"评论":listObj[i].pl_num)+'</span>' +
+                            '</a>' +
+                            /*  '<a href="#" class="link toShare" style="margin-left: -1.1rem;">' +
+                              '<span class="footiconSize"><i class="blog-icon blog-icon-share"></i></span>' +
+                              '<span class="blog-icon-text">分享</span>' +
+                              '</a>' +*/
+                            '<a href="javascript:void(0)" class="link toDetail">详情<i class="icon icon-right iconpleft"></i></a>' +
+                            '</div>' +
+                            '</div>' +
+                            '</li>'
+
+                    }
+                    if(listObj.length<5){
+                        html += ' <li id="none" class="noData noData_line lastData" ><span class="noData__tips">我是有底线的</span></li>';
+
+                        // 删除加载提示符
+                        $('.infinite-scroll-preloader').hide();
+                    }var listObj=res.data;
+                    // 生成新条目的HTML
+                    for (var i=0;i<listObj.length; i++) {
+
+                        var commonTime = listObj[i].insert_time.replace(/\//g,"-");
+
+                        //博客内容
+                        if(listObj[i].content.length>60){
+                            var cstr=listObj[i].content.substring(0,60)+"..."
+                        }else{
+                            var cstr=listObj[i].content
+                        }
+
+                        //var blogcontent = '<span>'+listObj[i].content+'</span>';
+
+
+                        if(listObj[i].newsShare!== undefined && listObj[i].newsShare!== null){
+                            cstr = '';
+                            if(listObj[i].newsShare.summary!==undefined && listObj[i].newsShare.summary!==null){
+                                cstr += '<span>'+listObj[i].newsShare.summary+'</span>';
+                            }
+                            // if(!listObj[i].newsShare.picurls && typeof(listObj[i].newsShare.picurls)!="undefined" && listObj[i].newsShare.picurls.length>0){
+                            /*  cstr += '<div class="allimg" style="width: 100%;overflow: hidden;height: auto">'+listObj[i].newsShare.picurls[0]+'</div>';
+                             cstr += '<div class="allimg" style="width: 100%;overflow: hidden;height: auto">'+listObj[i].newsShare.picurls[0]+'</div>';*/
+                            // }
+                            if(listObj[i].newsShare.picurls!==null){
+                                cstr += '<a href="'+listObj[i].newsShare.link+'" style="display: block;padding:8px;background: #f5f5f5;margin-top: 10px;" class="external"><div class="shareImg" ><img src="'+listObj[i].newsShare.picurls[0]+'"  itemprop="thumbnail" alt="" ></div>'
+                                cstr += '<div class="shareTitle">'+listObj[i].newsShare.title+'</div></a>';
+                            }else{
+                                cstr += '<a href="'+listObj[i].newsShare.link+'" style="display: block;" class="external">' +
+                                    '<div class="shareTitle shareNoImg">' +
+                                    '<div class="icon"><img src="../../../images/shareIcon.jpg"></div>'+
+                                    '<div class="noImgtitle">'+listObj[i].newsShare.title+'</div>'+
+                                    '</div>' +
+                                    '</a>';
+                            }
+                        }
+
+                        //图片
+                        var imgStr="";
+                        var imgNumber=listObj[i].imgUrls.length;
+
+                        //根据图片个数启用不同显示样式
+                        switch (imgNumber){
+                            case 1:
+                                var imgNumshow ='oneimg';
+                                break;
+                            case 4:
+                                var imgNumshow ='fourimg';
+                                break;
+                            default:
+                                var imgNumshow ='';
+                                break;
+                        }
+
+                        imgStr +='<div class="my-gallery '+imgNumshow+'" id="imgBox" data-pswp-uid="1">';
+
+                        for(var m=0,n=listObj[i].imgUrls.length-1;m<=n;m++){
+
+                            var imgurl=listObj[i].imgUrls[m];
+                            var newimg=imgurl.substring(0,imgurl.lastIndexOf("."))+"_200X200"+imgurl.substring(imgurl.lastIndexOf("."),imgurl.length);
+
+                            imgStr += '<figure itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject" >' +
+                                '<a href="'+imgurl+'" itemprop="contentUrl" class="external" data-size="750x740">' +
+                                '<img src="'+imgurl+'" onload="getWH(this)" itemprop="thumbnail" alt="" >' +
+                                '</a>' +
+                                '</figure>';
+                        }
+
+                        imgStr += '</div>';
+
+                        //判断本人是否点过赞
+                        if(listObj[i].exist_dz==1){
+                            var likeSign='<span class="footiconSize"><i class="blog-icon blog-icon-like"></i>';
+
+                            var authorHtml= '<span class="iconpright blog-author-teacher">我</span>'
+                        }else{
+                            var likeSign='<span class="footiconSize"><i class="blog-icon blog-icon-nolike"></i>';
+
+                            var authorHtml= '<span class="iconpright blog-author-teacher"  >'+listObj[i].tech_name+'</span>老师'
+                        }
+
+                        //判断当前教师是否是班主任或者是发布人
+                        var nowTeacher = parseInt(JSON.parse(sessionStorage.baseUser).orguser.teacher.tech_id);
+                        if(listObj[i].tech_id==nowTeacher){
+                            var authorHtml= '<span class="iconpright blog-author-teacher">我</span>'
+                        }else{
+                            var authorHtml= '<span class="iconpright blog-author-teacher"  >'+listObj[i].tech_name+'</span>老师'
+                        }
+
+                        /*判断博客删除权限*/
+                        var bzrMap=base.orguser.identityDatas[0].mapBZR;
+                        var delBtn = ''
+                        if(listObj[i].tech_id==tech_id){
+                            delBtn='<span class="blog-toDel">删除</span>';
+                            //$('#toPublish').show();
+                        }else if(bzrMap.length>0){
+                            for(var m=0,n=bzrMap.length;m<=n-1;m++){
+                                //是班主任
+                                if(base.orguser.identityDatas[0].mapBZR[m]["clas_id"]==clas_id.split("#")[0]){
+                                    delBtn='<span class="blog-toDel">删除</span>';
+                                };
+                            };
+                        }else {
+                            delBtn='';
+                        }
+
+
+                        html += '<li id="'+listObj[i].blog_id+'">' +
+                            '<div class="card demo-card-header-pic">' +
+                            '<div valign="bottom" class="card-header color-white">' +
+                            '<div class="author">' +
+                            authorHtml +
+                            '<div class="blog_time">'+commonTime+'</div>' +
+                            '</div>' +
+                            delBtn +
+                            '</div>' +
+                            '<div class="card-content">' +
+                            '<div class="card-content-inner blog-content">' +
+                            cstr +
+                            '</div>' +
+                            '<div class="smallImglist" >' +
+                            imgStr +//图片信息
+                            '</div>' +
+                            '</div>' +
+                            '<div class="card-footer" style="clear: both">' +
+                            '<a href="javescript:void(0)" class="link toLike">' +
+                            likeSign+
+                            '</span><span class="blog-icon-text">'+(listObj[i].dz_num==0?"点赞":listObj[i].dz_num)+'</span>' +
+                            '</a>' +
+                            '<a href="javascript:void(0)" class="link toComment" style="margin-left: -4.1rem;">' +
+                            '<span class="footiconSize"><i class="blog-icon blog-icon-pl"></i></span>' +
+                            '<span class="blog-icon-text">'+(listObj[i].pl_num==0?"评论":listObj[i].pl_num)+'</span>' +
+                            '</a>' +
+                            /*  '<a href="#" class="link toShare" style="margin-left: -1.1rem;">' +
+                              '<span class="footiconSize"><i class="blog-icon blog-icon-share"></i></span>' +
+                              '<span class="blog-icon-text">分享</span>' +
+                              '</a>' +*/
+                            '<a href="javascript:void(0)" class="link toDetail">详情<i class="icon icon-right iconpleft"></i></a>' +
+                            '</div>' +
+                            '</div>' +
+                            '</li>'
+
+                    }
+                    if(listObj.length<5){
+                        html += ' <li id="none" class="noData noData_line lastData" ><span class="noData__tips">我是有底线的</span></li>';
+
+                        // 删除加载提示符
+                        $('.infinite-scroll-preloader').hide();
+                    }
+                }
+                loading = false;
+                // 添加新条目
+                $('#addData').prepend(html);
+
+
+                $.pullToRefreshDone('.pull-to-refresh-content');
+
+            } else {
+                $.alert(res.message);
+            }
+        }, "GET");
+    });
+</script>
+<script>
+
+    //判断当前进入的页面
+    $(document).on("pageInit", function(e, pageId, $page) {
+
+        //评论页面
+        if(pageId == "commentPage") {
+
+            //监控评论内容！
+            //粘贴事件
+            $("#commentPage-content").bind("cut paste",function(e){
+                var $this=$(this);
+                setTimeout(function () {
+                    var cnChar=$this.val().replace(/(^\s*)|(\s*$)/g, "");
+                    var entryLen =cnChar.length;//算出实际的字符长度
+                    if(entryLen>240){
+                       $.alert("评论内容不能超过240字！")
+                    }
+                    $("#contentLength").text(entryLen);
+                },10)
+            });
+
+            //监控通知字数
+            $("#commentPage-content").keyup(function(){
+                var $this=$(this);
+
+                var cnChar=$this.val().replace(/(^\s*)|(\s*$)/g, "");
+                var entryLen =cnChar.length;//算出实际的字符长度
+                if(entryLen>240){
+                    $.alert("评论内容不能超过240字！")
+                }
+                $("#contentLength").text(entryLen);
+                $("#noticeLength").text(entryLen);
+
+            }).change(function(){
+                var $this=$(this);
+                var cnChar=$this.val().replace(/(^\s*)|(\s*$)/g, "");
+                var entryLen =cnChar.length;//算出实际的字符长度
+                if(entryLen>240){
+                    $.alert("评论内容不能超过240字！")
+                }
+                $("#contentLength").text(entryLen);
+            });
+
+
+        }
+        //详情页面
+        if(pageId == "blogDetail") {
+
+            if(sessionStorage.nowBlogId!==undefined){
+
+                var identity=base.orguser["identity"];//身份  1教师 0家长
+
+                var ports=domainName+"/shijiwxy/wechat/portal/blog/getDetail.json";
+
+                var parameter={
+                    token:base.token,
+                    udid:base.udid,
+                    version:3,
+                    blog_id:sessionStorage.nowBlogId,
+                    tech_id:0,//当前登录家长id
+                };
+
+                if($("#createTime").text()!==""){
+                    return false
+				}
+
+                getData(ports,parameter,function(res){
+
+                    if(res.code==200 && res.success==true){
+
+                        var blogObj=res.data;
+                        //发布时间
+                        $("#createTime").text(blogObj.insert_time.replace(/\//g,"-"));
+
+                        var bzrMap=base.orguser.identityDatas[0].mapBZR;
+                        if(blogObj.tech_id==tech_id){
+                            $("#delBlog").show();
+                            var author="我";
+                            //$('#toPublish').show();
+                        }else if(bzrMap.length>0){
+                            var author=blogObj.tech_name==null?"":blogObj.tech_name+"老师";
+                            for(var m=0,n=bzrMap.length;m<=n-1;m++){
+                                //是班主任
+                                if(base.orguser.identityDatas[0].mapBZR[m]["clas_id"]==clas_id.split("#")[0]){
+                                    $("#delBlog").show();
+                                };
+                            };
+                        }else{
+                            var author=blogObj.tech_name==null?"":blogObj.tech_name+"老师";
+                            $("#delBlog").hide();
+                        }
+
+
+                        $("#author").text(author);
+
+                        var cstr="";
+
+                        if(blogObj.newsShare!== undefined && blogObj.newsShare!== null){
+                            cstr = '';
+                            if(blogObj.newsShare.summary!==undefined && blogObj.newsShare.summary!==null){
+                                cstr += '<span>'+blogObj.newsShare.summary+'</span>';
+                            }
+
+                            if(blogObj.newsShare.picurls!==null){
+                                cstr += '<a href="'+blogObj.newsShare.link+'" style="display: block;padding: 8px;background: #f5f5f5;margin-top: 10px;" class="external" title="查看详情"><div class="shareImg" ><img src="'+blogObj.newsShare.picurls[0]+'"  itemprop="thumbnail" alt="" ></div>'
+                                cstr += '<div class="shareTitle">'+blogObj.newsShare.title+'</div></a>';
+                            }else{
+                                cstr += '<a href="'+blogObj.newsShare.link+'" style="display: block;" class="external">' +
+                                    '<div class="shareTitle shareNoImg">' +
+                                    '<div class="icon"><img src="../../../images/shareIcon.jpg"></div>'+
+                                    '<div class="noImgtitle">'+blogObj.newsShare.title+'</div>'+
+                                    '</div>' +
+                                    '</a>';
+                            }
+
+                            //通知内容
+                            $("#message").hide().val();
+                            $("#newShare").html(cstr);
+
+                           // return false
+                        }else{
+                            //通知内容
+                            $("#message").val(blogObj.content).show();
+                            $("#newShare").html("").hide();
+
+                            $('.textareaWrap').height("0");
+                            $('.textareaWrap').each(function () {
+                                this.setAttribute('style', 'height:' + (this.scrollHeight) + 'px;overflow-y:hidden;');
+                            }).on('input', function () {
+                                this.style.height = 'auto';
+                                this.style.height = (this.scrollHeight) + 'px';
+                            });
+                        }
+
+
+                        //作者
+                  /*      if(blogObj.tech_id!==null){
+                            if(blogObj.tech_id==tech_id){
+                                var author="我";
+                                $("#delBlog").show();
+                            }else{
+                                var author=blogObj.tech_name==null?"":blogObj.tech_name+"老师";
+                            }
+                        }else{
+                            var author="";
+                            $("#delBlog").show();
+                        }*/
+
+
+                        if(blogObj.imgUrls!==null){
+                            //图片
+                            var imgStr="";
+                            var imgNumber=blogObj.imgUrls.length;
+
+                            //根据图片个数启用不同显示样式
+                            switch (imgNumber){
+                                case 1:
+                                    var imgNumshow ='oneimg';
+                                    break;
+                                case 4:
+                                    var imgNumshow ='fourimg';
+                                    break;
+                                default:
+                                    var imgNumshow ='';
+                                    break;
+                            }
+
+                            imgStr +='<div class="my-gallery '+imgNumshow+'" id="imgBox" data-pswp-uid="1">';
+
+                            for(var m=0,n=imgNumber;m<n;m++){
+
+                                var imgurl=blogObj.imgUrls[m];
+                                var newimg=imgurl.substring(0,imgurl.lastIndexOf("."))+"_200X200"+imgurl.substring(imgurl.lastIndexOf("."),imgurl.length);
+
+                                imgStr += '<figure itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject" >' +
+                                    '<a href="'+imgurl+'" itemprop="contentUrl" class="external" data-size="750x740">' +
+                                    '<img src="'+imgurl+'" onload="getWH(this)" itemprop="thumbnail" alt="" >' +
+                                    '</a>' +
+                                    '</figure>';
+                            }
+
+                            imgStr += '</div>';
+                            $("#blogDetail-img").html(imgStr);
+                        }
+
+                        //点赞
+                        var likeObj=res.data.dzList;
+                        var likeNameHtml=[];
+                        var is_me = 0;
+
+                        if(likeObj.length>0){
+                            $("#liked").removeClass("blog-icon-like").addClass("blog-icon-nolike");
+                            for(var i=0,x=likeObj.length;i<x;i++){
+                                if(likeObj[i].identity==1){
+                                    if(likeObj[i].tech_name == JSON.parse(sessionStorage.baseUser).orguser.teacher.tech_name){
+                                        likeNameHtml.push("我");
+                                        is_me = 1;
+                                    }else{
+                                        likeNameHtml.push(likeObj[i].tech_name+"老师");
+                                    }
+
+                                }else{
+                                    likeNameHtml.push(likeObj[i].stud_name+'的'+allRelation[likeObj[i].relation]);
+                                }
+                            }
+                            console.log(likeObj)
+                            if(is_me != 0){
+                                $("#liked").removeClass("blog-icon-nolike").addClass("blog-icon-like");
+                            }
+
+                        }else{
+                            $("#liked").removeClass("blog-icon-like").addClass("blog-icon-nolike");
+                            likeNameHtml.push("0人");
+                        }
+
+                        $("#likeShow").text(likeNameHtml.join(",")+"点赞");
+
+
+                        //点赞END
+
+                        //评论
+                        var plcontentHtml="";
+                        var plObj=res.data.plList;
+
+                        if(plObj.length>0){
+                            for(var i=0,x=plObj.length;i<x;i++){
+
+                                var delHtml="";
+                                //判断评论人身份
+                                if(plObj[i].identity==1){
+
+                                    if(blogObj.tech_id!==null){
+                                        if(plObj[i].tech_id==tech_id){
+                                            var _authortHtml="我";
+                                            delHtml+='<span class="pl-toDel">删除</span>';
+                                        }else{
+                                            var _authortHtml=plObj[i].tech_name==null?"":plObj[i].tech_name+"老师";
+                                        }
+                                    }else{
+                                        var _authortHtml="";
+                                        delHtml+='';
+                                    }
+
+                                }else{
+									var _authortHtml=plObj[i].stud_name+'的'+allRelation[plObj[i].relation];
+									delHtml+='';
+                                }
+
+
+                                //评论时间
+                                var plTime=plObj[i].insert_time.replace(/\//g,"-");
+
+                                plcontentHtml+='<div class="blogContent-wrap" id="'+plObj[i].bi_id+'">'+
+                                    '<div class="pl-top">'+
+                                    '<span class="footiconSize"><i class="blog-icon blog-icon-pl"></i></span>'+
+                                    '<span class="blog-icon-text">'+
+                                    '<span class="pl-author">'+_authortHtml+'</span>'+
+                                    '<span class="pl-time">'+plTime+'</span>'+
+                                    '</span>'+ delHtml+
+                                    '</div>'+
+                                    '<textarea onfocus="this.blur()"  readonly="true" class="textareaWrap pl-content">'+plObj[i].content+'</textarea>'+
+                                    '</div>';
+                            }
+
+                        }else{
+                            plcontentHtml+='<div class="blogContent-wrap">' +
+                                '<span class="footiconSize"><i class="blog-icon blog-icon-pl"></i>' +
+                                '</span><span class="blog-icon-text"><span>暂无评论</span></span>' +
+                                '</div>';
+                        }
+
+                        $("#blogContent-list").html(plcontentHtml);
+                        //评论END
+
+                        $.router.loadPage("#blogDetail");
+
+                        if( $("#message").val()!==""){
+                        	  $('.textareaWrap').height("0");
+                              $('.textareaWrap').each(function () {
+                                  this.setAttribute('style', 'height:' + (this.scrollHeight) + 'px;overflow-y:hidden;');
+                              }).on('input', function () {
+                                  this.style.height = 'auto';
+                                  this.style.height = (this.scrollHeight) + 'px';
+                              });
+                         }
+                        
+                        //图片预览
+                        initPhotoSwipeFromDOM('.my-gallery');
+                       // sessionStorage.blogId=blogId;
+                        //自适应高度
+
+
+
+                        //默认跳转到顶部
+                        $("#blogDetail .content ").scrollTop(0);
+
+                    }else{
+                        $.alert(res.message);
+                    }
+
+                });
+
+			}
+        }
+    });
+
+    //发布博客页面
+    $("#toPublish").click(function(){
+        window.location="Publish.html?"+clas_id;
+    });
+
+
+    //删除博客
+    $("#delBlog").click(function () {
+		//执行删除操作
+        var parameter={
+            token:base.token,
+            udid:base.udid,
+            version:3,
+            blog_id:sessionStorage.nowBlogId
+        }
+        $.confirm('确定删除?', '',function () {
+            getData(domainName+"/shijiwxy/wechat/portal/blog/deleteBlog.json",parameter,function(res){
+                if(res.data==-1){
+                    $.toast("博客已经不存在了！");
+                    //$this.remove();
+                    return false;
+                };
+                if(res.code==200 && res.success==true){
+
+                    $("#"+sessionStorage.blogId).remove();
+
+                    $.alert("删除成功！",function(){
+                        //window.location="list.html?clas_id="+sessionStorage.blogId
+                        window.location="list.html?clas_id="+GetUrlParam("clas_id").split("#")[0];
+                    });
+
+                }else{
+                    $.alert("删除失败！");
+                };
+            },"POST",false);
+        },null,"确定","取消")
+    });
+
+
+    //点击删除博客操作
+    $("#addData ").on('click','.blog-toDel', function (e) {
+        var blog_id=$(this).closest("li").attr("id");
+        var $this=$(this).closest("li");
+        var parameter={
+            token:base.token,
+            udid:base.udid,
+            version:3,
+            blog_id:blog_id
+        };
+        $.confirm('确定删除?', '',function () {
+            getData(domainName+"/shijiwxy/wechat/portal/blog/deleteBlog.json",parameter,function(res){
+                if(res.data==-1){
+                    $.toast("博客已经不存在了！");
+                    $this.remove();
+                    return false;
+                };
+                if(res.code==200 && res.success==true){
+                    $this.remove();
+                }else{
+                    $.alert("删除失败！");
+                };
+            },"POST",false);
+        },null,"确定","取消")
+    });
+</script>

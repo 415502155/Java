@@ -1,0 +1,40 @@
+package sng.dao;
+
+import java.util.List;
+
+import sng.entity.Classroom;
+import sng.pojo.CampusAndClassRoomPojo;
+import sng.pojo.ParamObj;
+import sng.util.Paging;
+
+/**
+ * @desc 基础设置模块-教室管理dao层接口
+ * @author magq
+ * @data 2018-10-29
+ * @version 1.0
+ */
+public interface BaseSetClassRoomManageDao extends BaseDao<Classroom>{
+	
+	/**
+	 * 根据校区ID查询所对应的教室列表
+	 * @param campus
+	 * @return
+	 */
+	public List<Classroom> queryClassRommList(ParamObj paramObj);
+	
+	
+	/**
+	 * 更具不同条件查询校区与班级信息数据
+	 * @param paramObj
+	 * @return
+	 */
+	public Paging<CampusAndClassRoomPojo> queryCampusAndClassRoomInfo(ParamObj paramObj);
+	
+	
+
+	
+	
+	
+	
+
+}

@@ -1,0 +1,233 @@
+<!--退费处理-->
+<!--发布通知-->
+
+
+<div class="content-wrap" id="sub_loadBox"  >
+    <div class="search">
+        <select class="gui-input" >
+            <option value="1">2018年第一学期</option>
+            <option value="2">2018年暑期期</option>
+            <option value="3">2018年第二学期</option>
+            <option value="4">2018年寒假</option>
+        </select>
+        <select class="gui-input" >
+            <option value="100">班级类型</option>
+            <option value="1">新生班</option>
+            <option value="0">老生班</option>
+        </select>
+        <select class="gui-input" >
+            <option value="100">选择类目</option>
+            <option value="1">舞蹈类</option>
+            <option value="0">音乐类</option>
+        </select>
+        <select class="gui-input" >
+            <option value="100">选择科目</option>
+            <option value="1">芭蕾舞</option>
+            <option value="0">现代舞</option>
+        </select>
+        <select class="gui-input" >
+            <option value="100">选择校区</option>
+        </select>
+        <input type="text" placeholder="开始时间" data-date="YYYY-MM-DD" readonly="" class="gui-input" style="width: 180px">
+        <input type="text" placeholder="结束时间" data-date="YYYY-MM-DD" readonly="" class="gui-input" style="width: 180px">
+
+        <!-- &lt;!&ndash;开始时间&ndash;&gt;
+         <input type="text" class="gui-input" data-date="YYYY-MM-DD" placeholder="请选择开始时间" id="startDate" readonly style="width: 120px" >
+         &lt;!&ndash;结束时间&ndash;&gt;
+         <input type="text" class="gui-input" data-date="YYYY-MM-DD" placeholder="请选择结束时间" id="endDate" readonly  style="width: 120px" >-->
+
+        <input type="text" class="gui-input" id="content" placeholder="请输入学员姓名、班级名称" style="width: 240px" />
+        <button class="gui-btn  gui-btn-normal" id="sentSearch"><i class="fa fa-search"></i>搜索</button>
+        <button class="gui-btn gui-btn-warm" id="sentEmpty"><i class="fa fa-trash-o"></i>清空</button>
+        <!--<input type="text" id="sendInp" class="gui-input" placeholder="请输入收费主题关键字搜索"/>-->
+    </div>
+    <div class="bod-con-fer-form">
+        <table align="center" class="tab tablesorter-blue">
+            <thead>
+            <tr>
+                <th><input type="checkbox" name="allClass" onclick="all_click(this,'class')"></th>
+                <th>序号</th>
+                <th>学员姓名</th>
+                <th>证件号码</th>
+                <th>班级名称</th>
+                <th>教师姓名</th>
+                <th>学费标准</th>
+                <th>缴费方式</th>
+                <th>缴费金额</th>
+                <th>退费金额</th>
+                <th>缴费时间</th>
+                <th>提交时间</th>
+                <th style="width: 220px;">操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td><input type="checkbox" name="class"></td>
+                <td>1</td>
+                <td>蒋思哲</td>
+                <td>120104201212123342</td>
+                <td>儿童画（儿162-1-2B）</td>
+                <td>赵岩</td>
+                <td>报名已作废</td>
+                <td>700.00</td>
+                <td>--</td>
+                <td>--</td>
+                <td>17-9-20 17:34:54</td>
+                <td>17-9-20 17:34:54</td>
+                <td class="operation">
+                    <span class="toRefund">退费<em></em></span>
+                </td>
+
+            </tr>
+            <tr>
+                <td><input type="checkbox" name="class"></td>
+                <td>2</td>
+                <td>李白</td>
+                <td>120104201211115698</td>
+                <td>主持（儿162-1-2B）</td>
+                <td>赵岩</td>
+                <td>报名待缴费</td>
+                <td>700.00</td>
+                <td>--</td>
+                <td>--</td>
+                <td>17-9-20 17:34:54</td>
+                <td>17-9-20 17:34:54</td>
+                <td class="operation">
+                    <span class="toRefund">退费<em></em></span>
+                </td>
+            </tr>
+            <tr>
+                <td><input type="checkbox" name="class"></td>
+                <td>3</td>
+                <td>张思成</td>
+                <td>120104201301114586</td>
+                <td>舞蹈（儿162-1-2B）</td>
+                <td>张之洞</td>
+                <td>缴费已完成</td>
+                <td>700.00</td>
+                <td>--</td>
+                <td>--</td>
+                <td>17-9-20 17:34:54</td>
+                <td>17-9-20 17:34:54</td>
+                <td class="operation">
+                    <span class="toRefund">退费<em></em></span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <!-- 分页 -->
+    <div class="gui-page-wapper" style="margin:20px 0;line-height: 28px; padding-left: 10px;">
+        <ul class="gui-page" id="limitUi">
+            <span class="gui-page-total">共<span class="numberShow" id="allpage">151</span>页 <span class="numberShow" id="allData">15065</span>数据</span>
+            <!---->
+            <li title="上一页" class="gui-page-prev gui-page-disabled">
+                <a><i class="fa fa-angle-left"></i></a>
+            </li>
+            <li title="1" class="gui-page-item gui-page-item-active">
+                <a>1</a>
+            </li>
+            <li title="2" class="gui-page-item">
+                <a>2</a>
+            </li>
+            <li title="3" class="gui-page-item">
+                <a>3</a>
+            </li>
+            <li title="向后 5 页" class="gui-page-item-jump-next">
+                <a><i class="fa fa-ellipsis-h"></i></a>
+            </li>
+            <li title="10" class="gui-page-item">
+                <a>10</a>
+            </li>
+            <li title="下一页" class="gui-page-next">
+                <a>
+                </a><a><i class="fa fa-angle-right"></i></a>
+            </li>
+        </ul>
+
+        <span class="gui-page-options-elevator" style="padding-left: 10px;">
+                每页条数：
+                <select id="limit" class="">
+                     <option value="20">20</option>
+                     <option value="50">50</option>
+                     <option value="100">100</option>
+                </select>
+            </span>
+
+        <span class="gui-page-options">
+            <span class="gui-page-options-elevator">跳至第
+            <input id="page" class="gui-input">
+             页</span>
+           </span>
+    </div>
+    <!--分页END-->
+
+    <div class="dataStatistics">
+        <i class="fa fa-bar-chart"></i>:   学员数：<span class="numberShow" id="sum_Certificationed"><i class="fa fa-circle-o-notch fa-spin" ></i></span> 学费数：<span  class="numberShow" id="sum_unCertificationed" ><i class="fa fa-circle-o-notch fa-spin" ></i></span>
+    </div>
+
+    <!-- //数据操作-->
+    <div class="dataTool" style="">
+        <div class="pull-left">
+            <label for="isAll">
+                <input type="checkbox" id="isAll" name="allClass" onclick="toAll()">选择全部分页数据
+            </label>
+        </div>
+        <div class="pull-right">
+
+            <button class="gui-btn  gui-btn-normal" id="BatchDown"><i class="fa fa-cloud-download"></i>批量导出</button>
+            <button class="gui-btn  gui-btn-normal" id="batchRefund"><i class="fa fa-sign-out"></i>批量退费</button>
+        </div>
+    </div>
+
+
+</div>
+<script src="js/countUp.js"></script>
+<script>
+    $(function () {
+
+        //查看详情
+        $(".toDetail").click(function () {
+            window.location.href="#12?id=12"
+        });
+
+        //统计接口目前是演示，实际是ajax回调
+        setTimeout(function () {
+            countup("sum_Certificationed",4000);
+            countup("sum_unCertificationed",566660);
+        },2000)
+
+        //下拉
+        allSelect();
+
+        //缴费操作
+
+        //查看详情
+        $(".toPushPay").click(function () {
+
+            var str='<div>提醒成功后30分钟后可再次进行提醒！</div>';
+
+            mydialogForm(str,"退费审核",null,["360px","170px"],["确认提醒","取消"],[function (y){
+
+                /* getData(domain+'/eduWeixin/notice/noticeremind',{"token":token,"udid":udid,"version":0,"notice_id":nid},
+                     function successfn(d){
+                         if(d.success == true){
+                             myAlert('提醒成功',1,null);
+                             $('#payReminding').attr("disabled",true);
+                             $('#payReminding').css({"background":"#c2c2c2","cursor":"not-allowed"});
+                         }else{
+                             var code = d.code;
+                             myAlert(d.message,2,code);
+                         };
+                     },'GET');*/
+
+                layer.close(y);
+            },null]);
+        });
+
+    })
+</script>
+
+
+
+

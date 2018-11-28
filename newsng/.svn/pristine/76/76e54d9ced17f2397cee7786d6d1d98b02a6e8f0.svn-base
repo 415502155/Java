@@ -1,0 +1,89 @@
+//console.log($('.bod-con-pay1-b-b').val())
+var domain = localStorage.getItem('domain');
+var useName = localStorage.getItem('use');
+var orgName = localStorage.getItem('org');
+var token = localStorage.getItem('token');
+var udid = localStorage.getItem('udid');
+var org_id = localStorage.getItem('org_id');
+
+
+$(function(){
+	//日期插件 设置无效时间
+	$("#test05").jeDate({
+
+
+	    format: "YYYY-MM"
+	});
+})
+
+var nowTemp = new Date();
+var now = new Date(nowTemp.getFullYear(), nowTemp.getMonth(), 'nowTemp.getDate()', 0, 0, 0, 0);
+//点击下载工资模板
+$('.bod-con-pay1-c-c').click(function(){
+	window.open(domain+'/shijiwxy/portal/salaryManagement/downloadExcelTemplate.htm?token='+token+'&udid='+udid+'&org_id='+org_id+"&version="+0)
+})
+$('.bod-right-tit-a').click(function(){
+	// window.history.pushState(null, null,'/shijiwxy/web/html/Wage/school_pay.html')
+	 linkArticlelitt('/shijiwxy/web/html/Wage/school_pay.html',true,'school_pay.html')
+})
+//点击发布记录
+$('.bod-right-tit-c').click(function(){
+	// window.history.pushState(null, null,'/shijiwxy/web/html/Wage/wage-record.html')
+	 linkArticlelitt('/shijiwxy/web/html/Wage/wage-record.html',true,'wage-record')
+})
+//点击工资发布
+$('.bod-right-tit-b').click(function(){
+	 //window.history.pushState(null, null,'/shijiwxy/web/html/Wage/wage_payoff.html')
+	 linkArticlelitt('/shijiwxy/web/html/Wage/wage_payoff.html',true,'wage_payoff.html')
+})
+
+
+
+//点击上传
+$('.bod-con-pay1-d').click(function(){
+	//标题
+var title = $('.bod-con-pay1-a-b').val();
+//选择月份
+var datel = $('.bod-con-pay-tim').val();
+	console.log(title)
+ 	console.log(datel)
+ 	console.log(org_id)
+	if(title == ''||datel == ''){
+		alert('数据不能为空');
+		return false
+	}else{
+
+		 $(".bod-con-pay1-cgz").change(function(){
+		 	var filetype = $(".bod-con-pay1-cgz").val().split('.')[1]
+		 	if(filetype == 'xls'){
+		 		$("#salaryForm").ajaxSubmit({
+			 		type:"post",
+			 		dataType:"json",
+			 		url:domain+'/shijiwxy/portal/salaryManagement/uploadExcel.json',
+			 		data : {"token":token,"udid":udid,"org_id":org_id,"version":0},
+					success:function(res){
+
+						if(res.code== 200 && res.success == true){
+							console.log(res)
+							alert('上传成功');
+							var data = res.data
+							 localStorage.setItem('data',JSON.stringify(data));
+							 window.history.pushState(null, null,'/shijiwxy/web/wage_payoff/wage_feirify')
+							 linkArticlelitt(domain+'/shijiwxy/web/html/Wage/wage-ferify.html',true,'wage-ferify')
+
+						}else{
+							alert('上传失败');
+						}
+					},
+					error : function(responseStr) {
+						alert("error");
+					}
+			 	});
+		 	}else{
+		 		alert('请输入Excel格式文件')
+		 	}
+
+		 })
+	}
+
+})

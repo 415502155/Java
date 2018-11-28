@@ -1,0 +1,56 @@
+package sng.dao;
+
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+
+import sng.entity.TempEntity;
+import sng.util.Paging;
+/**
+ * 
+ * @author sjz
+ *
+ */
+public interface BaseDaoEx extends BaseDao<TempEntity> {
+
+	<T> Serializable saveOne(T t);
+
+	<T> void updateOne(T t);
+
+	<T> T findById(Class<T> clazz, Serializable id);
+
+	<T> Paging<T> queryPageBySql(String sql, String countSql, int pageNo, int pageSize, Class<T> clazz,
+			List<Object> params);
+
+	<T> List<T> queryListBySql(String sql, Class<T> clazz, List<Object> params);
+
+	int countBySql(String sql, List<Object> params);
+
+	List<Map<String, Object>> queryListBySql(String sql, List<Object> params);
+
+	Paging<Map<String, Object>> queryPageBySql(String sql, String countSql, int pageNo, int pageSize,
+			List<Object> params);
+	
+	List queryListByHql(String hql,List<Object> params);
+	
+	List queryListByHql(String hql,Map<String,Object> params);
+	
+	int executeSql(String sql,List<Object> params);
+	
+	Object queryObjectBySql(String sql,List<Object> params);
+	
+	<T> List<T> queryListBySql(String sql,Class<T> clazz,Map<String,Object> params);
+	
+	List<Map<String,Object>> queryListBySql(String sql,Map<String,Object> params);
+	
+	int countBySql(String sql,Map<String,Object> params);
+	
+	<T> Paging<T> queryPageBySql(String sql,String countSql,int pageNo,int pageSize,Class<T> clazz,Map<String,Object> params);
+	
+	Paging<Map<String,Object>> queryPageBySql(String sql,String countSql,int pageNo,int pageSize,Map<String,Object> params);
+	
+	Object queryObjectBySql(String sql,Map<String,Object> params);
+	
+	int executeSql(String sql,Map<String,Object> params);
+
+}

@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>校园食谱</title>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+    <!--ui包-->
+    <link rel="stylesheet" href="../../../css/sm.css">
+    <link rel="stylesheet" href="../../../css/layout.css">
+    <link rel="stylesheet" href="../../../css/teacher.css">
+    <link rel='stylesheet prefetch' href='../../../js/photoSwipe/photoswipe.css'>
+    <link rel='stylesheet prefetch' href='../../../js/photoSwipe/default-skin/default-skin.css'>
+
+    <style>
+        .bar .button-link { color: #fff;}
+
+        .my-gallery { margin-bottom: 0;padding: 0 .5rem .5rem;}
+        .my-gallery figure {
+            width: 25%;
+            display: inline-block;
+            padding-left: .15rem;
+            padding-right: .15rem;
+            margin-bottom: .15rem;
+            vertical-align: top;
+        }
+        .fourimg figure:nth-child(2n) { margin-right: 20px}
+        .oneimg figure { width:275px;}
+        .smallImglist .oneimg img {
+            max-width: 100%;
+            z-index: 0;
+            vertical-align: middle;
+            -o-object-fit: contain;
+            object-fit: contain;
+            position: inherit;
+            height: auto;
+            width: auto;
+        }
+
+        .my-gallery figure a {
+            padding-bottom: 100%;
+            height: 0;
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+        .oneimg figure a {
+            padding-bottom: 0;
+            height: auto;
+        }
+
+        .my-gallery  figure a img {
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
+            z-index: 0;
+            vertical-align: middle;
+            -o-object-fit: cover;
+            object-fit: cover;
+            position: absolute;
+        }
+
+
+        .weui-uploader__file {
+            float: left;
+            margin-right: 9px;
+            margin-bottom: 9px;
+            width: 79px;
+            height: 79px;
+            background: no-repeat center center;
+            background-size: cover;
+            position: relative;
+        }
+        .delete{
+            width: 30px;
+            height: 30px;
+            background:#f6383a;
+            border-radius: 4px;
+            position: absolute;
+            right: -5px;
+            top: -12px;
+            color: #fff;
+            text-align: center;
+            line-height: 30px;
+        }
+        .uploader__bd {
+            overflow: inherit;
+        }
+
+
+       /* 已选择图片*/
+
+
+        .uploader__files li {
+            width: 22%;
+            display: inline-block;
+            margin-right: 3%;
+            margin-bottom: .45rem;
+            vertical-align: top;
+        }
+
+
+    </style>
+</head>
+<body>
+<div class="page-group">
+    <div class="page page-current" id="cook">
+
+        <header class="bar bar-nav">
+            <!--<span class="icon icon-left" id="prevDay" style="padding: 10px 20px 10px 0px;">上一周</span>
+                   <span ><input type="text" data-toggle='date' data-currentDate=""  value="2018-06" id="nowDate" class="input_nostyle" style="text-align: center" /></span>
+                   <span class="icon icon-right" id="nextDay" style="padding: 10px 0 10px 20px;">下一周</span>-->
+
+
+            <h1 class="title"><span id="nowDate"></span>   星期<span id="nowWeekText"></span></h1>
+
+        </header>
+
+        <div class="content native-scroll">
+
+            <div class="content-block-title">食谱照片</div>
+            <!--图片上传-->
+            <div class="uploader-cells" id="uploader" style="margin-top: 0">
+                <div class="uploader-cell">
+                    <div class="uploader-cell__bd">
+                        <div class="uploader">
+                            <div class="uploader__hd">
+                                <!--	<p class="weui-uploader__title">图片上传</p>-->
+                              <!--  <span class="uploader-cells-title">选择图片</span>-->
+                                <!--<div class="uploader__info"><span id="uploadCount">0</span>/5</div>-->
+                            </div>
+                            <div class="uploader__bd">
+                                <ul class="uploader__files" id="uploaderFiles">
+
+                                </ul>
+                                <div class="uploader__input-box">
+                                   <!--<input id="uploaderInput" class="uploader__input" type="file" accept="image/*" capture="camera" multiple="" />-->
+                                    <div id="uploaderInput" class="uploader__input"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--图片上传 END-->
+
+
+            <!--菜谱 照片-->
+            <div class="list-block" style="margin:.25rem 0 1.25rem">
+                <ul>
+                    <li class="align-top">
+                        <div class="item-content">
+                            <div class="item-inner">
+                                <div class="item-title label">早餐</div>
+                                <div class="item-input">
+                                    <textarea placeholder="请输入早餐，没有则为空！" id="breakfast" maxlength="80"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="align-top">
+                        <div class="item-content">
+                            <div class="item-inner">
+                                <div class="item-title label">上午加餐</div>
+                                <div class="item-input">
+                                    <textarea placeholder="请输入上午加餐，没有则为空！"  id="snack1" maxlength="80"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="align-top">
+                        <div class="item-content">
+                            <div class="item-inner">
+                                <div class="item-title label">午餐</div>
+                                <div class="item-input">
+                                    <textarea placeholder="请输入午餐，没有则为空！"  id="lunch" maxlength="80"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="align-top">
+                        <div class="item-content">
+                            <div class="item-inner">
+                                <div class="item-title label">下午加餐</div>
+                                <div class="item-input">
+                                    <textarea placeholder="请输入下午加餐，没有则为空！"  id="snack2" maxlength="80"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="align-top">
+                        <div class="item-content">
+                            <div class="item-inner">
+                                <div class="item-title label">晚餐</div>
+                                <div class="item-input">
+                                    <textarea placeholder="请输入晚餐，没有则为空！"   id="supper" maxlength="80"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="content-block pl-operation" style="position: inherit; bottom: initial;width: 100%;">
+                <a href="javascript:void(0)" onclick="return false" class="button button-fill external" id="saveBtn">保存食谱</a>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<!--图片查看器-->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="pswp__bg"></div>
+    <div class="pswp__scroll-wrap">
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+        <div class="pswp__ui pswp__ui--hidden">
+            <div class="pswp__top-bar">
+                <div class="pswp__counter"></div>
+                <button class="pswp__button pswp__button--close" title="关闭"></button>
+                <!--<button class="pswp__button pswp__button&#45;&#45;share" title="Share"></button>-->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--图片查看器 END-->
+</body>
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<!--<script>$.config = {router: false}</script>-->
+<script src='../../../js/sm.js'></script>
+<script src="../../../js/config.js"></script>
+
+<script src='https://res.wx.qq.com/open/js/jweixin-1.2.0.js'></script>
+<script>
+
+    var changed=0;
+    var baseP=getJPermissions(JSON.parse(sessionStorage.baseUser).orguser.org_id);
+    wx.config({
+        debug: false,
+        appId: baseP.appId,
+        timestamp: baseP.timestamp,
+        nonceStr: baseP.nonceStr,
+        signature: baseP.signature,
+        jsApiList: [
+            'checkJsApi',
+            'onMenuShareTimeline',
+            'onMenuShareAppMessage',
+            'onMenuShareQQ',
+            'onMenuShareWeibo',
+            'onMenuShareQZone',
+            'hideMenuItems',
+            'showMenuItems',
+            'hideAllNonBaseMenuItem',
+            'showAllNonBaseMenuItem',
+            'translateVoice',
+            'startRecord',
+            'stopRecord',
+            'onVoiceRecordEnd',
+            'playVoice',
+            'onVoicePlayEnd',
+            'pauseVoice',
+            'stopVoice',
+            'uploadVoice',
+            'downloadVoice',
+            'chooseImage',
+            'previewImage',
+            'uploadImage',
+            'downloadImage',
+            'getNetworkType',
+            'openLocation',
+            'getLocation',
+            'hideOptionMenu',
+            'showOptionMenu',
+            'closeWindow',
+            'scanQRCode',
+            'chooseWXPay',
+            'openProductSpecificView',
+        ]
+    });
+
+
+    //本地存储
+    var images = {
+        localId: [],
+        serverId: []
+    };
+
+    var ioslocId=[];//用于兼容ios的本地id列表 图片是base64格式的
+
+    wx.ready(function (){
+
+        //隐藏非基础类菜单
+        wx.hideAllNonBaseMenuItem();
+
+
+        //点击选择图片
+        $("#uploaderInput").click(function (){
+
+            changed=$("#uploaderFiles li[pictureid]").length;
+            //去掉已添加的图片
+
+        /*    if (!window.__wxjs_is_wkwebview) {
+                $("#uploaderFiles li").not("[pictureid]").remove();
+            }
+*/
+            var upimgIds=[];
+
+            $("[pictureid]").each(function () {
+                var picId=$(this).attr("pictureid");
+                upimgIds.push(picId);
+            });
+
+
+
+            wx.chooseImage({
+                count: 8-upimgIds.concat(images.localId).length, // 默认9
+                sizeType: ['compressed'], // 可以指定是原图还是压缩图，默认二者都有
+                sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有
+                success: function (res) {
+
+                    $("#uploaderFiles").append("");
+
+                    //rows="";//声明一个空字符串用于保存循环出来的html
+                    images.localId =images.localId.concat(res.localIds); // 返回选定照片的本地ID列表，localId可以作为img标签的src属性显示图片
+                    //去重
+                    images.localId=images.localId.unique();
+
+
+
+                    if($("#uploaderFiles li").length>=8 ||   images.localId.length >= 8 ||  upimgIds.concat(images.localId).length >= 8){
+                        $("#uploaderInput").parent().hide();
+                    }
+
+                    if (window.__wxjs_is_wkwebview) {  //判断ios是不是用的 wkwebview 内核
+
+                        for(var i=0;i<images.localId.length;i++){
+                            var todel=images.localId[i];
+
+                            wx.getLocalImgData({  //循环调用  getLocalImgData
+                                localId:res.localIds[i], // 图片的localID
+                                success: function (res) {
+
+                                    var localData = res.localData; // localData是图片的base64数据，可以用img标签显示
+                                    localData = localData.replace('jgp', 'jpeg');//iOS 系统里面得到的数据，类型为 image/jgp,因此需要替换一下
+
+                                    ioslocId.push(localData)  //把base64格式的图片添加到ioslocId数组里 这样该数组里的元素都是base64格式的
+                                    rows ='<li class="weui-uploader__file" data-del="'+todel+'" style="background-image:url('+localData+')"><div class="delete" ><span class="icon icon-remove"></span></div></li>';
+
+                                    $("#uploaderFiles").append(rows);
+
+                                }
+                            });
+                        }
+
+                    }
+                    else{  //如果不是用的wkwebview 内核 或者是用的安卓系统 执行下面的xunh
+                        var rows="";
+                        $("#uploaderFiles li").not("[pictureid]").remove();
+
+                        $.each(images.localId,function (index,el) {
+                            rows  +='<li class="weui-uploader__file"  style="background-image:url('+el+')"><div class="delete" data-id="'+index+'"><span class="icon icon-remove"></span></div></li>';
+                        });
+                        $("#uploaderFiles").append(rows);
+                    }
+                }
+            });
+        })
+    });
+
+
+    //预览删除
+    $("#uploaderFiles").on('click',"li", function(event){
+        var index=$(this).index();
+
+        //如果点删除则删除否则执行预览操作
+        if($(event.target).is("span")||$(event.target).is("div")){
+
+            //判断是否删除的是老照片
+            changed=$("#uploaderFiles li[pictureid]").length;
+
+            if($(this).closest("li").attr("pictureid")==null){
+                images.localId.splice(index-changed,1);
+            }
+
+            $(this).closest("li").remove();
+
+            if( $("#uploaderFiles li").length<8){
+                $("#uploaderInput").parent().show();
+            }
+
+
+        }else{
+            var url=$(this).css("background-image").replace('url("','').replace('")','');
+            if($(this).closest("li").attr("pictureid")==null){
+                wx.previewImage({
+                    current: url, // 当前显示图片的http链接
+                    urls: images.localId // 需要预览的图片http链接列表
+                });
+            }
+
+
+        }
+        return false;
+    });
+
+</script>
+
+<script>
+
+    sessionStorage.addCook=1;
+
+    //获取参数
+    var date=GetUrlParam("date");
+    var id=GetUrlParam("id")=="undefined"?"":GetUrlParam("id");
+    var week=decodeURI(GetUrlParam("week"));
+
+
+    //默认
+    $(function () {
+
+        $("#nowWeekText").text(week);
+        $("#nowDate").text(date);
+
+        var tObj=JSON.parse(sessionStorage.localCook);
+
+
+        //从本地查询并赋值
+       if(tObj[date] !== null && tObj[date] !== undefined){
+           $("#breakfast").text(tObj[date].breakfast);
+           $("#snack1").text(tObj[date].snack1);
+           $("#lunch").text(tObj[date].lunch);
+           $("#snack2").text(tObj[date].snack2);
+           $("#supper").text(tObj[date].supper);
+
+           var imgStr = "";
+           if (tObj[date].images !== null && tObj[date].images !== "") {
+
+               //字符串转数组
+               var imgObj = tObj[date].images.split(",");
+               if (imgObj.length > 0) {
+                   //图片
+
+                   for (var x = 0, y = imgObj.length; x < y; x++) {
+                       if (imgObj[x] !== "") {
+
+                           var imgurl = changeImgUrl(imgObj[x]);
+                           /*imageHtml +="<img src='"+url+"' id='"+imgObj[x]+"'>";*/
+                           /*imgStr += '<figure itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject"  id="' + imgObj[x] + '" >' +
+                               '<a href="' + imgurl + '" itemprop="contentUrl" class="external" data-size="750x740">' +
+                               '<img src="' + imgurl + '" onload="getWH(this)" itemprop="thumbnail" alt="" >' +
+                               '</a>' +
+                               ' </figure>';*/
+
+                           imgStr += '<li class="weui-uploader__file"  pictureid="' + imgObj[x] + '"  style="background-image:url(' + imgurl + ')"><div class="delete" data-id="j"><span class="icon icon-remove"></span></div></li>';
+
+
+                       }
+
+                   }
+
+               }
+           }
+           //填充图片
+           $("#uploaderFiles").html(imgStr);
+
+           if($("#uploaderFiles li").length >=8 ){
+               $("#uploaderInput").parent().hide();
+           }
+
+       }
+       //本地查询赋值结束
+
+       //保存
+       $("#saveBtn").click(function () {
+
+           //图片的本地存储
+           var upimgIds=[];
+
+           $("[pictureid]").each(function () {
+               var picId=$(this).attr("pictureid");
+               upimgIds.push(picId);
+           });
+
+
+
+           if($.trim($("#breakfast").val()) =="" && $.trim($("#snack1").val()) =="" && $.trim($("#lunch").val()) =="" && $.trim($("#snack2").val()) =="" && $.trim($("#supper").val()) =="" && upimgIds.concat(images.localId).length==0){
+               $.alert("请上传食谱图片或输入文字食谱！","错误提示",function(){
+                   return false
+               });
+               return false
+
+           }
+
+
+           //保存提示
+           $.showPreloader("正在保存食谱，请稍后");
+
+           if(images.localId.length>0){
+               images.localId=images.localId.unique();
+               HandleData(images.localId.length)
+           }else{
+
+               var parameter = {
+                   token: JSON.parse(sessionStorage.baseUser).token,
+                   udid: JSON.parse(sessionStorage.baseUser).udid,
+                   version: 3,
+
+
+                   date: GetUrlParam("date"),
+                   images: upimgIds.concat(images.serverId).join(","),
+                   breakfast: $.trim($("#breakfast").val()),
+                   snack1: $.trim($("#snack1").val()),
+                   lunch: $.trim($("#lunch").val()),
+                   snack2: $.trim($("#snack2").val()),
+                   supper: $.trim($("#supper").val()),
+                   others: "",
+                   info: "",
+                   remarks:"",
+                   status:"",
+                   id:id
+               };
+
+               if (id == undefined || id == "") {
+                   var ports = domainName + "/shijiwxy/portal/recipe/save.json";
+               } else {
+                   var ports = domainName + "/shijiwxy/portal/recipe/edit.json";
+               }
+               getData(ports, parameter, function (res) {
+                   $.hidePreloader();
+                   if (res.code == 200 && res.success == true) {
+                       setTimeout(function(){
+                           $.alert("食谱提交成功！",function(){
+                               window.location="index.html";
+                           });
+                       },300);
+
+                   } else {
+                       $.alert(res.message);
+                   }
+               });
+
+           }
+
+
+       });
+
+
+    })
+
+
+    //递归调用图片上传
+    function HandleData(n) {
+        var m=0;
+        (function loadData(m){
+
+            wx.uploadImage({
+                localId: images.localId[m], // 需要上传的图片的本地ID，由chooseImage接口获得
+                isShowProgressTips: 0,// 默认为1，显示进度提示
+                success: function (res) {
+                    images.serverId.push(res.serverId); // 返回图片的服务器端ID
+
+                    if(m<(n-1)){
+                        loadData(m+1);
+                    }else{
+
+                        //图片的本地存储
+                        var upimgIds=[];
+
+                        $("[pictureid]").each(function () {
+                            var picId=$(this).attr("pictureid");
+                            upimgIds.push(picId);
+                        });
+
+                        var parameter = {
+                            token: JSON.parse(sessionStorage.baseUser).token,
+                            udid: JSON.parse(sessionStorage.baseUser).udid,
+                            version: 3,
+                            date: date,
+                            images: upimgIds.concat(images.serverId).join(","),
+                            breakfast: $("#breakfast").val(),
+                            snack1: $("#snack1").val(),
+                            lunch: $("#lunch").val(),
+                            snack2: $("#snack2").val(),
+                            supper: $("#supper").val(),
+                            others: "",
+                            info: "",
+                            remarks:"",
+                            status:"",
+                            id:id
+                        };
+
+                        if (id == undefined || id == "") {
+                            var ports = domainName + "/shijiwxy/portal/recipe/save.json";
+                        } else {
+                            var ports = domainName + "/shijiwxy/portal/recipe/edit.json";
+                        }
+
+                        getDataNoLoading(ports, parameter,function(result){
+                            $.hidePreloader();
+                            if(result.code==200 && result.success==true){
+                                //清空本地存储
+
+                                $.alert("食谱提交成功！",function(){
+                                    window.location="index.html";
+                                });
+                                setTimeout(function(){window.location="index.html"},600);
+                            }else{
+                                $.alert(result.msg);
+                            }
+                        },"POST");
+                    }
+                }
+            });
+        }(m));
+    }
+
+</script>
+
+
+
+
+

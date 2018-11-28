@@ -1,0 +1,8 @@
+package sng.dao;
+
+import sng.pojo.base.Student;
+
+
+public interface StudentDao extends BaseDao<Student>{
+	
+}

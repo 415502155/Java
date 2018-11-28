@@ -1,0 +1,66 @@
+<!--发布通知-->
+
+<div class="content-wrap" id="sub_loadBox"  >
+
+
+    <form class="gui-form gui-form-label-right" id="my-form" novalidate="novalidate">
+
+        <div class="line"></div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">选择学期</label>
+            <div class="gui-form-item-content">
+                <select class="gui-input" >
+                    <option value="1">2018年第一学期</option>
+                    <option value="2">2018年暑期期</option>
+                    <option value="3">2018年第二学期</option>
+                    <option value="4">2018年寒假</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">选择类型</label>
+            <div class="gui-form-item-content">
+                <select class="gui-input" style="width: 100px">
+                    <option value="1">导入班级</option>
+                    <option value="2">导入学生</option>
+                </select>
+            </div>
+        </div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">选择文件</label>
+            <div class="gui-form-item-content">
+                <input type="file" placeholder="选择日期" data-date="YYYY-MM-DD" readonly class="gui-input" style="width: 240px;border: none">
+            </div>
+        </div>
+
+        <div class="line"></div>
+        <div class="gui-form-item">
+            <div class="gui-form-item-content" >
+                <button type="submit" class="gui-btn gui-btn-normal"><i class="fa fa-cloud-upload"></i><span>确认导入</span></button>
+                <button type="button" class="gui-btn gui-btn-primary" id="back"><i class="fa fa-edit"></i><span>清空表单</span></button>
+            </div>
+        </div>
+    </form>
+
+</div>
+<script src="js/countUp.js"></script>
+<script>
+    $(function () {
+
+        //查看详情
+        $(".toDetail").click(function () {
+            window.location.href="#12?id=12"
+        });
+
+        //目前是演示，实际是ajax回调
+        setTimeout(function () {
+            countup("sum_Certificationed",4000);
+            countup("sum_unCertificationed",50);
+        },2000);
+
+        //下拉
+        allSelect();
+        //开关
+        honeySwitch.init();
+    })
+</script>
+
+

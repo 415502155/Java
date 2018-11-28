@@ -1,0 +1,143 @@
+<!--发布通知-->
+
+<div class="content-wrap" id="sub_loadBox"  >
+
+
+    <form class="gui-form gui-form-label-right" id="add-form" novalidate="novalidate">
+
+        <div class="line"></div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">选择学期</label>
+            <div class="gui-form-item-content">
+                <select class="gui-input" name="allTerm" id="allTerm">
+                    <option value="">选择学期</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">选择类型</label>
+            <div class="gui-form-item-content">
+                <select class="gui-input"  name="dataType" id="dataType">
+                    <option value="">选择数据类型</option>
+                    <option value="1">导入班级</option>
+                    <option value="2">导入学生</option>
+                </select>
+            </div>
+        </div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">选择文件</label>
+            <div class="gui-form-item-content">
+                <input type="file" placeholder="选择文件" name="upFiles"  id="upFiles" readonly class="gui-input" style="border: none">
+            </div>
+        </div>
+
+        <div class="line"></div>
+        <div class="gui-form-item">
+            <div class="gui-form-item-content" >
+                <button type="submit" class="gui-btn gui-btn-normal"><i class="fa fa-cloud-upload"></i><span>确认导入</span></button>
+                <button type="button" class="gui-btn gui-btn-primary" id="back"><i class="fa fa-edit"></i><span>清空表单</span></button>
+            </div>
+        </div>
+    </form>
+
+</div>
+<script src="plus/validate/jquery-validate.js"></script>
+<script>
+    $(function() {
+
+        //编辑则赋值
+        var nowTeacher=GetUrlParam("tech_id");
+        if(nowTeacher!==""){
+            var teacherObj=JSON.parse(sessionStorage.localListTechers)[nowTeacher];
+
+            //localListTechers[obj.tech_id]={mob:obj.mobile,type:obj.type,name:obj.teacher_name;org:obj.org_id};
+            $("#teacher_name").val(teacherObj.name);
+            $("#teacher_mob").val(teacherObj.mob);
+            setTimeout(function () {
+                $("#allCooperatives").val(teacherObj.org);
+                $("#teacherType").val(teacherObj.type);
+            },300)
+
+
+
+            $("#teacher_note").val(teacherObj.note);
+        }
+
+
+
+        //取消编辑返回列表
+        $("#back").click(function () {
+            window.history.back();
+        });
+
+        //下拉菜单
+        allSelect();
+
+
+        //导入数据校验
+        $("#add-form").validate({
+            rules: {
+                allTerm: {
+                    required: true
+                },
+                dataType: {
+                    required: true
+                },
+                upFiles: {
+                    required: true,
+                    accept:".xlsx"
+                }
+            },
+            messages: {
+                allTerm: {
+                    required: "请选择学期",
+                },
+                dataType: {
+                    required: "请选择类型",
+                },
+                upFiles: {
+                    required: "请选择要上传的Excel文件",
+                }
+            },
+            errorPlacement: function(error, element) {
+                error.appendTo(element.parent().after())
+            },
+            errorClass: 'gui-form-item-error',
+            errorElement: 'span',
+            submitHandler: function(form) {
+
+                //保存或者更新校区信息
+                var save={
+                    "parameter":{
+                        "org_id":option.org_id,
+                        "token":option.token,
+
+                        //计划--标题、开始时间、结束时间、招生须知、是否开启
+                        "teacher_name":$("#teacher_name").val(),
+                        "cooperative_id" :$("#allCooperatives").val()
+
+                    },
+                    "url":domain+"/protal/teacherManage/createAndUpdateTeacherInfo.json"
+                };
+
+                //保存或者更新校区
+                getData(save.url,save.parameter,function (data) {
+
+                    if(data.code==200 && data.success==true){
+                        myAlert("保存成功",1,data.code,function () {
+                            window.location.href="#d2"
+                        });
+                    }else {
+                        myAlert(data.msg,2,data.code,null);
+                    }
+                },"POST",false)
+            }
+        });
+
+        //提交
+        $("#save").click(function () {
+            $("#add-form").submit();
+        });
+
+    })
+</script>
+
+

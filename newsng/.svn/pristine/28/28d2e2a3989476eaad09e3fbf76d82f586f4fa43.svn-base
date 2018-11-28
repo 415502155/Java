@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title>通讯录</title>
+		<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+		<link rel="shortcut icon" href="/favicon.ico">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<meta http-equiv="Access-Control-Allow-Origin" content="*">
+		<!--ui包-->
+		<link rel="stylesheet" href="../../../css/sm.css">
+		<link rel="stylesheet" href="../../../css/layout.css">
+		<style type="text/css">
+		   .number{
+		    position: absolute;
+		    right: 1.5rem;
+		    top: 1.06rem;
+		   }
+		   #allClass .item-after{
+			   color:red;
+			   margin-right:1rem
+		   }
+		</style>
+	</head>
+	<body>
+		<div class="page-group">
+			<div class="page page-current">
+			<header class="bar bar-nav">
+				<!--<span class="title pull-left" id="className"></h1>-->
+				<button class="button button-link button-nav pull-left" id="className" style='margin-left:0'></button>
+				<button class="button button-link button-nav pull-right">
+					共<span id="allTeacher"></span>人
+				</button>
+			</header>
+	 		<div class="content native-scroll">
+				 <div class="list-block" id="allClass">
+					 <div id="letter" ></div>
+				      <ul class="sort_box" style="border-bottom:none">
+				      <!--<div class="noData noData_line"><span class="noData__tips">暂无招生</span></div>-->
+					  </ul>
+					<!-- 首字母 -->
+					<div class="initials">
+						<ul></ul>
+					</div>
+					<!-- 首字母 End-->
+				 </div>
+			</div>
+		</div>
+ </div>
+	</body>
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script src='../../../js/phonebook/jquery.charfirst.pinyin.js'></script>
+<script src='../../../js/phonebook/sort.js'></script>
+<script src='https://res.wx.qq.com/open/js/jweixin-1.2.0.js'></script>
+<script type="text/javascript">
+var baseP=getJPermissions(JSON.parse(sessionStorage.baseUser).orguser.org_id);
+wx.config({
+    debug: false,
+    appId: baseP.appId,
+    timestamp: baseP.timestamp,
+    nonceStr: baseP.nonceStr,
+    signature: baseP.signature,
+    jsApiList: [
+    ]
+});
+wx.ready(function (){
+    //隐藏非基础类菜单
+    wx.hideAllNonBaseMenuItem();
+})
+</script>
+<script>
+	 $(function(){
+		 var ports=domainName+"/esb/api/tech/getPhoneBook";
+         var parameter={
+             token:JSON.parse(sessionStorage.baseUser).token,
+             udid:JSON.parse(sessionStorage.baseUser).udid, //最后从cookie里去
+             version:"3",  //终端
+             group_type:2,
+             identity:1,
+             org_id:baseParameter.org_id,
+             openid:baseParameter.openid,
+             version:baseParameter.version
+         }
+	     //发送请求
+		  getData(ports, parameter,function(res){
+              if(res.code==200 && res.success==true){
+						var data = [];
+						var per_num = 0;
+						for(var k in res.data){
+							data.push(res.data[k]);
+						}
+						// sessionStorage.phonebook=JSON.stringify(res);
+						var html="";
+						if(data.length>0){
+							for(var i=0;i<data.length;i++){
+								for(var k=0;k<data[i].length;k++){
+									var dep_name,is_bind;
+									if(data[i][k].dep_name == '默认部门'||data[i][k].dep_name == null){
+										dep_name = '';
+									}else{
+										dep_name = '(' + data[i][k].dep_name + ')';
+									}
+
+									data[i][k].is_selected == '0' ? is_bind = '未关注' : is_bind = '';
+									html +='<li class="item-content" data-mob="'+data[i][k].user_mobile+'">'+ //id="'+data.length[i][k].dep_id+'"
+											'<div class="item-media"><span class="icon icon-phone"></span></div>'+
+											'<div class="item-inner">'+
+												'<div class="item-title">'+data[i][k].tech_name + dep_name+'</div>'+
+												'<div class="item-after ">'+ is_bind +'</div>'+
+											'</div>'+
+											   '</li>';
+									per_num++;
+								}
+
+							}
+						$('#allTeacher').html(per_num);
+						$("#allClass").append(html);
+
+						//渲染通讯录
+						var Initials=$('.initials');
+						var LetterBox=$('#letter');
+						initials();
+
+						var last=0;
+
+						$(".initials ul li").click(function(){
+
+							var _this=$(this);
+							var LetterHtml=_this.html();
+							LetterBox.html(LetterHtml).show();
+							Initials.css('background','rgba(145,145,145,0.6)');
+							setTimeout(function(){
+								Initials.css('background','rgba(145,145,145,0)');
+								LetterBox.hide();
+							},1000);
+							var container = $('.native-scroll');
+							container.scrollTop(0);
+							var scrollTo = $("#"+LetterHtml).offset().top;
+
+							container.scrollTop(
+								scrollTo-56
+							);
+						});
+				    }
+				}else{
+					$.alert(result.msg);
+				}
+		  });
+		  //拨打电话
+		$("#allClass .sort_box").on('click','li', function(){
+
+			var mob=$(this).attr("data-mob");
+
+			var name=$(this).find(".item-title").text();
+			var buttons1 = [
+				{
+					text: '请选择',
+					label: true
+				},
+				{
+					text: '电话联系 - '+name,
+					onClick: function() {
+						window.location.href="tel:"+mob;
+					}
+				},
+				{
+					text: '短信联系 - '+name,
+					onClick: function() {
+						window.location.href="SMS:"+mob;
+					}
+				}
+			];
+			var buttons2 = [
+				{
+					text: '取消',
+					bg: 'danger'
+				}
+			];
+			var groups = [buttons1, buttons2];
+			$.actions(groups);
+		});
+	 });
+</script>

@@ -1,0 +1,212 @@
+package sng.service.impl;
+
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.cglib.beans.BeanMap;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.FileSystemXmlApplicationContext;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import sng.dao.BaseDaoEx;
+import sng.dao.PlanDao;
+import sng.entity.Plan;
+import sng.util.CommonUtils;
+import sng.util.Paging;
+
+/**
+ * 招生计划
+ * @author s
+ *
+ */
+@Service
+@Transactional
+public class PlanServiceImpl {
+	@Resource
+	private BaseDaoEx baseDaoEx;
+	@Resource
+	private PlanDao planDao;
+	
+	/**
+	 * 获取年份列表
+	 */
+	@Transactional(propagation=Propagation.NOT_SUPPORTED,readOnly=true)
+	public List<String> getYearList(String orgId) {
+		List<String> yearList=new ArrayList<>();
+		List<Object> params=new ArrayList<>();
+		String sql="select distinct b.cur_year from plan a,term b where a.term_id=b.term_id and a.org_id=? order by b.cur_year";
+		params.add(orgId);
+		List<Map<String, Object>> list=baseDaoEx.queryListBySql(sql, params);
+		for(Map<String, Object> map : list) {
+			String year=(String)map.get("cur_year");
+			yearList.add(year);
+		}
+		return yearList;
+	}
+	
+	/**
+	 * 招生计划列表
+	 */
+	@Transactional(propagation=Propagation.NOT_SUPPORTED,readOnly=true)
+	public Paging getPagePlan(String year,int pageNo,int limit) {
+		List<Object> params=new ArrayList<>();
+		StringBuffer sb=new StringBuffer();
+		sb.append(" select title,a.begin_time as beginTime,a.end_time as endTime,a.class_type as classType,a.plan_switch as planSwitch from plan a,term b where a.term_id=b.term_id ");
+		if(!StringUtils.isBlank(year)) {
+			sb.append(" and b.cur_year=? ");
+			params.add(year);
+		}
+		String countSql="select count(*) from ("+sb.toString()+") t";
+		sb.append(" order by b.cur_year desc ");
+		Paging pageModel=baseDaoEx.queryPageBySql(sb.toString(),countSql, pageNo, limit,  Plan.class, params);
+		
+		List<Plan> planVoList=new ArrayList<>();
+		List<Plan> planList=pageModel.getData();
+		for(Plan plan : planList) {
+			int planId=plan.getPlanId();
+			int classType=plan.getClassType();
+			
+			//招生班级数
+			params=new ArrayList<>();
+			sb=new StringBuffer();
+			sb.append(" select count(*) from classes where plan_id=? ");
+			params.add(planId);
+			int classCount=baseDaoEx.countBySql(sb.toString(), params);
+			
+			//招生进度
+			String progress="";
+			sb=new StringBuffer();
+			sb.append("select ifnull(sum(ss_num),0) from classes where plan_id=?");
+			int fenzi=((BigDecimal)baseDaoEx.queryObjectBySql(sb.toString(), params)).intValue();
+			progress=fenzi+"";
+			if(classType==1) {//如果是老生班 则查询分母
+				sb=new StringBuffer();
+				sb.append("select ifnull(sum(ys_num),0) from classes where plan_id=?");
+				int fenmu=((BigDecimal)baseDaoEx.queryObjectBySql(sb.toString(), params)).intValue();
+				progress=fenzi+"/"+fenmu;
+			}
+			
+			//已缴学费
+			sb=new StringBuffer();
+			sb.append("select ifnull(sum(b.ss_money-b.st_money),0) from classes a,charge b where a.clas_id=b.clas_id and a.plan_id=?");
+			double tuition=(Double)baseDaoEx.queryObjectBySql(sb.toString(), params);
+			
+			
+			plan=CommonUtils.generateBean(plan, "classCount","progress","tuition","beginTimeStr","endTimeStr");
+			BeanMap beanMap=BeanMap.create(plan);
+			beanMap.put("beginTimeStr", CommonUtils.dateFormat(plan.getBeginTime(), "yy-MM-dd HH:mm"));
+			beanMap.put("endTimeStr", CommonUtils.dateFormat(plan.getEndTime(), "yy-MM-dd HH:mm"));
+			beanMap.put("classCount", classCount+"");
+			beanMap.put("progress", progress);
+			beanMap.put("tuition", CommonUtils.numberFormat(tuition, 4));
+			plan=(Plan)beanMap.getBean();
+			planVoList.add(plan);
+		}
+		pageModel.setData(planVoList);
+		
+		return pageModel;
+	}
+	
+	/**
+	 * 查询招生计划详情
+	 */
+	@Transactional(propagation=Propagation.NOT_SUPPORTED,readOnly=true)
+	public Plan getPlanInfo(int planId) {
+		List<Object> params=new ArrayList<>();
+		params.add(planId);
+		StringBuffer sb=new StringBuffer();
+		sb.append("select clas_id from classes where plan_id=?");
+		List<Map<String, Object>> classIdList=baseDaoEx.queryListBySql(sb.toString(), params);
+		String[] classIds=new String[classIdList.size()];
+		for(int i=0;i<classIdList.size();i++) {
+			classIds[i]=(String)((Map)classIdList.get(i)).get("clas_id");
+		}
+		
+		Plan plan=planDao.get(Plan.class, planId);
+		plan=CommonUtils.generateBean(plan, "beginTimeStr","endTimeStr","classIds");
+		BeanMap beanMap=BeanMap.create(plan);
+		beanMap.put("beginTimeStr", CommonUtils.dateFormat(plan.getBeginTime(), "yy-MM-dd HH:mm"));
+		beanMap.put("endTimeStr", CommonUtils.dateFormat(plan.getEndTime(), "yy-MM-dd HH:mm"));
+		beanMap.put("classIds", classIds);//当前招生计划下选择的班级id
+		plan=(Plan)beanMap.getBean();
+		return plan;
+	}
+	
+	/**
+	 * 新增或修改计划
+	 */
+	public void savePlan(Plan plan,String classIds,Map<String,Object> paramMap) throws ParseException {
+		List<Object> params=new ArrayList<>();
+		StringBuffer sb=new StringBuffer();
+		Integer planId=plan.getPlanId();
+		
+		int orgId=0;
+		int camId=0;
+		int planType=1;//培训
+		int isDel=0;
+		String creater="";
+		if(planId==null) {//新增
+			plan.setOrgId(orgId);
+			plan.setCamId(camId);
+			plan.setPlanType(planType);
+			plan.setIsDel(isDel);
+			plan.setInsertTime(new Date());
+			plan.setUpdateTime(new Date());
+			plan.setCreater(creater);
+			plan.setBeginTime(CommonUtils.stringToDate((String)paramMap.get("beginTime"), null));
+			plan.setEndTime(CommonUtils.stringToDate((String)paramMap.get("endTime"), null));
+			planId=(int)baseDaoEx.saveOne(plan);
+		}else {//更新
+			plan.setUpdateTime(new Date());
+			planDao.update(plan);
+			
+			//先把老班级下的planId清空
+			params.add(planId);
+			sb.append("update classes set plan_id=null where plan_id=?");
+			baseDaoEx.executeSql(sb.toString(), params);
+		}
+		
+		//将新的班级回填planId
+		sb=new StringBuffer();
+		sb.append("update classes set plan_id=? where clas_id in("+classIds+")");
+		baseDaoEx.executeSql(sb.toString(), params);
+	}
+	
+	/**
+	 * 查询招生计划要选择的班级列表
+	 */
+	@Transactional(propagation=Propagation.NOT_SUPPORTED,readOnly=true)
+	public void getPageCampusClass(Map<String,Object> paramMap,int pageNo,int limit) {
+		List<Object> params=new ArrayList<>();
+		StringBuffer sb=new StringBuffer();
+		String planId=(String)paramMap.get("planId");
+		String termId=(String)paramMap.get("termId");
+		String categoryId=(String)paramMap.get("categoryId");
+		String classType=(String)paramMap.get("classType");
+		String subjectId=(String)paramMap.get("subjectId");
+		String classWeek=(String)paramMap.get("classWeek");
+		String kewword=(String)paramMap.get("kewword");
+		
+		
+		if(planId==null) {//如果是空 则是新增招生计划时选择班级
+			
+		}
+		
+	}
+	
+	public static void main(String[] args) {
+		ApplicationContext context=new FileSystemXmlApplicationContext("src/main/webapp/WEB-INF/spring/spring-context.xml");
+		PlanServiceImpl s=(PlanServiceImpl)context.getBean("testServiceImpl");
+
+		System.out.println("main执行结束");
+	}
+}

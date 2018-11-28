@@ -1,0 +1,211 @@
+<!--班级管理--班级详情（查看学员）-->
+<style>
+   .classTitle {
+       font-size: 16px;
+       font-weight: bold;
+   }
+</style>
+<div class="content-wrap" id="sub_loadBox"  >
+    <div class="search">
+        <span class="classTitle" id="className"></span>
+        <span class="classDescribe">（<span id="classType"></span>   校区： <span id="campus"></span> | 教室：<span id="classroom_name"></span> | 上课时间： <span id="classTime"></span> | 学段：<span id="ageRange"></span> 岁 | 教师：<span id="changedTeachers"></span> | 学费：<span id="tuitionFees"></span>  元 | 课时 ：<span id="totalHours"></span> |  开课日期：<span id="classStartDate"> </span>）
+
+    </div>
+    <div class="bod-con-fer-form">
+        <table align="center" class="tab tablesorter-blue">
+            <thead>
+            <tr>
+                <th><input type="checkbox" name="allClass" onclick="all_click(this,'student')"></th>
+                <th>序号</th>
+                <th>学员姓名</th>
+                <th>证件号码</th>
+                <th>班级名称</th>
+                <th>教师姓名</th>
+                <th>学员状态</th>
+                <th>学费标准</th>
+                <th>缴费方式</th>
+                <th>缴费金额</th>
+                <th>退费金额</th>
+                <th>纸质凭证</th>
+                <th style="width: 220px;">操作</th>
+            </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><input type="checkbox" name="student"></td>
+                    <td>1</td>
+                    <td>蒋思哲</td>
+                    <td>120104201212123342</td>
+                    <td>儿童画（儿162-1-2B）</td>
+                    <td>赵岩</td>
+                    <td>报名已作废</td>
+                    <td>700.00</td>
+                    <td>--</td>
+                    <td>--</td>
+                    <td>--</td>
+                    <td>未打印</td>
+                    <td class="operation">
+                        <span class="toPushPay">催缴<em></em></span>
+                        <span class="getTel">电话<em></em></span>
+                        <span class="toDel">删除<em></em></span>
+                        <span class="toPay">缴费<em></em></span>
+                    </td>
+
+                </tr>
+                <tr>
+                    <td><input type="checkbox" name="student"></td>
+                    <td>2</td>
+                    <td>李白</td>
+                    <td>120104201212123342</td>
+                    <td>主持（儿162-1-2B）</td>
+                    <td>赵岩</td>
+                    <td>报名待缴费</td>
+                    <td>700.00</td>
+                    <td>--</td>
+                    <td>--</td>
+                    <td>--</td>
+                    <td>未打印</td>
+                    <td class="operation">
+                        <span class="toPushPay">催缴<em></em></span>
+                        <span class="getTel">电话<em></em></span>
+                        <span class="toDel">删除<em></em></span>
+                        <span class="toPay">缴费<em></em></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td><input type="checkbox" name="student"></td>
+                    <td>3</td>
+                    <td>张思成</td>
+                    <td>120104201212123342</td>
+                    <td>舞蹈（儿162-1-2B）</td>
+                    <td>张之洞</td>
+                    <td>缴费已完成</td>
+                    <td>700.00</td>
+                    <td>--</td>
+                    <td>--</td>
+                    <td>--</td>
+                    <td>未打印</td>
+                    <td class="operation">
+                        <span class="toPushPay">催缴<em></em></span>
+                        <span class="getTel">电话<em></em></span>
+                        <span class="toDel">删除<em></em></span>
+                        <span class="toPay">缴费<em></em></span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 分页 -->
+    <div class="gui-page-wapper" style="margin:20px 0;line-height: 28px;" id="pageContent">
+        <ul class="gui-page" id="limitUi">
+            <span class="gui-page-total">共<span id="allPage">0</span>页 <span id="allTotal">000</span>数据</span>
+            <span id="creatPage">
+            </span>
+        </ul>
+        <span class="gui-page-options-elevator" style="padding-left: 10px;">
+                每页条数：
+                <select id="limit" class="">
+                     <option value="20">20</option>
+                     <option value="50">50</option>
+                     <option value="100">100</option>
+                </select>
+        </span>
+        <span class="gui-page-options">
+            <span class="gui-page-options-elevator">跳至第
+            <input id="page" class="gui-input">
+             页</span>
+           </span>
+    </div>
+    <!--分页END-->
+
+    <div class="dataStatistics">
+        <i class="fa fa-bar-chart"></i>:   学员数：<span class="numberShow" id="sum_Certificationed"><i class="fa fa-circle-o-notch fa-spin" ></i></span> 学费数：<span  class="numberShow" id="sum_unCertificationed" ><i class="fa fa-circle-o-notch fa-spin" ></i></span>
+    </div>
+
+    <!-- //数据操作-->
+    <div class="dataTool" style="">
+        <div class="pull-left">
+            <label for="isAll">
+                <input type="checkbox" id="isAll" name="allClass" onclick="toAll()">选择全部分页数据
+            </label>
+        </div>
+        <div class="pull-right">
+
+            <button class="gui-btn  gui-btn-normal" id="downLoad"><i class="fa fa-cloud-download"></i>批量导出</button>
+            <button class="gui-btn  gui-btn-normal" id="sentWarn"><i class="fa fa-volume-up"></i>批量催款</button>
+            <button class="gui-btn  gui-btn-normal" id="transfeClass"><i class="fa fa-exchange"></i>批量转班</button>
+            <button class="gui-btn gui-btn-danger btn-delete" id="toDel"><i class="fa fa fa-trash-o"></i>批量删除</button>
+            <button class="gui-btn  gui-btn-normal" id="toToint"><i class="fa fa-print"></i>批量打印凭证</button>
+            <button class="gui-btn  gui-btn-normal" id="toRefund"><i class="fa-sign-out"></i>批量退费审核</button>
+        </div>
+    </div>
+
+
+</div>
+<script src="js/countUp.js"></script>
+<script>
+    $(function () {
+        //编辑则赋值
+        var nowClass_id=GetUrlParam("clasId");
+
+        if(nowClass_id!==""){
+
+            //保存合作机构
+            var getClassinfo = {
+                parameter:{
+                    "org_id": option.org_id,
+                    "token":  option.token,
+                    "clasId":GetUrlParam("clasId")
+                },
+                url:domain+"/class/toUpdate.htm"
+            };
+
+            getData(getClassinfo.url,getClassinfo.parameter,function (data) {
+
+                if(data.code==0 && data.success==true){
+
+                    var classObj=data.data;
+
+                    //班级名称
+                    $("#className").text(decodeURI(GetUrlParam("className")));
+                    //教室
+                    $("#classroom_name").text(decodeURI(GetUrlParam("classRoom")));
+                    //校区
+                    $("#campus").text(decodeURI(GetUrlParam("campus")));
+
+                    //班级类型
+                    $("#classType").text(option.classType[classObj.clas_type]);
+
+
+                    //年龄范围
+                    $("#ageRange").text(classObj.age_range);
+
+                    //总课时数
+                    $("#totalHours").text(classObj.total_hours);
+                    //开课日期
+                    $("#classStartDate").text(classObj.class_start_date);
+
+                    //上课时间
+                    $("#classTime").text(option.allTime[classObj.class_week]+"("+classObj.class_begin_time+"-"+classObj.class_over_time+")");
+
+                    //学费
+                    $("#tuitionFees").text(parseFloat(classObj.tuition_fees).toFixed(2)).css("color","#FF9800");
+
+                    //教师信息
+                    $("#changedTeachers").text(classObj.tech_names);
+
+                    teachertName=classObj.tech_names.split(",");
+                    changedTea=classObj.tech_ids.split(",");
+
+                }else {
+                    myAlert(data.msg,2,data.code,null);
+                }
+            },"POST",false);
+
+        };
+
+    })
+</script>
+
+

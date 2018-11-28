@@ -1,0 +1,168 @@
+<!--用户管理-->
+<style>
+    .tablesorter-blue tbody td.stu_status {color: #e89090;}
+</style>
+
+<div class="content-wrap" id="sub_loadBox"  style="padding-top:30px" >
+
+    <div class="bod-con-fer-form">
+        <table align="center" class="tab tablesorter-blue">
+            <thead>
+            <tr>
+                <th>序号</th>
+                <th>校区名称</th>
+                <th>咨询电话</th>
+                <th>校区地址</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody id="camList">
+                <tr>
+                    <td colspan="5">正在查询</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <!-- 分页 -->
+    <div class="gui-page-wapper" style="margin:20px 0;line-height: 28px;" id="pageContent">
+        <ul class="gui-page" id="limitUi">
+            <span class="gui-page-total">共<span id="allPage">0</span>页 <span id="allTotal">000</span>数据</span>
+            <span id="creatPage">
+            </span>
+        </ul>
+        <span class="gui-page-options-elevator" style="padding-left: 10px;">
+                每页条数：
+                <select id="limit" class="">
+                     <option value="20">20</option>
+                     <option value="50">50</option>
+                     <option value="100">100</option>
+                </select>
+            </span>
+
+        <span class="gui-page-options">
+            <span class="gui-page-options-elevator">跳至第
+            <input id="page" class="gui-input">
+             页</span>
+           </span>
+    </div>
+    <!--分页-->
+</div>
+<script>
+    $(function () {
+        //默认
+        showHtml();
+
+        //删除校区
+        $("#camList").on("click",".toDel",function () {
+            var subject_id=$(this).attr("data-id");
+            var subject_name=$(this).closest("tr").find("td:eq(1)").text();
+
+            myConfirm("你确定要删除 ["+subject_name+"] 校区吗",function () {
+
+                //删除操作
+                var delSubject = {
+                    parameter:{
+                        "cam_id":subject_id,
+                    },
+                    url:domain+"/baseSet/campusManage/deleteCampus.json"
+                };
+
+                //保存或者更新类目
+                getData(delSubject.url,delSubject.parameter,function (data) {
+                    console.log(data)
+                    if(data.code==200 && data.success==true){
+                        myAlert("删除成功",1,data.code,function () {
+                            window.location.reload()
+                        });
+                    }else {
+                        myAlert(data.msg,2,data.code,null);
+                    }
+                },"POST",false);
+
+            },null,null,2);
+
+        });
+
+        //编辑类目
+        $("#camList").on("click",".editCampus",function () {
+            var campusId=$(this).attr("data-id");
+            window.location.href="#f11?cam_id="+campusId
+        });
+
+
+
+   })
+    //列表
+    function showHtml(limit,page) {
+
+        var cam_list={
+            "parameter":{
+                "org_id":option.org_id,
+                "limit":limit?limit:20,
+                "page":page?page:1,
+            },
+            "url":domain+"/baseSet/campusManage/queryCampusListInfo.json"
+        };
+
+        getData(cam_list.url,cam_list.parameter,function (res) {
+            console.log(res)
+            if(res.code==200 && res.success==true){
+
+                var data=res.data,html="";
+
+                //如果当前页是第一页从新渲染
+                if(data.page==1){
+                    //生成页数(总条数，总页数，)
+                    $("#creatPage").createPage({
+                        pageCount:50,
+                        current:page,
+                        url:cam_list.url,
+                        creat:1,
+                        backFn:function(page){
+                            var limit=$("#limit").val();
+                            showHtml(limit,page)
+                        }
+                    });
+                }
+
+                var localCampus={}
+
+                //总页数
+                $("#allPage").text(data.size);
+                //总条数
+                $("#allTotal").text(data.total);
+
+                for(var n=1,m=data.data.length;n<m;n++){
+                    var toShow=(parseInt(data.page)-1)*parseInt(data.limit);
+                    var camObj=data.data[n];
+                    html+=" <tr>" +
+                        "        <td>"+(n+toShow)+"</td>" +
+                        "        <td>"+camObj.cam_name+"</td>" +
+                        "        <td>"+camObj.cam_mobile+"</td>" +
+                        "        <td>"+camObj.cam_address+"</td>" +
+                        "        <td class=\"operation\" id='"+camObj.cam_id+"'>" +
+                        "        <span  class=\"editCampus\" data-id='"+camObj.cam_id+"'>编辑<em></em></span>" +
+                        "        <span  class=\"toDel\"  data-id='"+camObj.cam_id+"'>删除<em></em></span>" +
+                        "     </td>" +
+                        "    </tr>"
+
+                    localCampus[camObj.cam_id]={
+                        cam_address: camObj.cam_address,
+                        cam_mobile: camObj.cam_mobile,
+                        cam_name: camObj.cam_name,
+                        cam_type: camObj.cam_type,
+                        navigation_info: camObj.navigation_info,
+                        note: camObj.note
+                    }
+
+                }
+                sessionStorage.localCampus=JSON.stringify(localCampus);
+
+                $("#camList").html(html)
+
+            }else {
+                myAlert(res.msg,2,res.code,null);
+            }
+        },"POST",false)
+    }
+</script>

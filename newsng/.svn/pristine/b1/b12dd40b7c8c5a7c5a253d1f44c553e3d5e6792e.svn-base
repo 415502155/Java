@@ -1,0 +1,149 @@
+<!--添加管理员-->
+<div style="padding: 40PX;">
+    <form class="gui-form gui-form-label-right" id="my-form" novalidate="novalidate">
+
+        <div class="gui-form-item"><label class="gui-form-item-label">角色名称</label>
+            <div class="gui-form-item-content">
+                <input type="text" name="username" placeholder="请输入角色名称" class="gui-input" value="" maxlength="20" >
+            </div>
+        </div>
+        <div class="line"></div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">校区范围</label>
+            <div class="gui-form-item-content">
+                <label class="form-label"><input type="checkbox" name="campus" value="1">东马路校区</label>
+                <label class="form-label"><input type="checkbox" name="campus" value="2">炫联校区</label>
+                <label class="form-label"><input type="checkbox" name="campus" value="3">保山道校区</label>
+            </div>
+        </div>
+
+        <div class="gui-form-item gui-form-item-required">
+            <label class="gui-form-item-label">功能权限</label>
+            <div class="gui-form-item-content">
+                <div>
+                    <label class="form-label"><input type="checkbox" name="campus" value="1">全部功能</label>
+                </div>
+                <div>
+                    <label class="form-label"><input type="checkbox" name="campus" value="1">用户通知</label>
+                </div>
+                <div>
+                    <label class="form-label"><input type="checkbox" name="campus" value="1">学员通知</label>
+                </div>
+                <div>
+                    <label class="form-label"><input type="checkbox" name="campus" value="1">教师通知</label>
+                </div>
+                <div>
+                    <label class="form-label"><input type="checkbox" name="campus" value="1">网上招生</label>
+                </div>
+                <div>
+                    <label class="form-label"><input type="checkbox" name="campus" value="1">学员管理</label>
+                </div>
+                <div>
+                    <label class="form-label"><input type="checkbox" name="campus" value="1">班级管理</label>
+                    <label class="form-label"><input type="checkbox" name="campus" value="1">创建班级</label>
+                    <label class="form-label"><input type="checkbox" name="campus" value="1">导入班级</label>
+                    <label class="form-label"><input type="checkbox" name="campus" value="1">管理班级</label>
+                </div>
+                <div>
+                    <label class="form-label"><input type="checkbox" name="campus" value="1">财务管理</label>
+                    <label class="form-label"><input type="checkbox" name="campus" value="1">退费处理理</label>
+                    <label class="form-label"><input type="checkbox" name="campus" value="1">财务统计</label>
+                </div>
+                <div>
+                    <label class="form-label"><input type="checkbox" name="campus" value="1">打印导出</label>
+                </div>
+                <div>
+                    <label class="form-label"><input type="checkbox" name="campus" value="1">工资发布</label>
+                </div>
+                <div>
+                    <label class="form-label"><input type="checkbox" name="campus" value="1">新闻推送</label>
+                </div>
+                <div>
+                    <label class="form-label"><input type="checkbox" name="campus" value="1">校长信箱</label>
+                </div>
+                <div>
+                    <label class="form-label"><input type="checkbox" name="campus" value="1">智慧统计</label>
+                </div>
+                <div>
+                    <label class="form-label"><input type="checkbox" name="campus" value="1">教室管理</label>
+                </div>
+                <div>
+                    <label class="form-label"><input type="checkbox" name="campus" value="1">操作日志</label>
+                </div>
+                <div>
+                    <label class="form-label"><input type="checkbox" name="campus" value="1">基础设置</label>
+
+                    <label class="form-label"><input type="checkbox" name="campus" value="1">校区管理</label>
+                    <label class="form-label"><input type="checkbox" name="campus" value="1">科目管理</label>
+                    <label class="form-label"><input type="checkbox" name="campus" value="1">学期管理</label>
+                    <label class="form-label"><input type="checkbox" name="campus" value="1">教室管理</label>
+                    <label class="form-label"><input type="checkbox" name="campus" value="1">合作机构</label>
+                    <label class="form-label"><input type="checkbox" name="campus" value="1">凭证模板</label>
+                    <label class="form-label"><input type="checkbox" name="campus" value="1">规则设置</label>
+                </div>
+                <div>
+                    <label class="form-label"><input type="checkbox" name="campus" value="1">权限设置</label>
+                    <label class="form-label"><input type="checkbox" name="campus" value="1">管理权限</label>
+                    <label class="form-label"><input type="checkbox" name="campus" value="1">角色设置</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="line"></div>
+        <div class="gui-form-item">
+            <div class="gui-form-item-content" >
+                <button type="submit" class="gui-btn gui-btn-normal"><i class="fa fa-save"></i><span>保存角色</span></button>
+                <button type="button" class="gui-btn gui-btn-primary" id="back"><i class="fa fa-angle-left"></i><span>取消返回</span></button>
+            </div>
+        </div>
+    </form>
+    <script type="text/javascript" src="plus/validate/jquery-validate.js"></script>
+    <script>
+        $(function() {
+
+            //取消编辑返回列表
+            $("#back").click(function () {
+                window.history.back();
+            })
+
+            allSelect();
+
+
+            $("#mytest-form").validate({
+                rules: {
+                    username: {
+                        required: true
+                    },
+                    password: {
+                        required: true,
+                        rangelength: [8, 10]
+                    },
+                    password2: {
+                        required: true,
+                        equalTo: '#password'
+                    }
+                },
+                messages: {
+                    username: {
+                        required: '请输入一个用户名'
+                    },
+                    password: {
+                        required: '请设置一个密码',
+                        rangelength: '密码位数为8到10位'
+                    },
+                    password2: {
+                        required: '请再次确认密码',
+                        equalTo: '两次输入密码不相符'
+                    }
+                },
+                errorPlacement: function(error, element) {
+                    console.info(element)
+                    error.appendTo(element.parent().after())
+                },
+                //errorClass: 'gui-form-item-error',
+                errorElement: 'span',
+
+            });
+        })
+    </script>
+
+</div>

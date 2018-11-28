@@ -1,0 +1,181 @@
+package sng.dao.impl;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.transform.Transformers;
+import org.springframework.stereotype.Repository;
+
+import sng.dao.BaseSetCooperativeManageDao;
+import sng.entity.Cooperative;
+import sng.pojo.ParamObj;
+import sng.util.Paging;
+
+/**
+ * @author magq
+ * @version 1.0
+ * @desc 基础设置模块-合作机构dao实现
+ * @data 2018-10-31
+ */
+@Repository
+public class BaseSetCooperativeManageDaoImpl extends BaseDaoImpl<Cooperative> implements BaseSetCooperativeManageDao {
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * sng.dao.BaseSetCooperativeManageDao#getCooperativeById(sng.pojo.ParamObj)
+     */
+    @Override
+    public Paging<Cooperative> queryCooperativeListInfo(ParamObj paramObj) {
+        Paging<Cooperative> paging = new Paging<Cooperative>();
+        StringBuffer sql = new StringBuffer();
+        StringBuffer sqlCount = new StringBuffer();
+        List<Object> paramList = new ArrayList<Object>();
+        sql.append("select c.* from cooperative c where 1=1");
+        if (paramObj.getCooperative_id() != null) {
+            sql.append(" and c.cooperative_id=?");
+            paramList.add(paramObj.getClassroom_id());
+        }
+        if (paramObj.getOrg_id() != null) {
+            sql.append(" and c.org_id=?");
+            paramList.add(paramObj.getOrg_id());
+        }
+        if (StringUtils.isNotEmpty(paramObj.getCooperative_name())) {
+            if (paramObj.isBlurQuery()) {
+                sql.append(" and c.name like ?");
+                paramList.add("%" + paramObj.getCooperative_name() + "%");
+            }else{
+                sql.append(" and c.name = ?");
+                paramList.add(paramObj.getCooperative_name());
+            }
+        }
+
+        if (paramObj.getIsDel() != null) {
+            sql.append(" and c.is_del=?");
+            paramList.add(paramObj.getIsDel());
+        }
+        sql.append(" order by name asc");
+        Session session = this.factory.getCurrentSession();
+        // 是否分页，默认为true即分页
+        int count = 0;
+        if (paramObj.isNeedCount()) {
+            sqlCount.append("select count(0) from (" + sql.toString() + ") t");
+            Query queryCount = session.createSQLQuery(sqlCount.toString());
+            for (int i = 0; i < paramList.size(); i++) {
+                queryCount.setParameter(i, paramList.get(i));
+            }
+            count = Integer.parseInt(queryCount.uniqueResult().toString());
+            sql.append(" limit ?,?");
+            paramList.add(paramObj.getLimit() * (paramObj.getPage() - 1));
+            paramList.add(paramObj.getLimit());
+        }
+        Query query = session.createSQLQuery(sql.toString());
+        for (int i = 0; i < paramList.size(); i++) {
+            query.setParameter(i, paramList.get(i));
+        }
+        query.setResultTransformer(Transformers.aliasToBean(Cooperative.class));
+        List<Cooperative> list = query.list();
+        paging.setPage(paramObj.getPage());
+        paging.setLimit(paramObj.getLimit());
+        paging.setData(list);
+        paging.setTotal(count);
+        paging.setSize(
+                count % paramObj.getLimit() == 0 ? (count / paramObj.getLimit()) : (count / paramObj.getLimit() + 1));
+        paging.setSuccess(true);
+        return paging;
+    }
+
+    /*
+     * 更新合作机构信息(non-Javadoc)
+     *
+     * @see sng.dao.BaseSetCooperativeManageDao#upateCooperativeInfo(sng.entity.
+     * Cooperative)
+     */
+    @Override
+    public int upateCooperativeInfo(Cooperative cooperative) {
+
+        StringBuffer sql = new StringBuffer();
+        List<Object> paramList = new ArrayList<Object>();
+        sql.append("update cooperative  set name=?");
+        paramList.add(cooperative.getName());
+        if (cooperative.getUpdate_time() != null) {
+            sql.append(" ,update_time=?");
+            paramList.add(cooperative.getUpdate_time());
+        }
+        sql.append(" where cooperative_id=?");
+        paramList.add(cooperative.getCooperative_id());
+        Session session = this.factory.getCurrentSession();
+        Query query = session.createSQLQuery(sql.toString());
+        for (int i = 0; i < paramList.size(); i++) {
+            query.setParameter(i, paramList.get(i));
+        }
+        int i = query.executeUpdate();
+        return i;
+    }
+
+    /**
+     * 逻辑删除合作机构信息
+     *
+     * @param paramObj
+     * @return
+     */
+    @Override
+    public int deleteCooperativeInfo(ParamObj paramObj) {
+        StringBuffer sql = new StringBuffer();
+        List<Object> paramList = new ArrayList<Object>();
+        sql.append("update cooperative set is_del=1,del_time=?");
+        paramList.add(new Date());
+        sql.append(" where cooperative_id=?");
+        paramList.add(paramObj.getCooperative_id());
+        Session session = this.factory.getCurrentSession();
+        Query query = session.createSQLQuery(sql.toString());
+        for (int i = 0; i < paramList.size(); i++) {
+            query.setParameter(i, paramList.get(i));
+        }
+        int i = query.executeUpdate();
+        return i;
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * sng.dao.BaseSetCooperativeManageDao#queryCooperativeAndClassesInfo(sng.pojo.
+     * ParamObj)
+     */
+    @Override
+    public List<Map<String,Object>> queryCooperativeAndClassesInfo(ParamObj paramObj) {
+        StringBuffer sql = new StringBuffer();
+        List<Object> paramList = new ArrayList<Object>();
+        sql.append("select c.clas_id,c.clas_name,cp.cooperative_id,cp.name from classes c");
+        sql.append(" left join cooperative cp on cp.cooperative_id = c.cooperation_id");
+        sql.append(" and c.org_id=cp.org_id");
+        sql.append(" where cp.cooperative_id is not null");
+        sql.append(" and cp.is_del=0");
+        sql.append(" and c.is_del=0");
+        if (paramObj.getCooperative_id() != null) {
+            sql.append(" and cp.cooperative_id=?");
+            paramList.add(paramObj.getCooperative_id());
+        }
+        if (paramObj.getOrg_id() != null) {
+            sql.append(" and cp.org_id=?");
+            paramList.add(paramObj.getOrg_id());
+        }
+        Session session = this.factory.getCurrentSession();
+        Query query = session.createSQLQuery(sql.toString()
+        );
+        for (int i = 0; i < paramList.size(); i++) {
+            query.setParameter(i, paramList.get(i));
+        }
+        query.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+        List<Map<String,Object>> list = query.list();
+        return list;
+    }
+
+}

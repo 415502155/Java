@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title>班列表</title>
+		<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<link rel="stylesheet" href="../../../css/sm.css">
+		<link rel="stylesheet" href="../../../css/layout.css">
+		<style>
+			.list-block .item-link .item-inner {
+				padding-right: 1.5rem;
+				background-size: .7rem;
+				padding-top: .4rem;
+				padding-bottom: .35rem;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="page-group">
+			<div class="page page-current" id="sendNotice">
+				<div class="content native-scroll">
+			        <div id="allClass"></div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/iscroll/js/iscroll.js'></script>
+<script src='../../../js/sm.js'></script>
+<script src="../../../js/config.js"></script>
+<script>
+
+		//设置返回首页标识
+		sessionStorage.home = 1;
+	    var base =JSON.parse(sessionStorage.baseUser);
+	    var localClassJson={};
+	  	var localClass=JSON.parse(sessionStorage.baseUser).orguser.identityDatas[0].mapRK.concat(JSON.parse(sessionStorage.baseUser).orguser.identityDatas[0].mapBZR);
+
+        var classHmtl="";
+
+        //if(getJsonLength(localClass)>0){
+        if(localClass.length>0){
+
+            for(var i=localClass.length-1;i>=0;i--){
+                var obj=localClass[i];
+                var gradeid=obj.grade_number;
+				
+                //判断年级是否存在
+                if (localClassJson[gradeid] == undefined) {
+
+                    localClassJson[obj.grade_number] = {};
+                    localClassJson[obj.grade_number]["grade_name"] = obj.grade_name;
+
+                    localClassJson[obj.grade_number]["classList"] = {}; //班级信息
+                    localClassJson[obj.grade_number]["classList"][obj.clas_id] = {};
+                    localClassJson[obj.grade_number]["classList"][obj.clas_id]["className"] = obj.clas_name;
+                    localClassJson[obj.grade_number]["classList"][obj.clas_id]["students"] = [];
+                } else {
+                    //判断班级是否重复
+                    if (localClassJson[gradeid]["classList"][obj.clas_id] == undefined) {
+                        localClassJson[gradeid]["classList"][obj.clas_id] = {};
+                        localClassJson[gradeid]["classList"][obj.clas_id]["className"] = obj.clas_name;
+                        localClassJson[gradeid]["classList"][obj.clas_id]["students"] = [];
+                    }
+                }
+                if(i==0){
+                    sessionStorage.allClass=JSON.stringify(localClassJson);
+                }
+            }
+
+			//权限判断
+            sessionStorage.publishPower=JSON.stringify(localClassJson);
+
+            for(var i in localClassJson){
+                classHmtl +='<div class="content-block-title">'+localClassJson[i].grade_name+'</div><div class="list-block" id="'+i+'"><ul>';
+                for(var m in localClassJson[i].classList){
+                    classHmtl +='<li id="'+m+'" class="item-link item-content class-name" >' +
+                        '<div class="item-inner">' +
+                        '<div class="item-title">'+localClassJson[i].classList[m].className+'</div>' +
+                        '</div>' +
+                        /*'<span>'+localClassJson[i].classList[m].className+'</span> ' +
+                        '<span><i class="iconfont icon-xiangyou"></i></span>' +*/
+                        '</li>'
+                }
+                classHmtl +='</ul></div>';
+            }
+
+
+		}else{
+            classHmtl +='<div class="list-block media-list"><li id="none" class="noData noData_line lastData" ><span class="noData__tips">暂无管理班级</span></li></div>';
+		}
+        $("#allClass").html(classHmtl);
+
+        //进入班级博客
+        $("body").on("click",".class-name", function(){
+            var clas_ids=$(this).attr("id");
+            var className=$(this).find(".item-title").text();
+            window.location="list.html?clas_id="+clas_ids;
+            sessionStorage.blogClassName=className;
+        });
+
+		//如果只是用户角色没有班级
+	/*	if($(".list-group").length==0){
+			$.alert("还没有可进入的班级",function(){
+				window.history.go(-1);
+			});
+		};*/
+		//点击年级显示对应班级 &&切换状态方向
+		/*$("body").on("click","ul li:first-child", function(){
+			if($(this).find("i").hasClass("icon-xiangyou") ){
+				$(this).find("i").removeClass("icon-xiangyou").addClass("icon-xiangxia")
+			}else{
+				$(this).find("i").removeClass("icon-xiangxia").addClass("icon-xiangyou")
+			}
+			$(this).siblings().toggle();
+		})*/
+
+
+
+		//权限判断
+	    //管理员： 管理员(1), 校长(2),分校校长(10), 年级组长(5)
+	    //普通：任课教师(3), 班主任(4),
+	    //其他：学生组管理员(6), 部门管理员(7), 教师组管理员(8), 功能管理员(9),  财务管理员(17) 财务审核员(18)
+</script>

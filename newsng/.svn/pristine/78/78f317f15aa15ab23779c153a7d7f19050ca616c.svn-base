@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>教师通知</title>
+	<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+	<link rel="shortcut icon" href="/favicon.ico">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<meta http-equiv="Access-Control-Allow-Origin" content="*">
+	<!--ui包-->
+	<link rel="stylesheet" href="../../../css/sm.css">
+	<link rel="stylesheet" href="../../../css/layout.css">
+	<link rel="stylesheet" href="../../../css/teacher.css">
+	<!--<link rel="stylesheet" href="../../../css/weui.css">-->
+
+	<style>
+		.list-block .item-inner { border-bottom: none}
+		.list-block .list-group-title { padding: .4rem .75rem;border-bottom: 1px solid #e7e7e7;}
+		 .label-checkbox {border-bottom: 1px solid #e7e7e7;}
+		.list-block ul {
+			border-bottom: none;
+		}
+		.item-title-row { line-height: 1.4rem}
+		.chooseText {padding: 4px 40px 0; font-size:.83rem;position: absolute;}
+		.list-block.media-list .list-group-title .item-media {padding:0}
+		.studentDetail,.classDetail {
+			width: 50%;
+			height: 100%;
+			position: absolute;
+			right: 0;
+			z-index: 9;
+			top: 0;
+			cursor: pointer;
+		}
+		.weui-uploader__file {
+			float: left;
+			margin-right: 9px;
+			margin-bottom: 9px;
+			width: 79px;
+			height: 79px;
+			background: no-repeat center center;
+			background-size: cover;
+			position: relative;
+		}
+		.delete{
+			width: 30px;
+			height: 30px;
+			background:#f6383a;
+			border-radius: 4px;
+			position: absolute;
+			right: -5px;
+			top: -12px;
+			color: #fff;
+			text-align: center;
+			line-height: 30px;
+		}
+		.uploader__bd {
+			overflow: inherit;
+		}
+	</style>
+</head>
+<body>
+<div class="page-group">
+	<div class="page page-current" id="sendNotice">
+		<a class="bar bar-nav external" href="list.html" style="color: #fff;">
+			<span class="button button-link button-nav pull-left back"  style="padding-left: 0.75rem;">查看通知列表</span>
+			<span class="button button-link button-nav pull-right">
+				      <span class="icon icon-right"></span>
+				    </span>
+		</a>
+		<div class="content native-scroll">
+			<!--通知内容-->
+			<div class="list-block" style="margin: 0;">
+				<ul>
+					<li class="align-top">
+						<div class="item-content">
+							<div class="item-inner">
+								<!--通知内容-->
+								<div class="item-input">
+									<!--内容-->
+									<textarea placeholder="请输入通知内容" id="noticeText" maxlength="1000" ></textarea>
+									<!--内容-->
+									<!--通知内容 End-->
+								</div>
+							</div>
+						</div>
+					</li>
+					<!-- Switch (Checkbox) -->
+					<li>
+						<div class="item-content">
+							<div class="item-inner">
+								<div class="item-title"> </div>
+								<div class="item-after"><span id="noticeLength">0</span>/1000</div>
+							</div>
+						</div>
+					</li>
+				</ul>
+				<div class="list-block-label" id="tooLtip" style="margin-bottom: .5rem; height:.6rem"><span class="button-danger"></span></div>
+			</div>
+			<!--通知内容 END-->
+
+			<!--图片上传-->
+			<div class="uploader-cells" id="uploader" style="margin-top: 0">
+				<div class="uploader-cell">
+					<div class="uploader-cell__bd">
+						<div class="uploader">
+							<div class="uploader__hd">
+								<!--	<p class="weui-uploader__title">图片上传</p>-->
+								<span class="uploader-cells-title">选择图片</span>
+								<!--<div class="uploader__info"><span id="uploadCount">0</span>/5</div>-->
+							</div>
+							<div class="uploader__bd">
+								<ul class="uploader__files" id="uploaderFiles">
+									<!--<li class="weui-uploader__file" style="background-image:url(../../../images/sng.png)"><div class="delete" data-id="j"><span class="icon icon-remove"></span></div></li>-->
+								</ul>
+								<div class="uploader__input-box">
+									<!--<input id="uploaderInput" class="uploader__input" type="file" accept="image/*" capture="camera" multiple="" />-->
+									<div id="uploaderInput" class="uploader__input"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!--图片上传 END-->
+			<div class="list-block" style="margin:0; border-bottom: 1px solid #e7e7e7;">
+				<ul>
+					<li>
+						<div class="item-content">
+							<div class="item-inner">
+								<div class="item-title label">是否回执</div>
+								<div class="item-input">
+									<label class="label-switch">
+										<input type="checkbox" id="receipt">
+										<div class="checkbox"></div>
+									</label>
+								</div>
+							</div>
+						</div>
+					</li>
+				</ul>
+			</div>
+
+			<!--班级信息-->
+			<div class="content-block-title ">
+				<label class="label-checkbox item-content" id="allGrade">
+					<input type="checkbox" name="checkbox" >
+					<div class="item-media">
+						<i class="icon icon-form-checkbox"></i>
+						<span class="chooseText" style="padding-left:20px">全选</span>
+					</div>
+				</label>
+			</div>
+			<div class="list-block  media-list" id="allClass">
+				 <ul>
+                 </ul>
+			</div>
+			<!--班级信息 End-->
+			<!--操作-->
+			<div class="content-block">
+				<a href="javascript:void(0);" class="button button-fill" id="toSend">发送通知</a>
+			</div>
+			<!--操作 End-->
+		</div>
+	</div>
+</div>
+
+
+<!-- 班级学生信息-->
+<div class="page" id='classDetail'>
+	<header class="bar bar-nav">
+		<a class="button button-link button-nav pull-left back" href="notice.html" style="padding-right:3rem;"><span class="icon icon-left"></span>返回</a>
+		<a href="notice.html" class="button button-link button-nav pull-right back" id="backNotice" style="padding-left:3rem;"> 确定</a>
+		<h1 class="title" id="changAllStu" style="cursor: pointer;">全选</h1>
+	</header>
+	<div class="content native-scroll">
+		<div class="list-block media-list" style="margin:0;" id="allStudent" >
+			<ul data-load="">
+			</ul>
+		</div>
+	</div>
+</div>
+<!-- 班级学生信息End-->
+
+</body>
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+
+<script src='https://res.wx.qq.com/open/js/jweixin-1.2.0.js'></script>
+<script>
+    var baseP=getJPermissions(JSON.parse(sessionStorage.baseUser).orguser.org_id);
+    wx.config({
+        debug: false,
+        appId: baseP.appId,
+        timestamp: baseP.timestamp,
+        nonceStr: baseP.nonceStr,
+        signature: baseP.signature,
+        jsApiList: [
+            'checkJsApi',
+            'onMenuShareTimeline',
+            'onMenuShareAppMessage',
+            'onMenuShareQQ',
+            'onMenuShareWeibo',
+            'onMenuShareQZone',
+            'hideMenuItems',
+            'showMenuItems',
+            'hideAllNonBaseMenuItem',
+            'showAllNonBaseMenuItem',
+            'translateVoice',
+            'startRecord',
+            'stopRecord',
+            'onVoiceRecordEnd',
+            'playVoice',
+            'onVoicePlayEnd',
+            'pauseVoice',
+            'stopVoice',
+            'uploadVoice',
+            'downloadVoice',
+            'chooseImage',
+            'previewImage',
+            'uploadImage',
+            'downloadImage',
+            'getNetworkType',
+            'openLocation',
+            'getLocation',
+            'hideOptionMenu',
+            'showOptionMenu',
+            'closeWindow',
+            'scanQRCode',
+            'chooseWXPay',
+            'openProductSpecificView',
+            'addCard',
+            'chooseCard',
+            'openCard'
+        ]
+    });
+</script>
+
+
+<script type="text/javascript">
+	//后退刷新
+	window.addEventListener('pageshow', function(event) {
+	    if(sessionStorage.back==1){
+	        sessionStorage.removeItem("back");
+	        window.location.reload();
+		}
+	});
+    //后退刷新
+    window.addEventListener('pagehide', function(event) {
+        sessionStorage.home=1;
+        //sessionStorage.removeItem("tab");
+    });
+
+    //本地存储
+    var images = {
+        localId: [],
+        serverId: []
+    };
+
+    var ioslocId=[];//用于兼容ios的本地id列表 图片是base64格式的
+
+    wx.ready(function (){
+        //点击选择图片
+        $("#uploaderInput").click(function (){
+            wx.chooseImage({
+                count: 9-images.localId.length, // 默认9
+                sizeType: ['compressed'], // 可以指定是原图还是压缩图，默认二者都有
+                sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有
+                success: function (res) {
+
+                    $("#uploaderFiles").append("");
+
+                    //rows="";//声明一个空字符串用于保存循环出来的html
+                    images.localId =images.localId.concat(res.localIds); // 返回选定照片的本地ID列表，localId可以作为img标签的src属性显示图片
+					//去重
+                    images.localId=images.localId.unique();
+
+                    if(images.localId.length==9){
+                        $("#uploaderInput").parent().hide();
+                    }
+
+                    if (window.__wxjs_is_wkwebview) {  //判断ios是不是用的 wkwebview 内核
+
+                        for(var i=0;i<images.localId.length;i++){
+                            var todel=images.localId[i];
+
+                            wx.getLocalImgData({  //循环调用  getLocalImgData
+                                localId:res.localIds[i], // 图片的localID
+                                success: function (res) {
+                                    var localData = res.localData; // localData是图片的base64数据，可以用img标签显示
+
+                                    localData = localData.replace('jgp', 'jpeg');//iOS 系统里面得到的数据，类型为 image/jgp,因此需要替换一下
+
+                                    /* if($.inArray(localData, ioslocId)>=0){
+                                        images.localId.removeByValue(todel);
+                                        return false
+									}else{ */
+                                        ioslocId.push(localData)  //把base64格式的图片添加到ioslocId数组里 这样该数组里的元素都是base64格式的
+                                        rows ='<li class="weui-uploader__file" data-del="'+todel+'" style="background-image:url('+localData+')"><div class="delete" ><span class="icon icon-remove"></span></div></li>';
+                                        $("#uploaderFiles").append(rows);
+									//}
+
+                                }/*,fail:function(res){
+                                    $.alert(res);
+                                }*/
+                            });
+
+                        }
+
+                    }
+                    else{  //如果不是用的wkwebview 内核 或者是用的安卓系统 执行下面的xunh
+                        var rows="";
+                        $.each(images.localId,function (index,el) {
+                            rows  +='<li class="weui-uploader__file"  style="background-image:url('+el+')"><div class="delete" data-id="'+index+'"><span class="icon icon-remove"></span></div></li>';
+                        });
+                        $("#uploaderFiles").html(rows);
+                    }
+                }
+            });
+        })
+    });
+
+
+    //删除所选
+  /*  $("#uploaderFiles").on('click',".delete", function(event) {
+        event.stopPropagation();
+        var url=$(this).closest("li").css("background-image").replace('url("','').replace('")','');
+        console.info(url);
+        return false;
+    });*/
+
+     //预览删除
+    $("#uploaderFiles").on('click',"li", function(event){
+        var index=$(this).index();
+        //如果点删除则删除否则执行预览操作
+        if($(event.target).is("span")||$(event.target).is("div")){
+            images.localId.splice(index,1);
+            $(this).closest("li").remove();
+            if( $("#uploaderFiles li").length<9){
+                $("#uploaderInput").parent().show();
+            }
+
+        }else{
+            var url=$(this).css("background-image").replace('url("','').replace('")','');
+            wx.previewImage({
+                current: url, // 当前显示图片的http链接
+                urls: images.localId // 需要预览的图片http链接列表
+            });
+        }
+        return false;
+    });
+
+    //本地教师
+    var localTeacher="";
+
+    $(function () {
+
+    	//获取所有教师
+    	var ports=domainName+"/esb/api/group/getGroups";
+        var parameter={
+            token:JSON.parse(sessionStorage.baseUser).token,
+            udid:JSON.parse(sessionStorage.baseUser).udid, //最后从cookie里去
+            version:"3",  //终端
+            group_type:2,
+            identity:1,
+            org_id:baseParameter.org_id,
+            openid:baseParameter.openid,
+        }
+	     //显示学期
+	     //发送请求
+		  getData(ports, parameter,function(result){
+             if(result.code==200 && result.success==true){
+
+						var res = result.data.groupData;
+
+						localTeacher=result.data.groupData;
+
+						sessionStorage.allTeacher=JSON.stringify(res);
+
+						var html="";
+						if(res.length>0){
+							for(var m=res.length-1;m>=0;m--){
+							    console.info(m)
+                             console.info(res[m].memberData);
+
+							html  +='<li id="'+res[m].group_id+'"  >'+
+                               '<label class="label-checkbox item-content item-link">'+
+                               '<input type="checkbox" name="student" >'+//'+changedhtml+'
+                               '<div class="item-media"><i class="icon icon-form-checkbox"></i></div>'+
+                               '<div class="item-inner">'+
+                               '<div class="item-title-row">'+
+                               '<div class="item-title class_name">'+res[m].group_name+'</div>'+
+                               '<div class="item-after ">(<span class="changedSum" data-sum="'+(res[m].memberData==null?"0":res[m].memberData.length)+'">0</span>/'+(res[m].memberData==null?"0":res[m].memberData.length)+')</div>'+
+                               '</div>'+
+                               '</div>'+
+                               '</label><div class="studentDetail"></div>'+
+                               '</li>';
+
+
+							}
+						$("#allClass ul").append(html);
+				    }
+				}else{
+					$.alert(result.msg);
+				}
+		  });
+
+        $("#allGrade input").prop("checked",false);
+
+        //监控通知字数
+        $("#noticeText").keyup(function(){
+            var cnChar=$(this).val()
+            //var entryLen =cnChar.gblen();//算出实际的字符长度
+            var entryLen =cnChar.length;//算出实际的字符长度            
+            $("#noticeLength").text(entryLen);
+
+        }).change(function () {
+            var cnChar=$(this).val()
+            var entryLen =cnChar.length;//算出实际的字符长度
+           
+            $("#noticeLength").text(entryLen);
+        });
+
+        //粘贴事件
+        $("#noticeText").bind("cut paste",function(e){
+            var $this=$(this);
+            setTimeout(function () {
+                var cnChar=$this.val()
+                var entryLen =cnChar.length;//算出实际的字符长度              
+                $("#noticeLength").text(entryLen);
+            },10)
+        });
+
+        //从本地获取草稿
+        if(localStorage.tNotice!==undefined){
+        	$("#noticeText").val(localStorage.tNotice).change();
+        }
+        //每10秒保存一次通知内容
+        setInterval(function(){
+            var tNotice=$("#noticeText").val();
+        	if(localStorage.tNotice!==""){
+        		localStorage.tNotice=tNotice;
+        	}
+		},10000);
+
+
+
+        //全选操作(年级班级学生)
+  $("#allGrade").click(function(e){
+	      var $this=$(this);
+		  setTimeout(function(){
+				if($this.find("input").is(":checked")){
+					$("input[name=student]").prop("checked",true);
+					$(".changedSum").each(function(){
+						$(this).text($(this).attr("data-sum"));
+					})
+					for(var i=localTeacher.length-1;i>=0;i--){
+							localTeacher[i]["changed"]=true;
+							var member=localTeacher[i].memberData==null?0:localTeacher[i].memberData.length;
+							for(var m=member-1;m>=0;m--){
+								var obj=localTeacher[i].memberData[m];
+								 obj["changed"]=true;
+							}
+					}
+
+					$("#allGrade .chooseText").text("取消全选")
+				}else{
+					$("input[name=student]").prop("checked",false);
+					$(".changedSum").text("0");
+					for(var i=localTeacher.length-1;i>=0;i--){
+							delete localTeacher[i]["changed"];
+                            var member=localTeacher[i].memberData==null?0:localTeacher[i].memberData.length;
+							for(var m=member-1;m>=0;m--){
+								var obj=localTeacher[i].memberData[m];
+								delete obj["changed"];
+							}
+					}
+					$("#allGrade .chooseText").text("全选")
+				}
+		  },10);
+        });
+
+        //确认所选人员
+        $("#backNotice").click(function(){
+            var classId=$(this).attr("data-id");
+            //清空
+            for(var i=localTeacher.length-1;i>=0;i--){
+            	if(localTeacher[i].group_id==parseInt(classId)){
+            		for(var m=localTeacher[i].memberData.length-1;m>=0;m--){
+            			 var obj=localTeacher[i].memberData[m];
+            			 if(obj["changed"]!==undefined){
+            				 delete obj["changed"];
+            			 }
+
+            		}
+            		break;
+            	}
+
+            }
+
+            var changedsum=0;
+            $("#allStudent ul input:checked").each(function(){
+                var studentId=parseInt($(this).attr("id"));
+                for(var i=localTeacher.length-1;i>=0;i--){
+                	if(localTeacher[i].group_id==parseInt(classId)){
+                		for(var m=localTeacher[i].memberData.length-1;m>=0;m--){
+                			if(studentId==localTeacher[i].memberData[m].group_member_id){
+                			 var obj=localTeacher[i].memberData[m];
+                			 obj["changed"]=true;
+                			 changedsum+=1;
+                			}
+                		}
+                		break;
+                	}
+                }
+            });
+
+			if($("#allStudent input[name=student]").length==$("#allStudent input[name=student]:checked").length){
+
+				$("#"+classId).find("input").prop("checked",true);
+
+                for(var i=localTeacher.length-1;i>=0;i--){
+                    if(localTeacher[i].group_id==parseInt(classId)){
+                        localTeacher[i]["changed"]==true;
+                        break;
+                    }
+                }
+                $("#changAllStu").addClass("changAllStu").text("取消全选");
+
+                //判断是否选择了全部
+                if($("#allClass input[name=student]").length==$("#allClass input[name=student]:checked").length) {
+                    $("#allGrade input").prop("checked",true);
+                    $("#allGrade .chooseText").text("取消全选");
+                }
+
+			}else {
+				$("#"+classId).find("input").prop("checked",false);
+                $("#changAllStu").removeClass("changAllStu").text("全选");
+                $("#allGrade input").prop("checked",false);
+                $("#allGrade .chooseText").text("全选");
+			}
+
+            $("#"+classId).find(".changedSum").text(changedsum);
+        });
+
+
+        /* var localClass=JSON.parse(sessionStorage.allClass);*/
+        //选择/取消全部学生
+        $("#changAllStu").click(function(){
+            if($(this).hasClass("changAllStu")){
+                $(this).removeClass("changAllStu").text("全选");
+                $("#allStudent ul input").prop("checked",false);
+                //localAllClass[n].changed=true;
+            }else{
+                $(this).addClass("changAllStu").text("取消全选");
+                $("#allStudent ul input").prop("checked",true);
+            }
+        });
+
+
+        //选择班级判断
+        $('#allClass').on('click',"li", function(event){
+        	 var classID=$(this).attr("id");
+             var $this=$(this);
+            if($(event.target).hasClass("studentDetail")){
+                //是否全选
+                if($(this).closest("li").find("input").is(":checked")){
+                    $("#changAllStu").addClass("changAllStu").text("取消全选");
+                }else{
+                    $("#changAllStu").removeClass("changAllStu").text("全选");
+                }
+            	$("#backNotice").attr("data-id",classID);
+                var studentHtml="";
+                for(var i=0;i<localTeacher.length;i++){
+                	if(localTeacher[i].group_id==classID){
+                		for(var m=0;m<localTeacher[i].memberData.length;m++){
+                            var obj=localTeacher[i].memberData[m];
+                            var bindstr = '';
+                            console.log(obj)
+                            if(obj.changed==true){
+                            	var changedhtml="checked=checked";
+                            }else{
+                            	var changedhtml="";
+                            }
+                           studentHtml +='<li>'+
+    			                         '<label class="label-checkbox item-content">'+
+    				                         '<input type="checkbox" name="student"  id="'+obj.group_member_id+'" '+changedhtml+' >'+
+    				                         '<div class="item-media"><i class="icon icon-form-checkbox"></i></div>'+
+    				                         '<div class="item-inner">'+
+    				                         '<div class="item-title-row">'+
+    				                         '<div class="item-title class_name">'+obj.mem_name+'</div>'+
+    				                         '<div class="item-after "></div>'+
+    				                         '</div>'+
+    				                         '</div>'+
+    			                         '</label>'+
+    			                         '</li>';
+
+                		}
+
+                		break;
+                	}
+
+                }
+
+                $("#allStudent ul").html(studentHtml);
+                $.router.loadPage("#classDetail");
+                return false
+			}
+
+
+            setTimeout(function(){
+
+				if(!$this.find("input").is(":checked")){
+					for(var i=localTeacher.length-1;i>=0;i--){
+						if(localTeacher[i].group_id==classID){
+							delete localTeacher[i]["changed"];
+							for(var m=localTeacher[i].memberData.length-1;m>=0;m--){
+								var obj=localTeacher[i].memberData[m];
+								delete obj["changed"];
+							}
+							break;
+						}
+					}
+                    $this.find(".changedSum").text("0");
+
+                    $("#allGrade input").prop("checked",false);
+                    $("#allGrade .chooseText").text("全选");
+
+
+                    $("#changAllStu").removeClass("changAllStu").text("全选");
+
+				}else{
+					var sum=0
+					for(var i=localTeacher.length-1;i>=0;i--){
+
+						if(localTeacher[i].group_id==classID){
+							localTeacher[i]["changed"]=true;
+							for(var m=localTeacher[i].memberData.length-1;m>=0;m--){
+								var obj=localTeacher[i].memberData[m];
+								 obj["changed"]=true;
+							}
+                            $this.find(".changedSum").text(localTeacher[i].memberData.length);
+							break;
+						}
+					}
+
+                    $("#changAllStu").addClass("changAllStu").text("取消全选");
+
+                    //判断是否选择了全部
+                    if($("#allClass input[name=student]").length==$("#allClass input[name=student]:checked").length) {
+                        $("#allGrade input").prop("checked",true);
+                        $("#allGrade .chooseText").text("取消全选");
+                    }
+
+                }
+
+            },10)
+
+
+        });
+
+
+
+        //发送通知
+        $("#toSend").click(function(){
+
+            var message=$("#noticeText").val();//通知内容
+            if($.trim(message)==""){
+                $.alert("通知内容不能为空！");
+                return false
+            }
+            if($.trim(message).length<2){
+                $.alert("通知内容不能少于2个字!");
+                return false;
+            }
+            //是否让回执
+            var receipt=$("#receipt").is(":checked")?"1":"0";
+
+
+            var changedTeacher=[];
+            var changedTG=[];
+
+
+            //获取发送对象
+                for(var i=localTeacher.length-1;i>=0;i--){
+                	   var sum=0
+                		for(var m=localTeacher[i].memberData.length-1;m>=0;m--){
+                            var obj=localTeacher[i].memberData[m];
+                            if(obj["changed"]==true){
+                            	sum+=1;
+                            	changedTeacher.push(localTeacher[i].group_id+"_"+obj.user_id)
+                            }
+                		}
+                	   console.info(sum)
+                }
+
+           if(changedTeacher.length==0&&changedTG.length==0){
+                $.alert("请选择发送对象！");
+                return false
+            }
+
+            //保存提示
+			 $.showPreloader("正在发布，请稍后");
+
+            //如果都上传完毕则保存到本地数据库
+            base =JSON.parse(sessionStorage.baseUser);
+           if(images.localId.length>0){
+               HandleData(images.localId.length)
+		   }else{
+               var parameter={
+                   token:base.token,
+                   udid:base.udid,
+                   version:3,
+                   uid:base.orguser.user_id,
+                   org_id:base.orguser.org_id,
+                   content:message,
+                   target:JSON.stringify({"t":changedTeacher,"tg":changedTG}),
+                   is_receipt:receipt,
+                   media:images.serverId.join(","),
+                   type:2
+               }
+
+               getDataNoLoading(domainName+"/eduWeixin/notice/SendNotice", parameter,function(result){
+            	   $.hidePreloader();
+                   if(result.code==200 && result.success==true){
+                	  //清空本地存储
+                   	  localStorage.removeItem("tNotice");
+                       //系统时间
+                       $.alert("发布成功！",function(){
+                           window.location="list.html";
+                       });
+                       setTimeout(function(){window.location="list.html"},600);
+                   }else{
+                       $.alert(result.msg);
+                   }
+               },"POST");
+		   }
+
+            //递归调用图片上传
+            function HandleData(n) {
+                var m=0;
+                (function loadData(m){
+
+                    wx.uploadImage({
+                        localId: images.localId[m], // 需要上传的图片的本地ID，由chooseImage接口获得
+                        isShowProgressTips: 0,// 默认为1，显示进度提示
+                        success: function (res) {
+                            images.serverId.push(res.serverId); // 返回图片的服务器端ID
+                            if(m<(n-1)){
+                                loadData(m+1);
+                            }else{
+
+                                var parameter={
+                                    token:base.token,
+                                    udid:base.udid,
+                                    version:3,
+                                    uid:base.orguser.user_id,
+                                    org_id:base.orguser.org_id,
+                                    content:message,
+                                    target:JSON.stringify({"t":changedTeacher,"tg":changedTG}),
+                                    is_receipt:receipt,
+                                    media:images.serverId.join(","),
+                                    type:2
+                                }
+
+                                getDataNoLoading(domainName+"/eduWeixin/notice/SendNotice", parameter,function(result){
+                                	$.hidePreloader();
+                                    if(result.code==200 && result.success==true){
+                                    	//清空本地存储
+                                     	  localStorage.removeItem("tNotice");
+                                        //系统时间
+                                        $.alert("发布成功！",function(){
+                                            window.location="list.html";
+                                        });
+                                        setTimeout(function(){window.location="list.html"},600);
+                                    }else{
+                                        $.alert(result.msg);
+                                    }
+                                },"POST");
+							}
+						}
+					});
+				}(m));
+			}
+
+        });
+
+    })
+</script>
+ 

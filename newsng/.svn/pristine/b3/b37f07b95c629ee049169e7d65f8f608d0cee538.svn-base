@@ -1,0 +1,135 @@
+<style>
+    .print_toolbox button { margin-bottom: 5px; margin-left: 5px; cursor: move}
+    .printClosed {
+        position: absolute;
+        background: #FF5722;
+        top: -12px;
+        right: -12px;
+        width: 24px;
+        height: 24px;
+        line-height: 21px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+    .print_showbox {
+        height: 560px;
+        line-height: 36px;
+        text-align: center;
+        border: 1px #d4d4d4 solid;
+        margin-bottom: 30px;
+        font-size: 14px;
+        padding-top: 160px;
+        /* width: 807px; */
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0px 0px 5px #d3d6da inset;
+    }
+
+
+</style>
+<div style="padding: 40PX;">
+    <form class="gui-form gui-form-label-right" id="add-form" novalidate="novalidate">
+
+        <div class="gui-form-item"><label class="gui-form-item-label">凭证尺寸</label>
+            <div class="gui-form-item-content">
+                <input type="text" name="username" placeholder="请输入宽度" class="gui-input" value="" maxlength="50" style="margin-right: 5px">*
+                <input type="text" name="username" placeholder="请输入高度" class="gui-input" value="" maxlength="50" >（单位：mm）
+                <button type="submit" class="gui-btn gui-btn-normal"><i class="fa fa-save"></i><span>选择图片</span></button>
+            </div>
+        </div>
+        <div class="line"></div>
+        <div class="print_box">
+            <div class="print_toolbox">
+                <button id="type_1" type="button" class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">主标题</button>
+                <button id="type_2" type="button" class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">副标题</button>
+                <button id="type_3" type="button" class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">学期</button>
+                <button id="type_4" type="button" class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">学员姓名</button>
+                <button id="type_5" type="button" class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">证件号</button>
+                <button id="type_6" type="button" class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">教师姓名</button>
+                <button id="type_7" type="button" class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">科目班级</button>
+                <button id="type_8" type="button" class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">班级类型</button>
+                <button id="type_9" type="button" class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">课时数</button>
+                <button id="type_10" type="button" class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">开课日期</button>
+                <button id="type_11" type="button" class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">上课时间</button>
+                <button id="type_12" type="button" class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">学费标准</button>
+                <button id="type_13" type="button" class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">校区</button>
+                <button id="type_14" type="button" class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">教室</button>
+                <button id="type_15" type="button" class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">班容量</button>
+                <button id="type_16" type="button" class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">缴费方式</button>
+                <button id="type_17" type="button" class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">缴费金额</button>
+                <button id="type_18" type="button" class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">缴费金额大写</button>
+                <button id="type_19" type="button" class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">缴费时间</button>
+                <button id="type_20" type="button" class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">凭证编号</button>
+                <button id="type_21" type="button" class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">凭证日期</button>
+                <button id="type_22" type="button" class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">操作人</button>
+                <button id="type_23" type="button" class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">自定义1</button>
+                <button id="type_24" type="button" class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">自定义2</button>
+                <button id="type_25" type="button" class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">自定义3</button>
+                <button id="type_26" type="button" class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">自定义4</button>
+                <button id="type_27" type="button" class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">自定义5</button>
+                <button id="type_28" type="button" class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">自定义6</button>
+                <button id="type_29" type="button" class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">自定义7</button>
+                <button id="type_30" type="button" class="gui-btn gui-btn-normal ui-draggable" title="拖动加入打印项">自定义8</button>
+            </div>
+            <div class="line"></div>
+            <div class="print_showbox ui-droppable ui-state-highlight" id="print_showbox">
+                <img id="ImgPr" style="position:absolute;top:-10px;left:0;z-index: -1" width="" src="images/print.jpg">
+            </div>
+
+        <div class="gui-form-item">
+            <div class="gui-form-item-content" >
+                <button type="submit" class="gui-btn gui-btn-normal"><i class="fa fa-save"></i><span>保存学期</span></button>
+                <button type="button" class="gui-btn gui-btn-primary" id="back"><i class="fa fa-angle-left"></i><span>取消返回</span></button>
+            </div>
+        </div>
+    </form>
+    <script type="text/javascript" src="js/print//jqueryui-core-drag.js"></script>
+    <script type="text/javascript" src="js/print/LodopFuncs.js"></script>
+    <script type="text/javascript" src="js/print/uploadPreview.min.js"></script>
+    <script>
+        $(function() {
+
+            //本地存储按钮的位置信息
+            var toolPosition = {};
+            var updata = [];
+
+
+            $(".print_toolbox button").draggable({
+                revert: "invalid",
+                opacity: 0.35,
+                stop: function(event, ui) {
+                    var top = $(this).position().top - 124,
+                        left = $(this).position().left;
+                    //存入本地
+                    toolPosition[$(this)[0].id] = ({
+                        top: top,
+                        left: left,
+                        content: $(this)[0].innerHTML
+                    });
+
+                    //清空数组里的信息
+                    updata.splice(0, updata.length);
+                    //按钮位置信息
+                    $(this).attr("data-save", "yes");
+                    if($(this).find("div").length == 0 && $(this).position().top > 57) {
+                        $(this).append("<div class=\"printClosed\">x</div>");
+                    }
+                }
+            });
+
+            //定义范围
+            $("#print_showbox").droppable({
+                activeClass: "ui-state-hover",
+                hoverClass: "ui-state-active",
+                drop: function(event, ui) {
+                    $(this).addClass("ui-state-highlight").find("p").html("Dropped!");
+                }
+            });
+
+
+
+        })
+    </script>
+
+</div>

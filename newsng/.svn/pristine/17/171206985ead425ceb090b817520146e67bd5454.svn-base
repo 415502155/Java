@@ -1,0 +1,47 @@
+package sng.dao.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.transform.Transformers;
+import org.springframework.stereotype.Repository;
+
+import sng.dao.BaseSetCategoryManageDao;
+import sng.entity.Category;
+
+@Repository
+public class BaseSetCategoryManageDaoImpl extends BaseDaoImpl<Category> implements BaseSetCategoryManageDao {
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Category> queryCategoryByCategoryName(Category category) {
+		// TODO Auto-generated method stub
+		StringBuffer sql = new StringBuffer();
+		List<Object> paramList = new ArrayList<>();
+		sql.append("select c.* from category c where 1=1");
+		if (category != null) {
+			if (category.getOrg_id() != null) {
+				sql.append(" and c.org_id=?");
+				paramList.add(category.getOrg_id());
+			}
+			if (StringUtils.isNotBlank(category.getCategory_name())) {
+				sql.append(" and c.category_name like %?%");
+				paramList.add(category.getCategory_name());
+			}
+		}
+
+		Session session = this.factory.getCurrentSession();
+		Query query = session.createSQLQuery(sql.toString());
+		for (int i = 0; i < paramList.size(); i++) {
+             query.setParameter(i, paramList.get(i));
+		}
+		
+		return (List<Category>)query.setResultTransformer(Transformers.TO_LIST);
+	}
+	
+	
+
+}

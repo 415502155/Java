@@ -1,0 +1,126 @@
+
+<div style="padding: 40PX;">
+    <form class="gui-form gui-form-label-right" id="addCampus-form" novalidate="novalidate">
+
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">校区名称</label>
+            <div class="gui-form-item-content">
+                <input type="text" name="campusName" placeholder="请输入校区名称" id="cam_name" class="gui-input" value="" maxlength="20" >
+            </div>
+        </div>
+        <div class="line"></div>
+        <div class="gui-form-item"><label class="gui-form-item-label">校区地址</label>
+            <div class="gui-form-item-content">
+                <input type="text" name="cam_add" placeholder="请输入校区地址" class="gui-input" id="cam_add" maxlength="50">
+            </div>
+        </div>
+
+        <div class="gui-form-item ">
+            <label class="gui-form-item-label">联系电话</label>
+            <div class="gui-form-item-content">
+                <div class=" gui-select-single">
+                    <input type="text" name="cam_mob" placeholder="请输入校区联系电话" class="gui-input" value="" maxlength="20" id="cam_mob" >
+                </div>
+            </div>
+        </div>
+
+        <div class="gui-form-item">
+            <label class="gui-form-item-label">导航信息</label>
+            <div class="gui-form-item-content">
+                <div class=" gui-select-single">
+                    <input type="text" name="coordinate" placeholder="请输入导航信息" class="gui-input" value="" maxlength="50" id="cam_coordinate">
+                </div>
+            </div>
+        </div>
+
+        <div class="gui-form-item "><label class="gui-form-item-label">备注信息</label>
+            <div class="gui-form-item-content">
+                <textarea placeholder="请输入..." rows="2" class="gui-textarea" id="cam_note" maxlength="100"></textarea>
+            </div>
+        </div>
+        <div class="line"></div>
+        <div class="gui-form-item">
+            <div class="gui-form-item-content" >
+                <button type="button" class="gui-btn gui-btn-normal" id="savaCampus"><i class="fa fa-save"></i><span>保存校区</span></button>
+                <button type="button" class="gui-btn gui-btn-primary" id="back"><i class="fa fa-angle-left"></i><span>取消返回</span></button>
+            </div>
+        </div>
+    </form>
+</div>
+<script type="text/javascript" src="plus/validate/jquery-validate.js"></script>
+<script>
+    $(function() {
+
+        //编辑则赋值
+        var nowCamid=GetUrlParam("cam_id");
+        if(nowCamid!==""){
+           var campusObj=JSON.parse(sessionStorage.localCampus)[nowCamid];
+            $("#cam_name").val(campusObj.cam_name);
+            $("#cam_mob").val(campusObj.cam_mobile);
+            $("#cam_coordinate").val(campusObj.navigation_info);
+            $("#cam_add").val(campusObj.cam_address);
+            $("#cam_note").val(campusObj.note);
+        }
+
+
+
+        //校验规则
+        $("#addCampus-form").validate({
+            rules: {
+                campusName: {
+                    required: true,
+                    minlength:2,
+                    maxlength:20
+                }
+            },
+            messages: {
+                campusName: {
+                    required: '请输入校区名称',
+                    minlength:'教室名称最少2个字符',
+                    maxlength:'教室名称不能超过20个字'
+                }
+            },
+            errorPlacement: function(error, element) {
+                error.appendTo(element.parent().after())
+            },
+            errorClass: 'gui-form-item-error',
+            errorElement: 'span',
+            submitHandler: function(form) {
+
+                //保存或者更新校区信息
+                var cam={
+                    "parameter":{
+                        "org_id":option.org_id,
+                        "cam_id":nowCamid,
+                        "cam_name":$("#cam_name").val(),
+                        "cam_address":$("#cam_add").val(),
+                        "cam_mobile":$("#cam_mob").val(),
+                        "navigation_info":$("#cam_note").val(),
+                        "note":$("#cam_note").val()
+                    },
+                    "url":domain+"baseSet/campusManage/createAndUpdateCampus.json"
+                };
+
+                //保存或者更新校区
+                getData(cam.url,cam.parameter,function (data) {
+                    console.log(data)
+                    if(data.code==200 && data.success==true){
+                        myAlert("保存成功",1,data.code,function () {
+                            window.location.href="#f12"
+                        });
+                    }else {
+                        myAlert(data.msg,2,data.code,null);
+                    }
+                },"POST",false)
+            }
+        });
+
+        //提交
+        $("#savaCampus").click(function () {
+            $("#addCampus-form").submit();
+        });
+
+
+    })
+</script>
+
+

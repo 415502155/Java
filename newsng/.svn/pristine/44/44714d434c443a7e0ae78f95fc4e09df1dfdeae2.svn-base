@@ -1,0 +1,248 @@
+
+var domain = localStorage.getItem('domain');
+var useName = localStorage.getItem('use');
+var user_id = localStorage.getItem('user_id');
+var orgName = localStorage.getItem('org');
+var token = localStorage.getItem('token');
+var udid = localStorage.getItem('udid');
+var org_id = localStorage.getItem('org_id');
+//orgName
+var org = localStorage.getItem('org');
+var data;
+var datel;
+var title;
+console.log(useName)
+console.log(user_id)
+
+ data = JSON.parse(localStorage.getItem('data'));
+datel = data.date;
+title = data.title;
+$(function(){
+	alert(1)
+	loa(data,datel,title)
+})
+
+function loa(data,datel,title){	
+	console.log(data.errorNum)
+		console.log(data)
+		//错误项时的显示
+		if(data.errorNum){
+			$('.bod-con-fer-fun2').show();
+			$('.bod-con-pay1-d').show();
+			$('.bod-con-fer-fun1').hide();
+		}else{
+			$('.bod-con-fer-fun1').show();
+			$('.bod-con-fer-fun2').hide();
+			$('.bod-con-pay1-d').hide();
+		}
+		$('.bod-con-fer-formHead-a').text('员工总数'+data.totalNum+'人');
+		$('.bod-con-fer-formHead-b').text('当前上传人数'+data.currentNum+'人');
+		$('.bod-con-fer-title').text(title);
+		$('.bod-con-fer-date').text(datel);
+		if(data.errorNum){
+			$('.bod-con-fer-formHead-c').show();
+			$('.bod-con-fer-formHead-c').text('错误人数'+data.errorNum+'人，可下载错误反馈表查看')
+		}else{
+			$('.bod-con-fer-formHead-c').hide()
+		}
+		 //加载数据
+		lo(data);
+	    function lo(data){
+			$('tBody').html('');
+			$('thead').html('');
+			//表头
+			var Tr;	
+			//表身
+			var tr;
+			var operation;
+			//退费
+			var Refund;
+				//表头
+			Tr = '<tr>';
+			Tr +='<td>序号</td>'
+			for(var i=0;i<data.excelHeadLine.length;i++){
+				
+				Tr+= '<td>'+data.excelHeadLine[i]+'</td>';			
+			}
+			Tr += '</tr>';
+			
+			var data = data.excelBody.sort(compare("itemIndex"));
+			//console.log(data)
+			var err = '';
+			var inde;
+			$(data).each(function(i,e){
+				//console.log(e)
+				i = ++i;
+				tr += '<tr>'
+				tr += '<td>'+i+'</td>'
+				for(var i=0;i<e.items.length;i++){
+					//alert(1)
+					//console.log(e.items)
+					tr += '<td>'+e.items[i].value+'</td>';
+					if(e.items[i].errorMessage){
+						err = this.items[i].value;
+						inde = this.items[i].itemIndex
+					}
+				}
+				tr+='</tr>'		
+			})									
+			//console.log(err)
+			//console.log(inde+1)
+			inde = inde+1
+			if(tr){
+				$('thead').html(Tr);
+				$('tBody').html(tr);
+			}else{$('tBody').html("暂无数据")}		
+			//console.log($('tBody tr:eq('+0+') td:eq(inde)').text())	
+			//console.log($('tBody tr').eq(2).text())	
+			if(err){
+				for(var i=0;i<$('tBody tr').length;i++){
+					var tu = $('tBody tr').eq(i);
+					console.log(err)
+					if(tu.text().indexOf(err)!=-1){
+						$(tu).css({"background":"red"})	
+					}
+				
+				}
+			}else{
+				for(var i=0;i<$('tBody tr').length;i++){
+					var tu = $('tBody tr').eq(i);
+					
+					
+						$(tu).css({"background":""})	
+					
+				
+				}
+			}
+			
+		}
+	}
+
+$(function(){
+	//console.log(data)
+	//loa()
+	
+	
+})
+//重新上传
+$(".bod-con-pay1-cgz").change(function(){
+ 	$("#salaryForm").ajaxSubmit({
+ 		type:"post",
+ 		dataType:"json",
+ 		url:domain+'/shijiwxy/portal/salaryManagement/uploadExcel.json',
+ 		data : {"token":token,"udid":udid,"org_id":org_id,"version":0,"title":title,"date":datel},	 		
+		success:function(res){ 					
+			if(res.code== 200 && res.success == true){
+				alert('上传成功');
+				console.log(res)
+				//errorNum = res.errorNumz
+				var data = res.data
+				localStorage.setItem('data',JSON.stringify(data));
+				data = JSON.parse(localStorage.getItem('data'));
+				datel = data.date;
+				title = data.title;
+				loa(data,datel,title)
+			}else{
+				alert('上传失败');
+			}
+		}, 
+		error : function(responseStr) { 
+			alert("error");
+		} 	
+ 	});
+ })
+
+//下载错误反馈
+$('.bod-con-fer-fun2').click(function(){
+	
+	if(data.errorNum){
+		$('.bod-con-fer-fun2').show();
+		window.open(domain+'/shijiwxy/portal/salaryManagement/downloadErrorExcel.htm?token='+token+'&udid='+udid+'&org_id='+org_id+"&version=0&orgName="+org)
+	}else{
+		return false
+		$('.bod-con-fer-fun2').hide();
+		
+	}
+})
+//点击发送工资条
+$('.bod-con-fer-fun1').click(function(){
+	
+		requestData(
+		 	domain+'/shijiwxy/portal/salaryManagement/sendSalaryNotice.json',
+		 	
+			{"token":token,"udid":udid,"version":0,"org_id":org_id,"tech_id":user_id,"tech_name":useName},
+			'GET',
+	     	'JSON',
+	     	function successfn(d){
+	     		console.log(d)
+	     		if(d.code == "200" && d.success == true){
+	     			alert(d.message)
+	     			//lo(d.data)
+	     			//$('.bod-con-se3-PAGE').text('第1页  >')
+	     		}else{
+	     			alert(d.message)
+	     		}
+	     	},
+			function error(e){
+	     		alert(d.message)
+	        }
+		)
+	
+})
+//下载工资模板
+$('.bod-con-fer-footer2').click(function(){
+	window.open(domain+'/shijiwxy/portal/salaryManagement/downloadExcelTemplate.htm?token='+token+'&udid='+udid+'&org_id='+org_id+"&version="+0)
+})
+//排序
+function compare(property) {
+	return function(a, b) {
+	    var value1 = a[property];
+	    var value2 = b[property];
+	    return value1 - value2;
+	}
+}
+//点击查看发布记录
+$('.bod-right-tit-c').click(function(){
+	 window.history.pushState(null, null,domain+'/shijiwxy/web/html/Wage/wage-record.html')
+	 linkArticlelitt(domain+'/shijiwxy/web/html/Wage/wage-record.html',true,'wage-record')
+})
+//渲染函数
+function lo(data){
+	$('tBody').html('');
+	$('thead').html('');
+	//表头
+	var Tr;	
+	//表身
+	var tr;
+	var operation;
+	//退费
+	var Refund;
+		Tr = '<tr>';
+		Tr +='<td>序号</td>'
+		for(var i=0;i<data.headLine.length;i++){
+			
+			Tr+= '<td>'+data.headLine[i]+'</td>';			
+		}
+		Tr += '</tr>';
+		
+		var data = data.recordList.sort(compare("itemIndex"));
+		//console.log(data)
+			$(data).each(function(i,e){
+				//console.log(e)
+				i = ++i;
+				tr += '<tr>'
+				tr += '<td>'+i+'</td>'
+				for(var i=0;i<e.items.length;i++){
+					//alert(1)
+					//console.log(e.items)
+					tr += '<td>'+e.items[i].value+'</td>'
+				}
+				tr+='</tr>'		
+			})									
+	
+	if(tr){
+		$('thead').html(Tr);
+		$('tBody').html(tr);
+	}else{$('tBody').html("暂无数据")}
+	
+}

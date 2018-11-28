@@ -1,0 +1,129 @@
+package sng.pojo;
+
+import java.io.Serializable;
+import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class ClassToTeacher implements Serializable {
+
+	/**
+	 * 班级-教师 列表
+	 */
+	private static final long serialVersionUID = 1L;
+
+	private Integer clas_id;
+	private String clas_name;
+	private Integer clas_type;
+	private String cam_name;
+	private String classroom_name;
+	private Date class_start_date;
+	private Date class_begin_time;
+	private String tech_names;
+	private String tuition_fees;
+	private Integer size; // 班容量
+	private Integer ss_num;// 实收人数
+	private String divide;// 实收人数/班容量
+
+	public Integer getClas_id() {
+		return clas_id;
+	}
+
+	public void setClas_id(Integer clas_id) {
+		this.clas_id = clas_id;
+	}
+
+	public String getClas_name() {
+		return clas_name;
+	}
+
+	public void setClas_name(String clas_name) {
+		this.clas_name = clas_name;
+	}
+
+	public Integer getClas_type() {
+		return clas_type;
+	}
+
+	public void setClas_type(Integer clas_type) {
+		this.clas_type = clas_type;
+	}
+
+	public String getCam_name() {
+		return cam_name;
+	}
+
+	public void setCam_name(String cam_name) {
+		this.cam_name = cam_name;
+	}
+
+	public String getClassroom_name() {
+		return classroom_name;
+	}
+
+	public void setClassroom_name(String classroom_name) {
+		this.classroom_name = classroom_name;
+	}
+
+	public Date getClass_start_date() {
+		return class_start_date;
+	}
+
+	public void setClass_start_date(Date class_start_date) {
+		this.class_start_date = class_start_date;
+	}
+
+	public Date getClass_begin_time() {
+		return class_begin_time;
+	}
+
+	public void setClass_begin_time(Date class_begin_time) {
+		this.class_begin_time = class_begin_time;
+	}
+
+	public String getTech_names() {
+		return tech_names;
+	}
+
+	public void setTech_names(String tech_names) {
+		this.tech_names = tech_names;
+	}
+
+	public String getTuition_fees() {
+		return tuition_fees;
+	}
+
+	public void setTuition_fees(String tuition_fees) {
+		this.tuition_fees = tuition_fees;
+	}
+
+	public Integer getSize() {
+		return size;
+	}
+
+	public void setSize(Integer size) {
+		this.size = size;
+	}
+
+	public Integer getSs_num() {
+		return ss_num;
+	}
+
+	public void setSs_num(Integer ss_num) {
+		this.ss_num = ss_num;
+	}
+
+	public String getDivide() {
+		return divide;
+	}
+
+	public void setDivide(String divide) {
+		this.divide = divide;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
+	
+}

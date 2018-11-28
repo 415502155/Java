@@ -1,0 +1,178 @@
+@charset "utf-8";
+/* CSS Document */
+/*数据统计*/
+.dataStatistics {
+	margin-top: -44px;
+	text-align: right;
+	padding-right: 10px;
+}
+ .numberShow { color: #cc5200;min-width: 24px;display: inline-block; text-align: center}
+/*数据操作*/
+.dataStatistics .numberShow i {color: #c0c0c0}
+.dataTool {clear: both; height: 100px;border-top: 1px #ccc dotted;padding-top: 18px;margin-top: 24px; color: #b3b3b3}
+.dataTool input {margin-top: -1px;vertical-align: middle;margin-right: 8px;}
+.dataTool label { line-height: 32px;}
+/*
+* form
+* 表单样式
+* 包含报错信息
+*
+* */
+.gui-form .gui-form-item-label {
+	text-align: right;
+	vertical-align: middle;
+	float: left;
+	font-size: 14px;
+	color: #555555;
+	line-height: 1;
+	padding: 10px 12px 10px 0;
+	box-sizing: border-box;
+	width: 80px;
+}
+.gui-select {
+	display: inline-block;
+	width: 100%;
+	height: 32px;
+	line-height: 1.5;
+	padding: 4px 7px;
+	font-size: 14px;
+	border: 1px solid #e2e2e2;
+	border-radius: 3px;
+	color: #657180;
+	background-color: #fff;
+	background-image: none;
+	position: relative;
+	cursor: text;
+	transition: border .2s ease-in-out,background .2s ease-in-out,box-shadow .2s ease-in-out;
+	max-width: 300px;
+}
+.gui-form-item-content {
+	position: relative;
+	font-size: 14px;
+	margin-left: 90px;
+	color: #9e9e9e;
+	line-height: 34px;
+}
+
+.gui-form-item-content button {
+    line-height: 18px;
+}
+
+.readonlyInput {
+	border: none;
+	color: #969696;
+}
+
+.line {
+	border-bottom: 1px #ccc dotted;
+	margin: 20px 0;
+}
+
+
+/*开关*/
+[class|=switch] {
+	position: relative;
+	display: inline-block;
+	width: 40px;
+	height: 24px;
+	border-radius: 16px;
+	line-height: 32px;
+	-webkit-tap-highlight-color: transparent
+}
+
+.switch-on {
+	border: 1px solid #fff;
+	box-shadow: #fff 0 0 0 16px inset;
+	transition: border .4s,box-shadow .2s,background-color 1.2s;
+	background-color: #fff;
+	cursor: pointer
+}
+
+.slider {
+	position: absolute;
+	display: inline-block;
+	width: 22px;
+	height: 22px;
+	background: #fff;
+	box-shadow: 0 1px 3px rgba(0,0,0,.4);
+	border-radius: 50%;
+	left: 0;
+	top: 0
+}
+
+.switch-on .slider {
+	left: 15px;
+	transition: background-color .4s,left .2s
+}
+
+.switch-off {
+	border: 1px solid #dfdfdf;
+	transition: border .4s,box-shadow .4s;
+	background-color: #fff;
+	box-shadow: #dfdfdf 0 0 0 0 inset;
+	background-color: #fff;
+	cursor: pointer
+}
+
+.switch-off .slider {
+	left: 0;
+	transition: background-color .4s,left .2s
+}
+
+.switch-on.switch-disabled {
+	opacity: .5;
+	cursor: auto
+}
+
+.switch-off.switch-disabled {
+	background-color: #f0f0f0!important;
+	cursor: auto
+}
+
+/*表单里单选 及复选框*/
+.form-label { line-height: 34px; margin-right: 24px;}
+.form-label input { vertical-align: middle}
+
+.formlink {
+	color:#2d8cf0;
+	cursor: pointer;
+	display: inline-block;
+}
+
+/*表单报错*/
+.gui-form-input-error {
+	border: 1px solid #f30;
+	outline: 0;
+	box-shadow: 0 0 0 2px rgba(255, 51, 0, 0.15);
+	border: 1px #f30 solid;
+	background-color:#fff5f3 ;
+
+}
+.gui-form-input-error:focus {
+	border: 1px solid #f30;
+	outline: 0;
+	box-shadow: 0 0 0 2px rgba(255, 51, 0, 0.15);
+	border: 1px #f30 solid;
+	background-color:#fff5f3 ;
+}
+
+.gui-form-item-error {
+	color: #f30;
+	margin-left: 15px;
+	font-size: 14px;
+}
+
+input[data-date='YYYY-MM-DD'] {
+	background-image:url(../images/datebg.png);
+	background-position:96px 6px ;
+	background-repeat:no-repeat;
+	width: 120px;
+}
+input[data-date='YYYY-MM-DD hh:mm:ss']{
+	background-image: url(../images/datebg.png);
+	background-position:135px 6px;
+	background-repeat:no-repeat;
+	width: 160px;
+}
+
+

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>请假</title>
+	<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+	<!--<link rel="shortcut icon" href="/favicon.ico">-->
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<!--ui包-->
+	<link rel="stylesheet" href="../../../css/sm.css">
+	<link rel="stylesheet" href="../../../css/layout.css">
+	<script src='../../../js/zepto.min.js'></script>
+	<script src='../../../js/sm.min.js'></script>
+	<script src='../../../js/config.js'></script>
+    <style>
+		.changedItem {
+			text-align:right;width: 70%;
+			margin-top: -.36rem;
+		}
+	</style>
+</head>
+<body>
+	<div class="page-group">
+		<div class="page page-current" id="set">
+			<div class="content native-scroll">
+				<div class="content-block-title" id="nowDate"> </div>
+					<div class="list-block">
+						<ul>
+							<li>
+								<div class="item-content  item-link" style="overflow: hidden">
+									<div class="item-inner">
+										<div class="item-title label">请假类型</div>
+										<div class="item-input " id="nowsRelation">
+											<input type="text" placeholder="选择请假类型" id="changedType" readonly="" value="" class="changedItem" >
+										</div>
+									</div>
+								</div>
+							</li>
+							</li>
+							<li>
+								<div class="item-content  item-link" style="overflow: hidden">
+									<div class="item-inner">
+										<div class="item-title label">开始时间</div>
+										<div class="item-input">
+											<input type="tel" placeholder="请选择开始时间" id="startTime" name="startTime" class="changedItem">
+										</div>
+									</div>
+								</div>
+							</li><li>
+							<div class="item-content  item-link" style="overflow: hidden">
+								<div class="item-inner">
+									<div class="item-title label">结束时间</div>
+									<div class="item-input">
+										<input type="tel" placeholder="请选择结束时间" id="endTime" name="endTime" class="changedItem">
+									</div>
+								</div>
+							</div>
+						</li>
+						</ul>
+					</div>
+						<div class="list-block">
+							<ul>
+							<li class="align-top"  >
+								<div class="item-content">
+									<div class="item-inner">
+										<!--通知内容-->
+										<div class="item-input">
+											<!--内容-->
+											<textarea placeholder="请输入请假原因！" id="leaveText" maxlength="120" ></textarea>
+											<!--内容-->
+											<!--通知内容 End-->
+										</div>
+									</div>
+								</div>
+							</li>
+						</ul>
+					</div>
+					<div class="content-block">
+						<a href="javascript:void(0)" class="button button-fill external" id="toApply">提交请假</a>
+					</div>
+
+
+
+			</div>
+		</div>
+	</div>
+</body>
+</html>
+
+<script>
+$(function () {
+    //赋值:日期标题
+    $("#nowDate").text(GetUrlParam("date"));
+    $("title").text(JSON.parse(sessionStorage.nowStudent).stud_name+"请假");
+
+    $("#toApply").click(function () {
+
+        var leaveType=$("#changedType").val();
+        var leaveStart=$("#startTime").val();
+        var leaveEnd=$("#endTime").val();
+        var leaveText=$("#leaveText").val();
+
+        var sysTime=new Date(GetUrlParam("date").replace(/\-/g,"/")).getTime();
+
+        if(leaveType==""){
+            $.alert("请选择请假类型");
+            return false
+		}
+
+        if(leaveStart==""){
+            $.alert("请选择请假开始时间!");
+            return false
+        }
+
+        if(leaveEnd==""){
+            $.alert("请选择请假结束时间!");
+            return false
+        }
+
+        var leaveStart_s=new Date(leaveStart.replace(/\-/g,"/")).getTime();
+	    var leaveEnd_s=new Date(leaveEnd.replace(/\-/g,"/")).getTime();
+
+
+        if(sysTime > leaveStart_s){
+            $.alert("请假日期不能早于当前日期（"+GetUrlParam("date")+")！");
+            return false
+        }
+
+        if(leaveEnd_s < leaveStart_s){
+            $.alert("结束日期不能早于开始日期！");
+            return false
+        }
+
+		if(leaveText ==""){
+			$.alert("请输入请假原因！");
+			return false
+		}
+
+        if(leaveText.length < 2||leaveText.length > 120 ){
+            $.alert("请假原因要求2-120个字！");
+            return false
+        }
+
+
+        var parameter={
+            token:JSON.parse(sessionStorage.baseUser).token,
+            udid:JSON.parse(sessionStorage.baseUser).udid,
+            version:3,
+            org_id:JSON.parse(sessionStorage.baseUser).orguser.org_id,
+            gradeId:JSON.parse(sessionStorage.nowStudent).classList[0].grade_id,
+            classId:JSON.parse(sessionStorage.nowStudent).classList[0].clas_id,
+            studentUserId:JSON.parse(sessionStorage.nowStudent).user_id,
+            studentId:JSON.parse(sessionStorage.nowStudent).stud_id,
+            studentName:JSON.parse(sessionStorage.nowStudent).stud_name,
+            type:$("#changedType").val()=="事假"?"1":"0",
+            begin_date:leaveStart,
+            end_date:leaveEnd,
+            reason:leaveText,
+        }
+        //获取考勤信息
+        getData(domainName+"/shijiwxy/wechat/portal/studentAttendance/submitLeaveRecord.htm", parameter,function(res){
+            if(res.code==200 && res.success==true){
+              /*  $.alert("请假提交成功！","提示",function(){
+                   window.location="index_new.html"
+				});*/
+                $.toast("请假成功！")
+				setTimeout(function () {
+                    window.location="index_new.html"
+                },2000)
+
+            }else{
+                $.alert(res.message);
+            }
+        },"POST");
+
+
+
+    })
+
+
+    //科目设置
+    /*var suject=JSON.parse(sessionStorage.baseUser).orguser.identityDatas[0].mapKC;*/
+    var subjectArr=["事假","病假"];
+	//选择类型
+	$("#changedType").picker({
+		toolbarTemplate: '<header class="bar bar-nav">\
+		  <button class="button button-link pull-right close-picker">确定</button>\
+		  <h1 class="title">选择请假类型</h1>\
+		  </header>',
+		cols: [
+			{
+				textAlign: 'center',
+				values: subjectArr
+			}
+		],/* ,formatValue:function(a){console.info(a.displayValue[0])} */
+		onOpen:function () {
+			$(".native-scroll").css("overflow","hidden");
+		},
+		onClose:function() {
+			$(".native-scroll").css("overflow","auto");
+		}
+	});
+
+	//时间插件
+
+	$("#startTime").calendar({
+		/*toolbarTemplate: '<header class="bar bar-nav">\
+		  <button class="button button-link pull-right close-picker">确定</button>\
+		  <h1 class="title">选择开始时间</h1>\
+		  </header>',
+        dateFormat:'yyyy-mm-dd'*/
+        inputReadOnly:true
+	});
+
+
+	$("#endTime").calendar({
+		/*toolbarTemplate: '<header class="bar bar-nav">\
+		<button class="button button-link pull-right close-picker">确定</button>\
+		<h1 class="title">选择结束时间</h1>\
+		</header>',
+        dateFormat:'yyyy-mm-dd'*/
+        inputReadOnly:true
+	});
+
+
+
+});
+function nofind(){
+    var img=event.srcElement;
+    img.onerror=null;
+    $("#cerImg div").html("暂无图片");
+}
+</script>

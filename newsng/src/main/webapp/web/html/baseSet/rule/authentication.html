@@ -1,0 +1,119 @@
+<!--//认证规则-->
+<div style="padding: 40PX;">
+    <form class="gui-form gui-form-label-right" id="my-form" novalidate="novalidate">
+
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">认证须知</label>
+            <div class="gui-form-item-content">
+                <textarea placeholder="请输入..." rows="2" class="gui-textarea" id="certification_tips"></textarea>
+            </div>
+        </div>
+        <div class="line"></div>
+        <div class="gui-form-item topBorder">
+            <label class="gui-form-item-label">线下认证</label>
+            <div class="gui-form-item-content">
+                <div class="gui-checkbox-group" style="padding-top: 6px;">
+                    <span class="switch-on" themeColor="#86b7ea" id="auth_status"></span>
+                </div>
+            </div>
+        </div>
+        <div class="line"></div>
+        <div class="gui-form-item">
+            <div class="gui-form-item-content" >
+                <button type="submit" class="gui-btn gui-btn-normal"><i class="fa fa-save"></i><span>提交保存</span></button>
+                <button type="button" class="gui-btn gui-btn-primary" id="back"><i class="fa fa-angle-left"></i><span>取消返回</span></button>
+            </div>
+        </div>
+    </form>
+</div>
+<script type="text/javascript" src="plus/validate/jquery-validate.js"></script>
+<script>
+    $(function() {
+
+        //开关
+        honeySwitch.init();
+
+        //获取缴费设置信息
+        var saveOption = {
+            parameter:{
+                "org_id": option.org_id,
+            },
+            url:domain+"/baseSet/authManage/queryAuthSetInfo.json"
+        };
+
+        getData(saveOption.url,saveOption.parameter,function (data) {
+
+            if(data.code==200 && data.success==true){
+                var obj=data.data;
+
+                $("#rule_id").val(obj.rule_id);
+
+
+                if(obj.auth_status=="0"){
+                    $("#auth_status").addClass("switch-off").removeClass("switch-on").attr("style","border-color: rgb(223, 223, 223); box-shadow: rgb(223, 223, 223) 0px 0px 0px 0px inset; background-color: rgb(255, 255, 255);");
+                }else{
+                    $("#auth_status").addClass("switch-on").removeClass("switch-off").attr("style","border-color: rgb(0, 188, 211); box-shadow: rgb(0, 188, 211) 0px 0px 0px 16px inset; background-color: rgb(0, 188, 211);");
+                }
+
+                $("#certification_tips").val(obj.certification_requirements);
+
+            }else {
+                myAlert(data.msg,2,data.code,null);
+            }
+        },"POST",false);
+
+
+        //校验规则
+        $("#add-form").validate({
+            rules: {
+                period: {
+                    required: true,
+                    range:[1,100]
+                },
+                instructions: {
+                    required: true
+                }
+            },
+            messages: {
+                period: {
+                    required: '请输入缴费有效时间!'
+                },
+                instructions: {
+                    required: "请输入退费审核说明"
+                }
+            },
+            errorPlacement: function(error, element) {
+                error.appendTo(element.parent().after())
+            },
+            errorClass: 'gui-form-item-error',
+            errorElement: 'span',
+            submitHandler: function(form) {
+
+                //保存或者更新缴费规则信息
+                var save={
+                    "parameter":{
+                        "org_id":option.org_id,
+                        "rule_id": $("#rule_id").val(),
+                        "auth_status":$("#auth_status").hasClass("switch-off")?"0":"1",
+                        "certification_requirements":$("#certification_tips").val()
+                    },
+                    "url":domain+"/baseSet/authManage/createAndUpdateAuthSetInfo.json"
+                };
+
+                getData(save.url,save.parameter,function (data) {
+                    console.log(data)
+                    if(data.code==200 && data.success==true){
+                        myAlert("保存成功",1,data.code,null);
+                    }else {
+                        myAlert(data.msg,2,data.code,null);
+                    }
+                },"POST",false)
+            }
+        });
+
+        //提交
+        $("#save").click(function () {
+            $("#add-form").submit();
+        });
+
+    })
+</script>

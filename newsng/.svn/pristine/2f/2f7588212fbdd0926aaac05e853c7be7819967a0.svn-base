@@ -1,0 +1,803 @@
+/*
+ * 全选函数
+ * @param obj:全选CheckBox的 id  
+ * @param calssname:全选对象 name 名称
+ */
+function all_click(obj, calssname) {
+	if ($(obj).is(":checked")) {
+		$("input[name='" + calssname + "']").prop("checked", "true");
+		$("input[name='" + calssname + "']").next().click();
+	} else {
+		$("input[name='" + calssname + "']").removeAttr("checked");
+		$("input[name='" + calssname + "']").next().click();
+	}
+}
+
+
+function GetDateDiff(startDiffTime) {  
+    startTime = startDiffTime.replace(/\-/g, "/");  
+    return startTime
+}; 
+
+/*
+ * 判断JSON数据长度
+ * @param obj:全选CheckBox的 id  
+ * @param calssname:全选对象 name 名称
+ */
+function getJsonLength(jsonData){  
+	  
+    var jsonLength = 0;  
+  
+    for(var item in jsonData){  
+  
+        jsonLength++;  
+  
+    }  
+  
+    return jsonLength;  
+  
+} 
+
+
+
+/*
+ * 获取地址栏参数
+ * @param paraName:参数名称 
+ */
+
+function GetUrlParam(paraName) {
+　　　　var url = document.location.toString();
+　　　　var arrObj = url.split("?");
+　　　　if (arrObj.length > 1) {
+　　　　　　var arrPara = arrObj[1].split("&");
+　　　　　　var arr;
+　　　　　　for (var i = 0; i < arrPara.length; i++) {
+　　　　　　　　arr = arrPara[i].split("=");
+
+　　　　　　　　if (arr != null && arr[0] == paraName) {
+　　　　　　　　　　return arr[1];
+　　　　　　　　}
+　　　　　　}
+　　　　　　return "";
+　　　　}
+　　　　else {
+　　　　　　return "";
+　　　　}
+　　}
+ 
+/*
+ * 自定义窗口 @param html 要显示的html （定义成模板） @param titlle 标题 @param closeCallback
+ * 右上角关闭回调（×） @param size 窗口尺寸[400px ,200px] @param btnText 按钮文字 @param Callback
+ * 按钮回调 {}
+ * 
+ * 
+ */
+function mydialogForm(html, title, closeCallback, size, btnText, Callback) {
+	var config = {
+		type : 1,
+		title : title,// 不显示标题栏
+		//anim : 0,
+		shade : [ 0.16, '#393D49' ],
+		// id: 'LAY_layuipro' ,//设定一个id，防止重复弹出
+		maxmin : false,// 是否显示最大最小化窗口按钮
+		closeBtn : 1,// 是否右上角显示关闭按钮
+		// area: ['700px', '240px'], //宽高
+		area : size,
+		content : html,// 要获取的内容
+		resize : false,
+		shadeClose : true,
+		// shade: false,
+		cancel : function(index) {
+			// 右上角关闭函数
+			if (closeCallback != null)
+				closeCallback();
+		},
+		btn : btnText,
+		anim : 5,
+		zIndex : layer.zIndex, // 重点1
+		success : function(layero) {
+			layer.setTop(layero); // 重点2
+		}
+	};
+	// 传参数
+	for (var n = 0; n < arguments[4].length; n++) {
+		config["btn" + (n + 1)] = arguments[5][n];
+	}
+	layer.open(config);
+}
+
+/*
+ * 我的自定义alert函数 @param message：提示信息 @param number：显示类型：1.报错 2.成功 3.疑问 7.警告
+ * @param okCallback:回调函数
+ */
+
+function myAlert(message, number, okCallback) {
+	layer.alert(message, {
+		icon : number,
+		title : "提示",
+		area : '360px;',
+		shadeClose : true,
+		zIndex : layer.zIndex // 重点1
+		,
+		success : function(layero) {
+			layer.setTop(layero); // 重点2
+		}
+	}, function(index) {
+		if (okCallback != null)
+			okCallback();
+		layer.close(index);
+	});
+}
+/*
+ * 我的自定义Confirm函数 类型：1.报错 2.成功 3.疑问 7.警告
+ */
+
+function myConfirm(message, okCallback, cancleCallback, closeCallback) {
+	layer.confirm(message, {
+		zIndex : layer.zIndex,
+		/* icon: 3, */
+		title : '提示信息',
+		cancel : function(index) {
+			// 右上角关闭函数
+			if (closeCallback != null)
+				closeCallback();
+		},
+		btn : [ '确定', '取消' ]
+	// 按钮
+	}, function(i) {
+		// 确定函数
+		if (okCallback != null) {
+			okCallback(i);
+			layer.close(i);
+		} else {
+			null;
+		}
+
+	}, function() {
+		// 取消函数
+		if (cancleCallback != null) {
+			cancleCallback();
+		}
+	});
+}
+
+
+/*
+ * 后台请求数据ajax提交 
+ * 参数说明：
+ * param:[url] 请求地址
+ * param:[data] 参数
+ * param:[okCallback] 回调函数
+ * 使用方法：getData("dep/getAllTeachers.htm?a="+Math.random(),{},function(data){console.info(data);})
+ */
+
+function getData(url, data,okCallback,method) {
+	var ajaxmethod = method||"get";
+	$.ajax({
+		url : url,
+		data : data,
+		//async : true,
+		method : ajaxmethod,
+		contentType: "application/x-www-form-urlencoded;charset=utf-8",
+		//dataType : 'json',
+		beforeSend : function(XMLHttpRequest) {
+			
+		 	if($(".loading-bg").length==1){
+				$("#loadingbg,#loadingimg").show();
+			}else{
+				$("body").after("<div class='loading-bg'></div><div class='loadingimg'><img src='../pc_resources/images/loading.gif'><div>数据加载中，请稍后...</div></div>");
+			} 
+		},
+		success : function(result,textStatus,jqXHR) {
+
+			if (typeof result === "object"){
+				res = result;
+			}else{
+				res = JSON.parse(result);
+			}
+
+			if(res.code==0){
+				if (okCallback != null) {
+					//回调
+					okCallback(res);
+				}
+			}else{
+				myAlert(res.msg,2,null); 
+			}
+
+			
+		},
+		complete : function(XMLHttpRequest, textStatus) {
+			//隐藏遮罩层
+		 	$(".loading-bg,.loadingimg").fadeOut("fast");
+			setTimeout(function() {
+				$(".loading-bg").remove();
+				$(".loadingimg").remove();
+			}, 100); 
+			
+		},
+		error : function(XMLHttpRequest, textStatus, errorThrown) {
+			 //报错处理
+		     switch (XMLHttpRequest.status){
+	             case(500):  
+	             	 myAlert("装载应用时发生异常:服务器系统内部错误（"+XMLHttpRequest.status+"）！",2,null); 
+	                 break;  
+	             case(401):  
+	             	 myAlert("装载应用时发生异常:未登录（"+XMLHttpRequest.status+"）！",2,null); 
+	                 break;  
+	             case(403):  
+	                 myAlert("装载应用时发生异常：您无权限执行此操作（"+XMLHttpRequest.status+"）！",2,null); 
+	                 break;  
+	             case(408):  
+	             	 myAlert("装载应用时发生异常：请求超时（"+XMLHttpRequest.status+"）！",2,null); 
+	                 break;  
+	             case(404):  
+	             	 myAlert("装载应用时发生异常：未找到该页面（"+XMLHttpRequest.status+"）！",2,null); 
+	                 break;  
+	             default:  
+	                myAlert("装载应用时发生异常：未知错误（"+XMLHttpRequest.status+"）！",2,null);
+		     }
+		}
+	});
+};
+
+ 
+
+
+/*
+ * 日期控件 使用方法：<input type="text" name="" data-date="YYYY-MM-DD hh:mm:ss">
+ * 支持一下格式： 1、 YYYY-MM-DD hh:mm:ss 或者 YYYY年MM月DD日 hh:mm:ss 2、 YYYY-MM-DD hh:mm 3、
+ * YYYY-MM-DD 4、 YYYY-MM 5、 YYYY 6、 hh:mm:ss 7、 hh:mm
+ */
+$("body").on("focus", "input[data-date]", function() {
+	$(this).attr("readonly",true);
+	var timeformat = $(this).attr("data-date");
+	$(this).jeDate({
+		format : timeformat,
+		isinitVal:false,
+		zIndex:20170227,
+		minDate: '1950-06-16 23:59:59',
+	});
+});
+
+ 
+/*
+ * 截取字符串 使用：$("[limit]").limit();
+ * 
+ */
+
+jQuery.fn.limit = function() {
+	var self = $("[limit]");
+	self.each(function() {
+		var objString = $(this).text();
+		$str = $.trim(objString);
+		var objLength = $(this).text().length;
+		var num = $(this).attr("limit");
+		$(this).attr("title", $str);
+		if (objLength > num) {
+			objString = $(this).text($str.substring(0, num) + "...");
+		}
+	});
+
+};
+
+ 
+ 
+// 扩展字符两端去空格函数
+String.prototype.trim = function() {
+	return this.replace(/(^\s*)|(\s*$)/g, "");
+};
+
+
+ 
+//只允许输入数字
+$("body").on("keyup","[data-onlyNumber=true]",function(){
+	var editeVal=$(this).val().replace(/[^\d]/g,'');
+	$(this).val(editeVal);
+});
+
+ 
+
+
+
+/*处理教师json数据，生成处理窗口函数
+*searchbyLetter :是否生成字母检索
+*search:是否有搜索
+*topText:顶部文字
+*customParameter:自定义参数json格式{
+			'searchbyLetter':true,//是否支持首字母查询
+	        'search':true//是否支持搜索
+	        }
+*/
+function getTeacher(allStudent,topText,customParameter){
+	  
+	var config={
+			'searchbyLetter':true,//是否支持首字母查询
+	        'search':true,        //是否支持搜索 
+	        'dialog':false         //是否注册dialog点击事件
+	        };
+	 if(customParameter==undefined){
+		   customParameter=config;
+	   }else{
+		   customParameter.searchbyLetter==undefined?customParameter.searchbyLetter=config.searchbyLetter:customParameter.searchbyLetter;
+		   customParameter.search==undefined?customParameter.search=config.search:customParameter.search;
+		   customParameter.dialog==undefined?customParameter.dialog=config.dialog:customParameter.dialog;
+	   };
+	 
+	if(allStudent=="undefine"){
+		console.info("获取数据失败，请重试！");
+	};
+	
+	//<%--所有部门--%>
+	var allDep='<option value="0">所有班级</option>';
+	
+	//<%--所有生成学生列表--%>
+	var allStudentList="";
+
+	//生成已选人员列表
+	var changedTeacher="";
+	
+	//回显数据
+	var backTeacher="";
+	
+	//查询功能
+	var haveSearch="";
+	
+	
+	if(getJsonLength(allStudent)>0){
+			//<%--如果数据：生成班级及学生列表--%>
+			
+			for(var i in allStudent){
+				
+				var studentData=allStudent[i].student;
+				
+				if(studentData.length>0){
+					
+					
+					if(allStudent[i].changed=="true"){
+						
+						changedTeacher+='<span class="changedName className" data-id="c'+i+'"><i class="fa fa-user"></i>'+allStudent[i].classname+'<i class="fa fa-close fa-close pull-right"></i></span>';
+						
+						allStudentList+='<div id="c'+i+'" class="className changed"><i class="fa fa-angle-right"></i><i class="fa fa-folder"></i>'+allStudent[i].classname+'<i class="fa fa-plus-square-o pull-right" title="点击添加"></i></div>'; 
+					}else{
+						allStudentList+='<div id="c'+i+'" class="className"><i class="fa fa-angle-right"></i><i class="fa fa-folder"></i>'+allStudent[i].classname+'<i class="fa fa-plus-square-o pull-right" title="点击添加"></i></div>'; 
+					}
+				
+					allStudentList+='<ul style="display: none;">';
+					for(var n=0;n<studentData.length;n++){
+	                     
+						//<%--是否属于该部门--%>
+						if(studentData[n].changed=="true"){
+							changedTeacher+='<span class="changedName" data-id="'+studentData[n].id+'"><i class="fa fa-user"></i>'+studentData[n].name+'<i class="fa fa-close fa-close pull-right"></i></span>';
+							//backTeacher+='<span class="changedName" data-id="'+studentData[n].id+'"><i class="fa fa-user"></i>'+studentData[n].name+'</span>';
+							//<%--添加到教师列表--%>
+							allStudentList+='<li title="点击添加" id="'+studentData[n].id+'" class="changed"><i class="fa fa-user"></i>'+
+												studentData[n].name+
+												/*'<div class="teacher-department auxiliaryText">'+allStudent[i].className+'</div>'+*/
+											'</li>';
+						
+						}else{
+							//<%--添加到教师列表--%>
+							allStudentList+='<li title="点击添加" id="'+studentData[n].id+'"><i class="fa fa-user"></i>'+
+												studentData[n].name+
+												/*'<div class="teacher-department auxiliaryText">'+allStudent[i].className+'</div>'+*/
+											'</li>';
+						}
+
+					}
+					allStudentList+='</ul>';
+				}
+			};
+		
+			    
+				
+				//查询
+				 haveSearch += '<div class="gui-searchGroup"><input type="text" name="" placeholder="请输入班级或学生姓名" id="inputTeacherName" class="gui-input" style="width:200px">'+
+					'<button class="gui-btn gui-btn-gay" id="searchTeacher-btn">'+
+					  '<i class="fa fa-search"></i>'+
+					'</button><i class="fa fa-close" id="clearSK"></i></div>'+
+					'<button class="gui-btn gui-btn-normal" id="dialog-changeallStudent" style="margin-left:5px">'+
+					  '<i class="fa fa-plus-square-o"></i>全部班级'+
+					'</button>';
+
+	 
+	}else{
+		//如果没有数据：空数据提示 
+		allStudentList='<div class="noData"><i class="fa fa-exclamation-circle"></i>暂无数据</div>';
+	}
+	 
+	//增加新教师
+	var addTeacherTemplate='<div class="gui-form" id="addTeacher">'+
+								'<div class="pull-right"><div class="h3">'+topText+'</div>'+
+									'<div class="changedTeacher changedData" id="changedTeacher">'+
+										changedTeacher+
+									'</div></div>'+
+									'<div class="pull-left" style="border-right:1px #dedede solid;padding-right:20px;height:400px;width:380px">'+
+									haveSearch +
+							 
+								'<div class="unchangedList">'+
+									allStudentList+ /*添加人员*/
+								'</div></div>'+
+							'</div>';
+	             
+		
+	if(customParameter.dialog){
+	    //点击教师添加到备选列表
+		$("body").on("click",".unchangedList li",function(e){
+			var teacherID=$(this).attr("id"),teacherName=$(this).text();
+			
+			if(($("#changedTeacher [data-id="+teacherID+"]").length==1)||$(this).hasClass("changed")){
+				
+				var classID=$(this).attr("id");
+                if($(this).hasClass("changed")){
+                	
+                	$("[data-id="+classID+"]").remove();
+                	$(this).removeClass("changed");
+                }
+				return false;
+			}else{
+				$(this).addClass("changed").attr("title","已经添加");
+			}
+
+			
+			if($("#changedTeacher button").length==1){
+				$("#delAllChangedTeacher").text("删除所有");
+			}
+			var newsTearcher='<span class="changedName" data-id="'+teacherID+'"><i class="fa fa-user"></i>'+teacherName+' <i class="fa fa-close pull-right"></i></span>';
+			
+			$("#changedTeacher").append(newsTearcher);
+		});			
+		
+	 
+	    
+		//删除单个教师
+		$("body").on("click","#changedTeacher span:not('#delAllChangedTeacher')",function(){
+			$(this).remove();
+			var id=$(this).attr("data-id"); 
+			if($("#"+id).length>0){
+				$("#"+id).removeClass("changed");
+			};
+		});	
+		
+		//选择所有 学生
+		$("body").on("click","#dialog-changeallStudent",function(){
+
+			$(".unchangedList .className").each(function(){
+				var classID=$(this).attr("id"),className=$(this).text();
+				//如果该班级已经添加，则取消，如果没有则添加
+	            if(!$(this).hasClass("changed")){
+	    
+					var newsTearcher='<span class="changedName className" data-id="'+classID+'"><i class="fa fa-folder"></i>'+className+' <i class="fa fa-close pull-right"></i></span>';
+					$(this).addClass("changed");
+					$("#changedTeacher").append(newsTearcher);
+	            }
+			});
+			
+			
+		});	
+		
+	    //展开班级
+		$("body").on("click",".className",function(event){
+ 
+			if($(event.target).hasClass("fa-plus-square-o")){
+				
+				var classID=$(this).attr("id"),className=$(this).text();
+				//如果该班级已经添加，则取消，如果没有则添加
+                if($(this).hasClass("changed")){
+                	
+                	$("[data-id="+classID+"]").remove();
+                	$(this).removeClass("changed");
+                }
+                else{
+                	
+    				var newsTearcher='<span class="changedName className" data-id="'+classID+'"><i class="fa fa-folder"></i>'+className+' <i class="fa fa-close pull-right"></i></span>';
+    				$(this).addClass("changed");
+    				$("#changedTeacher").append(newsTearcher);
+                }
+
+				return false;
+			}
+			if($(this).next().find("li").length>0){
+				$(this).next().slideToggle();
+			} 
+			// event.stopPropagation();
+		});
+		
+		//删除所有已添加教师
+		$("body").on("click","#delAllChangedTeacher",function(){
+		
+			//遍历已选择的教师
+			$("#changedTeacher span").each(function(){
+				var id=$(this).attr("data-id");
+				if($("#"+id).length>0){
+					$("#"+id).removeClass("changed");
+				};
+	  		});
+			
+			$(this).text("暂未添加发送对象").siblings().remove();
+			//
+		});	
+		
+		//通过部门塞选人员
+		
+		/*$("body").on("change","#showDepartment",function(){
+			if($("#dep_null").length==1){$("#dep_null").remove();}
+			//遍历已选择的教师
+			 var changedDepartment=$(this).find(":selected").text();
+			if($(this).val()=="0"){
+				
+				$(".unchangedList li").show();
+				if($("#dep_null").length==1){$("#dep_null").remove();};
+				
+			} else{
+				$(".unchangedList li").hide().each(function(){
+					var teacherDepartment=$(this).find(".teacher-department").text();
+					if(teacherDepartment==changedDepartment){
+						$(this).show();
+					};
+				});
+				if($(".unchangedList ul li:visible").length==0){
+					if($("#dep_null").length>=1){ return false;}else{
+						$(".unchangedList ul").append('<div class="noData" id="dep_null"><i class="fa fa-exclamation-circle"></i> ['+changedDepartment+'] 暂无教职人员</div>');
+					}
+				}else{
+					if($("#dep_null").length==1){$("#dep_null").remove();}
+				}
+				
+			}
+		});	*/
+		
+		//输入教师姓名查询
+		$("body").on("click","#searchTeacher-btn",function(){
+			//遍历已选择的教师
+			 var inputName=$("#inputTeacherName").val();
+			
+			 if(inputName==""){
+					$(".unchangedList li").show();
+					myAlert("没有名字包含"+inputName+"的学生","1",null);
+				} else{
+					$("#clearSK").show();
+					//$(".unchangedList li:contains(" + inputName + ")").hide();
+					$(".unchangedList li:contains(" + inputName + ")").addClass("red");
+					
+					$(".unchangedList div.className").show()/*.find(":contains(" + inputName + ")").parent().show()*/;
+					$(".unchangedList div.className:contains(" + inputName + ")").addClass("red");
+					/*if($(".unchangedList li:visible").length==0){
+				      myAlert("没有名字包含"+inputName+"的学生","1",null);
+				      $(".unchangedList li").show();
+				    }*/
+				}
+		});
+		
+		//清除关键字
+		$("body").on("click","#clearSK",function(){
+			$(this).hide();
+			$("#inputTeacherName").val("");
+			$(".unchangedList li.red").removeClass("red");
+			$(".unchangedList div.red").removeClass("red");
+		});
+		$("body").on("change","#inputTeacherName",function(){
+			$("#clearSK").hide();
+		});
+		
+		
+	}
+	
+	//返回数据
+	return 	{all:addTeacherTemplate,changed:changedTeacher,back:backTeacher} ;
+	
+};
+
+ 
+
+/**
+ * 返回为页面加载组成员的列表，同时返回学生Object信息
+ * @param allStudentArr
+ */
+ 
+
+
+function unregisteringDialog(){
+	 //点击教师添加到备选列表
+	$("body").off("click",".unchangedList li");			
+   //按字母检索
+	$("body").off("click",".seachByLetter span[data-show]");
+	//删除单个教师
+	$("body").off("click","#changedTeacher button:not('#delAllChangedTeacher')");	
+	//删除所有已添加教师
+	$("body").off("click","#delAllChangedTeacher");	
+	//删除单个学生
+	$("body").off("click","#changedStudent button:not('#delAllChangedStudent')");	
+	//删除所有已添加学生
+	$("body").off("click","#delAllChangedStudent");	
+	//通过部门塞选人员
+	$("body").off("change","#showDepartment");	
+	//输入教师姓名查询
+	$("body").off("click","#searchTeacher-btn");
+	//输入学生姓名查询
+	$("body").off("click","#searchStudent-btn");
+	$("body").off("click",".className")
+}
+
+ 
+
+ 
+/*
+ * 获取当前时间
+ * YYYY-MM 格式
+ * 用在入职时间
+ */
+
+function getNowFormatDate() {
+    var date = new Date();
+    var seperator1 = "-";
+    var year = date.getFullYear();
+    var month = date.getMonth() + 1;
+    var strDate = date.getDate();
+    if (month >= 1 && month <= 9) {
+        month = "0" + month;
+    }
+    if (strDate >= 0 && strDate <= 9) {
+        strDate = "0" + strDate;
+    }
+    var currentdate = year + seperator1 + month; //+ seperator1 //+ strDate;
+    return currentdate;
+}
+
+
+function validatemobile(mobile) { 
+    if(mobile.length==0) 
+    { 
+       myAlert('请输入手机号码！',2,null); 
+       return false; 
+    }     
+    if(mobile.length!=11) 
+    { 
+    	myAlert('请输入有效的手机号码！',2,null); 
+        return false; 
+    } 
+     
+    var myreg = /^(((13[0-9]{1})|(15[0-9]{1})|(18[0-9]{1}))+\d{8})$/; 
+    if(!myreg.test(mobile)) 
+    { 
+    	myAlert('请输入有效的手机号码！',2,null); 
+        return false; 
+    } 
+}
+
+
+
+var honeySwitch = {};
+honeySwitch.themeColor = "rgb(100, 189, 99)";
+honeySwitch.init = function() {
+	var s = "<span class='slider'></span>";
+	$("[class^=switch]").append(s);
+	$("[class^=switch]").click(function() {
+		if ($(this).hasClass("switch-disabled")) {
+			return;
+		}
+		if ($(this).hasClass("switch-on")) {
+			$(this).removeClass("switch-on").addClass("switch-off");
+			$(".switch-off").css({
+				'border-color' : '#dfdfdf',
+				'box-shadow' : 'rgb(223, 223, 223) 0px 0px 0px 0px inset',
+				'background-color' : 'rgb(255, 255, 255)'
+			});
+		} else {
+			$(this).removeClass("switch-off").addClass("switch-on");
+			if (honeySwitch.themeColor) {
+				var c = honeySwitch.themeColor;
+				$(this).css({
+					'border-color' : c,
+					'box-shadow' : c + ' 0px 0px 0px 16px inset',
+					'background-color' : c
+				});
+			}
+			if ($(this).attr('themeColor')) {
+				var c2 = $(this).attr('themeColor');
+				$(this).css({
+					'border-color' : c2,
+					'box-shadow' : c2 + ' 0px 0px 0px 16px inset',
+					'background-color' : c2
+				});
+			}
+		}
+	});
+	window.switchEvent = function(ele, on, off) {
+		$(ele).click(function() {
+			if ($(this).hasClass("switch-disabled")) {
+				return;
+			}
+			if ($(this).hasClass('switch-on')) {
+				if ( typeof on == 'function') {
+					on();
+				}
+			} else {
+				if ( typeof off == 'function') {
+					off();
+				}
+			}
+		});
+	}
+	if (this.themeColor) {
+		var c = this.themeColor;
+		$(".switch-on").css({
+			'border-color' : c,
+			'box-shadow' : c + ' 0px 0px 0px 16px inset',
+			'background-color' : c
+		});
+		$(".switch-off").css({
+			'border-color' : '#dfdfdf',
+			'box-shadow' : 'rgb(223, 223, 223) 0px 0px 0px 0px inset',
+			'background-color' : 'rgb(255, 255, 255)'
+		});
+	}
+	if ($('[themeColor]').length > 0) {
+		$('[themeColor]').each(function() {
+			var c = $(this).attr('themeColor') || honeySwitch.themeColor;
+			if ($(this).hasClass("switch-on")) {
+				$(this).css({
+					'border-color' : c,
+					'box-shadow' : c + ' 0px 0px 0px 16px inset',
+					'background-color' : c
+				});
+			} else {
+				$(".switch-off").css({
+					'border-color' : '#dfdfdf',
+					'box-shadow' : 'rgb(223, 223, 223) 0px 0px 0px 0px inset',
+					'background-color' : 'rgb(255, 255, 255)'
+				});
+			}
+		});
+	}
+};
+honeySwitch.showOn = function(ele) {
+	$(ele).removeClass("switch-off").addClass("switch-on");
+	if(honeySwitch.themeColor){
+		var c = honeySwitch.themeColor;
+		$(ele).css({
+			'border-color' : c,
+			'box-shadow' : c + ' 0px 0px 0px 16px inset',
+			'background-color' : c
+		});
+	}
+	if ($(ele).attr('themeColor')) {
+		var c2 = $(ele).attr('themeColor');
+		$(ele).css({
+			'border-color' : c2,
+			'box-shadow' : c2 + ' 0px 0px 0px 16px inset',
+			'background-color' : c2
+		});
+	}
+}
+honeySwitch.showOff = function(ele) {
+	$(ele).removeClass("switch-on").addClass("switch-off");
+	$(".switch-off").css({
+		'border-color' : '#dfdfdf',
+		'box-shadow' : 'rgb(223, 223, 223) 0px 0px 0px 0px inset',
+		'background-color' : 'rgb(255, 255, 255)'
+	});
+}
+$(function() {
+	honeySwitch.init();
+}); 
+ 
+//获取地址栏参数
+function GetUrlParam(paraName) {
+　　　　var url = document.location.toString();
+　　　　var arrObj = url.split("?");
+　　　　if (arrObj.length > 1) {
+　　　　　　var arrPara = arrObj[1].split("&");
+　　　　　　var arr;
+　　　　　　for (var i = 0; i < arrPara.length; i++) {
+　　　　　　　　arr = arrPara[i].split("=");
+　　　　　　　　if (arr != null && arr[0] == paraName) {
+　　　　　　　　　　return arr[1];
+　　　　　　　　}
+　　　　　　}
+　　　　　　return "";
+　　　　}
+　　　　else {
+　　　　　　return "";
+　　　}
+}

@@ -1,0 +1,30 @@
+package sng.service;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import sng.pojo.SessionInfo;
+
+@Service
+@Transactional
+public interface VoucherModelService {
+	/***
+	 * 
+	 *  @Description: 添加凭证模板
+	 *  @param sessionInfo
+	 *  @param voucherContent
+	 */
+	void save(Integer orgId, String picName, String voucherContent, Integer length, Integer width);
+	
+	Integer VouModelNum(SessionInfo sessionInfo, Integer orgId);
+	
+	List<Map<String, Object>> getVouModel(SessionInfo sessionInfo, Integer orgId);
+	
+	void update(Integer orgId, String picName, String voucherContent, Integer voucherModelId, Integer length, Integer width);
+	
+	List<Map<String, Object>> getVoucherList(String phone);
+	
+}

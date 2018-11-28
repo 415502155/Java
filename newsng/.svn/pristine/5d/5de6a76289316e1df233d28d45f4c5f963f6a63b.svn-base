@@ -1,0 +1,125 @@
+
+<div style="padding: 40PX;">
+    <form class="gui-form gui-form-label-right" id="my-form" novalidate="novalidate">
+
+        <div class="gui-form-item"><label class="gui-form-item-label">用户ID</label>
+            <div class="gui-form-item-content">
+                <input type="text" name="username" placeholder="请输入用户姓名" class="gui-input readonlyInput" value="23456789" >
+            </div>
+        </div>
+        <div class="line"></div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">用户姓名</label>
+            <div class="gui-form-item-content">
+                <input type="text" name="username" placeholder="请输入用户姓名" class="gui-input" style="width: 240px">
+            </div>
+        </div>
+
+        <div class="gui-form-item gui-form-item-required">
+            <label class="gui-form-item-label">证件类型</label>
+            <div class="gui-form-item-content">
+                <div class=" gui-select-single">
+
+                    <select class="gui-select" style="max-width: 240px;">
+                        <optgroup label="请选择证件类型">
+                            <option>身份证</option>
+                            <option>台胞证</option>
+                            <option>护照</option>
+                        </optgroup>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">证件号</label>
+            <div class="gui-form-item-content">
+                <input type="text" placeholder="请输入学生证件号" class="gui-input" style="width: 240px">
+            </div>
+        </div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">出生日期</label>
+            <div class="gui-form-item-content">
+                <input type="text" placeholder="选择日期" data-date="YYYY-MM-DD" readonly class="gui-input" >
+            </div>
+        </div>
+        <div class="gui-form-item gui-form-item-required">
+            <label class="gui-form-item-label">认证状态</label>
+            <div class="gui-form-item-content">
+                <div class=" gui-select-single">
+
+                    <select class="gui-select" >
+                        <optgroup label="请选择用户认证状态">
+                            <option value="1">已认证</option>
+                            <option value="0" selected>未认证</option>
+                        </optgroup>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="gui-form-item "><label class="gui-form-item-label">手机号</label>
+            <div class="gui-form-item-content">
+                <input type="text" placeholder="请输入手机号" value="13820073131" class="gui-input readonlyInput" style="width:120px;margin-right:0px;" >
+                <span style="color: #0a8ddf; cursor: pointer;" title="修改手机号">修改<em></em></span>
+            </div>
+        </div>
+        <!--<div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">介绍</label>
+            <div class="gui-form-item-content">
+                <textarea placeholder="请输入..." rows="2" class="gui-textarea"></textarea>
+            </div>
+        </div>-->
+        <div class="line"></div>
+        <div class="gui-form-item">
+            <div class="gui-form-item-content" >
+                <button type="submit" class="gui-btn gui-btn-normal"><i class="fa fa-save"></i><span>保存更新</span></button>
+                <button type="submit" class="gui-btn gui-btn-danger"><i class="fa fa-trash-o"></i><span>删除用户</span></button>
+                <button type="button" class="gui-btn gui-btn-primary" id="back"><i class="fa fa-angle-left"></i><span>取消返回</span></button>
+            </div>
+        </div>
+    </form>
+    <script type="text/javascript" src="plus/validate/jquery-validate.js"></script>
+    <script>
+        $(function() {
+
+            //取消编辑返回列表
+            $("#back").click(function () {
+                window.history.back();
+            })
+
+
+
+            $("#mytest-form").validate({
+                rules: {
+                    username: {
+                        required: true
+                    },
+                    password: {
+                        required: true,
+                        rangelength: [8, 10]
+                    },
+                    password2: {
+                        required: true,
+                        equalTo: '#password'
+                    }
+                },
+                messages: {
+                    username: {
+                        required: '请输入一个用户名'
+                    },
+                    password: {
+                        required: '请设置一个密码',
+                        rangelength: '密码位数为8到10位'
+                    },
+                    password2: {
+                        required: '请再次确认密码',
+                        equalTo: '两次输入密码不相符'
+                    }
+                },
+                errorPlacement: function(error, element) {
+                    console.info(element)
+                    error.appendTo(element.parent().after())
+                },
+                //errorClass: 'gui-form-item-error',
+                errorElement: 'span',
+
+            });
+        })
+    </script>
+
+</div>

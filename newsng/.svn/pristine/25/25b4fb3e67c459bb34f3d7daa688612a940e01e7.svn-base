@@ -1,0 +1,196 @@
+<!--发布通知-->
+<style>
+    .tablesorter-blue tbody tr > td.operation{
+        width: auto;
+    }
+</style>
+
+<div class="content-wrap" id="sub_loadBox"  >
+    <div class="search">
+        <select class="gui-input" style="width: 100px" id="allYear">
+            <option value="">选择年份</option>
+        </select>
+
+
+    </div>
+    <div class="bod-con-fer-form">
+        <table align="center" class="tab tablesorter-blue">
+            <thead>
+            <tr>
+                <th>序号</th>
+                <th>招生计划</th>
+                <th>开始时间</th>
+                <th>结束时间</th>
+                <th>招生类型</th>
+                <th>开启状态</th>
+                <th>招生班级</th>
+                <th>招生进度</th>
+                <th>已交学费</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody id="planList">
+     <!--           <tr>
+                    <td>1</td>
+                    <td>2018年第二学期老生班续费</td>
+                    <td>18-10-31 08：00</td>
+                    <td>18-11-30 09：00</td>
+                    <td>老生班</td>
+                    <td>开启中</td>
+                    <td>588</td>
+                    <td>1259/2088</td>
+                    <td>1250666.00元</td>
+                    <td class="operation"><span class="toEdit">编辑<em></em></span></td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>2017年第一学期老生班续费</td>
+                    <td>18-06-31 08：00</td>
+                    <td>18-06-30 09：00</td>
+                    <td>老生班</td>
+                    <td>开启中</td>
+                    <td>588</td>
+                    <td>1259/2088</td>
+                    <td>1250666.00元</td>
+                    <td class="operation"><span class="toEdit">编辑<em></em></span></td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>2017年第二学期老生班续费</td>
+                    <td>17-10-31 08：00</td>
+                    <td>17-11-30 09：00</td>
+                    <td>老生班</td>
+                    <td>已关闭</td>
+                    <td>400</td>
+                    <td>3666/4000</td>
+                    <td>200000.00元</td>
+                    <td class="operation"><span class="toEdit">编辑<em></em></span></td>
+                </tr>-->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 分页 -->
+    <div class="gui-page-wapper" style="margin:20px 0;line-height: 28px;" id="pageContent">
+        <ul class="gui-page" id="limitUi">
+            <span class="gui-page-total">共<span id="allPage">0</span>页 <span id="allTotal">000</span>数据</span>
+            <span id="creatPage">
+            </span>
+        </ul>
+        <span class="gui-page-options-elevator" style="padding-left: 10px;">
+                每页条数：
+                <select id="limit" class="">
+                     <option value="20">20</option>
+                     <option value="50">50</option>
+                     <option value="100">100</option>
+                </select>
+            </span>
+
+        <span class="gui-page-options">
+            <span class="gui-page-options-elevator">跳至第
+            <input id="page" class="gui-input">
+             页</span>
+           </span>
+    </div>
+    <!--分页END-->
+
+</div>
+<script src="js/countUp.js"></script>
+<script>
+    $(function () {
+
+        //查看详情
+        $(".toDetail").click(function () {
+            window.location.href="#12?id=12"
+        });
+
+        //目前是演示，实际是ajax回调
+        setTimeout(function () {
+            countup("sum_Certificationed",4000);
+            countup("sum_unCertificationed",50);
+        },2000)
+
+        //生成下拉菜单
+        allSelect();
+
+    })
+</script>
+
+<script>
+    $(function () {
+        //默认
+        showHtml();
+
+    })
+    //列表
+    function showHtml(limit,page) {
+        var cam_list={
+            "parameter":{
+                "org_id":option.org_id,
+
+                "termId":"",
+                "classType":"",
+                "categoryId":"",
+                "subjectId":"",
+                "classWeek":"",
+                "keyword":"",
+                "planId":"",
+
+                "limit":limit?limit:20,
+                "page":page?page:1,
+            },
+            "url":domain+"/plan/list.json"
+        };
+        getData(cam_list.url,cam_list.parameter,function (res) {
+            console.log(res)
+            if(res.code==200 && res.success==true){
+
+                var data=res.data,html="";
+
+                //如果当前页是第一页从新渲染
+                if(data.page==1){
+                    //生成页数(总条数，总页数，)
+                    $("#creatPage").createPage({
+                        pageCount:data.totalPage,
+                        current:data.page,
+                        url:cam_list.url,
+                        backFn:function(page){
+                            var limit=$("#limit").val();
+                            showHtml(limit,page)
+                        }
+                    });
+                }
+
+                //总页数
+                $("#allPage").text(data.size);
+                //总条数
+                $("#allTotal").text(data.total);
+
+                for(var n=0,m=data.data.length;n<m;n++){
+                    var toShow=(parseInt(data.page)-1)*parseInt(data.limit);
+                    var camObj=data.data[n];
+                    html+=" <tr>" +
+                        "        <td>"+(n+toShow+1)+"</td>" +
+                        "        <td>"+camObj.title+"</td>" +
+                        "        <td>"+camObj.beginTimeStr+"</td>" +
+                        "        <td>"+camObj.endTimeStr+"</td>" +
+                        "        <td>"+option.classType[camObj.classType]+"</td>" +
+                        "        <td>"+(camObj.planSwitch==1?"开启中":"已关闭")+"</td>" +
+                        "        <td>"+camObj.classCount+"</td>" +
+                        "        <td>"+camObj.progress+"</td>" +
+                        "        <td>"+camObj.tuition+"</td>" +
+                        "        <td class=\"operation\" >" +
+                        "        <span  class=\"editTerm\" data-id=\""+camObj.planId+"\" >编辑<em></em></span>" +
+                        "     </td>" +
+                        "    </tr>"
+
+                }
+
+                $("#planList").html(html)
+
+            }else {
+                myAlert(res.msg,2,res.code,null);
+            }
+        },"POST",false)
+    }
+</script>

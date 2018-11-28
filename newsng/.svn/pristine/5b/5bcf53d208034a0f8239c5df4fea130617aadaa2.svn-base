@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>个人主页</title>
+	<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+	<link rel="shortcut icon" href="/favicon.ico">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<!--ui包-->
+	<link rel="stylesheet" href="/shijiwxy/weixin/css/sm.css">
+	<link rel="stylesheet" href="/shijiwxy/weixin/css/layout.css">
+	<style type="text/css">
+		a {
+			color: #3d4145
+		}
+
+		.page {
+			background-color: #fff;
+		}
+		#userImg{
+			position: relative
+		}
+		#userImg img{
+			height: 100%;
+			width: 100%;
+			object-fit: cover;
+			z-index: 0;
+			vertical-align: middle;
+			-o-object-fit: cover;
+			object-fit: cover;
+			position: absolute
+		}
+		.graduated {
+			position: absolute;
+			display: block;
+			left: 3.2rem;
+			width: 43px;
+			height: 29px;
+			z-index: 999999;
+			top: 1.9rem;
+			border-radius: 4rem;
+			display: none;
+		}
+
+	</style>
+	<script type="text/javascript">
+		//html root的字体计算应该放在最前面，这样计算就不会有误差了/
+		var _htmlFontSize = (function () {
+			var clientWidth = document.documentElement ? document.documentElement.clientWidth : document.body.clientWidth;
+			if (clientWidth > 640) clientWidth = 640;
+			document.documentElement.style.fontSize = clientWidth * 1 / 16 + "px";
+			return clientWidth * 1 / 16;
+		})();
+	</script>
+</head>
+
+<body>
+	<div class="page-group">
+		<div class="page page-current" id="personCenter">
+			<div class="content native-scroll">
+				<div class="banner" id="banner">
+					<div class="allChildSign" id="childrensLength">
+						<ul></ul>
+					</div>
+
+					<div class="toChangeChild" id="toChangeChild">切换孩子</div>
+					<!--<span></span>-->
+					<div class="user">
+						<div class="userobj userImg" id="userImg">
+							<img src="/shijiwxy/weixin/images/defaultHead.jpg">
+						</div>
+						<span id="graduated" class="graduated"><img src="/shijiwxy/weixin/images/graduated.png" width="32"></span>
+						<div class="userobj userInfo">
+							<div class="usserName" id="userName"></div>
+							<div class="userId" id="userId">id:
+								<i style="font-style:normal"></i>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="allServer">
+					<ul>
+						<li id="notice">
+							<a href="/shijiwxy/weixin/html/parent/notice/index.html" class="external">
+								<span class="icon icon_notice"></span>
+								<span class="serverText">校园通知</span>
+							</a>
+						</li>
+						<li id="homework">
+							<a href="/shijiwxy/weixin/html/parent/homework/index.html" class="external">
+								<span class="icon icon_homework"></span>
+								<span class="serverText">作业练习</span>
+							</a>
+						</li>
+						<li id="blog">
+							<a href="/shijiwxy/weixin/html/parent/blog/list.html" class="external">
+								<span class="icon icon_blog"></span>
+								<span class="serverText">班级博客</span>
+							</a>
+						</li>
+						<li id="payOnline">
+							<a href="/shijiwxy/weixin/html/parent/payOnline/index.html" class="external">
+								<span class="icon icon_pay"></span>
+								<span class="serverText">掌上缴费</span>
+							</a>
+						</li>
+						<li id="timesheet">
+							<a href="/shijiwxy/weixin/html/parent/timesheet/index_new.html" class="external">
+								<span class="icon icon_timeSheet"></span>
+								<span class="serverText">考勤请假</span>
+							</a>
+						</li>
+
+						<li id="question">
+							<a href="/shijiwxy/weixin/html/parent/question/index.html" class="external">
+								<span class="icon icon_question"></span>
+								<span class="serverText">问卷调查</span>
+							</a>
+						</li>
+
+						<li id="cook">
+							<a href="/shijiwxy/weixin/html/parent/cook/index.html" class="external">
+								<span class="icon icon_cook"></span>
+								<span class="serverText">校园食谱</span>
+							</a>
+						</li>
+
+						<li id="mail">
+							<a href="/shijiwxy/weixin/html/parent/mail/index.html" class="external">
+								<span class="icon icon_mail"></span>
+								<span class="serverText">校长信箱</span>
+							</a>
+						</li>
+
+						<li id="set">
+							<a href="/shijiwxy/weixin/html/parent/set/index.html" class="external">
+								<span class="icon icon_set"></span>
+								<span class="serverText">个人设置</span>
+							</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+
+</html>
+<script src='/shijiwxy/weixin/js/zepto.min.js'></script>
+<script src='/shijiwxy/weixin/js/sm.min.js'></script>
+<script src='/shijiwxy/weixin/js/touch.js'></script>
+<script src='/shijiwxy/weixin/js/config.js'></script>
+<script src='https://res.wx.qq.com/open/js/jweixin-1.2.0.js'></script>
+<script>
+	//防止页面后退
+	history.pushState(null, null, document.URL);
+	window.addEventListener('popstate', function () {
+		history.pushState(null, null, document.URL);
+	});
+	//后退刷新
+	window.addEventListener('pageshow', function (event) {
+		if (sessionStorage.home == 1) {
+			sessionStorage.removeItem("home");
+			window.location.reload();
+		}
+	});
+</script>
+<script>
+	$(function () {
+		//如果从通过微信消息模板登录
+		if (sessionStorage.baseUser == undefined) {
+			var nowOrg_id = baseParameter.org_id;
+			var nowOpenid = baseParameter.openid;
+
+			var parameter = {
+				openid: nowOpenid,
+				identity: 0,
+				org_id: nowOrg_id,
+				version: 3
+			}
+			getData(domainName + "/esb/api/wxredirect", parameter, function (res) {
+				if (res.code == 200 && res.success == true) {
+					sessionStorage.baseUser = JSON.stringify(res.data);
+					showUser();
+				} else {
+					$.alert(res.message);
+				}
+			});
+		} else {
+			showUser();
+		}
+	})
+
+	function showUser() {
+
+        var parameter={
+            token:JSON.parse(sessionStorage.baseUser).token,
+            udid:JSON.parse(sessionStorage.baseUser).udid, //最后从cookie里去
+            version:"3",  //终端
+            org_id:JSON.parse(sessionStorage.baseUser).orguser.org_id,
+            identity:0
+        }
+
+        getData(domainName+"/esb/api/org/getIcon",parameter,function(res){
+
+            if(res.code == 200 && res.success == true){
+                var data=res.data.split(",");
+                if( data.length > 0 ){
+                    for(var n=data.length;n>=0;n--){
+                        $("#"+data[n]).remove();
+                    }
+                }
+
+            }else{
+                setTimeout(function () {
+                    $.alert("获取权限失败，请重新登录","提示",function () {
+                        window.location="login_byPSW.html"
+                    })
+                },50);
+            }
+        });
+
+		//获取登陆者孩子信息
+		var studentObj = JSON.parse(sessionStorage.baseUser).orguser.childrens;
+		if (studentObj.length == null) {
+			$.alert("没有学生信息,请更新学生信息");
+			$("#toChangeChild").hide();
+			$("#childrensLength ul").hide();
+			$("a").attr("href", "javascript:void(0)");
+			return false
+		}
+
+		if (studentObj.length > 0) {
+			var studentHtml = "";
+			for (var i = 0; i < studentObj.length; i++) {
+				var params = {
+					token: JSON.parse(sessionStorage.baseUser).token,
+					udid: JSON.parse(sessionStorage.baseUser).udid,
+					version: 3,
+					stud_id: studentObj[i].stud_id
+				}
+				if (sessionStorage.nowChild !== undefined) {
+					if (studentObj[i].stud_id == parseInt(sessionStorage.nowChild)) {
+						studentHtml += '<li class="icon_child icon_active" id="' + studentObj[i].stud_id + '"></li>';
+						$("#userName").html(studentObj[i].stud_name);
+						$("#userId i").html(studentObj[i].stud_id);
+
+						getNewHead(studentObj[i].stud_id);
+						sessionStorage.nowChild = studentObj[i].stud_id;
+						sessionStorage.nowStudent = JSON.stringify(studentObj[i]);
+
+                        //判断是否毕业
+                        if(studentObj[i].classList[0].is_graduated==1){
+                            $("#mail").hide();
+                            $("#graduated").show();
+                        }else{
+                            $("#mail").show();
+                            $("#graduated").hide();
+                        };
+
+					} else {
+						studentHtml += '<li class="icon_child" id="' + studentObj[i].stud_id + '"></li>';
+					}
+
+				} else {
+					if (i == 0) {
+						studentHtml += '<li class="icon_child icon_active" id="' + studentObj[i].stud_id + '"></li>';
+
+						$("#userName").html(studentObj[i].stud_name);
+						$("#userId i").html(studentObj[i].stud_id);
+
+						getNewHead(studentObj[i].stud_id);
+
+						sessionStorage.nowChild = studentObj[i].stud_id;
+						sessionStorage.nowStudent = JSON.stringify(studentObj[i]);
+                        //判断是否毕业
+                        if(studentObj[i].classList[0].is_graduated==1){
+                            $("#mail").hide();
+                            $("#graduated").show();
+                        }else{
+                            $("#mail").show();
+                            $("#graduated").hide();
+                        };
+
+					} else {
+						studentHtml += '<li class="icon_child" id="' + studentObj[i].stud_id + '"></li>';
+					}
+
+
+
+				}
+			}
+			$("#childrensLength ul").append(studentHtml);
+		}else{
+			window.location="/shijiwxy/weixin/html/parent/login/login_byPSW.html";
+		}
+
+
+		if (studentObj.length == 1) {
+			$("#toChangeChild").hide();
+			$("#childrensLength ul").hide()
+		}
+
+		//切换孩子
+		$("#toChangeChild").click(function () {
+			//如果多个孩子则循环查看··
+			var nowIndex = $("#childrensLength ul li.icon_active").next().index() >= 0 ? $(
+				"#childrensLength ul li.icon_active").next().index() : 0;
+			$("#childrensLength ul li.icon_active").removeClass("icon_active");
+			$("#childrensLength ul li").eq(nowIndex).addClass("icon_active");
+			sessionStorage.nowChild = $("#childrensLength ul li").eq(nowIndex).attr("id");
+
+			for (var i = 0; i < studentObj.length; i++) {
+				if (studentObj[i].stud_id == sessionStorage.nowChild) {
+					$("#userName").html(studentObj[i].stud_name);
+					$("#userId i").html(studentObj[i].stud_id);
+
+					getNewHead(studentObj[i].stud_id);
+
+					sessionStorage.nowChild = studentObj[i].stud_id;
+					sessionStorage.nowStudent = JSON.stringify(studentObj[i]);
+
+                    //判断是否毕业
+                    if(studentObj[i].classList[0].is_graduated==1){
+                        $("#mail").hide();
+                        $("#graduated").show();
+                    }else{
+                        $("#mail").show();
+                        $("#graduated").hide();
+                    };
+				}
+			}
+		});
+
+        //左右滑动切换孩子
+        $("#banner").swipeLeft(function () {
+            //alert("左滑动事件触发了");
+            //如果多个孩子则循环查看··
+            var nowIndex = $("#childrensLength ul li.icon_active").next().index() >= 0 ? $("#childrensLength ul li.icon_active").next().index() : 0;
+            $("#childrensLength ul li.icon_active").removeClass("icon_active");
+            $("#childrensLength ul li").eq(nowIndex).addClass("icon_active");
+            sessionStorage.nowChild = $("#childrensLength ul li").eq(nowIndex).attr("id");
+
+            for (var i = 0; i < studentObj.length; i++) {
+                if (studentObj[i].stud_id == sessionStorage.nowChild) {
+                    $("#userName").html(studentObj[i].stud_name);
+                    $("#userId i").html(studentObj[i].stud_id);
+
+                    getNewHead(studentObj[i].stud_id);
+
+                    sessionStorage.nowChild = studentObj[i].stud_id;
+                    sessionStorage.nowStudent = JSON.stringify(studentObj[i]);
+
+                    //判断是否毕业
+                    if(studentObj[i].classList[0].is_graduated==1){
+                        $("#mail").hide();
+                        $("#graduated").show();
+                    }else{
+                        $("#mail").show();
+                        $("#graduated").hide();
+                    };
+                }
+            }
+        });
+
+        $("#banner").swipeRight(function () {
+            var nowIndex = $("#childrensLength ul li.icon_active").prev().index() >= 0 ? $("#childrensLength ul li.icon_active").prev().index() : $("#childrensLength ul li:last-child").index();
+            $("#childrensLength ul li.icon_active").removeClass("icon_active");
+            $("#childrensLength ul li").eq(nowIndex).addClass("icon_active");
+            sessionStorage.nowChild = $("#childrensLength ul li").eq(nowIndex).attr("id");
+
+            for (var i = 0; i < studentObj.length; i++) {
+                if (studentObj[i].stud_id == sessionStorage.nowChild) {
+                    $("#userName").html(studentObj[i].stud_name);
+                    $("#userId i").html(studentObj[i].stud_id);
+                    getNewHead(studentObj[i].stud_id);
+                    sessionStorage.nowChild = studentObj[i].stud_id;
+                    sessionStorage.nowStudent = JSON.stringify(studentObj[i]);
+
+                    //判断是否毕业
+                    if(studentObj[i].classList[0].is_graduated==1){
+                        $("#mail").hide();
+                        $("#graduated").show();
+                    }else{
+                        $("#mail").show();
+                        $("#graduated").hide();
+                    };
+                }
+            }
+        });
+
+
+
+
+		//实时更新头像
+		function getNewHead(id){
+			var params = {
+				token:JSON.parse(sessionStorage.baseUser).token,
+				udid:JSON.parse(sessionStorage.baseUser).udid,
+				version: 3,
+				stud_id: id
+			}
+			getData(domainName + '/esb/api/student/getStudent',params,function(res){
+				console.log(res.data)
+				if(res.message == '请登陆后再操作'){
+					$.hidePreloader();
+					$.alert('请登录后再操作','',function(){
+						window.location.href = domainName + '/shijiwxy/weixin/html/parent/login/login_byPSW.html';
+					})
+				}
+				if(res.data.headurl!==null && res.data.headurl!==""){
+					$("#userImg img").attr("src",res.data.headurl);
+				}else{
+					$("#userImg img").attr("src",domainName + "/shijiwxy/weixin/images/defaultHead.jpg");
+				}
+				// setTimeout(function(){
+				// 	if($("#userImg img").width()>$("#userImg img").height()){
+				// 		$(".userImg img").css("height","100%");
+				// 		$(".userImg img").css("width","auto");
+				// 	}else{
+				// 		$(".userImg img").css("height","auto");
+				// 		$(".userImg img").css("width","100%");
+				// 	}
+				// },1000)
+
+			});
+		}
+
+		$('#userImg').on('click', function () {
+			window.location.href = domainName + '/shijiwxy/weixin/html/parent/set/index.html'
+		})
+	}
+</script>

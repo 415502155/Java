@@ -1,0 +1,152 @@
+
+<div style="padding: 40PX;">
+    <form class="gui-form gui-form-label-right" id="addTerm-form" novalidate="novalidate">
+
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">学期名称</label>
+            <div class="gui-form-item-content">
+                <input type="text" name="termName" id="termName" placeholder="请输入学期名称" class="gui-input" value="" maxlength="50" style="width: 360px">
+            </div>
+        </div>
+        <div class="line"></div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">所属年份</label>
+            <div class="gui-form-item-content">
+                <select class="gui-input"  name="termYear" id="termYear">
+                    <option value="">选择年份</option>
+                    <option value="2018">2018</option>
+                    <option value="2019">2019</option>
+                    <option value="2020">2020</option>
+                    <option value="2021">2021</option>
+                    <option value="2022">2022</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="gui-form-item gui-form-item-required">
+            <label class="gui-form-item-label">学期类型</label>
+            <div class="gui-form-item-content">
+                <div class=" gui-select-single">
+                    <select class="gui-input" name="termType"  id="termType">
+                        <option value="">选择类型</option>
+                        <option value="1">学期</option>
+                        <option value="2">假期</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="gui-form-item gui-form-item-required">
+            <label class="gui-form-item-label">开始时间</label>
+            <div class="gui-form-item-content">
+                <div class=" gui-select-single">
+                    <input type="text" name="termStart_time" placeholder="请选择开始时间" data-date="YYYY-MM-DD" readonly="" class="gui-input"  id="termStart_time">
+                </div>
+            </div>
+        </div>
+
+
+        <div class="line"></div>
+        <div class="gui-form-item">
+            <div class="gui-form-item-content" >
+                <button type="button" class="gui-btn gui-btn-normal" id="savaTerm"><i class="fa fa-save"></i><span>保存学期</span></button>
+                <button type="button" class="gui-btn gui-btn-primary" id="back"><i class="fa fa-angle-left"></i><span>取消返回</span></button>
+            </div>
+        </div>
+    </form>
+    <script type="text/javascript" src="plus/validate/jquery-validate.js"></script>
+    <script>
+        $(function() {
+
+            //编辑则赋值
+            var nowTermId=GetUrlParam("term_id");
+            if(nowTermId!==""){
+                var termsObj=JSON.parse(sessionStorage.localTerms)[nowTermId];
+                $("#termName").val(termsObj.term_name);
+                $("#termYear").val(termsObj.cur_year);
+                $("#termType").val(termsObj.term_type);
+                $("#termStart_time").val(termsObj.start_time);
+            }
+
+
+            //取消编辑返回列表
+            $("#back").click(function () {
+                window.history.back();
+            })
+
+            allSelect();
+
+
+            $("#addTerm-form").validate({
+                rules: {
+                    termName: {
+                        required: true,
+                        rangelength: [2, 10]
+                    },
+                    termYear: {
+                        required: true
+                    },
+                    termType: {
+                        required: true
+                    },
+                    termStart_time: {
+                        required: true
+                    }
+                },
+                messages: {
+                    termName: {
+                        required: '请输入学期名称',
+                        rangelength: '请输入2-20个字符'
+                    },
+                    termYear: {
+                        required: '请选择年份'
+                    },
+                    termType: {
+                        required: '请选择假期类型'
+                    },
+                    termStart_time: {
+                        required: '请选择开始日期'
+                    }
+                },
+                errorPlacement: function(error, element) {
+                    error.appendTo(element.parent().after())
+                },
+                errorElement: 'span',
+                submitHandler: function(form) {
+
+                    //保存或者更新校区信息
+                    var cam={
+                        "parameter":{
+                            "org_id":option.org_id,
+                            "cam_id":nowTermId,
+                            "term_name" :$("#termName").val(),
+                            "cur_year" :$("#termYear").val(),
+                            "term_type" :$("#termType").val(),
+                            "time":$("#termStart_time").val(),
+                        },
+                        "url":domain+"/baseSet/termManage/createAndUpdateTerm.json"
+                    };
+
+                    //保存或者更新校区
+                    getData(cam.url,cam.parameter,function (data) {
+                        console.log(data)
+                        if(data.code==200 && data.success==true){
+                            myAlert("保存成功",1,data.code,function () {
+                                window.location.href="#f32"
+                            });
+                        }else {
+                            myAlert(data.msg,2,data.code,null);
+                        }
+                    },"POST",false)
+
+
+                }
+            });
+
+            //保存学期
+            $("#savaTerm").click(function () {
+                debugger
+                $("#addTerm-form").submit();
+            });
+        })
+    </script>
+
+</div>

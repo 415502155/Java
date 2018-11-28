@@ -1,0 +1,391 @@
+package sng.entity;
+
+import java.io.Serializable;
+import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+/**
+ * 班级信息
+ *Title: Classes 
+ *Description:记录班级信息记录
+ * Company: 世纪伟业 
+ * @author 马国庆
+ * @date 2018年10月23日上午10:51
+ */
+@Entity
+@Table(name = "classes")
+public class Classes implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5475414229354310136L;
+
+	public Classes() {
+		super();
+	}
+
+	public Classes(Integer clasId, Integer orgId, Integer termId, Integer planId, String clasName, Integer clasType,
+			Integer categoryId, Integer subjectId, Integer camId, Integer classroomId, Integer size, String ageRange,
+			Date startBirthday, Date endBirthday, Integer totalHours, Date classStartDate, Integer classWeek,
+			String classUnsetTime, Date classBeginTime, Date classOverTime, String tuitionFees, Integer cooperationId,
+			Integer ysNum, Integer ssNum, Integer usableNum, Integer isDel, Date insertTime, Date updateTime,
+			Date delTime) {
+		super();
+		this.clasId = clasId;
+		this.orgId = orgId;
+		this.termId = termId;
+		this.planId = planId;
+		this.clasName = clasName;
+		this.clasType = clasType;
+		this.categoryId = categoryId;
+		this.subjectId = subjectId;
+		this.camId = camId;
+		this.classroomId = classroomId;
+		this.size = size;
+		this.ageRange = ageRange;
+		this.startBirthday = startBirthday;
+		this.endBirthday = endBirthday;
+		this.totalHours = totalHours;
+		this.classStartDate = classStartDate;
+		this.classWeek = classWeek;
+		this.classUnsetTime = classUnsetTime;
+		this.classBeginTime = classBeginTime;
+		this.classOverTime = classOverTime;
+		this.tuitionFees = tuitionFees;
+		this.cooperationId = cooperationId;
+		this.ysNum = ysNum;
+		this.ssNum = ssNum;
+		this.usableNum = usableNum;
+		this.isDel = isDel;
+		this.insertTime = insertTime;
+		this.updateTime = updateTime;
+		this.delTime = delTime;
+	}
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	@Column(name = "clas_id")
+	private Integer clasId; // 班级ID
+
+	@Column(name = "org_id")
+	private Integer orgId; // 机构ID
+
+	@Column(name = "term_id")
+	private Integer termId; // 学期id
+
+	@Column(name = "plan_id")
+	private Integer planId; // 招生计划id
+
+	@Column(name = "clas_name")
+	private String clasName; // 班级名称
+
+	@Column(name = "clas_type")
+	private Integer clasType; // 班级类型（新生班 老生班）
+
+	@Column(name = "category_id")
+	private Integer categoryId; // 类目
+
+	@Column(name = "subject_id")
+	private Integer subjectId; // 所属科目ID
+
+	@Column(name = "cam_id")
+	private Integer camId; // 校区id
+
+	@Column(name = "classroom_id")
+	private Integer classroomId; // 所在教师id
+
+	@Column(name = "size")
+	private Integer size; // 班容量
+
+	@Column(name = "age_range")
+	private String ageRange; // 年龄要求
+
+	@Column(name = "start_birthday")
+	private Date startBirthday; // 起始生日
+
+	@Column(name = "end_birthday")
+	private Date endBirthday; // 结束生日
+
+	@Column(name = "total_hours")
+	private Integer totalHours; // 总课时数
+
+	@Column(name = "class_start_date")
+	private Date classStartDate;// 开课日期
+
+	@Column(name = "class_week")
+	private Integer classWeek; // 上课星期
+
+	@Column(name = "class_unset_time")
+	private String classUnsetTime; // 不固定时间
+
+	@Column(name = "class_begin_time")
+	private Date classBeginTime;// 上课时间
+
+	@Column(name = "class_over_time")
+	private Date classOverTime; // 下课时间
+
+	@Column(name = "tuition_fees")
+	private String tuitionFees; // 学费标准
+
+	@Column(name = "cooperation_id")
+	private Integer cooperationId;// 联合机构id
+
+	@Column(name = "ys_num")
+	private Integer ysNum;// 应收人数
+
+	@Column(name = "ss_num")
+	private Integer ssNum;// 实收人数
+
+	@Column(name = "usable_num")
+	private Integer usableNum; // 可用名额
+
+	@Column(name = "is_del")
+	private Integer isDel;// 删除标记 是否删除(0:否；1：是)
+
+	@Column(name = "insert_time")
+	private Date insertTime; // 插入时间
+
+	@Column(name = "update_time")
+	private Date updateTime;// 更新时间
+
+	@Column(name = "del_time")
+	private Date delTime; // 删除时间
+
+	public Integer getClasId() {
+		return clasId;
+	}
+
+	public void setClasId(Integer clasId) {
+		this.clasId = clasId;
+	}
+
+	public Integer getOrgId() {
+		return orgId;
+	}
+
+	public void setOrgId(Integer orgId) {
+		this.orgId = orgId;
+	}
+
+	public Integer getTermId() {
+		return termId;
+	}
+
+	public void setTermId(Integer termId) {
+		this.termId = termId;
+	}
+
+	public Integer getPlanId() {
+		return planId;
+	}
+
+	public void setPlanId(Integer planId) {
+		this.planId = planId;
+	}
+
+	public String getClasName() {
+		return clasName;
+	}
+
+	public void setClasName(String clasName) {
+		this.clasName = clasName == null ? null : clasName.trim();
+	}
+
+	public Integer getClasType() {
+		return clasType;
+	}
+
+	public void setClasType(Integer clasType) {
+		this.clasType = clasType;
+	}
+
+	public Integer getCategoryId() {
+		return categoryId;
+	}
+
+	public void setCategoryId(Integer categoryId) {
+		this.categoryId = categoryId;
+	}
+
+	public Integer getSubjectId() {
+		return subjectId;
+	}
+
+	public void setSubjectId(Integer subjectId) {
+		this.subjectId = subjectId;
+	}
+
+	public Integer getCamId() {
+		return camId;
+	}
+
+	public void setCamId(Integer camId) {
+		this.camId = camId;
+	}
+
+	public Integer getClassroomId() {
+		return classroomId;
+	}
+
+	public void setClassroomId(Integer classroomId) {
+		this.classroomId = classroomId;
+	}
+
+	public Integer getSize() {
+		return size;
+	}
+
+	public void setSize(Integer size) {
+		this.size = size;
+	}
+
+	public String getAgeRange() {
+		return ageRange;
+	}
+
+	public void setAgeRange(String ageRange) {
+		this.ageRange = ageRange == null ? null : ageRange.trim();
+	}
+
+	public Date getStartBirthday() {
+		return startBirthday;
+	}
+
+	public void setStartBirthday(Date startBirthday) {
+		this.startBirthday = startBirthday;
+	}
+
+	public Date getEndBirthday() {
+		return endBirthday;
+	}
+
+	public void setEndBirthday(Date endBirthday) {
+		this.endBirthday = endBirthday;
+	}
+
+	public Integer getTotalHours() {
+		return totalHours;
+	}
+
+	public void setTotalHours(Integer totalHours) {
+		this.totalHours = totalHours;
+	}
+
+	public Date getClassStartDate() {
+		return classStartDate;
+	}
+
+	public void setClassStartDate(Date classStartDate) {
+		this.classStartDate = classStartDate;
+	}
+
+	public Integer getClassWeek() {
+		return classWeek;
+	}
+
+	public void setClassWeek(Integer classWeek) {
+		this.classWeek = classWeek;
+	}
+
+	public String getClassUnsetTime() {
+		return classUnsetTime;
+	}
+
+	public void setClassUnsetTime(String classUnsetTime) {
+		this.classUnsetTime = classUnsetTime == null ? null : classUnsetTime.trim();
+	}
+
+	public Date getClassBeginTime() {
+		return classBeginTime;
+	}
+
+	public void setClassBeginTime(Date classBeginTime) {
+		this.classBeginTime = classBeginTime;
+	}
+
+	public Date getClassOverTime() {
+		return classOverTime;
+	}
+
+	public void setClassOverTime(Date classOverTime) {
+		this.classOverTime = classOverTime;
+	}
+
+	public String getTuitionFees() {
+		return tuitionFees;
+	}
+
+	public void setTuitionFees(String tuitionFees) {
+		this.tuitionFees = tuitionFees == null ? null : tuitionFees.trim();
+	}
+
+	public Integer getCooperationId() {
+		return cooperationId;
+	}
+
+	public void setCooperationId(Integer cooperationId) {
+		this.cooperationId = cooperationId;
+	}
+
+	public Integer getYsNum() {
+		return ysNum;
+	}
+
+	public void setYsNum(Integer ysNum) {
+		this.ysNum = ysNum;
+	}
+
+	public Integer getSsNum() {
+		return ssNum;
+	}
+
+	public void setSsNum(Integer ssNum) {
+		this.ssNum = ssNum;
+	}
+
+	public Integer getUsableNum() {
+		return usableNum;
+	}
+
+	public void setUsableNum(Integer usableNum) {
+		this.usableNum = usableNum;
+	}
+
+	public Integer getIsDel() {
+		return isDel;
+	}
+
+	public void setIsDel(Integer isDel) {
+		this.isDel = isDel;
+	}
+
+	public Date getInsertTime() {
+		return insertTime;
+	}
+
+	public void setInsertTime(Date insertTime) {
+		this.insertTime = insertTime;
+	}
+
+	public Date getUpdateTime() {
+		return updateTime;
+	}
+
+	public void setUpdateTime(Date updateTime) {
+		this.updateTime = updateTime;
+	}
+
+	public Date getDelTime() {
+		return delTime;
+	}
+
+	public void setDelTime(Date delTime) {
+		this.delTime = delTime;
+	}
+}

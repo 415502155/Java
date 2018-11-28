@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>博客列表</title>
+	<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<!-- <link rel="stylesheet" href="//at.alicdn.com/t/font_431334_smk25a436zyhw7b9.css"> -->
+	<link rel="stylesheet" href="../../../js/iscroll/css/css.css">
+	<link rel="stylesheet" href="../../../css/sm.css">
+	<style>
+		@charset "utf-8";
+		/*基本*/
+		body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,textarea,p,blockquote,th,td,input,select,textarea,button {
+			margin:0;padding:0;
+		}
+		/* rem转换说明：HTML为16px进行转换*/
+		html,body{
+			font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;
+			background:url(../../../images/blog-head-bg.jpg) top center no-repeat;
+			background-size: 100%;
+			font-size: 1rem;
+			width:100%;
+			/*height:100%;*/
+		}
+		.iconfont {
+			font-size: 1.3rem;
+		}
+		.toubu-bg{
+			height:7.1875rem;
+		}
+
+		a{
+			color:#7167ef;
+			text-align:center;
+			margin: 0 auto;
+			display:inline-block;
+			/*font-weight: bold;*/
+			text-decoration: none;
+		}
+		a:link {
+			color:#7167ef;
+			text-align:center;
+			margin: 0 auto;
+			display:inline-block;
+			/*font-weight: bold;*/
+			text-decoration: none;
+		}
+		a:visited {
+			color:#7167ef;
+			text-decoration:none;
+		}
+		a:hover {
+			color:#7167ef;
+			text-decoration:none;
+		}
+		a:active {
+			color:#7167ef;
+			text-decoration:none;
+		}
+		header{
+			height: 2.5rem;
+			line-height: 2.5rem;
+			background: -webkit-linear-gradient(-90deg,#1b7eff,#42b8fe);
+			background: linear-gradient(-90deg,#1b7eff,#42b8fe);
+			border-bottom: 1px solid #99c4fd;
+			box-shadow: 2px 0px 10px #c0dff3;
+			padding: 0 3%;
+			color: #fff;
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			z-index: 999;
+		}
+		header span:first-child{
+			display:inline-block;
+			float:left;
+		}
+		header span:last-child{
+			display:inline-block;
+			float:right;
+		}
+		.main-list{
+			border-radius: 0.625rem;
+			background: #fff;
+			box-shadow: 0 0.625rem 1.25rem #e4e5e7;
+			padding: 3%;
+			text-align: left;
+			margin: 15px;
+			padding-bottom:0;
+		}
+		.main-list .list1{
+			font-weight:bold;
+		}
+		.main-list .list2{
+			color:#adadad;
+			line-height: 1.5rem;
+		}
+		.main-list .list2 span:last-child{
+			float:right;
+			margin-left:5px;
+		}
+		.main-list .list2 span:nth-child(2){
+			float:right;
+			margin-left:5px;
+		}
+		.main-list .list3{
+			margin-bottom: 10px;
+		}
+		.main-list .list3 span{
+			width:100%;
+			margin:0px 0 10px;
+			word-break: break-all;
+			text-overflow: ellipsis;
+			display: -webkit-box; /** 将对象作为伸缩盒子模型显示 **/
+			-webkit-box-orient: vertical; /** 设置或检索伸缩盒对象的子元素的排列方式 **/
+			-webkit-line-clamp: 4; /** 显示的行数 **/
+			overflow: hidden;  /** 隐藏超出的内容 **/
+		}
+		.main-list .list3 img{
+			display:inline-block;
+
+		}
+		.main-list .list4{
+			color:#adadad;
+			height:45px;
+			line-height: 45px;
+		}
+		.main-list .list4 span{
+			float:left;
+		}
+		.main-list .list4 span .iconfont{
+			font-size: 1.3rem;
+			padding:12px;
+		}
+
+		.main-list .list4 span:last-child{
+			float:right;
+		}
+		.main-list .list4 span:last-child .iconfont{
+			margin-right:0;
+			padding-left:0;
+			padding-right:0;
+		}
+		.main-list .list4 span:first-child .iconfont{
+			padding-left:0;
+		}
+		.red{
+			color:red;
+			transition: all 1s ease 0s;
+		}
+		/*九张图*/
+		.imgdiv{
+			width:90px;
+			height:90px;
+			overflow:hidden;
+			display:inline-block;
+			margin-bottom:5px;
+			margin-right:5px;
+			float: left;
+		}
+	</style>
+</head>
+<body>
+<header class="toubu" style="height: 44px;line-height: 44px;font-size: .8rem;">
+	<span class="banji-name" style="font-weight:bold;"></span><span> <a class="go_page" href="javascript:;" style="color:#fff;">发布博客</a></span>
+</header>
+<!-- 分页开始 -->
+<div id="wrapper">
+	<div id="scroller">
+		<div id="pullDown">
+			<span class="pullDownIcon"></span>
+			<span class="pullDownLabel">下拉刷新...</span>
+		</div>
+		<ul id="thelist" style="margin-top: 9.5rem">
+
+		</ul>
+		<div id="pullUp">
+			<span class="pullUpLabel">
+				<div class="infinite-scroll-preloader" style="margin-top: -2px;">
+					<!--<div class="preloader"></div>-->
+				</div>
+			</span>
+		</div>
+	</div>
+</div>
+<!-- 分页结束 -->
+</body>
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/iscroll/js/iscroll.js'></script>
+<script src='../../../js/sm.js'></script>
+<script src="../../../js/config.js"></script>
+<script>
+    /*重新定义时间时间格式*/
+    Date.prototype.toLocaleString = function() {
+        return this.getFullYear() + "/" + (this.getMonth() + 1) + "/" + this.getDate() + "/ " + this.getHours() + ":" + (this.getMinutes()<10? "0"+this.getMinutes():this.getMinutes());
+    };
+    var url=window.location.href;
+    var base =JSON.parse(sessionStorage.baseUser);
+    var identity=base.orguser["identity"];//身份  1教师 0家长
+    var tech_id=base.orguser.teacher["tech_id"];
+    //权限判断
+    //管理员： 管理员(1), 校长(2),分校校长(10), 年级组长(5)
+    //普通：任课教师(3), 班主任(4),
+    //其他：学生组管理员(6), 部门管理员(7), 教师组管理员(8), 功能管理员(9),  财务管理员(17) 财务审核员(18)
+    var rlids=base.orguser["rlids"];
+
+    var loading=false;
+
+    if(url.indexOf("?")!= -1){
+        var str=url.split("?");
+        var strs=str[1];
+        if(strs.indexOf("&")!= -1){
+            var clas_ids=strs.split("&")[0].split("=")[1];
+        }else{
+            var clas_ids=strs.split("=")[1];
+        }
+        //确定当前的班级
+        var localClass=JSON.parse(sessionStorage.allClass);
+        for(var i in localClass){
+            for(var m in localClass[i].classList){
+                if(m==clas_ids){
+                    $(".banji-name").text(localClass[i].classList[m]["className"])
+
+                }
+            }
+        }
+
+        var parameter={
+            token:base.token,
+            udid:base.udid,
+            version:3,
+            org_id:base.orguser["org_id"],
+            viewer_id:base.orguser.teacher["tech_id"],//当前登录教师的id
+            identity:identity,
+            clas_id:clas_ids,
+            num:5,   //请求条数
+            min:"",
+            max:"",  //下拉刷新，传递页面中id的最大值
+        }
+        PullAdd(parameter)
+        function PullAdd(parameter,type){
+            var type=type,loading=true;
+            var ports=domainName+"/shijiwxy/wechat/portal/blog/list.json";
+            getData(ports,parameter,function(res){
+                if(res.code==200 && res.success==true){
+
+                    loading=false;
+                    var data=res.data;
+                    var alldata=data.length;
+                    $("#thelist").attr("alldata",alldata);
+                    $("#thelist").children("div:first-child").attr("data");
+                    var litext = "";
+                    for( i=0;i<alldata; i++){
+                        if(data[i].is_del==1){
+                            window.location.reload();
+                        }
+                        var	commonTime = data[i].insert_time.replace(/\//g,"-");
+                        var strimg="";
+                        for(var m=0;m<=data[i].imgUrls.length-1;m++){
+                            imgurl=data[i].imgUrls[m];
+                            var newimg=imgurl.substring(0,imgurl.lastIndexOf("."))+"_200X200"+imgurl.substring(imgurl.lastIndexOf("."),imgurl.length);
+                            console.info(newimg);
+                            strimg+='<div class="imgdiv" style="background-image: url('+newimg+');background-size: cover;"></div>'
+                        }
+
+						var blogcontent = '<span>'+data[i].content+'</span>';
+						if(!data[i].newsShare && typeof(data[i].newsShare)!="undefined" && data[i].newsShare!=0){
+							blogcontent = '';
+							if(!data[i].newsShare.summary && typeof(data[i].newsShare.summary)!="undefined" && data[i].newsShare.summary!=0){
+								blogcontent += '<span>'+data[i].newsShare.summary+'</span>';
+							}
+							if(!data[i].newsShare.picurls && typeof(data[i].newsShare.picurls)!="undefined" && data[i].newsShare.picurls.length>0){
+								blogcontent += '<div class="allimg" style="width: 100%;overflow: hidden;height: auto">'+data[i].newsShare.picurls[0]+'</div></div>';
+							}
+							if(!data[i].newsShare.title && typeof(data[i].newsShare.title)!="undefined" && data[i].newsShare.title!=0){
+								blogcontent += '<span>'+data[i].newsShare.title+'</span>';
+							}
+						}
+                        //判断本人是否点过赞
+                        if(data[i].exist_dz==1){
+                            litext='<div class="main-list" data='+data[i].blog_id+' tech_id='+data[i].tech_id+'  >'
+                                +'<div class="list1">'+data[i].tech_name+'</div>'
+                                +'<div class="list2">'
+                                +'<span>'+commonTime+'</span>'
+                                +'<span><i class="iconfont icon-xinxi"></i><span>'+data[i].pl_num+'</span></span>'
+                                +'<span><i class="iconfont icon-hongxin red"></i><span class="all_dz_num">'+data[i].dz_num+'</span></span>'
+                                +'</div>'
+                                +'<div class="list3">'+blogcontent+'<div class="allimg" style="width: 100%;overflow: hidden;height: auto">'+strimg+'</div></div>'
+                                +'<div class="list4">'
+                                +'<span><i class="iconfont icon-hongxin red"></i></span>'
+                                +'<span class="ToDetail" is_del='+data[i].is_del+'><a style="color:#adadad"><i class="iconfont icon-xinxi"></i></a></span>'
+                                +'<span class="shanchu"></span>'
+                                +'<span class="ToDetail" is_del='+data[i].is_del+'><a style="color:#adadad"><span>详情</span><i class="iconfont icon-xiangyou"></i></a></span>'
+                                +'</div> '
+                                +'</div>'
+                        }else{
+                            litext='<div class="main-list" data='+data[i].blog_id+' tech_id='+data[i].tech_id+'  >'
+                                +'<div class="list1">'+data[i].tech_name+'</div>'
+                                +'<div class="list2">'
+                                +'<span>'+commonTime+'</span>'
+                                +'<span><i class="iconfont icon-xinxi"></i><span>'+data[i].pl_num+'</span></span>'
+                                +'<span><i class="iconfont icon-hongxin"></i><span class="all_dz_num">'+data[i].dz_num+'</span></span>'
+                                +'</div>'
+                                +'<div class="list3">'+blogcontent+'<div class="allimg" style="width: 100%;overflow: hidden;height: auto">'+strimg+'</div></div>'
+                                +'<div class="list4">'
+                                +'<span><i class="iconfont icon-hongxin"></i></span>'
+                                +'<span class="ToDetail" is_del='+data[i].is_del+'><a style="color:#adadad"><i class="iconfont icon-xinxi"></i></a></span>'
+                                +'<span class="shanchu"></span>'
+                                +'<span class="ToDetail" is_del='+data[i].is_del+'><a style="color:#adadad"><span>详情</span><i class="iconfont icon-xiangyou"></i></a></span>'
+                                +'</div> '
+                                +'</div>'
+
+                        };
+                        if(type==1){
+
+                           $('#thelist').prepend(litext);//如果是刷新
+                        }else{
+                            $('#thelist').append(litext);
+                        };
+
+
+                    };
+
+
+                    if(alldata==0){
+                      $("#pullUp .pullUpLabel").text("我是有底线的")
+					}
+
+                    //如果页面为空
+                    if($(".main-list").length==0){
+                        $("#pullUp").hide();
+                    };
+
+                    //不是班主任&&是自己发的
+                        for(var i=0;i<=$(".main-list").length-1;i++){
+                            //当前博客是自己发的
+                            if($($(".main-list")[i]).attr("tech_id")==tech_id){
+                                var str='<i class="iconfont icon-shanchu"></i>'
+                                $($(".main-list")[i]).find($(".shanchu")).empty().append(str)
+                            }
+                        }
+
+                        /*判断当前是班主任班级*/
+                        for(var m=0;m<=base.orguser.identityDatas[0].mapBZR.length-1;m++){
+                            if(base.orguser.identityDatas[0].mapBZR[m]["clas_id"]==clas_ids){
+                                /*是班主任班级*/
+                                var str='<i class="iconfont icon-shanchu"></i>'
+                                $(".shanchu").empty().append(str)
+                            }
+                        }
+
+
+                    setTimeout(function(){myScroll.refresh(); },500)   //请求完数据刷新滚动条
+                }else{
+                    $.alert(res.message);
+                    loading=false;
+                }
+
+            });
+
+        }
+
+    }else{
+        $.alert("参数错误")
+        window.location='Class_list.html';
+    };
+
+    var myScroll,
+        pullDownEl,
+        pullDownOffset,
+        pullUpEl,
+        pullUpOffset;
+
+
+    function pullDownAction () {
+            max=$("#thelist").children("div:first-child").attr("data");
+            parameter.max=max;
+            parameter.min="";
+            if(loading==true){
+                return false;
+			}
+            PullAdd(parameter,1);
+            myScroll.refresh();
+    }
+
+    function pullUpAction () {
+            min=$("#thelist").children("div:last-child").attr("data");
+            parameter.min=min;
+            parameter.max="";
+			if(loading==true){
+				return false;
+			}
+            PullAdd(parameter,2);
+            myScroll.refresh();
+    }
+
+    function loaded() {
+        pullDownEl = document.getElementById('pullDown');
+        pullDownOffset = pullDownEl.offsetHeight;
+        pullUpEl = document.getElementById('pullUp');
+        pullUpOffset = pullUpEl.offsetHeight;
+        myScroll = new iScroll('wrapper', {
+            useTransition: true,
+            topOffset: pullDownOffset,
+            onRefresh: function () {
+                if (pullDownEl.className.match('loading')) {
+                    pullDownEl.className = '';
+                    pullDownEl.querySelector('.pullDownLabel').innerHTML = '下拉刷新...';
+                } else if (pullUpEl.className.match('loading')) {
+                    pullUpEl.className = '';
+                    pullUpEl.querySelector('.pullUpLabel').innerHTML = '上拉加载更多...';
+                }
+            },
+            onScrollMove: function () {
+
+                if (this.y > 5 && !pullDownEl.className.match('flip')) {
+                    pullDownEl.className = 'flip';
+                    pullDownEl.querySelector('.pullDownLabel').innerHTML = '释放刷新...';
+                    this.minScrollY = 0;
+                } else if (this.y < 5 && pullDownEl.className.match('flip')) {
+                    pullDownEl.className = '';
+                    pullDownEl.querySelector('.pullDownLabel').innerHTML = '下拉刷新...';
+                    this.minScrollY = -pullDownOffset;
+                } else if (this.y < (this.maxScrollY - 0) && !pullUpEl.className.match('flip')) {
+
+                    pullUpEl.className = 'flip';
+                   // pullUpEl.querySelector('.pullUpLabel').innerHTML = '释放刷新...';
+                    this.maxScrollY = this.maxScrollY;
+                } else if (this.y > (this.maxScrollY + 0) && pullUpEl.className.match('flip')) {
+
+                    pullUpEl.className = '';
+                    pullUpEl.querySelector('.pullUpLabel').innerHTML = '上拉加载更多...';
+                    this.maxScrollY = pullUpOffset;
+                }
+            },
+            onScrollEnd: function () {
+
+                if (pullDownEl.className.match('flip')) {
+                    pullDownEl.className = 'loading';
+                    pullDownEl.querySelector('.pullDownLabel').innerHTML = '加载中...';
+                    pullDownAction();
+                    if(loading==false){
+                    	pullDownAction();
+                    }
+                } else if (pullUpEl.className.match('flip')) {
+
+                    pullUpEl.className = 'loading';
+                    pullUpEl.querySelector('.pullUpLabel').innerHTML = '加载中...';
+
+                    if( $("#thelist").attr("alldata")>=5){
+                        if (loading==false){
+                            pullUpAction();
+						}
+
+                    }else{
+                        pullUpEl.querySelector('.pullUpLabel').innerHTML ="更新完成！";
+                        return false;
+                    }
+                }
+
+                if(this.y==this.maxScrollY){
+                    if (loading==false){
+                        pullUpAction();
+                    }
+				}
+            }
+        });
+
+        setTimeout(function () { document.getElementById('wrapper').style.left = '0'; }, 800);
+    }
+    document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
+
+    document.addEventListener('DOMContentLoaded', function () { setTimeout(loaded, 200); }, false);
+
+    function GetQueryString(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+        var r = window.location.search.substr(1).match(reg);
+        return (r != null && r.length >= 2) ? decodeURI(r[2]) : null;
+    };
+
+    //点击删除博客操作
+    $("body").on('click','.icon-shanchu', function (e) {
+     e.stopPropagation();
+        var blog_id=$(this).parent().parent().parent().attr("data");
+        $this=$(this).parent().parent().parent();
+            var parameter={
+                token:base.token,
+                udid:base.udid,
+                version:3,
+                blog_id:blog_id,
+            }
+            $.confirm('确定删除?', '',function () {
+	            getData(domainName+"/shijiwxy/wechat/portal/blog/deleteBlog.json",parameter,function(res){
+	            	if(res.data==-1){
+	      				$.toast("博客已经不存在了！");
+						$this.remove();
+						return false;
+					};
+	        		if(res.code==200 && res.success==true){
+				      	$this.remove();
+		            }else{
+		                $.alert("删除失败！");
+					};
+	            },"POST",false);
+       	},null,"确定","取消")
+    });
+    //点赞
+    $("body").on("click",".icon-hongxin",function(e){
+        e.stopPropagation();
+        if(identity==1){
+            var blog_id=$(this).parent().parent().parent().attr("data");
+            var parameter={
+                token:base.token,
+                udid:base.udid,
+                version:3,
+                blog_id:blog_id,
+                identity:identity,
+                type:0,//点赞
+                tech_id:base.orguser.teacher["tech_id"],//当前登录教师的id ,
+                tech_name:base.orguser.teacher["tech_name"],//当前登录教师的name ,
+            };
+            var $this=$(this);
+            if(!$(this).hasClass("red")){
+                getData(domainName+"/shijiwxy/wechat/portal/blog/blogInteractsave.json",parameter,function(res){
+                    if(res.code==200 && res.success==true){
+                        /*判断是否删除的*/
+                        if(res.data==-1){
+                              $.toast(res.message);
+                            $this.parent().parent().parent().remove()
+                            return false;
+                        }
+                        $this.parent().parent().parent().find($(".icon-hongxin")).addClass("red");
+                        var oldnum=$this.parent().parent().parent().find($(".all_dz_num")).text();
+                        newnum=Number(oldnum);
+                        $this.parent().parent().parent().find($(".all_dz_num")).text(newnum+1)
+                    }else{
+                         $.alert("点赞失败！");
+                    };
+                },"POST",false);
+            }
+        };
+    });
+    $(".go_page").click(function(){
+        window.location="Publish.html?"+clas_ids;
+    });
+   	//点击评论
+   	sessionStorage.removeItem("Blogtext")
+    $("body").on("click",".ToDetail",function(e){
+        e.stopPropagation();
+        $this=$(this).parent().parent();
+        blog_id=$this.attr("data");
+        var ports=domainName+"/shijiwxy/wechat/portal/blog/getDetail.json";
+	  	var parameter={
+	          	token:base.token,
+	          	udid:base.udid,
+	          	version:3,
+	          	blog_id:blog_id,
+	          	tech_id:tech_id,//当前登录教师的id
+	   	}
+	  	getData(ports,parameter,function(res){
+	      	if(res.code==200 && res.success==true){
+	      		var data=res.data;
+	      		if(data.is_del==1){
+	      			$.toast("博客已经不存在了！");
+					$this.remove();
+	      		}else{
+	      			sessionStorage.Blogtext=1;
+	      			window.location="Blog_text.html?clas_ids="+GetUrlParam("clas_ids")+"&blog_id="+blog_id
+	      		};
+	      	};
+      	 });
+    });
+    /*跳转到详情*/
+    $(window).on("click",".main-list",function(e){
+
+        e.stopPropagation()
+        $this=$(this)
+        blog_id=$this.attr("data");
+        var ports=domainName+"/shijiwxy/wechat/portal/blog/getDetail.json";
+	  	var parameter={
+	          	token:base.token,
+	          	udid:base.udid,
+	          	version:3,
+	          	blog_id:blog_id,
+	          	tech_id:tech_id,//当前登录教师的id
+	   	}
+	  	getData(ports,parameter,function(res){
+	      	if(res.code==200 && res.success==true){
+	      		var data=res.data;
+	      		if(data.is_del==1){
+	      			$.toast("博客已经不存在了！");
+					$this.remove();
+
+	      		}else{
+	      			window.location="Blog_text.html?clas_ids="+GetUrlParam("clas_id")+"&blog_id="+blog_id
+	      		};
+	      	};
+      	 });
+    });
+    $(".modal-title").text("")
+    //后退刷新
+    window.addEventListener('pageshow', function(event) {
+        if(sessionStorage.backBlog==1){
+            sessionStorage.removeItem("backBlog");
+            window.location.reload();
+		}
+    })
+</script>

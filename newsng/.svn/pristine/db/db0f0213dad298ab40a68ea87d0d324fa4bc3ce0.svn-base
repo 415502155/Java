@@ -1,0 +1,539 @@
+package sng.util;
+
+import java.text.SimpleDateFormat;
+
+public class Constant {
+	
+	public static final String encoding = "UTF-8";
+	
+	/**
+	 * 【支付】主动查询的时间间隔，15分钟900000毫秒
+	 * 值n大于0时表示：跳转支付页面后触发延迟MQ，n秒后向银联后台查询支付结果，同时判断2n秒前是否是前一天，如果是，同时查询前一天的支付结果
+	 * 值n小于0时表示：主动查询关闭，不进行主动查询业务操作
+	 * 关闭改为负数即可，开启时若修改值时须同时修改spring-rabbitmq.xml中的charge_query_exchange延时配置
+	 */
+	public static final Integer CHARGE_QUERY_TIMEOUT_MILLISECONDS = 900000;
+	
+	/**
+	 * 考勤统计默认天数
+	 */
+	public static final Integer ATTENDANCE_DAYS = 30;
+	
+	/**
+	 * 时间格式化【2017-01-27 08:30:00】
+	 */
+	public static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	/**
+	 * 时间格式化【2017年01月27日 08:30:00】
+	 */
+	public static final SimpleDateFormat ymd = new SimpleDateFormat("yyyy年MM月dd日  HH:mm:ss");
+	/**
+	 * CEB光大银行时间格式【YYYYMMDDhhmmss】
+	 */
+	public static final SimpleDateFormat ceb = new SimpleDateFormat("YYYYMMdd");
+	/**
+	 * 时间格式化【2017-01-27】
+	 */
+	public static final SimpleDateFormat date = new SimpleDateFormat("yyyy-MM-dd");
+	
+	/**
+	 * 域名内网访问
+	 */
+	public static final String DOMAIN_NAME_API = ESBPropertyReader.getProperty("domain_name_api");
+	
+	/**
+	 * 外网
+	 */
+	public static final String DOMAIN_NAME = ESBPropertyReader.getProperty("domain_name");
+	
+	/**
+	 * 请求微信token等基础信息
+	 */
+	public static final String GET_WEIXIN_CONFIG = DOMAIN_NAME_API + "/eduWeixin/weixin/getWxConfig?org_id=";
+	
+	/**
+	 * 请求微信模板消息id
+	 */
+	public static final String GET_WEIXIN_TEMPLATE_ID = DOMAIN_NAME_API + "/eduWeixin/weixin/get_templateId?org_id=%1$s&templateName=%2$s";
+	
+	
+	/**
+	 * 发送微信模板消息地址
+	 */
+	public static final String SEND_TEMPLATE_MESSAGE_URL = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=%s";
+	
+	/**
+	 * 获取基础支持中的access_token（该access_token用于调用其他接口）
+	 */
+	public static final String GET_ACCESS_TOKEN_URL = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%1$s&secret=%2$s";
+	
+	/**
+	 * 获取通过code换取的是一个特殊的网页授权access_token
+	 */
+	public static final String GET_WEB_ACCESS_TOKEN_URL = "https://api.weixin.qq.com/sns/oauth2/access_token?appid=%1$s&secret=%2$s&code=%3$s&grant_type=authorization_code";
+	
+	/**
+	 * 获取jsapi_ticket地址
+	 */
+	public static final String GET_JSAPI_TICKET_URL = "https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token=%1$s&type=jsapi";
+	
+	/**
+	 * 获取jsapi_ticket地址
+	 */
+	public static final String GET_USER_LIST_URL = "https://api.weixin.qq.com/cgi-bin/user/get?access_token=%1$s&next_openid=%2$s";
+	
+	/**
+	 * 发送短信接口地址
+	 */
+	public static final String SEND_MOBILE_MESSAGE_URL = ESBPropertyReader.getProperty("sendMobileMessageUrl");
+	
+	/**
+	 * 各个消息模板名称
+	 */
+	public static final String TEMPLATE_NAME_TEACHER_SALARY_NOTICE = "工资条提醒";
+	
+	public static final String TEMPLATE_NAME_CHARGE_NOTICE_FOR_PARENT = "交费通知";
+	
+	public static final String TEMPLATE_NAME_CHARGE_NOTICE_FOR_TEACHER = "催缴通知";
+	
+	public static final String TEMPLATE_NAME_CHARGE_FAIL_NOTICE = "缴费失败通知";
+	
+	public static final String TEMPLATE_NAME_CHARGE_SUCCESS_NOTICE = "支付成功提醒";
+	
+	public static final String TEMPLATE_NAME_CHARGE_REFUND_RESULT_NOTICE = "退款结果提醒";
+	
+	public static final String TEMPLATE_NAME_CHARGE_AUDIT_RESULT_NOTICE = "审核结果通知";
+	
+	public static final String TEMPLATE_NAME_STUDENT_ATTENDANCE_NOTICE = "到校离校提醒";
+	
+	public static final String TEMPLATE_NAME_SCHOOL_NOTICE = "学校通知";
+	
+	public static final String TEMPLATE_NAME_STATISTIC_RESULT_NOTICE = "统计结果通知";
+	
+	public static final String TEMPLATE_NAME_SURVEY_NOTICE = "问卷接收成功通知";
+	
+	
+	/**
+	 * 工资条提醒的短信模板
+	 */
+	public static final String MOBILE_MESSAGE_TEACHER_SALARY_NOTICE = "您好，请查看您%1$s的%2$s，如有问题请联系财务【请关注学校微信服务号查看】";
+
+	/**
+	 * 【家长】发送支付通知的短信模板
+	 */
+	public static final String MOBILE_MESSAGE_CHARGE_NOTICE_FOR_PARENT = "您的孩子%1$s需缴纳%2$s %3$s。请及时交费，如有问题请联系班主任【详见学校微信号】";
+
+	/**
+	 * 【家长】支付成功的短信模板
+	 */
+	public static final String MOBILE_MESSAGE_CHARGE_SUCCESS_FOR_PARENT = "缴费成功！您的孩子%1$s已完成%2$s费用的缴纳。如有问题请联系班主任【详见学校微信号】";
+
+	/**
+	 * 【老师】发送支付通知的短信模板
+	 */
+	public static final String MOBILE_MESSAGE_CHARGE_NOTICE_FOR_TEACHER = "您好，请通知%1$s学生缴纳%2$s。如有问题请联系财务【详见学校微信号】";
+
+	/**
+	 * 【老师】发送退费审核结果模板（本人）
+	 */
+	public static final String MOBILE_MESSAGE_CHARGE_AUDIT_FOR_TEACHER_SELF = "老师您好，您提交的%1$s的%2$s的%3$s%4$s。您可以在班级缴费列表中查看详情。感谢您的使用【详见学校微信号】";
+
+	/**
+	 * 【老师】发送退费审核结果模板（同事）
+	 */
+	public static final String MOBILE_MESSAGE_CHARGE_AUDIT_FOR_TEACHER_OTHERS = "老师您好，%1$s提交的%2$s的%3$s的%4$s%5$s。您可以在班级缴费列表中查看详情。感谢您的使用【详见学校微信号】";
+
+	/**
+	 * 【家长】发送退费结果的短信模板
+	 */
+	public static final String MOBILE_MESSAGE_CHARGE_RESULT_NOTICE = "家长您好，您的孩子%1$s的%2$s%3$s如有问题请联系班主任【详见学校微信号】";
+	
+	/**
+	 * 结考勤发送给用餐统计管理员的短信模板
+	 */
+	public static final String MOBILE_MESSAGE_DINERSTATISTICADMIN_NOTICE = "您好，今日已结考勤，请登录学校公众号查看用餐统计详情。";
+	
+	/**
+	 * 退费审核结果是否发送到其他班主任手机上
+	 */
+	public static final Boolean IS_SEND_OTHER_TEACHERS = true;
+	
+	/**
+	 * 删除失败
+	 */
+	public static final Integer DELETE_FAIL = -1;
+	/**
+	 * 是否删除（是）
+	 */
+	public static final Integer IS_DEL_YES = 1;
+	/**
+	 * 是否删除（否）
+	 */
+	public static final Integer IS_DEL_NO = 0;
+	/**
+	 * 身份 教师
+	 */
+	public static final Integer IDENTITY_TEACHER = 1;
+	/**
+	 * 身份 学生
+	 */
+	public static final Integer IDENTITY_STUDENT = 2;
+	/**
+	 * 身份 家长
+	 */
+	public static final Integer IDENTITY_PARENT = 0;
+	
+	/**
+	 * 缴费提醒间隔分钟数
+	 */
+	public static Integer REMIND_INTERVAL_MINUTES = 30;
+
+	
+	/**
+	 * 通用：是
+	 */
+	public static final Integer YES = 1;
+	/**
+	 * 通用：否
+	 */
+	public static final Integer NO = 0;
+
+	/**
+	 * 手机端默认每页显示的条数
+	 */
+	public static final Integer NUM_PER_PAGE = 20;
+	/**
+	 * 手机端默认每页显示的条数
+	 */
+	public static final String NUM_PER_PAGE_STRING = "20";
+	/**
+	 * PC端默认每页显示的条数
+	 */
+	public static final Integer NUM_PER_PCPAGE = 10;
+	/**
+	 * PC端默认每页显示的条数
+	 */
+	public static final String NUM_PER_PCPAGE_STRING = "10";
+	/**
+	 * 支付状态：未支付
+	 */
+	public static final Integer CHARGE_DETAIL_STATUS_NEVER = 0;
+	/**
+	 * 支付状态：已支付
+	 */
+	public static final Integer CHARGE_DETAIL_STATUS_OK = 1;
+	/**
+	 * 支付状态：申请退款
+	 */
+	public static final Integer CHARGE_DETAIL_STATUS_REFUND_APPLY = 2;
+	/**
+	 * 支付状态：已退全款
+	 */
+	public static final Integer CHARGE_DETAIL_STATUS_REFUND_ALL = 3;
+	/**
+	 * 支付状态：部分退款
+	 */
+	public static final Integer CHARGE_DETAIL_STATUS_REFUND_PART = 4;
+	/**
+	 * 支付状态：已驳回
+	 */
+	public static final Integer CHARGE_DETAIL_STATUS_REFUSE = 5;
+	/**
+	 * 支付状态：退款失败
+	 */
+	public static final Integer CHARGE_DETAIL_STATUS_REFUND_FAIL = 6;
+	/**
+	 * 支付状态：不参与
+	 */
+	public static final Integer CHARGE_DETAIL_STATUS_QUIT = 9;
+	/**
+	 * 支付项状态:待发布
+	 */
+	public static final Integer CHARGE_STATUS_PUSH_WAITING = 1;
+	/**
+	 * 支付项状态:发布被撤回
+	 */
+	public static final Integer CHARGE_STATUS_PUSH_CALLBACK = 2;
+	/**
+	 * 支付项状态:发布成功
+	 */
+	public static final Integer CHARGE_STATUS_PUSH_OK = 3;
+	/**
+	 * 支付项状态:发布失败
+	 */
+	public static final Integer CHARGE_STATUS_PUSH_FAIL = 4;
+	/**
+	 * 支付项状态:手动关闭
+	 */
+	public static final Integer CHARGE_STATUS_TURNED_OFF = 5;
+	/**
+	 * 支付项状态：收费结束
+	 */
+	public static final Integer CHARGE_STATUS_FINISHED = 6;
+	/**
+	 * 消息发送状态：没有通知成功
+	 */
+	public static final Integer IS_SEND_NEITHER = 0;
+	/**
+	 * 消息发送状态：只有短信发送成功
+	 */
+	public static final Integer IS_SEND_SMS_OK_ONLY = 1;
+	/**
+	 * 消息发送状态：只有微信发送成功
+	 */
+	public static final Integer IS_SEND_WX_OK_ONLY = 2;
+	/**
+	 * 消息发送状态：短信和微信均发送成功
+	 */
+	public static final Integer IS_SEND_BOTH_OK = 9;
+	
+	/**
+	 * 操作类型：银联缴费
+	 */
+	public static final String TXNTYPE_UNIONPAY_PAY = "01";
+	/**
+	 * 操作类型：银联退费
+	 */
+	public static final String TXNTYPE_UNIONPAY_REFUND = "04";
+	/**
+	 * 操作类型：申请银联退费
+	 */
+	public static final String TXNTYPE_SJWY_ONLINE_REFUND_APPLY = "SQYLTF";
+	/**
+	 * 操作类型：同意银联退费
+	 */
+	public static final String TXNTYPE_SJWY_ONLINE_REFUND_AGREE = "TYYLTF";
+	/**
+	 * 操作类型：驳回银联退费
+	 */
+	public static final String TXNTYPE_SJWY_ONLINE_REFUND_REFUSE = "BHYLTF";
+	/**
+	 * 操作类型：线下缴费
+	 */
+	public static final String TXNTYPE_SJWY_OFFLINE_PAY = "XXJF";
+	/**
+	 * 操作类型：申请线下退费
+	 */
+	public static final String TXNTYPE_SJWY_OFFLINE_REFUND_APPLY = "SQXXTF";
+	/**
+	 * 操作类型：同意线下退费
+	 */
+	public static final String TXNTYPE_SJWY_OFFLINE_REFUND_AGREE = "TYXXTF";
+	/**
+	 * 操作类型：驳回线下退费
+	 */
+	public static final String TXNTYPE_SJWY_OFFLINE_REFUND_REFUSE = "BHXXTF";
+	
+	/**
+	 * 支付方式：线上银联
+	 */
+	public static final String CHARGE_TYPE_UNIONPAY = "1";
+	/**
+	 * 支付方式：线下现金
+	 */
+	public static final String CHARGE_TYPE_CASH = "2";
+	
+	/**
+	 * 账户类型：代收
+	 */
+	public static final Integer ACCOUNT_TYPE_SJWY = 1;
+	/**
+	 * 账户类型：自收
+	 */
+	public static final Integer ACCOUNT_TYPE_ORG = 2;
+	
+	/**
+	 * 收费类型：统一收费
+	 */
+	public static final Integer PAY_TYPE_UNIFIED = 1;
+	/**
+	 * 收费类型：个性化收费
+	 */
+	public static final Integer PAY_TYPE_DIFFERENTLY = 9;
+	
+	/**
+	 * 支付Excel列头
+	 */
+	public static final String[] CHARGE_EXCEL_COLUMN = { Constant.身份唯一编码, Constant.年级, Constant.班级, Constant.学生姓名, Constant.缴费金额 };
+	/**
+	 * 支付Excel列头
+	 */
+	public static final String[] CHARGE_EXCEL_COLUMN_WITH_ERROR = { Constant.身份唯一编码, Constant.年级, Constant.班级, Constant.学生姓名, Constant.缴费金额, Constant.错误信息 };
+	
+	public static final String[] IMPORT_EXCEL_STUDENT_ERROR = { Constant.班级名称, Constant.学员名称, Constant.证件号码, Constant.学员状态, Constant.错误信息 };
+	public static final String 班级名称 = "班级名称";
+	public static final String 学员名称 = "学员名称";
+	public static final String 证件号码 = "证件号码";
+	public static final String 学员状态 = "学员状态";
+	public static final String[] IMPORT_EXCEL_TECHER_STATISTICS = { Constant.教师名称, Constant.班级编码, Constant.学员人数, Constant.上课时间, Constant.学费总数 };
+	public static final String 教师名称 = "教师名称";
+	public static final String 班级编码 = "班级编码";
+	public static final String 学员人数 = "学员人数";
+	//public static final String 上课时间 = "上课时间";
+	public static final String 学费总数 = "学费总数(元)";
+	public static final String[] IMPORT_EXCEL_PAYMENT_RECORDS = { Constant.序号, Constant.学生名称, Constant.学生身份证号码, 
+			Constant.联系电话, Constant.动作 , Constant.交易时间, Constant.金额, Constant.备注};
+	//public static final String 序号 = "序号";
+	public static final String 学生名称 = "学生名称";
+	public static final String 学生身份证号码 = "学生身份证号码";
+	public static final String 联系电话 = "联系电话";
+	public static final String 动作 = "动作";
+	public static final String 交易时间 = "交易时间";
+	public static final String 金额 = "金额";
+	public static final String 备注 = "备注";
+	public static final String[] IMPORT_EXCEL_STU_CHECK = {Constant.序号, Constant.姓名, "1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
+			"11", "12", "13", "14", "15", "16", "17", "18", "18", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"};
+	public static final String 姓名 = "姓名";
+	public static final String[] IMPORT_EXCEL_CLASS_ERROR = { Constant.班级名称, Constant.班级类别, Constant.所属类目, 
+			Constant.所属科目, Constant.所属校区, Constant.所在教学楼, Constant.所在楼层, Constant.所在教室, Constant.班级容量,
+			Constant.年龄要求, Constant.起始生日, Constant.结束生日, Constant.总课时数, Constant.开课日期, Constant.上课星期,
+			Constant.上课时间, Constant.下课时间, Constant.不固定时间, Constant.学费标准, Constant.职教老师, Constant.联合机构,
+			Constant.错误信息 };
+	public static final String 班级类别 = "班级类别";
+	public static final String 所属类目 = "所属类目";
+	public static final String 所属科目 = "所属科目";
+	public static final String 所属校区 = "所属校区";
+	public static final String 所在教学楼 = "所在教学楼";
+	public static final String 所在楼层 = "所在楼层";
+	public static final String 所在教室 = "所在教室";
+	public static final String 班级容量 = "班级容量";
+	public static final String 年龄要求 = "年龄要求";
+	
+	public static final String 起始生日 = "起始生日";
+	public static final String 结束生日 = "结束生日";
+	public static final String 总课时数 = "总课时数";
+	public static final String 开课日期 = "开课日期";
+	public static final String 上课星期 = "上课星期";
+	public static final String 上课时间 = "上课时间";
+	public static final String 下课时间 = "下课时间";
+	public static final String 不固定时间 = "不固定时间";
+	public static final String 学费标准 = "学费标准";
+	public static final String 职教老师 = "职教老师";
+	public static final String 联合机构 = "联合机构";
+	
+	
+	public static final String 身份唯一编码 = "身份唯一编码（※）";
+	public static final String 年级 = "年级";
+	public static final String 班级 = "部门/班级";
+	public static final String 学生姓名 = "姓名（※）";
+	public static final String 缴费金额 = "缴费金额（元）（※）";
+	public static final String 退费金额 = "退费金额（元）（※）";
+	public static final String 订单编号 = "订单编号（※）";
+	public static final String 退费方式 = "退费方式";
+	public static final String 错误信息 = "错误信息";
+	public static final String 序号 = "序号";
+	public static final String 学生姓名1 = "姓名";
+	public static final String 缴费状态 = "交费状态";
+	public static final String 应缴金额 = "应缴金额";
+	public static final String 实缴金额 = "实收金额";
+	public static final String 订单编号1 = "订单编号";
+	public static final String 缴费时间 = "缴费时间";
+	public static final String 支付方式 = "支付方式";
+	/**
+	 * 退费Excel列头
+	 */
+	public static final String[] REFUND_EXCEL_COLUMN = { Constant.身份唯一编码, Constant.年级, Constant.班级, Constant.学生姓名, Constant.缴费金额, Constant.订单编号, Constant.退费金额 , Constant.退费方式 };
+	/**
+	 * 退费Excel列头
+	 */
+	public static final String[] REFUND_EXCEL_COLUMN_WITH_ERROR = { Constant.身份唯一编码, Constant.年级, Constant.班级, Constant.学生姓名, Constant.缴费金额, Constant.订单编号, Constant.退费金额 , Constant.退费方式, Constant.错误信息 };
+	/**
+	 * 收费明细表列头
+	 */
+	public static final String[] CHARGE_DETAIL_EXCEL =  { Constant.序号, Constant.年级, Constant.班级, Constant.学生姓名1, Constant.缴费状态, Constant.应缴金额, Constant.实缴金额 , Constant.订单编号1, Constant.缴费时间, Constant.支付方式 };
+	
+	
+	public static final Integer BLOG_PL = 1;
+	
+	public static final Integer BLOG_DZ = 0;
+
+	/**
+	 * 最大限额【单位：分】
+	 */
+	public static final String MAX_MONEY = "9999999";
+	/**
+	 * 最小限额【单位：分】
+	 */
+	public static final String MIN_MONEY = "1";
+	
+	/**
+	 * 光大查询缴费单信息
+	 */
+	public static final String CEB_TYPE_QUERY = "BJ01";
+	/**
+	 * 光大缴费单销账
+	 */
+	public static final String CEB_TYPE_PAY = "BJ02";
+	/**
+	 * 光大退款申请
+	 */
+	public static final String CEB_TYPE_REFUND = "JF75";
+	/**
+	 * 光大缴费状态查询
+	 */
+	public static final String CEB_TYPE_QUERY_PAY = "JF76";
+	/**
+	 * 光大退款状态查询
+	 */
+	public static final String CEB_TYPE_QUERY_REFUND = "JF77";
+
+	/**
+	 * 光大支付成功返回消息
+	 */
+	public static final String CEB_RESPMSG_SUCCESS = "成功[AAAAAAA]";
+	/**
+	 * 光大成功返回代码
+	 */
+	public static final String CEB_ANSCODE_SUCCESS = "AAAAAAA";
+	/**
+	 * 光大失败返回代码
+	 */
+	public static final String CEB_ANSCODE_ERROR = "ERR0000";
+	/**
+	 * 光大失败返回代码:无相应记录
+	 */
+	public static final String CEB_ANSCODE_ERROR01 = "DEF0001";
+	/**
+	 * 光大失败返回代码:用户未欠费
+	 */
+	public static final String CEB_ANSCODE_ERROR02 = "DEF0002";
+	/**
+	 * 光大失败返回代码:超过缴费时间
+	 */
+	public static final String CEB_ANSCODE_ERROR05 = "DEF0005";
+	/**
+	 * 光大失败返回代码:超过限定金额
+	 */
+	public static final String CEB_ANSCODE_ERROR09 = "DEF0009";
+
+	/**
+	 * 光大失败返回代码：【该错误码会指令光大将已收金额退回用户，请谨慎选择！】
+	 */
+	public static final String CEB_ANSCODE_ERROR06 = "DEF0006";
+	/**
+	 * 自定义错误码：光大支付金额与世纪伟业原单金额不符
+	 */
+	public static final String CEB_ANSCODE_ERROR00 = "DEF0013";
+	/**
+	 * 账户类别：银联
+	 */
+	public static final Integer ACCTYPE_UNIONPAY = 1;
+	/**
+	 * 账户类别：光大银行
+	 */
+	public static final Integer ACCTYPE_CEB = 2;
+
+	/**
+	 * 区域代码
+	 */
+	public static final String CEB_AREA_CODE = "";
+
+	
+	public static final String[] RECIPE_EXCEL = { "序号", "日期", "早餐", "上午加餐", "午餐", "下午加餐", "晚餐"};
+	
+	
+
+	public static void main(String[] args) {
+		//System.out.println(DOMAIN_NAME);
+	}
+}

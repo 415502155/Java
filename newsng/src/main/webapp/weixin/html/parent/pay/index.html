@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title>支付列表</title>
+		<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+		<link rel="shortcut icon" href="/favicon.ico">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<!--ui包-->
+		<link rel="stylesheet" href="../../../css/sm.css">
+		<link rel="stylesheet" href="../../../css/layout.css">
+	</head>
+
+	<body>
+		<div class="page-group">
+			<div class="page page-current">
+ 				<div class="content native-scroll">
+			    <div class="buttons-tab">
+			      <a href="#tab1" class="tab-link active button">待支付</a>
+			      <a href="#tab2" class="tab-link button">已支付</a>
+			      <a href="#tab3" class="tab-link button">已作废</a>
+			      <a href="#tab4" class="tab-link button">已退费</a>
+			    </div>
+
+			    <div class="tabs">
+			      <div id="tab1" class="tab active">
+			        <div class="content-block">
+			    		<!--班级列表-->
+							<div class="content native-scroll " style="top:2.2rem">
+								<div class="list-block class-list" style="margin-top: 0;">
+									<ul style="border:none;" id="allNoPay">
+										 <div class="noData noData_line">
+								         	<span class="noData__tips">暂无待支付记录</span>
+								         </div>
+									</ul>
+								</div>
+							</div>
+							<!--班级列表 End-->
+			        </div>
+			      </div>
+			      
+			      <div id="tab2" class="tab">
+			        <div class="content-block">
+			                <!--班级列表-->
+							<div class="content native-scroll " style="top:2.2rem">
+								<div class="list-block class-list" style="margin-top: 0;">
+									<ul style="border:none;" id="allPayed">
+										 <div class="noData noData_line">
+								         	<span class="noData__tips">暂无退费记录</span>
+								         </div>
+									</ul>
+								</div>
+							</div>
+							<!--班级列表 End-->
+			        </div>
+			      </div>
+			      
+			      <div id="tab3" class="tab">
+			        <div class="content-block">
+		          		<!--班级列表-->
+						<div class="content native-scroll " style="top:2.2rem">
+							<div class="list-block class-list" style="margin-top: 0;">
+								<ul style="border:none;" id="allVoid">
+									 <div class="noData noData_line">
+							         	<span class="noData__tips">暂无作废记录</span>
+							         </div>
+								</ul>
+							</div>
+						</div>
+						<!--班级列表 End-->
+			        </div>
+			      </div>
+			      
+			      <div id="tab4" class="tab">
+			        <div class="content-block">
+			          <!--班级列表-->
+						<div class="content native-scroll " style="top:2.2rem">
+							<div class="list-block class-list" style="margin-top: 0;">
+								<ul style="border:none;" id="allRefund">
+									 <div class="noData noData_line">
+							         	<span class="noData__tips">暂无退费记录</span>
+							         </div>
+								</ul>
+							</div>
+						</div>
+						<!--班级列表 End-->
+			        </div>
+			      </div>
+			  </div>
+			</div>
+		</div>
+ 
+</body>
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script>
+//系统时间
+var paySysTime="",nowTime="";
+
+$(function(){
+	
+	if(sessionStorage.token==undefined){
+		sessionStorage.token=GetUrlParam("token");
+		/*赋值*/
+		var token=GetUrlParam("token");;
+		//根据token获取微信信息
+		 getData("../../../api/userInfo", {token:token,da:Math.random()},function(result){
+				if(result.code=="0"){
+					sessionStorage.baseUser=JSON.stringify(result.baseUser);
+					sessionStorage.baseInfo=JSON.stringify(result.baseWeixinInfo);
+					sessionStorage.baseWeixinInfoId=result.baseWeixinInfo.id;
+				}else{
+					$.alert(result.msg);
+				}
+		 }); 
+	}
+	
+	 //倒计时
+    var dd=setInterval(function(){
+    	nowTime=nowTime-1000;
+    	//每个报名单独倒计时
+	    $("[data-time]").each(function(){
+	    	var timeM=parseInt($(this).attr("data-time"))-1000;
+	    	if(timeM>=0){
+		    	$(this).attr("data-time",timeM);
+		        if(timeM==0){
+		        	window.history.go(0);
+		        }else{
+		        	$(this).html(formatDuring(timeM));
+		        }
+	    	}else{
+	    		  $(this).html("该名额已作废").next().find("div").addClass("unchange").removeClass("changed");
+	    	}
+	    });
+    	
+	    //设置10:30-11:30不能支付
+	      var start=new Date(paySysTime.substring(0,10)+" 22:29:59").getTime();
+	       end=new Date(paySysTime.substring(0,10)+" 23:29:59").getTime();
+	       
+		  if(start<nowTime&&nowTime<end){
+			$(".class_operation_box").each(function(){
+				   $(this).find("div").removeAttr("class").addClass("unchange pause");
+			   });
+			 return false
+		   } 
+	    
+    }, 1000);
+	
+	 
+	 
+	var parameter={
+			token:sessionStorage.token,
+	        userId:JSON.parse(sessionStorage.baseInfo).userId,
+    		status:1
+    }
+	
+   //默认加载待支付
+    getData("../../../api/payment/getPaymentList", parameter,function(result){
+ 
+		if(result.code=="0"){
+		  //系统时间
+		  var sysTime=new Date(GetDateDiff(result.sysTime)).getTime();
+		      paySysTime=GetDateDiff(result.sysTime);
+		      nowTime=sysTime;
+		      
+		  var payhtml='';
+		  
+		  for(var i=result.data.length-1;i>=0;i--){
+			  //标题及过期时间
+			  var title=result.data[i].title;
+			  var expirationDuration=result.data[i].expirationDuration*60*60*1000;
+			  payhtml+='<div class="content-block-title">'+title+'</div>';
+			  
+			  for(var n=result.data[i].list.length-1;n>=0;n--){
+				  
+				  var res= result.data[i].list[n];
+				  var end=new Date(GetDateDiff(res.createTime)).getTime()+expirationDuration-sysTime;
+				  var tipText="";
+				  if(res.paymentStatus=="1"){
+						 var payTips='<div class="payTimeTip" data-time="'+end+'">'+formatDuring(end)+'</div>';
+						  if(end>0){
+								 var btnHtml='<div class="class_operation_box" >'+
+											'<div class="changed">支付</div>'+
+										   '</div>';
+								  var jshi='<div class="payTimeTip" data-time="'+end+'">'+formatDuring(end)+'</div>';	   
+							  }else{
+								 var btnHtml='<div class="class_operation_box" >'+
+											'<div class="unchange">已过期</div>'+
+										   '</div>';
+								 var jshi='';	   
+							  }
+						 
+					  }else{
+						  var btnHtml='<div class="class_operation_box" ></div>';
+						  var jshi='<div class="payTimeTip">已预约</div>';
+					  }	
+				  
+			         payhtml += '<li>'+
+									'<div  class="class_basic">'+
+									'<div class="class_title" style="">'+res.courseName+'('+res.className+')'+res.termNumber+'期</div>'+
+									'<div class="class_info"  >'+
+										'<div>招收学段:'+res.ageRange+'  名额：'+res.classSize+'人</div>'+
+							        	'<div>费用：'+res.tuition+'元/'+res.hourNumber+'课时</div>'+
+							        	'<div>开课:'+res.classStartDate+' '+res.classDate+' </div>'+
+							        	'<div>上课校区：'+res.campusName+' /教室：'+res.classroom+' </div>'+
+									'</div>'+
+								'</div>'+
+								'<div class="class_operation" id="'+res.id+'"  data-number="'+res.tuition+'"  data-refund="'+res.refundStatus+'" data-open="'+result.data[i].isOpen+'"  data-payment="'+res.paymentStatus+'">'+
+									'<div class="ADD">'+
+										'<div class="class-teacher">'+res.teacherInfo.split("_")[0]+'</div>'+
+										jshi+
+										btnHtml+
+									'</div>'+
+								'</div>'+
+							'</li>'; 
+				  
+			  }
+			  
+			  $("#allNoPay").html(payhtml);
+			}
+		}else{
+			$.alert(result.msg);
+		}
+	});  
+	
+	//判断客户端是pad还是手机
+	if ((navigator.userAgent.match(/(Android|android|iPhone|Windows Phone)/i))) {
+        var type="08";
+    }else{
+    	var type="07";
+    }
+	 
+	 //支付
+	$("#allNoPay").on("click", "li .class_operation", function(){
+		//如果支付时间在10:30--11:30不允许支付
+	     var start=new Date(paySysTime.substring(0,10)+" 22:29:59").getTime();
+		       end=new Date(paySysTime.substring(0,10)+" 23:29:59").getTime();
+		       
+		 if(start<nowTime&&nowTime<end){
+			$.alert("每日22:30--23:30为系统清算时间，请稍后支付！");
+			return false
+		 }
+		 
+		if($(this).find(".pause").length>0){
+			$.alert("每日22:30--23:30为系统清算时间，请稍后支付！");
+			return false
+		}
+		 
+		if($(this).find(".unchange").length>0){
+			$.alert("已过期");
+			return false
+		}
+		//已预约不能支付
+		if($(this).attr("data-payment")=="0"){
+			return false
+		}
+		var payId=$(this).closest(".class_operation").attr("id");
+		var money=parseInt($(this).closest(".class_operation").attr("data-number"));
+		
+		if($(this).attr("data-time")<=0){
+			$.alert("该名额已经作废！");
+			return false
+		}
+			//支付
+		var parameter = {
+			token:sessionStorage.token,
+	        userId:JSON.parse(sessionStorage.baseInfo).userId,
+			id:payId,
+			channelType:type
+		};
+		window.location.href="../../../api/payment/savePayment?token="+parameter.token+"&userId="+parameter.userId+"&id="+parameter.id+"&channelType="+parameter.channelType
+	});
+	 
+	 //退费
+	$("#allPayed").on("click", "li .class_operation", function(){
+		console.info(paySysTime.substring(0,10)+" 22:29:59")
+		//如果支付时间在10:30--11:30不允许支付
+	     var start=new Date(paySysTime.substring(0,10)+" 22:29:59").getTime();
+		       end=new Date(paySysTime.substring(0,10)+" 23:29:59").getTime();
+		       
+		 if(start<nowTime&&nowTime<end){
+			$.alert("每日22:30--23:30为系统清算时间，请稍后支付！");
+			return false
+		 }
+		
+		//已审核未审核点击不了
+		if($(this).attr("data-refund")=="-"&&$(this).attr("data-payment")=="1"&&$(this).attr("data-open")=="1"){
+			
+			var $this=$(this);
+			  $.confirm('确认退费后，该班名额将立即作废，是否确认提交退费申请。', '退费提醒', 
+					  null,
+		        function(){
+						var payId=$this.closest(".class_operation").attr("id");
+						var money=parseInt($this.closest(".class_operation").attr("data-number"));
+							//退费
+							var parameter = {
+								token:sessionStorage.token,
+					        	userId:JSON.parse(sessionStorage.baseInfo).userId,
+								id:payId,
+								channelType:type
+							};
+							
+						getData("../../../api/payment/saveReturnPremium", parameter,function(result){
+							 if(result.code=="0"&&result.success=="true"){
+								var goStatus=result.status;
+								var refundExplain=result.refundExplain;
+								sessionStorage.refundExplain=refundExplain;
+								window.location="refund_success.html?status="+goStatus;
+							}else{
+								$.alert(result.msg);
+							}
+						}); 
+		        },
+		        "我再想想",
+		        "立即退费"
+		      );
+		}else{
+			//$.alert("该退费正在审核中！");
+			return false
+		} 
+	});
+	 
+	//tab切换
+	$(".tab-link").click(function(){
+		var nowIndex=parseInt($(this).attr("href").split("b")[1]);
+		//1待支付2已支付0已作废3已退费,根据不同的标签发请求
+		if(nowIndex==1){
+			var nowStatus=1;
+			var receiveObj="allNoPay";
+		}
+		if(nowIndex==2){
+			var nowStatus=2;
+			var receiveObj="allPayed";
+		}
+		if(nowIndex==3){
+			var nowStatus=0;
+			var receiveObj="allVoid";
+		}
+		if(nowIndex==4){
+			var nowStatus=3;
+			var receiveObj="allRefund";
+		}
+		
+		var parameter={
+			token:sessionStorage.token,
+        	userId:JSON.parse(sessionStorage.baseInfo).userId,
+    		status:nowStatus,
+    		time:new Date().getTime()//防止缓存
+	    }	
+		
+		getData("../../../api/payment/getPaymentList", parameter,function(result){
+			
+			if(result.code=="0"){
+				 
+			  //系统时间
+			  var sysTime=new Date(GetDateDiff(result.sysTime)).getTime();
+			      paySysTime=GetDateDiff(result.sysTime);
+			      nowTime=sysTime;
+			  var payhtml='';
+			  if(result.data.length==0){
+				  payhtml += '<div class="noData noData_line"><span class="noData__tips">暂无记录</span></div>'
+			  }else{
+				  for(var i=result.data.length-1;i>=0;i--){
+					  //标题及过期时间
+					  var title=result.data[i].title;
+					  var expirationDuration=result.data[i].expirationDuration*60*60*1000;
+					  
+					  payhtml+='<div class="content-block-title">'+title+'</div>';
+					 
+						  for(var n=result.data[i].list.length-1;n>=0;n--){
+							  var res= result.data[i].list[n];
+							  var end=new Date(GetDateDiff(res.createTime)).getTime()+expirationDuration-sysTime;
+							  var tipText="";
+							  
+							//只有在支付的时候才进行倒计时  
+							if(nowIndex==1){
+								  if(res.paymentStatus=="1"){
+										 var payTips='<div class="payTimeTip" data-time="'+end+'">'+formatDuring(end)+'</div>';
+										  if(end>0){
+												 var btnHtml='<div class="class_operation_box" >'+
+															'<div class="changed">支付</div>'+
+														   '</div>';
+												  var jshi='<div class="payTimeTip" data-time="'+end+'">'+formatDuring(end)+'</div>';	   
+											  }else{
+												 var btnHtml='<div class="class_operation_box" >'+
+															'<div class="unchange">已过期</div>'+
+														   '</div>';
+												 var jshi='';	   
+											  }
+										 
+									  }else{
+										  var btnHtml='';
+										  var payTips='<div class="payTimeTip">已预约</div>';
+									  }	
+							}
+							if(nowIndex==2){
+							     
+								//如果计划关闭
+								if(result.data[i].isOpen=="1"){
+									var payTips='';
+									//可退费：paymentStatus=1(付款状态 1可支付0不可支付) &&refundStatus=-                     ---可以退
+									//退费审核中：paymentStatus=1&&refundStatus=0或者1 （0未审核1已审核） ---退不了
+									//退费按钮不显示：paymentStatus=0                                ---退不了
+									if(res.paymentStatus=="1"){
+										if(res.refundStatus=="-"){
+											var btnHtml='<div class="changed">退费</div>';
+										}else{
+											var btnHtml='<div class="unchange">退费审核中</div>';
+										}
+									}else{
+										var operationText='';
+										var btnHtml='';
+									}
+									
+								}else{
+									var payTips='';
+									var btnHtml='';
+								}
+								
+							}
+							if(nowIndex==3){
+								var payTips='';
+								var btnHtml='<div class="unchange">作废</div>';
+							}
+							if(nowIndex==4){
+								var payTips='';
+								var btnHtml='<div class="unchange">已退费</div>';
+							}
+						       payhtml += '<li>'+
+												'<div  class="class_basic">'+
+												'<div class="class_title" style="">'+res.courseName+'('+res.className+')'+res.termNumber+'期</div>'+
+												'<div class="class_info"  >'+
+													'<div>招收学段:'+res.ageRange+'  名额：'+res.classSize+'人</div>'+
+										        	'<div>费用：'+res.tuition+'元/'+res.hourNumber+'课时</div>'+
+										        	'<div>开课:'+res.classStartDate+' '+res.classDate+' </div>'+
+										        	'<div>上课校区：'+res.campusName+' /教室：'+res.classroom+' </div>'+
+												'</div>'+
+											'</div>'+
+											'<div class="class_operation" id="'+res.id+'"  data-number="'+res.tuition+'"  data-refund="'+res.refundStatus+'" data-open="'+result.data[i].isOpen+'"  data-payment="'+res.paymentStatus+'">'+
+												'<div class="ADD">'+
+													'<div class="class-teacher">'+res.teacherInfo.split("_")[0]+'</div>'+
+														payTips+
+													'<div class="class_operation_box" >'+
+													btnHtml+
+													'</div>'+
+												'</div>'+
+											'</div>'+
+										'</li>'; 
+						  }
+					}
+			  }
+			  
+			  $("#"+receiveObj).html(payhtml);
+			}else{
+				$.alert(result.msg);
+			}
+		});  
+	});
+});  
+</script>
+ 

@@ -1,0 +1,89 @@
+package sng.service.impl;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import sng.dao.LoggerDao;
+import sng.entity.OperationLog;
+import sng.service.LoggerService;
+import sng.util.Constant;
+import sng.util.Paging;
+
+@Component
+@Service
+@Transactional("transactionManager")
+public class LoggerServiceImpl implements LoggerService {
+
+	@Autowired
+	LoggerDao loggerDao;
+
+	@Override
+	public Paging<OperationLog> getListWithPaging(Integer orgId, Integer action, String startTime, String endTime,
+			String content, Paging<OperationLog> page, Integer isAll) {
+		// TODO Auto-generated method stub
+		return loggerDao.getListWithPaging(orgId, action, startTime, endTime, content, page, isAll);
+	}
+
+	@SuppressWarnings("rawtypes")
+	@Override
+	public Paging<Map> getListMapWithPaging(Integer orgId, Integer action, String startTime, String endTime,
+			String content, Paging<Map> page) {
+		// TODO Auto-generated method stub
+		return loggerDao.getListMapWithPaging(orgId, action, startTime, endTime, content, page);
+	}
+
+	@Override
+	public void save(Integer orgId, Integer camId, Integer targetId, Integer targetType, String targetName,
+			Integer action, String content, Integer userType, Integer userTypeId, String userTypeName) {
+		if (StringUtils.isEmpty(targetName)) {
+			//findById(targetId);
+			targetName = "学生 张三 ";
+		}
+		if (StringUtils.isEmpty(userTypeName)) {
+			//findById(userTypeId);
+			userTypeName = "老师 李四";
+		}
+		OperationLog log = new OperationLog();
+		log.setOrg_id(orgId);
+		log.setCam_id(camId);
+		log.setTarget_id(targetId);
+		log.setTarget_type(targetType);
+		log.setTarget_name(targetName);
+		log.setAction(action);
+		log.setContent(content);
+		log.setUser_type(userTypeId);
+		log.setUser_type_id(userTypeId);
+		log.setUser_type_name(userTypeName);
+		log.setOperation_time(new Date());
+		log.setInsert_time(new Date());
+		log.setIs_del(Constant.IS_DEL_NO);
+		loggerDao.save(log);
+	}
+
+	@Override
+	public List<OperationLog> getList(String ids, Integer isAll) {
+		List<OperationLog> list = new ArrayList<OperationLog>();
+		String[] strArray = null;  
+        strArray = ids.split(","); //拆分字符为"," ,然后把结果交给数组strArray 
+        for (int i = 0; i < strArray.length; i++) {
+        	OperationLog log = loggerDao.getById(Integer.parseInt(strArray[i]));
+        	list.add(log);
+        }
+		return list;
+	}
+
+	@Override
+	public List<OperationLog> getList(Integer orgId, Integer action, String startTime, String endTime, String content,
+			Paging<OperationLog> page, Integer isAll) {
+		// TODO Auto-generated method stub
+		return loggerDao.getList(orgId, action, startTime, endTime, content, page, isAll);
+	}
+	
+}

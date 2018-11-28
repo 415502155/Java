@@ -1,0 +1,82 @@
+package sng.dao.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.transform.Transformers;
+import org.springframework.stereotype.Repository;
+
+import sng.dao.AppTeacherDao;
+import sng.pojo.ParamObj;
+import sng.pojo.base.Parent;
+
+/**
+ * @desc 移动端---教师dao接口实现
+ * @author magq
+ * @data 2018-11-2
+ * @version 1.0
+ */
+@Repository
+public class AppTeacherDaoImpl extends BaseDaoImpl<Parent> implements AppTeacherDao {
+
+	/*
+	 * 根据学员信息查询家长信息 (non-Javadoc)
+	 * 
+	 * @see sng.dao.AppTeacherDao#queryParentInfoByStu(sng.pojo.ParamObj)
+	 */
+	@Override
+	public List queryParentInfoByStu(ParamObj paramObj) {
+		StringBuffer sql = new StringBuffer();
+		List<Object> paramList = new ArrayList<>();
+
+		sql.append("select s.stud_id,s.org_id,s.stud_name,p.parent_id,p.parent_name,");
+		sql.append("u.user_id,u.identity,u.user_loginname,u.user_mobile from edugate_base.student s");
+		sql.append(" left join edugate_base.student2parent sp on s.stud_id = sp.stud_id and sp.is_del=0 ");
+		sql.append(" left JOIN edugate_base.parent p on sp.parent_id = p.parent_id and p.is_del=0");
+		sql.append(" left JOIN edugate_base.org_user u on p.user_id = u.user_id and u.is_del=0");
+		sql.append(
+				" where  s.is_del=0 and sp.stud_id is not null and p.user_id is not null and s.org_id=u.org_id and p.org_id=u.org_id");
+		sql.append(" and u.identity=0 ");
+
+		if (StringUtils.isNotBlank(paramObj.getStud_id())) {
+			String[] splitStrs = paramObj.getStud_id().split(",");
+			if (splitStrs != null && splitStrs.length > 0) {
+				sql.append(" and s.stud_id in(");
+				for (int i = 0; i < splitStrs.length; i++) {
+					if (i == splitStrs.length - 1) {
+						sql.append("?");
+						paramList.add(Integer.parseInt(splitStrs[i]));
+					} else {
+						sql.append("?");
+						sql.append(",");
+						paramList.add(Integer.parseInt(splitStrs[i]));
+					}
+				}
+				sql.append(")");
+			}
+		}
+		if (paramObj.getOrg_id() != null) {
+			sql.append(" and s.org_id =?");
+			paramList.add(paramObj.getOrg_id());
+		}
+
+		if (paramObj.getIs_main() != null) {
+			sql.append(" and sp.is_main =?");
+			paramList.add(paramObj.getIs_main());
+		}
+
+		Session session = this.factory.getCurrentSession();
+		Query query = null;
+		query = session.createSQLQuery(sql.toString());
+		for (int i = 0; i < paramList.size(); i++) {
+			query.setParameter(i, paramList.get(i));
+		}
+		query.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+		List list = query.list();
+		return list;
+	}
+
+}

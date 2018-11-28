@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>通知详情</title>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+    <link rel="shortcut icon" href="../../favicon.ico">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <!--ui包-->
+    <link rel="stylesheet" href="../../../css/sm.css">
+    <link rel="stylesheet" href="../../../css/layout.css">
+    <style>
+        a{
+            color:#415499;
+        }
+        .list-block .item-content {
+            cursor: pointer
+        }
+        
+        .content-block-title {
+            height: 1rem;
+            line-height: 1rem;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page-group">
+        <div class="page page-current">
+            <div class="content native-scroll" id="notice_list">
+                
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script>
+    //设置返回首页标识
+    sessionStorage.echart = 1;
+    $(function(){
+        var nowDate = GetUrlParam("date");
+        var parameter = {
+            token: JSON.parse(sessionStorage.baseUser).token,
+            udid: JSON.parse(sessionStorage.baseUser).udid,
+            version: 3,
+            date: nowDate + '',
+            type: 1,
+            org_id: JSON.parse(sessionStorage.baseUser).orguser.org_id
+        }
+        $('.content-block-title').text(nowDate);
+        console.log(nowDate);
+        getData(domainName + '/eduWeixin/notice/getByDate.json', parameter, function (res) {
+            if (res.code == 200 && res.success == true) {
+                if (!sessionStorage.notices) {
+                    sessionStorage.notices = JSON.stringify(res.data);
+                } else {
+                    sessionStorage.notices = JSON.stringify(extend(JSON.parse(sessionStorage.notices).concat(res.data)));
+                }
+                if(!res.data || res.data.length<=0){
+                    $('#notice_list').empty();
+                    $('#notice_list').append('<div class="error-img"><p class="error-text">还没有什么内容哦~</p></div>');
+                    noContentImg($('#notice_list .error-text'), 'images/empty.png');
+                }
+                console.log(res.data);
+                var html = '';
+                for(var i=0;i<res.data.length;i++){
+                    var data = res.data[i];
+                    var pics = '';
+                    data.pics.length>0? pics += '<i class="icon icon-picture" style="padding-right: .5rem"></i>' : pics = '';
+                    html += '<div class="content-block-title">'+ data.created_Date +'</div>'+
+                            '<div class="card" id="'+ data.nid +'"><div class="card-header">'+ data.name +'教师</div>'+
+                                '<div class="card-content"><div class="card-content-inner">'+ data.content +'</div></div>'+
+                                '<div class="card-footer">'+
+                                    '<span style="font-size:1rem;  ">'+ pics +'</span>'+
+                                    '<a href="javascript:void(0)" class="link external">正文<span class="icon icon-right"></span></a>'+
+                                '</div></div>';
+                }
+                $('#notice_list').append(html);
+            }
+            $('.card').on('click',function(){
+                var noticeId = $(this).attr('id');
+                window.location.href = '../notice/detail.html?noticeID=' + noticeId;
+            })
+        })
+        if ($('#reloadpage')) {
+            $('#reloadpage').on('click', function () {
+                window.location.reload();
+            })
+        }
+    })
+    
+</script>

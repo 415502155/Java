@@ -1,0 +1,473 @@
+package sng.entity;
+
+import java.util.Date;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+/**
+ * 缴费对象
+ * Title: Charge
+ * Description:缴费信息主表 
+ * Company: 世纪伟业
+ * @author Liuyang
+ * @date 2018年1月17日下午3:23:00
+ */
+@Entity
+@Table(name = "charge")
+public class Charge{
+
+
+	/**
+	 * 主键
+	 */
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private	Integer	cid;
+	/**
+	 * 机构主键
+	 */
+	private	Integer	org_id;
+	/**
+	 * 创建教师主键
+	 */
+	private	Integer	tech_id;
+	/**
+	 * 创建教师名称
+	 */
+	private	String tech_name;
+	/**
+	 * 审核教师主键
+	 */
+	private	Integer	audit_id;
+	/**
+	 * 审核教师名称
+	 */
+	private	String audit_name;
+	/**
+	 * 收费项
+	 */
+	private	String item;
+	/**
+	 * 收费单价(单位:分)
+	 */
+	private	String txnAmt;
+	/**
+	 * 收费金额(用于展示，可显示范围，带特殊符号，单位:元)
+	 */
+	private	String money;
+	/**
+	 * 商户订单号前缀
+	 */
+	@JsonIgnore
+	private	String order_prefix;
+	/**
+	 * 账户信息主键
+	 */
+	private	Integer	accId;
+	/**
+	 * 账户信息
+	 */
+	@Transient
+	private String accInfo;
+	/**
+	 * 支付方式【1:统一收费；9：个性化收费】
+	 */
+	private	Integer	pay_type;
+	/**
+	 * 开始时间
+	 */
+	private	Date start_time;
+	/**
+	 * 结束时间
+	 */
+	private	Date end_time;
+	/**
+	 * 收费内容说明
+	 */
+	private	String content;
+	/**
+	 * 备注
+	 */
+	private	String note;
+	
+	/**
+	 * 应收费人数
+	 */
+	private	Integer	ys_num;
+	/**
+	 * 实收已付款人数
+	 */
+	private	Integer	ss_num;
+	
+	
+	/**
+	 * 退费状态【0:不允许退费，1：可以退费】
+	 */
+	private	Integer	refund;
+	/**
+	 * 收费范围【供页面渲染】
+	 * 格式：{"g":[1,2],"c":[1,2],"s":[1,2],"t":[1,2],"d":[1,2],"tg":[1,2]}  
+	 * 说明 ：g年级 c班级 s学生 t教师 d部门 tg组
+	 */
+	private	String sf_range;
+	/**
+	 * 收费范围【供后台使用】
+	 * 格式："1,2,3,4"
+	 * 说明：学生主键，逗号隔开   
+	 */
+	@JsonIgnore
+	private	String ids;
+	
+	
+	
+	/**
+	 * 删除标记【0：未删除，1：已删除】
+	 */
+	@JsonIgnore
+	private	Integer	is_del;
+	/**
+	 * 创建时间
+	 */
+	@JsonIgnore
+	private	Date insert_time;
+	
+	/**
+	 * 修改时间
+	 */
+	@JsonIgnore
+	private	Date modify_time;
+	/**
+	 * 删除时间
+	 */
+	@JsonIgnore
+	private	Date del_time;
+	/**
+	 * 实收金额(单位：分)
+	 */
+	private	String ss_money;
+	/**
+	 * 应收金额(单位：分)
+	 */
+	private	String ys_money;
+	
+	/**
+	 * 退费金额(退全款,单位：分)
+	 */
+	private	String tf_money_all;
+	
+	/**
+	 * 退费人数(退全款)
+	 */
+	private	Integer tf_num_all;
+	
+	/**
+	 * 不参与人数（暂不使用）
+	 */
+	@JsonIgnore
+	@Transient
+	private	Integer no_num;
+	
+	/**
+	 * 未支付人数
+	 */
+	private	Integer nopay_num;
+	/**
+	 * 退费金额(退部分款，单位：分)
+	 */
+	private	String tf_money_part;
+	
+	
+	/**
+	 * 退费人数(退部分款)
+	 */
+	private	Integer tf_num_part;
+	
+	
+	/**
+	 * 收费明细临时文件
+	 */
+	@JsonIgnore
+	private String pay_file;
+	/**
+	 * 状态【1待执行2已撤回3执行成功4执行失败5手动关闭6已结束】
+	 */
+	private	Integer	status;
+	
+	
+	
+	
+	
+	
+	public Charge() {
+		super();
+	}
+	public Charge(Integer cid, Integer org_id, Integer tech_id, String tech_name, Integer audit_id, String audit_name,
+			String item, String txnAmt, String money, String order_prefix, Integer accId, Integer pay_type,
+			Date start_time, Date end_time, String content, String note, Integer refund, String sf_range, String ids,
+			String ys_money, String ss_money, String tf_money_all, String tf_money_part, Integer ys_num, Integer ss_num,
+			Integer tf_num_all, Integer tf_num_part, Integer no_num, Integer nopay_num, String pay_detail,
+			Integer status, Integer is_del, Date insert_time, Date modify_time, Date del_time) {
+		super();
+		this.cid = cid;
+		this.org_id = org_id;
+		this.tech_id = tech_id;
+		this.tech_name = tech_name;
+		this.audit_id = audit_id;
+		this.audit_name = audit_name;
+		this.item = item;
+		this.txnAmt = txnAmt;
+		this.money = money;
+		this.order_prefix = order_prefix;
+		this.accId = accId;
+		this.pay_type = pay_type;
+		this.start_time = start_time;
+		this.end_time = end_time;
+		this.content = content;
+		this.note = note;
+		this.refund = refund;
+		this.sf_range = sf_range;
+		this.ids = ids;
+		this.ys_money = ys_money;
+		this.ss_money = ss_money;
+		this.tf_money_all = tf_money_all;
+		this.tf_money_part = tf_money_part;
+		this.ys_num = ys_num;
+		this.ss_num = ss_num;
+		this.tf_num_all = tf_num_all;
+		this.tf_num_part = tf_num_part;
+		this.no_num = no_num;
+		this.nopay_num = nopay_num;
+		this.status = status;
+		this.is_del = is_del;
+		this.insert_time = insert_time;
+		this.modify_time = modify_time;
+		this.del_time = del_time;
+	}
+	public Integer getCid() {
+		return cid;
+	}
+	public void setCid(Integer cid) {
+		this.cid = cid;
+	}
+	public Integer getOrg_id() {
+		return org_id;
+	}
+	public void setOrg_id(Integer org_id) {
+		this.org_id = org_id;
+	}
+	public Integer getTech_id() {
+		return tech_id;
+	}
+	public void setTech_id(Integer tech_id) {
+		this.tech_id = tech_id;
+	}
+	public String getTech_name() {
+		return tech_name;
+	}
+	public void setTech_name(String tech_name) {
+		this.tech_name = tech_name;
+	}
+	public Integer getAudit_id() {
+		return audit_id;
+	}
+	public void setAudit_id(Integer audit_id) {
+		this.audit_id = audit_id;
+	}
+	public String getAudit_name() {
+		return audit_name;
+	}
+	public void setAudit_name(String audit_name) {
+		this.audit_name = audit_name;
+	}
+	public String getItem() {
+		return item;
+	}
+	public void setItem(String item) {
+		this.item = item;
+	}
+	public String getTxnAmt() {
+		return txnAmt;
+	}
+	public void setTxnAmt(String txnAmt) {
+		this.txnAmt = txnAmt;
+	}
+	public String getMoney() {
+		return money;
+	}
+	public void setMoney(String money) {
+		this.money = money;
+	}
+	public String getOrder_prefix() {
+		return order_prefix;
+	}
+	public void setOrder_prefix(String order_prefix) {
+		this.order_prefix = order_prefix;
+	}
+	public Integer getAccId() {
+		return accId;
+	}
+	public void setAccId(Integer accId) {
+		this.accId = accId;
+	}
+	public Integer getPay_type() {
+		return pay_type;
+	}
+	public void setPay_type(Integer pay_type) {
+		this.pay_type = pay_type;
+	}
+	@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+	public Date getStart_time() {
+		return start_time;
+	}
+	public void setStart_time(Date start_time) {
+		this.start_time = start_time;
+	}
+	@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+	public Date getEnd_time() {
+		return end_time;
+	}
+	public void setEnd_time(Date end_time) {
+		this.end_time = end_time;
+	}
+	public String getContent() {
+		return content;
+	}
+	public void setContent(String content) {
+		this.content = content;
+	}
+	public String getNote() {
+		return note;
+	}
+	public void setNote(String note) {
+		this.note = note;
+	}
+	public Integer getRefund() {
+		return refund;
+	}
+	public void setRefund(Integer refund) {
+		this.refund = refund;
+	}
+	public String getSf_range() {
+		return sf_range;
+	}
+	public void setSf_range(String sf_range) {
+		this.sf_range = sf_range;
+	}
+	public String getIds() {
+		return ids;
+	}
+	public void setIds(String ids) {
+		this.ids = ids;
+	}
+	public String getYs_money() {
+		return ys_money;
+	}
+	public void setYs_money(String ys_money) {
+		this.ys_money = ys_money;
+	}
+	public String getSs_money() {
+		return ss_money;
+	}
+	public void setSs_money(String ss_money) {
+		this.ss_money = ss_money;
+	}
+	public String getTf_money_all() {
+		return tf_money_all;
+	}
+	public void setTf_money_all(String tf_money_all) {
+		this.tf_money_all = tf_money_all;
+	}
+	public String getTf_money_part() {
+		return tf_money_part;
+	}
+	public void setTf_money_part(String tf_money_part) {
+		this.tf_money_part = tf_money_part;
+	}
+	public Integer getYs_num() {
+		return ys_num;
+	}
+	public void setYs_num(Integer ys_num) {
+		this.ys_num = ys_num;
+	}
+	public Integer getSs_num() {
+		return ss_num;
+	}
+	public void setSs_num(Integer ss_num) {
+		this.ss_num = ss_num;
+	}
+	public Integer getTf_num_all() {
+		return tf_num_all;
+	}
+	public void setTf_num_all(Integer tf_num_all) {
+		this.tf_num_all = tf_num_all;
+	}
+	public Integer getTf_num_part() {
+		return tf_num_part;
+	}
+	public void setTf_num_part(Integer tf_num_part) {
+		this.tf_num_part = tf_num_part;
+	}
+	public Integer getNo_num() {
+		return no_num;
+	}
+	public void setNo_num(Integer no_num) {
+		this.no_num = no_num;
+	}
+	public Integer getNopay_num() {
+		return nopay_num;
+	}
+	public void setNopay_num(Integer nopay_num) {
+		this.nopay_num = nopay_num;
+	}
+	public Integer getStatus() {
+		return status;
+	}
+	public void setStatus(Integer status) {
+		this.status = status;
+	}
+	public Integer getIs_del() {
+		return is_del;
+	}
+	public void setIs_del(Integer is_del) {
+		this.is_del = is_del;
+	}
+	public Date getInsert_time() {
+		return insert_time;
+	}
+	public void setInsert_time(Date insert_time) {
+		this.insert_time = insert_time;
+	}
+	public Date getModify_time() {
+		return modify_time;
+	}
+	public void setModify_time(Date modify_time) {
+		this.modify_time = modify_time;
+	}
+	public Date getDel_time() {
+		return del_time;
+	}
+	public void setDel_time(Date del_time) {
+		this.del_time = del_time;
+	}
+	public String getPay_file() {
+		return pay_file;
+	}
+	public void setPay_file(String pay_file) {
+		this.pay_file = pay_file;
+	}
+	public String getAccInfo() {
+		return accInfo;
+	}
+	public void setAccInfo(String accInfo) {
+		this.accInfo = accInfo;
+	}
+	
+}

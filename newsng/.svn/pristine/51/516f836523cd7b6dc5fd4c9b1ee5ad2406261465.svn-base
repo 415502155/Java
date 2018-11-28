@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>班级统计</title>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+    <!--ui包-->
+    <link rel="stylesheet" href="../../../css/sm.css">
+    <link rel="stylesheet" href="../../../css/layout.css">
+</head>
+
+<body>
+    <div class="page-group">
+        <div class="page page-current">
+            <div class="content native-scroll">
+                <div id="stud_data">
+                    <!-- 学生关注率 -->
+
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script src='https://res.wx.qq.com/open/js/jweixin-1.2.0.js'></script>
+<script>
+    //设置返回首页标识
+    sessionStorage.echart = 1;
+    $(function () {
+        //获取本地数字
+        if (sessionStorage.classes !== undefined) {
+            var localClassJson = JSON.parse(sessionStorage.classes);
+            console.log(localClassJson);
+            //显示执教班级
+            if (getJsonLength(localClassJson) == 0) {
+                $('#stud_data').empty();
+                $('#stud_data').append('<div class="error-img"><p class="error-text">还没有什么内容哦~</p></div>');
+                noContentImg($('#stud_data .error-text'), 'images/empty.png');
+            } else {
+                var classHmtl = "";
+                for (var k in localClassJson) {
+                    classHmtl += '<div class="content-block-title">' + localClassJson[k].grade_name +
+                        '</div><div class="list-block" id="' + k + '"><ul>';
+                    if (getJsonLength(localClassJson[k].classes) == 0) {
+                        classHmtl +=
+                            '<li   class="item-link item-content class-name noClass" style="color:#ccc;" >' +
+                            '<div class="item-inner">' +
+                            '<div class="item-title">暂无班级详情</div>' +
+                            '</div>' +
+                            '</li>'
+                    } else {
+                        for (var l in localClassJson[k].classes) {
+                            classHmtl += '<li id="' + l + '" class="item-link item-content class-name" >' +
+                                '<div class="item-inner">' +
+                                '<div class="item-title">' + localClassJson[k].classes[l].clas_name + '</div>' +
+                                '<div class="item-after">关注率:' + localClassJson[k].classes[l].rate + '</div>' +
+                                '</div>' +
+                                '</li>'
+                        }
+                    }
+                    classHmtl += '</ul></div>';
+                }
+                $("#stud_data").append(classHmtl);
+            }
+        } else {
+            var localClassJson = {};
+            $('#stud_data').empty();
+            $('#stud_data').append('<div class="error-img"><p class="error-text">网络不是很给力哦~</p><p>请检查网络设置</p><button type="button" id="reloadpage">刷新一下~</button></div>');
+            noContentImg($('#stud_data .error-text'), 'images/neterror.png');
+        }
+
+
+        //点击进入班级详情
+        $("body").on("click", ".class-name", function () {
+            if ($(this).hasClass("noClass")) {
+                $.alert("该年级下暂无班级！");
+                return false
+            } else {
+                var clas_id = $(this).attr("id");
+                window.location = "class_list.html?clas_id=" + clas_id;
+            }
+        });
+        if ($('#reloadpage')) {
+            $('#reloadpage').on('click', function () {
+                window.location.reload();
+            })
+        }
+    });
+</script>

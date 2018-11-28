@@ -1,0 +1,201 @@
+package sng.service.impl;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import sng.dao.BaseDaoEx;
+import sng.dao.ClassDao;
+import sng.entity.ChargeDetail;
+import sng.entity.Classes;
+import sng.entity.TeacherClass;
+import sng.pojo.ClassToTeacher;
+import sng.pojo.SessionInfo;
+import sng.service.ClassService;
+import sng.util.EnumLog;
+import sng.util.LoggerUtil;
+import sng.util.Paging;
+
+/***
+ * 
+ *  @Company sjwy
+ *  @Title: ClassServiceImpl.java 
+ *  @Description: 班级管理实现类
+ *	@author: shy
+ *  @date: 2018年10月29日 下午1:25:49
+ */
+@Service
+@Transactional
+public class ClassServiceImpl implements ClassService{
+
+	@SuppressWarnings("unused")
+	@Autowired 
+	private ClassDao classDao;
+	@Autowired
+	private BaseDaoEx baseDaoEx;
+	
+	/***
+	 * 添加修改班级
+	 */
+	@Override
+	@Transactional(propagation=Propagation.NOT_SUPPORTED,readOnly=true)
+	public void save(Map<String, Object> reqMap, SessionInfo sessionInfo) {
+		Integer orgId = sessionInfo.getOrgId();
+		String className = (String) reqMap.get("clasName");
+		Integer clasType = Integer.parseInt((String) reqMap.get("clasType"));
+		Classes classes = new Classes();
+		classes.setTerm_id(Integer.parseInt((String) reqMap.get("termId")));
+		classes.setClas_name((String) reqMap.get("clasName"));
+		classes.setClas_type(Integer.parseInt((String) reqMap.get("clasType")));
+		classes.setCategory_id(Integer.parseInt((String) reqMap.get("categoryId")));
+		classes.setSubject_id(Integer.parseInt((String) reqMap.get("subjectId")));
+		classes.setCam_id(Integer.parseInt((String) reqMap.get("camId")));
+		classes.setClassroom_id(Integer.parseInt((String) reqMap.get("classroomId")));
+		classes.setSize(Integer.parseInt((String) reqMap.get("size")));//size 班级容量
+		classes.setAge_range((String) reqMap.get("ageRange"));//年龄范围
+		classes.setStart_birthday((Date) reqMap.get("startBirthday"));
+		classes.setEnd_birthday((Date) reqMap.get("endBirthday"));
+		classes.setTotal_hours(Integer.parseInt((String) reqMap.get("totalHours")));//totalHours 总课时数
+		classes.setClass_start_date((Date) reqMap.get("classStartDate"));//classStartDate 开课日期
+		classes.setClass_week(Integer.parseInt((String) reqMap.get("classWeek")));//classWeek 上课星期 (周一  周二  周三 。。。)
+		classes.setClass_begin_time((Date) reqMap.get("classBeginTime"));
+		classes.setClass_over_time((Date) reqMap.get("classOverTime"));
+		classes.setClass_unset_time((String) reqMap.get("classUnsetTime"));
+		classes.setTuition_fees((String) reqMap.get("tuitionFees"));//学费标准
+		classes.setCooperation_id(Integer.parseInt((String) reqMap.get("cooperationId")));//联合机构id(教师的所属机构)
+		classes.setOrg_id(orgId);
+		//插入班级表
+		Integer classId = (Integer) baseDaoEx.saveOne(classes);
+		String techIds = (String) reqMap.get("techIds"); //教师id，多个以英文逗号分隔（121,145）
+		//插入支付项目表
+		// TODO Auto-generated method stub
+		//班级教师关系表
+		String[] strArray = null; 
+        strArray = techIds.split(","); //拆分字符为"," ,然后把结果交给数组strArray 
+        for (int i = 0; i < strArray.length; i++) {
+        	TeacherClass tc = new TeacherClass();
+        	tc.setClas_id(classId);
+        	tc.setTech_id(Integer.parseInt(strArray[i]));
+        	baseDaoEx.saveOne(tc);
+        }
+		//操作日志表
+		Integer camId = sessionInfo.getCamId();
+		Integer userType = sessionInfo.getIdentity();
+		String userTypeName = sessionInfo.getLoginName();
+		Integer userTypeId = sessionInfo.getUserId();
+		
+        LoggerUtil.save(orgId, camId, classId, clasType, className, EnumLog.OPERATION_CLASS_CREATE.getKey(), EnumLog.OPERATION_CLASS_CREATE.getValue() + className, userType, userTypeId, userTypeName);
+	}
+
+	@Override
+	public Paging<ClassToTeacher> getClassList(Integer orgId, Integer termId, Integer clasType, Integer categoryId,
+			Integer subjectId, Integer camId, Integer classWeek, String techNames, Integer isAll, Paging<ClassToTeacher> page) {
+		List<Object> params = new ArrayList<>();
+		StringBuffer sql = new StringBuffer(" SELECT c.clas_id, c.clas_name,c.clas_type,cam.cam_name, cr.classroom_name,\r\n" + 
+				"c.class_start_date, c.class_begin_time, c.tuition_fees, c.size, c.ss_num,\r\n" + 
+				"GROUP_CONCAT(t.tech_name) tech_names,\r\n" + 
+				"CONCAT(c.ss_num, '/', c.size) divide \r\n" + 
+				"FROM newsng.classes c \r\n" + 
+				"LEFT JOIN newsng.teacher_class tc ON  c.clas_id = tc.clas_id \r\n" + 
+				"LEFT JOIN edugate_base.teacher t ON tc.tech_id = t.tech_id \r\n" + 
+				"LEFT JOIN newsng.term tm ON c.term_id = tm.term_id\r\n" + 
+				"LEFT JOIN newsng.category cate ON c.category_id = cate.category_id\r\n" + 
+				"LEFT JOIN newsng.subject sub ON c.subject_id = sub.subject_id\r\n" + 
+				"LEFT JOIN newsng.campus cam ON c.cam_id = cam.cam_id\r\n" + 
+				"LEFT JOIN newsng.classroom cr ON c.classroom_id = cr.classroom_id\r\n" + 
+				"\r\n" + 
+				"WHERE\r\n" + 
+				"c.is_del = 0 \r\n" + 
+				"AND c.is_del = 0\r\n" + 
+				"AND tc.is_del = 0\r\n" + 
+				"AND t.is_del = 0\r\n" + 
+				"AND tm.is_del = 0\r\n" + 
+				"AND cate.is_del = 0\r\n" + 
+				"AND sub.is_del = 0\r\n" + 
+				"AND cam.is_del = 0\r\n" + 
+				"AND cr.is_del = 0\r\n" + 
+				"AND c.org_id = ?  ");
+
+		params.add(orgId);
+		if(null != termId ) {
+			sql.append(" AND c.term_id = ? ");
+			params.add(termId);
+		} else {
+			//默认查询最晚的学期 
+			sql.append(" AND c.term_id = (SELECT m.term_id FROM (SELECT MAX(start_time),term_id FROM term LIMIT 0,1) m) ");			
+		}
+		if(null != clasType ) {
+			sql.append(" AND c.clas_type = ? ");
+			params.add(clasType);
+		}
+		if(null != categoryId ) {
+			sql.append(" c.category_id = ? ");
+			params.add(categoryId);
+		}
+		if(null != subjectId ) {
+			sql.append(" AND c.subject_id = ? ");
+			params.add(subjectId);
+		}
+		if(null != camId ) {
+			sql.append(" AND c.cam_id = ? ");
+			params.add(camId);
+		}
+		if(null != classWeek ) {
+			sql.append(" AND c.class_week = ? ");
+			params.add(classWeek);
+		}
+		String group = " GROUP BY c.clas_id ";
+		String order1 = "ORDER BY cam.cam_name , c.clas_name, cr.classroom_name ASC";
+		sql.append(group);
+		sql.append(order1);
+		String finalSql = "";
+		String order2 = " ORDER BY tt.cam_name , tt.clas_name, tt.classroom_name ASC ";
+		String limit = "";//分页
+		//StringBuffer countNum1 = new StringBuffer(" SELECT SUM(ts.ss_num) zrs, COUNT(ts.clas_id) ztms FROM ( ");
+		StringBuffer countNum1 = new StringBuffer(" SELECT COUNT(ts.clas_id) ztms FROM ( ");
+		StringBuffer countNum2 = new StringBuffer(" ) ts ");
+		String countSql = "";
+		if (StringUtils.isNotBlank(techNames)) {//模糊查询
+			StringBuffer like1 = new StringBuffer(" SELECT tt.* FROM ( ");
+			StringBuffer like2 = new StringBuffer(" ) tt\r\n" + 
+					"where  LOCATE(? , tt.tech_names )>0 AND LOCATE(? , tt.clas_name )>0 ");
+			params.add(techNames);
+			params.add(techNames);
+			finalSql = like1.append(sql).append(like2).append(order2).toString();
+			countSql = countNum1.append(finalSql).append(countNum2).toString();
+			if (null == isAll || isAll != 1) {
+				int limitFrom = (page.getPage() - 1) * page.getLimit();
+				limit = " limit " + limitFrom + "," + page.getLimit();
+				finalSql = finalSql + limit;
+			} else {
+				
+			}
+		} else {
+			sql.append("");
+			finalSql = sql.toString();
+			countSql = countNum1.append(finalSql).append(countNum2).toString();
+			if (null == isAll || isAll != 1) {
+				int limitFrom = (page.getPage() - 1) * page.getLimit();
+				limit = " limit " + limitFrom + "," + page.getLimit();
+				finalSql = finalSql + limit;
+			} else {
+				
+			}
+		}
+		Paging<ClassToTeacher> paging = baseDaoEx.queryPageBySql(finalSql,countSql, page.getPage(), page.getLimit(),  ClassToTeacher.class, params);
+		List<ClassToTeacher> list = paging.getData();
+		//班级列表  实收金额
+		for (ClassToTeacher ct : list) {
+			//根据班级id(clas_id) 查询支付项目表，获取实缴金额
+			ChargeDetail cd = baseDaoEx.findById(ChargeDetail.class, ct.getClas_id());
+			ct.setSs_tuition(cd.getMoney());//money 实缴金额（单位：分）
+		}
+		return paging;
+	}
+
+}

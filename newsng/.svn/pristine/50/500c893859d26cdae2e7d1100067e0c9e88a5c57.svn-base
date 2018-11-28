@@ -1,0 +1,28 @@
+package sng.dao;
+
+import sng.entity.Term;
+import sng.pojo.ParamObj;
+import sng.pojo.TermInfoPojo;
+import sng.util.Paging;
+/**
+ * @desc 基础设置模块-学期管理dao层接口
+ * @author magq
+ * @data 2018-10-29
+ * @version 1.0
+ */
+public interface BaseSetTermManageDao extends BaseDao<Term>{
+	
+	/**
+	 * 查询学期信息列表
+	 * @param paramObj
+	 * @return
+	 */
+	public Paging<TermInfoPojo> queryTermListInfo(ParamObj  paramObj);
+	/**
+	 * 删除学期信息
+	 * @param paramObj
+	 */
+	public void deleteTermByTerm(ParamObj  paramObj);
+	
+
+}

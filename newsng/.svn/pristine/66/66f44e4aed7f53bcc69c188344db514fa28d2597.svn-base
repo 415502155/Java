@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>教师主页</title>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <!--ui包-->
+    <link rel="stylesheet" href="../../css/sm.css">
+    <link rel="stylesheet" href="../../css/layout.css">
+    <style>
+			a {color:#3d4145}
+    	.list-block ul {border-bottom:none;}
+    	.list-block li {border-bottom:1px solid #e7e7e7}
+    	.list-block .item-inner {border:none}
+    </style>
+  </head>
+  <body>
+    <div class="page-group">
+        <div class="page page-current">
+        	
+        	<div class="banner">
+        		<span></span>
+        		<div class="user">
+        			<div class="userobj userImg" id="userImg"><img src="../../images/defaultHead.jpg"></div>
+        			<div class="userobj userInfo">
+        				<div class="usserName" id="userName">柳爽 老师</div>
+        				<div class="userId" id="userId"></div>
+        			</div>
+        			<div class="userstate">
+        				<ul>
+        					<li class="icon icon_wx"></li>
+        					<li class="icon icon_mob"></li>
+        				<!--	<li class="icon icon_idCard"></li>
+        					<li class="icon icon_card"></li>-->
+        				</ul>
+        			</div>
+        		</div>
+					</div>
+					<div class="allServer allserverTeacher">
+						<ul>
+							<li id="class_list">
+								<a href="../notice/notice.html" class="item-content external">
+									<span class="icon icon_notice"></span>
+									<span class="serverText">学员通知</span>
+								</a>
+							</li>
+							<li id="class_list">
+								<a href="../studentList/class.html" class="item-content external">
+									<span class="icon icon_notice"></span>
+									<span class="serverText">学员名册</span>
+								</a>
+							</li>
+							<li id="pay_list">
+								<a href="../tuition/pay_list.html" class="item-content external">
+									<span class="icon icon_schoolNotice"></span>
+									<span class="serverText">学费统计</span>
+								</a>
+							</li>
+							<li id="person_set">
+								<a href="../../cher/homework/index.html" class="item-content external" >
+									<span class="icon icon_homework"></span>
+									<span class="serverText">个人设置</span>
+								</a>
+							</li>
+							<li id="echart" style="">
+								<a href="../../cher/blog/Class_list.html" class="item-content external"  >
+									<span class="icon icon_blog"></span>
+									<span class="serverText">智慧统计</span>
+								</a>
+							</li>
+							<div style="clear:both"></div>
+						</ul>
+					</div>
+		 </div>
+    </div>
+  </body>
+</html>
+<script src='../../js/zepto.min.js'></script>
+<script src='../../js/sm.min.js'></script>
+<script src='../../js/config.js'></script>
+<script>
+$(function(){
+	/*赋值*/
+	// var token=sessionStorage.token;
+	// //根据token获取微信信息
+	//  getData("../../../api/userInfo", {token:token,da:Math.random()},function(result){
+	// 		if(result.code=="0"){
+	// 			sessionStorage.baseUser=JSON.stringify(result.baseUser);
+	// 			sessionStorage.baseInfo=JSON.stringify(result.baseWeixinInfo);
+	// 			$("#userImg img").attr("src",result.baseWeixinInfo.headimgurl);
+	// 			$("#userName").text(result.baseUser.name);
+	// 			 var idLength=parseInt(result.baseWeixinInfo.userId.toString().length);
+	// 			 switch(idLength)
+	// 			 {
+	// 			 case 1:
+	// 				var idhtml="0000";
+	// 			   break;
+	// 			 case 2:
+	// 				var idhtml="000";
+	// 			   break;
+	// 			 case 3:
+	// 					var idhtml="00";
+	// 				   break;
+	// 			 default:
+	// 				var idhtml="0";
+	// 			 }
+				 
+	// 			$("#userId").text("ID:"+idhtml+result.baseWeixinInfo.userId);
+	// 		}else{
+	// 			$.alert(result.msg);
+	// 		}
+	//  }); 
+	
+	// //获取学期:根据方健要求获取所有学期当中id值最大的，组织id写固定值
+	//  var ports="../../../api/queryTermListByOrgId";
+	//  var parameter={
+	// 		 token:token,
+	// 		 orgId:1,
+	//          }
+	//  var allt=[];
+	//  getData(ports, parameter,function(result){
+	// 		if(result.code=="0"){
+	// 			for(var n=result.baseTermList.length-1;n>=0;n--){
+	// 				allt.push(parseInt(result.baseTermList[n].id));
+	// 			}
+	// 			var max=Math.max.apply(null, allt);
+	// 			/* $("#toClass").attr("href","class.html?id="+max+"&name="+result.baseTermList[max-result.baseTermList.length].name); */
+	// 			$("#toClass").attr("href","class.html");
+	// 		}else{
+	// 			$.alert(result.msg);
+	// 		}
+	//  }); 
+});
+</script>

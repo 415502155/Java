@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title>缴费详情</title>
+		<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+		<link rel="shortcut icon" href="../../../favicon.ico">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<!--ui包-->
+		<link rel="stylesheet" href="../../../css/sm.css">
+		<link rel="stylesheet" href="../../../css/layout.css">
+		<link rel="stylesheet" href="../../../css/teacher.css">
+	</head>
+	<body>
+		<div class="page-group">
+			<div class="page page-current">
+				 <header class="bar bar-nav payHead">
+				    <div id="className">儿童画(儿162-1-2B)</div>
+				    <div class="" id="heji" style="color: #ffe5bf;">￥700</div>
+				  </header>
+		 		<div class="content native-scroll " style="top:.96rem">
+					  <div class="list-block" id="allStudent">
+					    <ul>
+							<div class="content-block-title">缴费合计(2笔 1440元)</div>
+							<li class="item-content">
+								<div class="item-inner">
+									<div class="item-title studentName">刘涛</div>
+									缴费(17-09-23)
+									<div class="item-after" style="min-width:72px;">720</div>
+								</div>
+							</li>
+							<li class="item-content">
+								<div class="item-inner">
+									<div class="item-title studentName">刘涛</div>
+									缴费(17-09-23)
+									<div class="item-after" style="min-width:72px;">720</div>
+								</div>
+							</li>
+							<div class="content-block-title">退费合计(2笔 1440元)</div>
+							<li class="item-content">
+								<div class="item-inner">
+									<div class="item-title studentName">刘涛</div>
+									退费(17-09-23)
+									<div class="item-after" style="min-width:72px;">-720</div>
+								</div>
+							</li>
+							<li class="item-content">
+								<div class="item-inner">
+									<div class="item-title studentName">刘涛</div>
+									退费(17-09-23)
+									<div class="item-after" style="min-width:72px;">-20</div>
+								</div>
+							</li>
+					    </ul>
+					  </div>
+				</div>
+			</div>
+ 		</div>
+	</body>
+</html>
+				 
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script>
+	 $(function(){
+	 /*
+		 var ports="../../../../api/tuition/paymentDetails";
+	 	 var parameter={
+				 token:sessionStorage.token,
+	        	 userId:JSON.parse(sessionStorage.baseInfo).userId,
+	        	 termId:decodeURI(GetUrlParam("termId")),
+				 classId:decodeURI(GetUrlParam("classId")),
+				 className:encodeURI(decodeURI(GetUrlParam("className"))),//解码decodeURIComponent
+				 heji:decodeURI(GetUrlParam("heji"))
+		         }    
+	     //显示学期
+         $("#termName").html(decodeURI(GetUrlParam("name")));
+	     //发送请求
+		  getData(ports, parameter,function(result){
+			  
+			     //名称金额
+			     $("#className").text(decodeURIComponent(result.className));
+			     $("#heji").text("￥"+decodeURI(GetUrlParam("heji"))+".00");
+			     
+				if(result.code=="0"){
+					var res = result.data;
+					var html='';
+					
+					if(res.length>0){
+						//先遍历学生
+						for(var m=res.length-1;m>=0;m--){
+							var oSign=parseInt(res[m].status);
+							var payTime=res[m].transactionTime.substring(2,10);
+							 
+							//先判断支付类型
+							 switch(oSign)
+							{
+							case 1:
+							  var paySign='<div class="item-title successTip_text studentPsign">缴费<span class="gray">('+payTime+')</span></div>';
+							  break;
+							case 2:
+							  var paySign='<div class="item-title failedTip_text studentPsign">退费<span class="gray">('+payTime+')</span></div>';
+							  break;
+							default:
+								var paySign='<div class="item-title studentPsign"><span class="gray">未缴纳</span></div>';
+							}
+							
+							html+= '<li class="item-content">'+
+							        '<div class="item-inner">'+
+							          '<div class="item-title">'+(res.length-m)+'</div>'+
+							          '<div class="item-title studentName">'+res[m].studentName+'</div>'+
+							          paySign+
+							          '<div class="item-after" style="min-width:72px;">'+res[m].tuition+'</div>'+
+							        '</div>'+
+							      '</li>';
+						}
+						
+						
+					}else{
+						html+='<div class="noData noData_line">'+
+					         	'<span class="noData__tips">暂无记录</span>'+
+					         '</div>';
+					}
+					$("#allStudent ul").html(html);
+					
+				}else{
+					$.alert(result.msg);
+				}
+		  }); 
+		  */
+	 });
+</script>

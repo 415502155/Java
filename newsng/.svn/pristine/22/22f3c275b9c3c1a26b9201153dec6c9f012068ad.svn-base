@@ -1,0 +1,8 @@
+package sng.dao;
+
+import sng.entity.Classes;
+
+
+public interface ClassDao extends BaseDao<Classes>{
+	
+}

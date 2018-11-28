@@ -1,0 +1,100 @@
+package sng.controller.web;
+
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import sng.controller.common.BaseAction;
+import sng.entity.Plan;
+import sng.pojo.Result;
+import sng.pojo.ResultEx;
+import sng.service.impl.PlanServiceImpl;
+import sng.service.impl.TestServiceImpl;
+import sng.util.CommonUtils;
+import sng.util.Paging;
+
+/**
+ * 招生计划
+ * @author s
+ *
+ */
+@Controller
+@RequestMapping("/plan")
+public class PlanController extends BaseAction{
+	@Resource
+	private TestServiceImpl testServiceImpl;
+	@Resource
+	private PlanServiceImpl planServiceImpl;
+
+	@RequestMapping("/test1")
+	@ResponseBody
+	public Result test1() {
+		Paging page=testServiceImpl.test2();
+		return ResultEx.success(page);
+	}
+
+	/**
+	 * 年份列表
+	 */
+	@RequestMapping("/yearList")
+	@ResponseBody
+	public Result getYearList() {
+		String orgId="";//从session中获取
+		List<String> yearList=planServiceImpl.getYearList(orgId);
+		return ResultEx.success(yearList);
+	}
+	
+	/**
+	 * 招生计划列表
+	 */
+	@RequestMapping("/list")
+	@ResponseBody
+	public Paging getPagePlan(String year,Integer page,Integer limit) {
+		Paging paging=planServiceImpl.getPagePlan(year, page, limit);
+		return paging;
+	}
+	
+	/**
+	 * 查询招生计划详情
+	 */
+	@RequestMapping("/info")
+	@ResponseBody
+	public Result getPlanInfo(Integer planId) {
+		Plan plan=planServiceImpl.getPlanInfo(planId);
+		return ResultEx.success(plan);
+	}
+	
+	/**
+	 * 保存/更新招生计划
+	 */
+	@RequestMapping("/save")
+	@ResponseBody
+	public Result savePlan(HttpServletRequest request,Plan plan,String classIds) {
+		try {
+			Map<String,Object> paramMap=CommonUtils.doParameters(request);
+			planServiceImpl.savePlan(plan,classIds,paramMap);
+			return ResultEx.success(null);
+		}catch(Exception ex) {
+			ex.printStackTrace();
+			return ResultEx.error(500, "保存失败", null);
+		}
+	}
+	
+	/**
+	 * 查询招生计划要选择的班级列表
+	 */
+	@RequestMapping("/selectCampusClass")
+	@ResponseBody
+	public Result selectCampusClass(HttpServletRequest request,Integer page,Integer limit) {
+		Map<String,Object> paramMap=CommonUtils.doParameters(request);
+		Paging paging=planServiceImpl.getPageCampusClass(paramMap, page, limit);
+		return ResultEx.success(paging);
+	}
+
+}

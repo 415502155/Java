@@ -1,0 +1,641 @@
+package sng.entity;
+
+import java.io.Serializable;
+import java.util.Date;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+/**
+ * 支付详情 
+ * Title: ChargeDetail 
+ * Description: 记录支付的详细信息 
+ * Company: 世纪伟业
+ * 
+ * @author Liuyang
+ * @date 2018年1月17日下午1:50:57
+ * updateTime:2018-10-23
+ * 更新人:马国庆
+ */
+@Entity
+@Table(name = "charge_detail")
+public class ChargeDetail implements Serializable {
+
+	private static final long serialVersionUID = -6361792841887394447L;
+
+	/**
+	 * 主键
+	 */
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private Integer cd_id;
+	/**
+	 * 收费表主键
+	 */
+	private Integer cid;
+	/**
+	 * 机构主键
+	 */
+	private Integer org_id;
+
+	/**
+	 * 校区id
+	 */
+	private Integer cam_id;
+
+	/**
+	 * 学生主键
+	 */
+	private Integer stud_id;
+	/**
+	 * 学生姓名
+	 */
+	private String stud_name;
+	/**
+	 * 年级主键
+	 */
+	private Integer grade_id;
+	/**
+	 * 年级名称
+	 */
+	private String grade_name;
+	/**
+	 * 班级主键
+	 */
+	private Integer clas_id;
+	/**
+	 * 班级名称
+	 */
+	private String clas_name;
+	/**
+	 * 开始时间
+	 */
+	private Date start_time;
+	/**
+	 * 结束时间
+	 */
+	private Date end_time;
+	/**
+	 * 【银联】商户订单号 （"6"+5位机构主键+13位主表时间戳+年级主键+"l"+班级主键+"l"+"学生主键"+13位明细表时间戳）.前40位
+	 */
+	private String order_id;
+	/**
+	 * 【银联】实缴金额（单位：分）
+	 */
+	private String txnAmt;
+	/**
+	 * 应收金额（单位：分）
+	 */
+	private String money;
+	/**
+	 * 【银联】缴费时间
+	 */
+	private Date txnTime;
+	/**
+	 * 状态【0未支付1已支付2申请退款3已退全款4已退部分款5已驳回6退款失败 9不参与】
+	 */
+	private Integer status;
+	/**
+	 * 线上支付结果【0：未支付，1：已支付】
+	 */
+	private Integer online_pay;
+	/**
+	 * 线下支付结果【0：未支付，1：已支付】
+	 */
+	private Integer offline_pay;
+	/**
+	 * 支付方式【1:统一收费；9：个性化收费】
+	 */
+	private Integer pay_type;
+	/**
+	 * 通知发送状态【0:未发送; 1:仅发送短信； 2：仅发送微信； 9:都发送了】
+	 */
+	private Integer is_send;
+	/**
+	 * 账户信息主键
+	 */
+	@JsonIgnore
+	private Integer accId;
+	/**
+	 * 删除标记
+	 */
+	@JsonIgnore
+	private Integer is_del;
+	/**
+	 * 创建时间
+	 */
+	@JsonIgnore
+	private Date insert_time;
+	/**
+	 * 修改时间
+	 */
+	@JsonIgnore
+	private Date modify_time;
+	/**
+	 * 删除时间
+	 */
+	@JsonIgnore
+	private Date del_time;
+	/**
+	 * 尝试支付时间
+	 */
+	@JsonIgnore
+	private Date try_time;
+	/**
+	 * 【银联】订单描述
+	 */
+	@JsonIgnore
+	private String orderDesc;
+
+	/********************************* @Transient ***********************************/
+	/**
+	 * 退费状态【0:不允许退费，1：可以退费】
+	 */
+	@Transient
+	private Integer refund;
+	/**
+	 * 家长的openid
+	 */
+	@Transient
+	@JsonIgnore
+	private String openid;
+	/**
+	 * 家长手机号
+	 */
+	@Transient
+	private String user_mobile;
+	/**
+	 * 家长手机类型
+	 */
+	@Transient
+	@JsonIgnore
+	private Byte user_mobile_type;
+	/**
+	 * 缴费主题
+	 */
+	@Transient
+	private String item;
+	/**
+	 * 收费内容
+	 */
+	@Transient
+	private String content;
+	/**
+	 * 最后提醒时间
+	 */
+	@Transient
+	@JsonIgnore
+	private Date send_time;
+	/**
+	 * 账户别名
+	 */
+	@Transient
+	private String accName;
+	/**
+	 * 账户帐号
+	 */
+	private String accNo;
+	/**
+	 * 商户号
+	 */
+	@Transient
+	private String merId;
+	/**
+	 * 商户类别【0基本户 1一般户 2虚拟户】
+	 */
+	@Transient
+	@JsonIgnore
+	private Integer accType;
+	/**
+	 * 开户行
+	 */
+	@Transient
+	@JsonIgnore
+	private String bankName;
+	/**
+	 * 流水号
+	 */
+	@Transient
+	private String queryId;
+	/**
+	 * Charge的status
+	 */
+	@Transient
+	private Integer c_status;
+	/**
+	 * ChargeRecord的status
+	 */
+	@Transient
+	private String cr_status;
+	/**
+	 * ChargeRecord的交易类型 银联：01银联缴费04银联退费
+	 * 自定义：SQYLTF申请银联退费TYYLTF同意银联退费YYTFSB银联退费失败BHYLTF驳回银联退费XXJF线下缴费SQXXTF申请线下退费TYXXTF同意线下退费BHXXTF驳回线下退费
+	 */
+	@Transient
+	private String txnType;
+	/**
+	 * 密钥
+	 */
+	@Transient
+	private String signCert;
+	/**
+	 * 密码
+	 */
+	@Transient
+	private String pwd;
+	/**
+	 * 密码
+	 */
+	@Transient
+	private String billNum;
+
+	/********************************* @Transient ***********************************/
+
+	public Integer getCd_id() {
+		return cd_id;
+	}
+
+	public void setCd_id(Integer cd_id) {
+		this.cd_id = cd_id;
+	}
+
+	public Integer getCid() {
+		return cid;
+	}
+
+	public void setCid(Integer cid) {
+		this.cid = cid;
+	}
+
+	public Integer getOrg_id() {
+		return org_id;
+	}
+
+	public void setOrg_id(Integer org_id) {
+		this.org_id = org_id;
+	}
+
+	public Integer getStud_id() {
+		return stud_id;
+	}
+
+	public void setStud_id(Integer stud_id) {
+		this.stud_id = stud_id;
+	}
+
+	public String getStud_name() {
+		return stud_name;
+	}
+
+	public void setStud_name(String stud_name) {
+		this.stud_name = stud_name;
+	}
+
+	public Integer getClas_id() {
+		return clas_id;
+	}
+
+	public void setClas_id(Integer clas_id) {
+		this.clas_id = clas_id;
+	}
+
+	public String getClas_name() {
+		return clas_name;
+	}
+
+	public void setClas_name(String clas_name) {
+		this.clas_name = clas_name;
+	}
+
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+	public Date getStart_time() {
+		return start_time;
+	}
+
+	public void setStart_time(Date start_time) {
+		this.start_time = start_time;
+	}
+
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+	public Date getEnd_time() {
+		return end_time;
+	}
+
+	public void setEnd_time(Date end_time) {
+		this.end_time = end_time;
+	}
+
+	public String getOrder_id() {
+		return order_id;
+	}
+
+	public void setOrder_id(String order_id) {
+		this.order_id = order_id;
+	}
+
+	public String getTxnAmt() {
+		return txnAmt;
+	}
+
+	public void setTxnAmt(String txnAmt) {
+		this.txnAmt = txnAmt;
+	}
+
+	public String getMoney() {
+		return money;
+	}
+
+	public void setMoney(String money) {
+		this.money = money;
+	}
+
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+	public Date getTxnTime() {
+		return txnTime;
+	}
+
+	public void setTxnTime(Date txnTime) {
+		this.txnTime = txnTime;
+	}
+
+	public Integer getStatus() {
+		return status;
+	}
+
+	public void setStatus(Integer status) {
+		this.status = status;
+	}
+
+	public Integer getOnline_pay() {
+		return online_pay;
+	}
+
+	public void setOnline_pay(Integer online_pay) {
+		this.online_pay = online_pay;
+	}
+
+	public Integer getOffline_pay() {
+		return offline_pay;
+	}
+
+	public void setOffline_pay(Integer offline_pay) {
+		this.offline_pay = offline_pay;
+	}
+
+	public Integer getIs_send() {
+		return is_send;
+	}
+
+	public void setIs_send(Integer is_send) {
+		this.is_send = is_send;
+	}
+
+	public Integer getAccId() {
+		return accId;
+	}
+
+	public void setAccId(Integer accId) {
+		this.accId = accId;
+	}
+
+	public Integer getIs_del() {
+		return is_del;
+	}
+
+	public void setIs_del(Integer is_del) {
+		this.is_del = is_del;
+	}
+
+	public Date getInsert_time() {
+		return insert_time;
+	}
+
+	public void setInsert_time(Date insert_time) {
+		this.insert_time = insert_time;
+	}
+
+	public Date getModify_time() {
+		return modify_time;
+	}
+
+	public void setModify_time(Date modify_time) {
+		this.modify_time = modify_time;
+	}
+
+	public Date getDel_time() {
+		return del_time;
+	}
+
+	public void setDel_time(Date del_time) {
+		this.del_time = del_time;
+	}
+
+	public Integer getRefund() {
+		return refund;
+	}
+
+	public void setRefund(Integer refund) {
+		this.refund = refund;
+	}
+
+	public String getOpenid() {
+		return openid;
+	}
+
+	public void setOpenid(String openid) {
+		this.openid = openid;
+	}
+
+	public String getUser_mobile() {
+		return user_mobile;
+	}
+
+	public void setUser_mobile(String user_mobile) {
+		this.user_mobile = user_mobile;
+	}
+
+	public Byte getUser_mobile_type() {
+		return user_mobile_type;
+	}
+
+	public void setUser_mobile_type(Byte user_mobile_type) {
+		this.user_mobile_type = user_mobile_type;
+	}
+
+	public String getItem() {
+		return item;
+	}
+
+	public void setItem(String item) {
+		this.item = item;
+	}
+
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+	public Date getSend_time() {
+		return send_time;
+	}
+
+	public void setSend_time(Date send_time) {
+		this.send_time = send_time;
+	}
+
+	public String getAccName() {
+		return accName;
+	}
+
+	public void setAccName(String accName) {
+		this.accName = accName;
+	}
+
+	public String getAccNo() {
+		return accNo;
+	}
+
+	public void setAccNo(String accNo) {
+		this.accNo = accNo;
+	}
+
+	public String getMerId() {
+		return merId;
+	}
+
+	public void setMerId(String merId) {
+		this.merId = merId;
+	}
+
+	public Integer getAccType() {
+		return accType;
+	}
+
+	public void setAccType(Integer accType) {
+		this.accType = accType;
+	}
+
+	public String getBankName() {
+		return bankName;
+	}
+
+	public void setBankName(String bankName) {
+		this.bankName = bankName;
+	}
+
+	public String getQueryId() {
+		return queryId;
+	}
+
+	public void setQueryId(String queryId) {
+		this.queryId = queryId;
+	}
+
+	public String getContent() {
+		return content;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+	public Integer getPay_type() {
+		return pay_type;
+	}
+
+	public void setPay_type(Integer pay_type) {
+		this.pay_type = pay_type;
+	}
+
+	public Integer getC_status() {
+		return c_status;
+	}
+
+	public void setC_status(Integer c_status) {
+		this.c_status = c_status;
+	}
+
+	public Date getTry_time() {
+		return try_time;
+	}
+
+	public void setTry_time(Date try_time) {
+		this.try_time = try_time;
+	}
+
+	public String getOrderDesc() {
+		return orderDesc;
+	}
+
+	public void setOrderDesc(String orderDesc) {
+		this.orderDesc = orderDesc;
+	}
+
+	public Integer getGrade_id() {
+		return grade_id;
+	}
+
+	public void setGrade_id(Integer grade_id) {
+		this.grade_id = grade_id;
+	}
+
+	public String getGrade_name() {
+		return grade_name;
+	}
+
+	public void setGrade_name(String grade_name) {
+		this.grade_name = grade_name;
+	}
+
+	public String getCr_status() {
+		return cr_status;
+	}
+
+	public void setCr_status(String cr_status) {
+		this.cr_status = cr_status;
+	}
+
+	public String getTxnType() {
+		return txnType;
+	}
+
+	public void setTxnType(String txnType) {
+		this.txnType = txnType;
+	}
+
+	public String getSignCert() {
+		return signCert;
+	}
+
+	public void setSignCert(String signCert) {
+		this.signCert = signCert;
+	}
+
+	public String getPwd() {
+		return pwd;
+	}
+
+	public void setPwd(String pwd) {
+		this.pwd = pwd;
+	}
+
+	public String getBillNum() {
+		return billNum;
+	}
+
+	public void setBillNum(String billNum) {
+		this.billNum = billNum;
+	}
+
+	public Integer getCam_id() {
+		return cam_id;
+	}
+
+	public void setCam_id(Integer cam_id) {
+		this.cam_id = cam_id;
+	}
+
+}

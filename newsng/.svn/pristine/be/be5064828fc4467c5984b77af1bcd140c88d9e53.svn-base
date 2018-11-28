@@ -1,0 +1,329 @@
+package sng.controller.web;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import sng.constant.Consts;
+import sng.controller.common.BaseAction;
+import sng.entity.Classes;
+import sng.entity.OperationLog;
+import sng.pojo.ClassToTeacher;
+import sng.pojo.SessionInfo;
+import sng.service.ClassService;
+import sng.util.CommonUtils;
+import sng.util.Constant;
+import sng.util.ExcelExport;
+import sng.util.ExcelParam;
+import sng.util.Paging;
+import sng.util.ReturnResult;
+
+/***
+ * 
+ *  @Company sjwy
+ *  @Title: ClassController.java 
+ *  @Description: 
+ *	@author: shy
+ *  @date: 2018年10月25日 上午8:24:12
+ */
+@Controller
+@RequestMapping("/class")
+public class ClassController extends BaseAction{
+	
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
+
+	@Autowired
+	private ClassService classService;
+	/***
+	 * 
+	 *  @Description: 
+	 *  @param classes
+	 *  @return
+	 * @throws ParseException 
+	 */
+	@RequestMapping(value = "/add.htm")
+	@ResponseBody
+	public ReturnResult addClass(HttpServletRequest request, @RequestBody Classes classes, HttpServletResponse response) throws ParseException {
+		SessionInfo sessionInfo=this.getSessionInfo(request);
+		Map<String,Object> reqMap=CommonUtils.doParameters(request);
+		classService.save(reqMap, sessionInfo);
+		return ReturnResult.success();
+	}
+	
+	@RequestMapping(value = "/toUpdate.htm")
+	@ResponseBody
+	public ReturnResult toUpdateClass(HttpServletRequest request, Integer orgId, Integer clasId, HttpServletResponse response) {
+		SessionInfo sessionInfo=this.getSessionInfo(request);
+		if (null == orgId) {
+			orgId = sessionInfo.getOrgId();
+		}
+		@SuppressWarnings("rawtypes")
+		Map clasMap = null;
+		try {
+			clasMap = classService.getById(orgId, clasId);
+		} catch (Exception e) {
+			log.info("toUpdateClass Ex : " + e);
+			return ReturnResult.error();
+		}
+		return ReturnResult.success(clasMap);
+	}
+	
+	@RequestMapping(value = "/update.htm")
+	@ResponseBody
+	public ReturnResult updateClass(HttpServletRequest request, @RequestBody Classes classes, HttpServletResponse response) {
+		SessionInfo sessionInfo=this.getSessionInfo(request);
+		Map<String,Object> reqMap=CommonUtils.doParameters(request);
+		Integer orgId = sessionInfo.getOrgId();
+		Integer clasId = Integer.parseInt((String) reqMap.get("clasId"));
+		List<Map<String, Object>> techList = classService.getTecherIds(orgId, clasId);
+		try {
+		classService.update(reqMap, sessionInfo, techList);
+		} catch (Exception e) {
+			log.info("updateClass Ex : " + e);
+			return ReturnResult.error();
+		}
+		return ReturnResult.success();
+	}
+	
+	/***
+	 * 
+	 *  @Description: 获取班级列表
+	 *  @param orgId 机构id
+	 *  @param termId 学期id
+	 *  @param clasType 班级类型 新生班-老生班
+	 *  @param categoryId 类目id
+	 *  @param subjectId 科目id
+	 *  @param camId 校区id
+	 *  @param classWeek 上课星期 星期一-星期二。。。
+	 *  @param tech_names 教师名称
+	 *  @param isAll 是否导出全部分页数据  1全部导出  其他：否
+	 *  @param pageNum 当前页数
+	 *  @param pageSize 每页条目数
+	 *  @return
+	 */
+	@RequestMapping(value = "/list.htm")
+	@ResponseBody
+	public ReturnResult getClassList(@RequestParam(name = "pageNum", defaultValue = "1") Integer pageNum,
+			@RequestParam(name = "pageSize", defaultValue = Constant.NUM_PER_PCPAGE_STRING) Integer pageSize,
+			Integer orgId, Integer termId, Integer clasType, Integer categoryId,
+			Integer subjectId, Integer camId, Integer classWeek, String tech_names, Integer isAll) {
+		Paging<ClassToTeacher> page = new Paging<ClassToTeacher>();
+		page.setPage(pageNum);
+		page.setLimit(pageSize);
+		Paging<ClassToTeacher> paging = null;
+		try {
+			paging = classService.getClassList(orgId, termId, clasType, categoryId, subjectId, camId, classWeek, tech_names, isAll, page);
+		} catch (Exception e) {
+			log.info("getClassList Ex : " + e);
+			return ReturnResult.error();
+		}
+		return ReturnResult.success(paging);
+	}
+	/***
+	 * 
+	 *  @Description: 导出班级列表
+	 *  @param request
+	 *  @param pageNum
+	 *  @param pageSize
+	 *  @param orgId
+	 *  @param termId
+	 *  @param clasType
+	 *  @param categoryId
+	 *  @param subjectId
+	 *  @param camId
+	 *  @param classWeek
+	 *  @param techNames (按照教师名称和班级名称进行模糊查询)
+	 *  @param ids (多个教师的id)
+	 *  @param isAll (是否选择全部分页数据 1:是  其他:否)
+	 *  @param response
+	 *  @return
+	 */
+	@RequestMapping(value = "/exportClass.htm")
+	@ResponseBody
+	public ReturnResult exportClassList(HttpServletRequest request, 
+			@RequestParam(name = "pageNum", defaultValue = "1") Integer pageNum,
+			@RequestParam(name = "pageSize", defaultValue = Constant.NUM_PER_PCPAGE_STRING) Integer pageSize,
+			Integer orgId, Integer termId, Integer clasType, Integer categoryId,
+			Integer subjectId, Integer camId, Integer classWeek, String techNames, String ids, Integer isAll,
+			HttpServletResponse response) {
+		Paging<ClassToTeacher> page = new Paging<ClassToTeacher>();
+		page.setPage(pageNum);
+		page.setLimit(pageSize);
+		String[] heads = { "序号", "班级名称", "班级类别", "所属类目", "所属科目", "所属校区", "所在教室", "班级容量",
+				"年龄要求", "起始生日", "结束生日", "总课时数", "开课日期", "上课星期", "上课时间", "下课时间",
+				"不固定时间", "学费标准", "职教老师", "联合机构"
+				};
+		StringBuilder fileName = new StringBuilder();
+		fileName.append("班级列表").append(new SimpleDateFormat("yyyyMMddhhmmss").format(new Date()).toString())
+				.append(".xls");
+		String file = fileName.toString();
+		log.info("filename :" + file);
+		List<String[]> data = new LinkedList<String[]>();
+		int i = 0;
+		List<ClassToTeacher> list = null;
+		try {
+			list = classService.getClassList(orgId, termId, clasType, categoryId, subjectId, camId, classWeek, techNames, ids, isAll, page);
+			for (ClassToTeacher ct : list) {
+				String[] temp = new String[heads.length];
+				temp[0] = String.valueOf(i + 1);
+				temp[1] = ct.getClas_name();
+				temp[2] = Consts.CLASS_TYPE_MAP.get(ct.getClas_type().toString());
+				temp[3] = ct.getCategory_name();
+				temp[4] = ct.getSubject_name();
+				temp[5] = ct.getCam_name();
+				temp[6] = ct.getClassroom_name();
+				temp[7] = ct.getSize().toString();//班级容量
+				temp[8] = ct.getAge_range();//年龄要求
+				temp[9] = CommonUtils.dateFormat(ct.getStart_birthday(), null).toString();
+				temp[10] = CommonUtils.dateFormat(ct.getEnd_birthday(), null).toString();
+				temp[11] = ct.getTotal_hours().toString();//总课时数
+				temp[12] = CommonUtils.dateFormat(ct.getClass_start_date(), null).toString();//开课日期
+				temp[13] = ct.getClass_week().toString();//上课星期
+				temp[14] = CommonUtils.dateFormat(ct.getClass_begin_time(), null).toString();//上课时间
+				temp[15] = CommonUtils.dateFormat(ct.getClass_over_time(), null).toString();//下课时间
+				temp[16] = ct.getClass_unset_time().toString();//不固定时间
+				temp[17] = ct.getTuition_fees();//学费标准
+				temp[18] = ct.getTech_names();//职教老师
+				temp[19] = ct.getName();//联合机构
+				data.add(temp);
+				i++;
+			}
+			ExcelParam param = new ExcelParam.Builder("班级列表").headers(heads).data(data).build();
+			ExcelExport.export(param, file, request, response);
+		} catch (Exception e) {
+			log.info("班级数据导出异常信息  :" + e);
+			return ReturnResult.error(-1, "操作班级数据导出异常");
+		}
+		return ReturnResult.success("");
+	}
+	
+	/***
+	 * 
+	 *  @Description: 导出学生列表（已缴费）
+	 *  @param request
+	 *  @param pageNum
+	 *  @param pageSize
+	 *  @param orgId
+	 *  @param termId
+	 *  @param clasType
+	 *  @param categoryId
+	 *  @param subjectId
+	 *  @param camId
+	 *  @param classWeek
+	 *  @param techNames (按照教师名称和班级名称进行模糊查询)
+	 *  @param ids (多个教师的id)
+	 *  @param isAll (是否选择全部分页数据 1:是  其他:否)
+	 *  @param response
+	 *  @return
+	 */
+	@RequestMapping(value = "/exportStudent.htm")
+	@ResponseBody
+	public ReturnResult exportStudentList(HttpServletRequest request, 
+			@RequestParam(name = "pageNum", defaultValue = "1") Integer pageNum,
+			@RequestParam(name = "pageSize", defaultValue = Constant.NUM_PER_PCPAGE_STRING) Integer pageSize,
+			Integer orgId, Integer termId, Integer clasType, Integer categoryId,
+			Integer subjectId, Integer camId, Integer classWeek, String techNames, String ids, Integer isAll,
+			HttpServletResponse response) {
+		Paging<ClassToTeacher> page = new Paging<ClassToTeacher>();
+		page.setPage(pageNum);
+		page.setLimit(pageSize);
+		//班级名称、学员名称、证件号码、学员状态（8种）
+		String[] heads = {"序号", "班级名称", "学员名称", "证件号码", "学员状态"};
+		StringBuilder fileName = new StringBuilder();
+		fileName.append("学员列表").append(new SimpleDateFormat("yyyyMMddhhmmss").format(new Date()).toString())
+				.append(".xls");
+		String file = fileName.toString();
+		log.info("filename :" + file);
+		List<String[]> data = new LinkedList<String[]>();
+		List<Map> alllist = new ArrayList<Map>();
+		//获取当前查询条件下的班级列表信息
+		List<ClassToTeacher> list = classService.getClassList(orgId, termId, clasType, categoryId, subjectId, camId, classWeek, techNames, ids, isAll, page);
+		for (ClassToTeacher ct : list) {
+			Integer clasId = ct.getClas_id();
+			List<Map<String, Object>> stuList = classService.getStudentList(orgId, clasId);
+			alllist.addAll(stuList);
+		}
+		try {
+			for (int i = 0; i < alllist.size(); i++) {
+				String[] temp = new String[heads.length];
+				temp[0] = String.valueOf(i + 1);
+				temp[1] = alllist.get(i).get("clas_name").toString();
+				temp[2] = alllist.get(i).get("stud_name").toString();
+				temp[3] = alllist.get(i).get("stud_card").toString();
+				temp[4] = Consts.STUD_PAY_STATUS_MAP.get(alllist.get(i).get("stu_status").toString());
+				data.add(temp);
+				i++;
+			}
+			ExcelParam param = new ExcelParam.Builder("学员列表").headers(heads).data(data).build();
+			ExcelExport.export(param, file, request, response);
+		} catch (Exception e) {
+			log.info("学员列表数据导出异常信息  :" + e);
+			return ReturnResult.error(-1, "学员列表数据导出异常");
+		}
+		return ReturnResult.success("");
+	}
+	
+	/***
+	 * 
+	 *  @Description: 根据学生编号来查找学生信息，并验证该学生是否在当前班级，如以所在当前班级进行提示
+	 *  @param orgId
+	 *  @param clasId
+	 *  @param studCard
+	 *  @return
+	 */
+	@RequestMapping(value = "/queryByCard.htm")
+	@ResponseBody
+	public ReturnResult queryByCard(Integer orgId, Integer clasId, String studCard) {
+		
+		List<Map<String, Object>> stuList = null;
+		Map returnMap = new HashMap<>();
+		try {
+			stuList = classService.getStudentInfo(orgId, studCard);
+			if (null != stuList) {
+				Map stuMap = stuList.get(0);
+				returnMap.put("studName", stuMap.get("stud_name"));
+				returnMap.put("studCard", stuMap.get("stud_card"));//stud_id
+				returnMap.put("studId", stuMap.get("stud_id"));
+				for (Map stu : stuList) {
+					Integer stuClasId = (Integer) stu.get("clas_id");
+					if (clasId.equals(stuClasId)) {
+						return ReturnResult.error(-1 , "该学生已在该班级！", returnMap);
+					}
+				}
+			} else {
+				return ReturnResult.error(-1 , "没有该学生的信息,请确认该学生的证件号码是否正确！");
+			}
+		} catch (Exception e) {
+			log.info("queryByCard Ex : " + e);
+			return ReturnResult.error();
+		}
+		return ReturnResult.success(returnMap);
+	}
+	
+	@RequestMapping(value = "/joinClass.htm")
+	@ResponseBody
+	public ReturnResult joinClass(HttpServletRequest request, Integer orgId, String studName, Integer studId, Integer clasId, Integer clasType, String tuitionFee, HttpServletResponse response) {
+		SessionInfo sessionInfo=this.getSessionInfo(request);
+		Map<String,Object> reqMap=CommonUtils.doParameters(request);
+		
+		return ReturnResult.success();
+	}
+}
+

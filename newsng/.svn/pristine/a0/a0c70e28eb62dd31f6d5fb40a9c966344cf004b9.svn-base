@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>校园统计</title>
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport" />
+    <link rel="shortcut icon" href="/favicon.ico">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <!--ui包-->
+    <link rel="stylesheet" href="../../../css/sm.css">
+    <link rel="stylesheet" href="../../../css/layout.css">
+    <link rel="stylesheet" href="../../../css/statistics/index.css">
+    <link rel="stylesheet" href="../../../css/teacher.css">
+    <link rel="stylesheet" href="../../../css/statistics/style.css" media="screen" type="text/css" />
+    <style type="text/css">
+        body {font-size: 0.8rem}
+        a {color: #3d4145}
+        .content {background-color: #fff}
+        .slide-box {display: -webkit-box;overflow-x: scroll;overflow-y: hidden;-webkit-overflow-scrolling: touch;transform: translateZ(0)}
+        #date_bar {background-color: #eee;}
+        #bind_att,#date_bar,#info_att,#attention_att,#pay_att,#pay_info,.split-line {display: none}
+        .pay-box {margin: 0}
+        #pay_bar {border: none}
+        .pay-no-start {color: #999}
+    </style>
+</head>
+
+<body>
+    <div class="page-group">
+        <div class="page page-current" id=" ">
+            <div class="content native-scroll">
+                <header class="bar bar-nav">
+                    <h1 class="title" name="pageTop">校园统计</h1>
+                </header>
+                <div class="contents ">
+                    <div class="cont-box" id="bind_att">
+                        <div class="cont-title">
+                            <h4>关注统计</h4>
+                        </div>
+                        <div class="cont-bar">
+                            <div class="attention-info " id="students_bar">
+                                <div class="attention-student  clearfix">
+                                    <h4>学生关注率:</h4>
+                                    <h4 class="stud-percent">-</h4>
+                                    <a href="javascript:;" class="statistics-details fr">详情</a>
+                                </div>
+                                <div class="attention-percent">
+                                    <p data-width="" class="attention-bar"></p>
+                                </div>
+                                <div class="attention-nums clearfix">
+                                    <span class="fl">已关注: <span id="stud_bind">-</span>人</span>
+                                    <span class="fr">剩余: <span id="stud_unbind">-</span>人</span>
+                                </div>
+                            </div>
+                            <div class="attention-info" id="teachers_bar">
+                                <div class="attention-student clearfix">
+                                    <h4>教师关注率:</h4>
+                                    <h4 class="teac-percent">-</h4>
+                                    <a href="javascript:;" class="statistics-details fr">详情</a>
+                                </div>
+                                <div class="attention-percent">
+                                    <p data-width="" class="attention-bar"></p>
+                                </div>
+                                <div class="attention-nums clearfix">
+                                    <span data-name="ygz" class="fl">已关注: <span id="teac_bind">-</span>人</span>
+                                    <span class="fr">剩余: <span id="teac_unbind">-</span>人</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="data-date clearfix" id="date_bar">
+                        <span class="icon icon-left fl" id="yesterday"></span>
+                        <input id="data_date" class="select-date" type="button" data-toggle='date' />
+                        <span class="icon icon-right fr" id="tomorrow"></span>
+                    </div>
+                    <div class="cont-box" id="info_att">
+                        <div class="cont-title clearfix">
+                            <h4 class="fl">信息统计</h4>
+                            <!-- <a href="" class="statistics-details fr">详情 ></a> -->
+                        </div>
+                        <div class="info-statistics clearfix">
+                            <ul class="info-box" id="school_notice">
+                                <li><span>校园通知</span></li>
+                                <li><h4>-</h4></li>
+                                <li><a href="javascript:;">详情</a></li>
+                            </ul>
+                            <ul class="info-box" id="homework">
+                                <li><span>发布作业</span></li>
+                                <li><h4>-</h4></li>
+                                <li><a href="javascript:;">详情</a></li>
+                            </ul>
+                            <ul class="info-box" id="blog">
+                                <li><span>发布博客</span></li>
+                                <li><h4>-</h4></li>
+                                <li><a href="javascript:;">详情</a></li>
+                            </ul>
+                            <ul class="info-box" id="question">
+                                <li><span>问卷调查</span></li>
+                                <li><h4>-</h4></li>
+                                <li><a href="javascript:;">详情</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="split-line" id="mid_att"></div>
+                    <div class="cont-box " id="attention_att">
+                        <div class="attendance-statistics ">
+                            <div class="cont-title clearfix">
+                                <h4 class="fl">考勤统计</h4>
+                                <a href="javascript:;" id="attendance_info" class="statistics-details fr">详情 ></a>
+                            </div>
+                            <div class="days-attendance">
+                                <div class="attendence-title clearfix">
+                                    <h4 class="fl">日出勤率</h4>
+                                    <span class="fr" id="att_percent">0%</span>
+                                </div>
+                                <div class="attendance-table" id="echarts_table">
+                                    <div class="slide-box">
+                                        <div class="slide-item">
+                                            <div class="table-box">
+                                                <div class="table-percent">50%</div>
+                                            </div>
+                                            <div class="table-data">
+                                                <ul class="clearfix"></ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="table-num clearfix">
+                                        <span class="fl">出勤<span id="attendenceN">-</span>人</span>
+                                        <span>迟到<span id="attendenceL">-</span>人</span>
+                                        <span class="fr">缺勤<span id="attendenceA">-</span>人</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="split-line" id="pay_att"></div>
+                    <div class="cont-box " id="pay_info">
+                        <div class="cont-title clearfix">
+                            <h4 class="fl">支付统计</h4>
+                        </div>
+                        <div class="cont-bar infinite-scroll infinite-scroll-bottom" data-distance="100">
+                            <div class="list-block pay-box">
+                                <ul class="list-container" id="pay_bar">
+
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <a href="#pageTop" id="goBackToTop"></a>
+</body>
+
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script src="../../../js/statistics/index.js"></script>
+<script src='https://res.wx.qq.com/open/js/jweixin-1.2.0.js'></script>
+<script src="../../../js/statistics/echarts.js"></script>
+<script>
+    //设置返回首页标识
+    sessionStorage.home = 1;
+
+    //后退刷新
+    window.addEventListener('pageshow', function (event) {
+        if (sessionStorage.echart == 1) {
+            sessionStorage.removeItem("echart");
+            window.location.reload();
+        }
+    });
+
+    //权限判断
+    //管理员： 管理员(1), 校长(2),分校校长(10), 年级组长(5)
+    //普通：任课教师(3), 班主任(4),
+    //其他：学生组管理员(6), 部门管理员(7), 教师组管理员(8), 功能管理员(9),  财务管理员(17) 财务审核员(18),问卷调查管理员(20),用餐统计管理员(21)
+    //校园统计 1\2\10\17\18\19
+
+    var power = JSON.parse(sessionStorage.baseUser).orguser.rlids; //获取权限
+    var purview = power.substring(0, power.length - 1).split(",");
+
+    if ($.inArray("1", purview) >= 0 || $.inArray("2", purview) >= 0 || $.inArray("10", purview) >= 0) { //管理员,校长,分校长
+        $("#bind_att,#date_bar,#info_att,#attention_att,#pay_att,#pay_info,.split-line").css("display", "block");
+    }
+    if ($.inArray("17", purview) >= 0 || $.inArray("18", purview) >= 0) { //财务
+        $("#date_bar").css("display", "block");
+        $("#pay_info").css("display", "block");
+    }
+    if ($.inArray("19", purview) >= 0) { //考勤管理员
+        $("#date_bar").css("display", "block");
+        $("#attention_att").css("display", "block");
+    }
+
+    var theTime;
+
+    if (!sessionStorage.nowDate) {
+        show_date('#data_date', timeArr);
+    } else {
+        theTime = sessionStorage.nowDate;
+        show_date('#data_date', theTime);
+    }
+
+    //sui日期插件
+    $('#data_date').calendar({
+        value: [theTime],
+        maxDate: [new Date()],
+        onChange: function (p, values, displayValues) {
+            if (!(timeArr == displayValues[0])) {
+                timeArr = displayValues[0];
+            }
+        },
+        onClose: function () {
+            if (!(theTime == timeArr)) {
+                //theTime = timeArr;
+                show_date('#data_date', timeArr);
+                sessionStorage.nowDate = timeArr;
+            } else {
+                sessionStorage.nowDate = theTime;
+                return false;
+            }
+        }
+    });
+
+    jump($('#students_bar .statistics-details'), 'class.html');
+    jump($('#teachers_bar .statistics-details'), 'teacher.html');
+
+    function jump(selector, url) {
+        selector.on('click', function () {
+            window.location.href = url;
+        })
+    }
+    $('#data_date').trigger('click');
+    $('body').trigger('click');
+    setTimeout(function(){$(".content")[0].scrollTop = 0},10);
+</script>

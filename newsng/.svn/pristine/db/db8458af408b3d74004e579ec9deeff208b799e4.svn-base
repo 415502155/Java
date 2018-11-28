@@ -1,0 +1,45 @@
+package sng.dao;
+
+import java.util.List;
+
+import sng.entity.Subject;
+import sng.pojo.CategoryAndSubjectPojo;
+import sng.pojo.ParamObj;
+import sng.util.Paging;
+/**
+ * @desc 基础设置模块-科目管理dao层接口
+ * @author magq
+ * @data 2018-10-30
+ * @version 1.0
+ */
+public interface BaseSetSubjectManageDao extends BaseDao<Subject>{
+	
+	
+	
+	/**
+	 * 根据不同条件查询科目
+	 * @param paramObj
+	 * @return
+	 */
+	public List<Subject> querySubjectListInfo(ParamObj paramObj);
+	
+	/**
+	 * 获取科目类目信息列表
+	 * @param paramObj
+	 * @return
+	 */
+	public Paging<CategoryAndSubjectPojo> getCategoryAndSubjecListInfo(ParamObj paramObj);
+	
+	/**
+	 * 查询科目与班级信息
+	 * @param paramObj
+	 * @return
+	 */
+	public List<Object[]> querySubjectAndClassesInfo(ParamObj paramObj);
+	/**
+	 * 逻辑删除科目信息
+	 * @param paramObj
+	 */
+	public void delSubjectInfo(ParamObj paramObj);
+
+}

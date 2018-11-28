@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title>通知详情</title>
+		<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+		<link rel="shortcut icon" href="/favicon.ico">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<!--ui包-->
+		<link rel="stylesheet" href="../../../css/sm.css">
+		<link rel="stylesheet" href="../../../css/layout.css">
+		<link rel='stylesheet prefetch' href='../../../js/photoSwipe/photoswipe.css'>
+        <link rel='stylesheet prefetch' href='../../../js/photoSwipe/default-skin/default-skin.css'>
+	</head>
+	<body>
+		<div class="page-group">
+			<div class="page-current" id="noticeD" >
+                <!--内容显示区-->
+			    <div class="content native-scroll" style="background:#fff">
+					<div valign="bottom" class="card-header color-white" style="line-height:1.1rem;padding:.5rem .75rem .2rem;">
+						<div class="author">
+							<span class="iconpright fontbolder" id="author"></span> <span class="fontbolder">老师</span>
+							<div class="subtitle" id="subTitle" >
+								<span class="iconpright"></span>
+							</div>
+						</div>
+						<div class="subtitle  toCount" id="countReader" >
+							未读<span class="unReader">0</span>/
+							<span class="allReader">0</span>
+						</div>
+					</div>
+
+                    <!--文字内容显示区-->
+					<pre class="content-padded contentLineheight notice-text" id="message"></pre>
+					<!--文字内容显示区 END-->
+
+                    <!-- 图片显示区-->
+					<div class="my-gallery" id="imgBox" >
+					</div>
+					<!-- 图片显示区 End-->
+
+					<div class="content-block">
+				    	<a href="javascript:void(0)" class="button button-fill" id="receiptBtn" style="display:none">已读</a>
+				  	</div>
+
+			    </div>
+				<!--内容显示区 End-->
+			</div>
+		</div>
+				<!--图片查看器-->
+				<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+					<div class="pswp__bg"></div>
+					<div class="pswp__scroll-wrap">
+						<div class="pswp__container">
+							<div class="pswp__item"></div>
+							<div class="pswp__item"></div>
+							<div class="pswp__item"></div>
+						</div>
+						<div class="pswp__ui pswp__ui--hidden">
+							<div class="pswp__top-bar">
+								<div class="pswp__counter"></div>
+								<button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+								<!--<button class="pswp__button pswp__button&#45;&#45;share" title="Share"></button>-->
+
+								<div class="pswp__preloader">
+									<div class="pswp__preloader__icn">
+										<div class="pswp__preloader__cut">
+											<div class="pswp__preloader__donut"></div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+								<div class="pswp__share-tooltip"></div>
+							</div>
+							<div class="pswp__caption">
+								<div class="pswp__caption__center"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+
+	</body>
+</html>
+
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script src='../../../js/photoSwipe/photoswipe.min.js'></script>
+<script src='../../../js/photoSwipe/photoswipe-ui-default.js'></script>
+<script src='https://res.wx.qq.com/open/js/jweixin-1.2.0.js'></script>
+<script type="text/javascript">
+/*var baseP=getJPermissions(JSON.parse(sessionStorage.baseUser).orguser.org_id);
+wx.config({
+    debug: false,
+    appId: baseP.appId,
+    timestamp: baseP.timestamp,
+    nonceStr: baseP.nonceStr,
+    signature: baseP.signature,
+    jsApiList: [
+    ]
+});
+wx.ready(function (){
+    //隐藏非基础类菜单
+    wx.hideAllNonBaseMenuItem();
+})*/
+</script>
+<script>
+    var base = null;
+    //如果从通过微信消息模板登录
+    if(sessionStorage.baseUser==undefined || sessionStorage.baseUser== null){
+        var nowNoticeID=GetUrlParam("noticeID ");
+        var nowNu_id=GetUrlParam("nu_id");
+
+        getData(domainName+"/eduWeixin/notice/detail",{nu_id:nowNu_id},function(res){
+            if(res.code==200 && res.success==true){
+                var noticeObj=res.data;
+                //发布时间
+                $("#subTitle span").text(noticeObj.created_Date);
+                //通知内容
+                $("#message").text(noticeObj.content);
+
+                if(noticeObj.is_receipt==1){
+                    //阅读统计
+                    if(noticeObj.target_uids_num!==null){
+                        $("#countReader").text("未读"+(noticeObj.target_uids_num-noticeObj.target_readed_num)+"/接收"+noticeObj.target_uids_num).attr("data-r",1);
+                    }else{
+                    	$("#countReader").text("发送中").attr("data-r",1);
+                    }
+                }else{
+                	if(noticeObj.target_uids_num==null){
+                		$("#countReader").text("发送中").attr("data-r",0);
+                	}else{
+                		$("#countReader").text("发送"+noticeObj.target_uids_num+"人").attr("data-r",0);
+                	}
+
+                    $("#receiptBtn").css("display","none")
+                }
+                //作者
+                $("#author").text(noticeObj.name==null?"":noticeObj.name);
+
+                if(noticeObj.pics!==null){
+                    var imgHtml="";
+                    for(var i=0;i<noticeObj.pics.length;i++){
+                        imgHtml +='<figure itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject">'+
+                            '<a href="'+noticeObj.pics[i]+'" itemprop="contentUrl" data-size="1640x1136">' +
+                            '<img src="'+noticeObj.pics[i]+'" onload="getWH(this)" itemprop="thumbnail" width="100%" alt="" style="display:none" />' +
+                            '<div class="imgLoading"><span class="iconloadingtip"></span></div>' +
+                            '</a>'+
+                            '</figure>';
+                    }
+                    $("#imgBox").append(imgHtml);
+                }
+
+
+            }else{
+                $.alert(res.message);
+            }
+        });
+
+    }else{
+
+        var allNotices=JSON.parse(sessionStorage.notices);
+        var noticeID=GetUrlParam("noticeID");
+
+        for(var i=allNotices.length-1;i>=0;i--){
+            var res=allNotices[i];
+            if(allNotices[i].nid==noticeID){
+                //发布时间
+                $("#subTitle span").text(allNotices[i].created_Date);
+                //通知内容
+                $("#message").text(allNotices[i].content);
+
+                if(res.is_receipt==1){
+                    // $("#receiptBtn").css("display","block")
+                    //阅读统计
+                    //$("#countReader").text("未读"+(res.target_uids_num-res.target_readed_num)+"/接收"+res.target_uids_num).attr("data-r",1);
+                    if(res.target_uids_num!==null){
+                        $("#countReader").text("未读"+(res.target_uids_num-res.target_readed_num)+"/接收"+res.target_uids_num).attr("data-r",1);
+                    }else{
+                    	$("#countReader").text("发送中").attr("data-r",1);
+                    }
+                }else{
+                    //$("#countReader").text("发送"+res.target_uids_num+"人").attr("data-r",0);
+                    if(res.target_uids_num==null){
+                		$("#countReader").text("发送中").attr("data-r",0);
+                	}else{
+                		$("#countReader").text("发送"+res.target_uids_num+"人").attr("data-r",0);
+                	}
+                }
+
+                //作者
+                $("#author").text(res.name==null?"":res.name);
+
+                if(res.pics!==null){
+                    var imgHtml="";
+                    for(var i=0;i<res.pics.length;i++){
+                        imgHtml +='<figure itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject">'+
+                            '<a href="'+res.pics[i]+'" itemprop="contentUrl" data-size="1640x1136">' +
+                            '<img src="'+res.pics[i]+'" onload="getWH(this)" itemprop="thumbnail" style="display:none" width="100%" alt="" />' +
+                            '<div class="imgLoading"><span class="iconloadingtip"></span></div>' +
+                            '</a>'+
+                            '</figure>';
+                    }
+                    $("#imgBox").append(imgHtml);
+                }
+                break;
+            }
+
+        }
+    }
+
+	 $(function(){
+
+         //图片预览
+         initPhotoSwipeFromDOM('.my-gallery');
+
+         $("#countReader").click(function(){
+        	var r=$(this).attr("data-r");
+            window.location="readCount.html?nid="+noticeID+"&r="+r;
+         });
+
+         //图片报错处理
+        $('img').error(function(){
+           $(this).next().hide();
+           $(this).attr('src',domainName+"/shijiwxy/weixin/images/error.gif");
+        });
+
+	 });
+
+</script>
+

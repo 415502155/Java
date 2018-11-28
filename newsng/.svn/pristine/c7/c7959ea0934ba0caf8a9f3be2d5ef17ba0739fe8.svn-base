@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title>信息收集</title>
+		<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+		<link rel="shortcut icon" href="/favicon.ico">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<!--ui包-->
+		<link rel="stylesheet" href="../../../css/sm.css">
+		<link rel="stylesheet" href="../../../css/layout.css">
+		<link rel="stylesheet" href="../../../css/teacher.css">
+		<link rel='stylesheet prefetch' href='../../../js/photoSwipe/photoswipe.css'>
+        <link rel='stylesheet prefetch' href='../../../js/photoSwipe/default-skin/default-skin.css'>
+	</head>
+	<body>
+		<div class="page-group">
+			<div class="page-current" id="noticeD" >
+                <!--内容显示区-->
+			    <div class="content native-scroll" style="background:#fff">
+					<div valign="bottom" class="card-header color-white" style="line-height:1.1rem;padding:.5rem .75rem .2rem;">
+						<div class="author">
+							<span class="iconpright fontbolder" id="author">王宇</span> <span class="fontbolder">老师</span>
+							<div class="subtitle" id="subTitle">
+								<span class="iconpright">2018-09-21 12:09:00</span>
+							</div>
+						</div>
+					</div>
+
+                    <!--文字内容显示区-->
+					<div class="content-padded contentLineheight" id="message">
+                        2018年中秋节、国庆节放假安排通知
+                            1、中秋节假期：2018年9月22日--2018年9月24日放假调休，共3天；
+                            2、国庆节假期：2018年10月1日--2018年10月7日放假调休，共7天。其中，9月29日、30日需要上班与国庆长假对调；
+                            3、休假前最后一个工作日，请大家关闭好自己工位的电源，确保电路断电；
+                            4、休假期间，外出游玩请特别注意交通安全，人身财产安全。
+
+                                提前祝大家中秋、国庆双节快乐！
+
+                                                行政部  
+                                            2018.9.21
+                    </div>
+					<!--文字内容显示区 END-->
+
+                    <!-- 图片显示区-->
+					<div class="my-gallery" id="imgBox" data-pswp-uid="1">
+					</div>
+					<!-- 图片显示区 End-->
+
+                    <!-- 发送人数 -->
+                    <div id="send_number" class="list-block">
+                        <ul>
+                            <li class="item-content item-link">
+                                <div class="item-inner">
+                                    <div class="item-title">发送人数/提交人数:1075/215</div>
+                                    <div class="item-after">查看</div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <!-- 发送人数end -->
+
+			    </div>
+				<!--内容显示区 End-->
+			</div>
+		</div>
+
+		<!--图片查看器-->
+		<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+			<div class="pswp__bg"></div>
+			<div class="pswp__scroll-wrap">
+				<div class="pswp__container">
+					<div class="pswp__item"></div>
+					<div class="pswp__item"></div>
+					<div class="pswp__item"></div>
+				</div>
+				<div class="pswp__ui pswp__ui--hidden">
+					<div class="pswp__top-bar">
+						<div class="pswp__counter"></div>
+						<button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+						<!--<button class="pswp__button pswp__button&#45;&#45;share" title="Share"></button>-->
+
+						<div class="pswp__preloader">
+							<div class="pswp__preloader__icn">
+								<div class="pswp__preloader__cut">
+									<div class="pswp__preloader__donut"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+						<div class="pswp__share-tooltip"></div>
+					</div>
+					<div class="pswp__caption">
+						<div class="pswp__caption__center"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+	</body>
+</html>
+
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script src='https://res.wx.qq.com/open/js/jweixin-1.2.0.js'></script>
+<script>
+var baseP=getJPermissions(JSON.parse(sessionStorage.baseUser).orguser.org_id);
+wx.config({
+    debug: false,
+    appId: baseP.appId,
+    timestamp: baseP.timestamp,
+    nonceStr: baseP.nonceStr,
+    signature: baseP.signature,
+    jsApiList: [
+        'checkJsApi',
+        'onMenuShareTimeline',
+        'onMenuShareAppMessage',
+        'onMenuShareQQ',
+        'onMenuShareWeibo',
+        'onMenuShareQZone',
+        'hideMenuItems',
+        'showMenuItems',
+        'hideAllNonBaseMenuItem',
+        'showAllNonBaseMenuItem',
+        'translateVoice',
+        'startRecord',
+        'stopRecord',
+        'onVoiceRecordEnd',
+        'playVoice',
+        'onVoicePlayEnd',
+        'pauseVoice',
+        'stopVoice',
+        'uploadVoice',
+        'downloadVoice',
+        'chooseImage',
+        'previewImage',
+        'uploadImage',
+        'downloadImage',
+        'getNetworkType',
+        'openLocation',
+        'getLocation',
+        'hideOptionMenu',
+        'showOptionMenu',
+        'closeWindow',
+        'scanQRCode',
+        'chooseWXPay',
+        'openProductSpecificView',
+    ]
+});
+wx.ready(function (){
+	//隐藏非基础类菜单
+	wx.hideAllNonBaseMenuItem();
+})
+</script>
+<script src='../../../js/photoSwipe/photoswipe.min.js'></script>
+<script src='../../../js/photoSwipe/photoswipe-ui-default.js'></script>
+
+<script>
+    var nowNoticeID=GetUrlParam("noticeID");
+    var nowNu_id=GetUrlParam("nu_id");
+    var base = null;
+    //如果从通过微信消息模板登录
+    if(sessionStorage.baseUser==undefined || sessionStorage.baseUser== null){
+        var nowNoticeID=GetUrlParam("noticeID ");
+        var nowNu_id=GetUrlParam("nu_id");
+
+        getData(domainName+"/eduWeixin/notice/detail",{nu_id:nowNu_id},function(res){
+            if(res.code==200 && res.success==true){
+                var noticeObj=res.data;
+                //发布时间
+                $("#subTitle span").text(noticeObj.created_Date);
+                //通知内容
+                $("#message").text(noticeObj.content);
+
+                if(res.is_receipt==1){
+                    //阅读统计
+                    if(res.noticeUser.receipted==1){
+                        $("#receiptBtn").addClass("button-light").removeClass("button-fill").text("已读");
+                    }
+                }else{
+                    $("#receiptBtn").hide();
+                }
+                //作者
+                $("#author").text(noticeObj.name==null?"":noticeObj.name);
+                nowNu_id=res.noticeUser.nuid;
+
+                if(noticeObj.pics!==null){
+                    var imgHtml="";
+                    for(var i=0;i<noticeObj.pics.length;i++){
+                        imgHtml +='<figure itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject">'+
+                            '<a href="'+noticeObj.pics[i]+'" itemprop="contentUrl" data-size="1640x1136">' +
+                            '<img src="'+noticeObj.pics[i]+'" onload="getWH(this)" itemprop="thumbnail" width="100%" alt=""  style="display: none" />' +
+                            '<div class="imgLoading"><span class="iconloadingtip"></span></div>' +
+                            '</a>'+
+                            '</figure>';
+                    }
+                    $("#imgBox").append(imgHtml);
+                }
+
+            }else{
+                $.alert(res.message);
+            }
+        });
+
+    }else{
+
+        var tRNotices=JSON.parse(sessionStorage.tRNotices);
+        var noticeID=GetUrlParam("noticeID");
+
+        for(var i=tRNotices.length-1;i>=0;i--){
+            var res=tRNotices[i];
+            if(tRNotices[i].nid==noticeID){
+                //发布时间
+                $("#subTitle span").text(tRNotices[i].created_Date);
+                //通知内容
+                $("#message").text(tRNotices[i].content);
+
+                if(res.is_receipt==1){
+                    //阅读统计
+                    if(res.noticeUser.receipted==1){
+                        $("#receiptBtn").addClass("button-light").removeClass("button-fill").text("已读");
+                    }
+                }else{
+                    $("#receiptBtn").hide();
+                }
+
+                //作者
+                $("#author").text(res.name==null?"":res.name);
+
+                nowNu_id=res.noticeUser.nuid;
+
+                if(res.pics!==null){
+                    var imgHtml="";
+                    for(var i=0;i<res.pics.length;i++){
+                        imgHtml +='<figure itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject">'+
+                            '<a href="'+res.pics[i]+'" itemprop="contentUrl" data-size="1640x1136">' +
+                            '<img src="'+res.pics[i]+'" onload="getWH(this)" itemprop="thumbnail" width="100%" alt="" style="display: none" />' +
+                            '<div class="imgLoading"><span class="iconloadingtip"></span></div>' +
+                            '</a>'+
+                            '</figure>';
+                    }
+                    $("#imgBox").append(imgHtml);
+                }
+                break;
+            }
+
+        }
+    }
+
+	 $(function(){
+
+        $("body").on("click","#send_number",function(){
+            location.href = "member_list.html"
+        })
+
+         //图片预览
+         initPhotoSwipeFromDOM('.my-gallery');
+
+         $("#countReader").click(function(){
+            window.location="readCount.html?nid="+noticeID;
+         });
+
+         //图片报错处理
+         $('img').error(function(){
+             $(this).next().hide();
+             $(this).attr('src',domainName+"/shijiwxy/weixin/images/error.gif");
+         });
+
+         //要求回执的通知
+         $("#receiptBtn").click(function(){
+
+             var $this=$(this);
+             if($this.hasClass("button-light")){
+                 return false
+             };
+
+             var receiptPorts=domainName+"/eduWeixin/notice/setreceipt";
+             var parameter={
+                 nu_id:nowNu_id
+             };
+
+             getData(receiptPorts,parameter,function(result){
+                 if(result.code==200 && result.success==true){
+                     $.alert("提交成功！");
+                     $this.addClass("button-light").removeClass("button-fill").text("已读");
+                     var allNotices=JSON.parse(sessionStorage.tRNotices);
+                     var noticeID=GetUrlParam("noticeID");
+
+                     for(var i=allNotices.length-1;i>=0;i--){
+                         var res=allNotices[i];
+                         if(allNotices[i].nid==noticeID){
+                             allNotices[i].noticeUser.receipted=1;
+                             break;
+                         }
+                     }
+                     sessionStorage.tRNotices=JSON.stringify(allNotices);
+                 }else{
+                     $.alert(result.msg);
+                 }
+             });
+         });
+
+
+	 });
+
+</script>
+

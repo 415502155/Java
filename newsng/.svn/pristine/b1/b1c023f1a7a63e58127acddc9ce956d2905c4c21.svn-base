@@ -1,0 +1,84 @@
+package sng.service.impl;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import sng.dao.BaseDaoEx;
+import sng.dao.VoucherModelDao;
+import sng.entity.Vouchermodel;
+import sng.pojo.SessionInfo;
+import sng.service.VoucherModelService;
+import sng.util.Constant;
+/***
+ * 
+ *  @Company sjwy
+ *  @Title: VoucherModelServiceImpl.java 
+ *  @Description: 凭证模板实现类
+ *	@author: shy
+ *  @date: 2018年10月29日 下午1:25:49
+ */
+@Service
+@Transactional
+public class VoucherModelServiceImpl implements VoucherModelService{
+
+	@Autowired 
+	private VoucherModelDao voucherModelDao;
+	@Autowired
+	private BaseDaoEx baseDaoEx;
+	/***
+	 * 添加凭证模板
+	 */
+	@Override
+	public void save(SessionInfo sessionInfo, String picName, String voucherContent, Integer length, Integer width) {
+		Integer orgId = sessionInfo.getOrgId();
+		Vouchermodel v = new Vouchermodel();
+		v.setOrg_id(orgId);
+		v.setVoucher_content(voucherContent);
+		v.setIs_del(Constant.IS_DEL_NO);
+		v.setInsert_time(new Date());
+		
+		v.setImg_url(picName);
+		v.setBackground_length(length);
+		v.setBackground_width(width);
+		voucherModelDao.save(v);
+	}
+	/***
+	 * 当前机构下的模板数量 
+	 */
+	@Override
+	public Integer VouModelNum(SessionInfo sessionInfo, Integer orgId) {
+		if (orgId == null) {
+			orgId = sessionInfo.getOrgId();
+		}
+		String sql = " SELECT COUNT(1) FROM vouchermodel v WHERE v.is_del = 0 AND v.org_id = ? ";
+		List<Object> params = new ArrayList<Object>();
+		params.add(orgId);
+		int vouNum = baseDaoEx.countBySql(sql, params);
+		return vouNum;
+	}
+	
+	
+	@Override
+	public void update(SessionInfo sessionInfo, String picName, String voucherContent, Integer voucherModelId, Integer length, Integer width) {
+		
+	
+	}
+	
+	@Override
+	public List<Map<String, Object>> getVouModel(SessionInfo sessionInfo, Integer orgId) {
+		if (orgId == null) {
+			orgId = sessionInfo.getOrgId();
+		}
+		String sql = " SELECT v.voucher_name, v.voucher_content, v.serial_number_format, v.background_length, v.background_width, v.img_url  FROM vouchermodel v WHERE v.is_del = 0 AND v.org_id = ? ";
+		List<Object> params = new ArrayList<Object>();
+		params.add(orgId);
+		List<Map<String, Object>> listVou = baseDaoEx.queryListBySql(sql, params);
+		return listVou;
+	}
+
+}

@@ -1,0 +1,210 @@
+package sng.service.impl;
+
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import sng.dao.ChargeDao;
+import sng.dao.ChargeDetailDao;
+import sng.dao.StudentClassDao;
+import sng.entity.Charge;
+import sng.entity.ChargeDetail;
+import sng.entity.StudentClass;
+import sng.pojo.Classes;
+import sng.service.ChargeDetailService;
+import sng.util.Constant;
+import sng.util.Paging;
+
+
+/**
+ * Title: ChargeService
+ * Description: 支付学生端接口
+ * Company: 世纪伟业
+ * @author Liuyang
+ * @date 2018年1月4日下午1:22:21
+ */
+@Component
+@Transactional("transactionManager")
+
+public class ChargeDetailServiceImpl implements ChargeDetailService{
+	@Autowired
+	private ChargeDetailDao chargeDetailDao;
+	@Autowired
+	private ChargeDao chargeDao;
+	@Autowired
+	private StudentClassDao studentClassDao;
+
+	@Override
+	public List<ChargeDetail> getListByCIdForTeacher(Integer cid, String classIds) {
+		return chargeDetailDao.getListByCIDForTeacher(cid,classIds);
+	}
+
+	@Override
+	public ChargeDetail getDetailForTeacher(Integer stud_id, Integer cid) {
+		return chargeDetailDao.getDetailForTeacher(stud_id,cid);
+	}
+
+	@Override
+	public List<ChargeDetail> getListForRemind(Integer cid, String classIds) {
+		return chargeDetailDao.getListForRemind(cid, classIds);
+	}
+
+	@Override
+	public Integer update(ChargeDetail cd) {
+		return chargeDetailDao.update(cd);
+	}
+
+	@Override
+	public ChargeDetail getById(Integer cd_id) {
+		return chargeDetailDao.getById(cd_id);
+	}
+
+	@Override
+	public Integer lockChargeDetail(Date lockDate, ChargeDetail cd) {
+		return chargeDetailDao.lockChargeDetail(lockDate, cd);
+	}
+
+	@Override
+	public Integer updateWithLock(ChargeDetail cd, Date lockDate) {
+		return chargeDetailDao.updateWithLock(cd, lockDate);
+	}
+
+	@Override
+	public ChargeDetail getByIdWithAccInfo(Integer cd_id,String txnType) {
+		return chargeDetailDao.getByIdWithAccInfo(cd_id,txnType);
+	}
+
+	@Override
+	public List<ChargeDetail> getDetailForParent(Integer stud_id, Integer max, Integer min, Integer num) {
+		return chargeDetailDao.getDetailForParent(stud_id,max,min,num);
+	}
+
+	@Override
+	public ChargeDetail getByIdForRefund(Integer cd_id) {
+		return chargeDetailDao.getByIdForRefund(cd_id);
+	}
+
+	@Override
+	public ChargeDetail getByIdForPay(Integer cd_id) {
+		return chargeDetailDao.getByIdForPay(cd_id);
+	}
+
+	@Override
+	public Integer countNoPay(Integer cid) {
+		return chargeDetailDao.countNoPay(cid);
+	}
+
+	@Override
+	public void save(ChargeDetail cd) {
+		chargeDetailDao.save(cd);
+	}
+
+	@Override
+	public Paging<ChargeDetail> getList(Paging<ChargeDetail> page, ChargeDetail cd) {
+		return chargeDetailDao.getList(page,cd);
+	}
+
+	@Override
+	public List<Classes> getClasses(Integer cid) {
+		return chargeDetailDao.getClasses(cid);
+	}
+
+	@Override
+	public List<ChargeDetail> getListForRefund(Integer cid) {
+		return chargeDetailDao.getListForRefund(cid);
+	}
+
+	@Override
+	public ChargeDetail getByOrderId(String order_id) {
+		return chargeDetailDao.getByOrderId(order_id);
+	}
+
+	@Override
+	public List<ChargeDetail> getList(Integer cid) {
+		return chargeDetailDao.getList(cid);
+	}
+
+	@Override
+	public List<ChargeDetail> getRefundApplyList(ChargeDetail cd) {
+		return chargeDetailDao.getRefundApplyList(cd);
+	}
+
+	@Override
+	public void update(List<ChargeDetail> toSaveDetail) {
+		chargeDetailDao.update((ChargeDetail[])toSaveDetail.toArray());
+	}
+
+	@Override
+	public void updateSendStatus(ChargeDetail cd) {
+		chargeDetailDao.updateSendStatus(cd);
+	}
+
+	@Override
+	public ChargeDetail getByOrderIdForQuery(String orderId) {
+		return chargeDetailDao.getByOrderIdForQuery(orderId);
+	}
+
+	@Override
+	public String getPayType(String cdid) {
+		// TODO Auto-generated method stub
+		return chargeDetailDao.getPayType(cdid);
+	}
+
+	@Override
+	public ChargeDetail getForAuthentication(Integer user_id, Integer org_id) {
+		return chargeDetailDao.getForAuthentication(user_id,org_id);
+	}
+
+	@Override
+	public ChargeDetail getByIdForCorrect(Integer cd_id) {
+		return chargeDetailDao.getByIdForCorrect(cd_id);
+	}
+	
+	@Override
+	public ChargeDetail getByIdForPayWithCEBUrl(Integer cd_id) {
+		return chargeDetailDao.getByIdForPayWithCEBUrl(cd_id);
+	}
+
+	@Override
+	public int createChargeDetail(Integer org_id, Integer stud_id, Integer clas_id, Integer cam_id) {
+		Charge charge = chargeDao.getCharge(org_id,cam_id,clas_id);
+		StudentClass sc = studentClassDao.getWithNames(stud_id, clas_id);
+		ChargeDetail cd = new ChargeDetail();
+		cd.setCid(charge.getCid());
+		cd.setOrg_id(org_id);
+		cd.setCam_id(cam_id);
+		cd.setStu_class_id(sc.getStuClassId());
+		cd.setStud_id(stud_id);
+		cd.setStud_name(sc.getStud_name());
+		cd.setClas_id(clas_id);
+		cd.setClas_name(sc.getClas_name());
+		cd.setStart_time(charge.getStart_time());
+		cd.setEnd_time(charge.getEnd_time());
+		cd.setOrder_id(charge.getOrder_prefix()+sc.getStuClassId()+Constant.order.format(new Date()));
+		cd.setMoney(sc.getTuition_fees());
+		cd.setStatus(Constant.CHARGE_DETAIL_STATUS_NEVER);
+		cd.setOnline_pay(Constant.CHARGE_DETAIL_STATUS_NEVER);
+		cd.setOffline_pay(Constant.CHARGE_DETAIL_STATUS_NEVER);
+		cd.setPay_type(charge.getPay_type());
+		cd.setIs_send(Constant.NO);
+		cd.setOrderDesc(charge.getItem());
+		cd.setAccId(charge.getAccId());
+		cd.setIs_del(Constant.IS_DEL_NO);
+		cd.setInsert_time(new Date());
+		chargeDetailDao.save(cd);
+		return cd.getCd_id();
+	}
+
+	@Override
+	public ChargeDetail getByStuClaId(Integer stu_class_id) {
+		return chargeDetailDao.getByStuClaId(stu_class_id);
+	}
+	
+	@Override
+	public List<ChargeDetail> getRecordList(Integer accType, String date, String txnType) {
+		return chargeDetailDao.getRecordList(accType,date,txnType);
+	}
+}

@@ -1,0 +1,181 @@
+package sng.dao.impl;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.transform.Transformers;
+import org.springframework.stereotype.Repository;
+
+import sng.dao.BaseSetSubjectManageDao;
+import sng.entity.Subject;
+import sng.pojo.CategoryAndSubjectPojo;
+import sng.pojo.ParamObj;
+import sng.util.Paging;
+
+/**
+ * @author magq
+ * @version 1.0
+ * @desc 基础设置模块-科目管理dao层实现
+ * @data 2018-10-30
+ */
+@Repository
+public class BaseSetSubjectManageDaoImpl extends BaseDaoImpl<Subject> implements BaseSetSubjectManageDao {
+
+	/**
+	 * 根据不同条件查询科目信息 同机构 同类目下是否有相同的科目名称
+	 */
+	@Override
+	public List<Subject> querySubjectListInfo(ParamObj paramObj) {
+		StringBuffer sql = new StringBuffer();
+		List<Object> paramList = new ArrayList<Object>();
+		sql.append("select s.* from category c");
+		sql.append(" left join subject s on s.org_id=c.org_id and s.category_id=c.category_id");
+		sql.append(" where s.category_id is not null ");
+		if (paramObj.getCategory_id() != null) {
+			sql.append(" and s.category_id=?");
+			paramList.add(paramObj.getCategory_id());
+		}
+		if (paramObj.getOrg_id() != null) {
+			sql.append(" and s.org_id = ?");
+			paramList.add(paramObj.getOrg_id());
+
+		}
+		if (StringUtils.isNotBlank(paramObj.getSubject_name())) {
+			if (paramObj.isBlurQuery()) {
+				sql.append(" and s.subject_name like ?");
+				paramList.add("%" + paramObj.getSubject_name() + "%");
+			} else {
+				sql.append(" and s.subject_name=?");
+				paramList.add(paramObj.getSubject_name());
+			}
+		}
+
+		if (paramObj.getIsDel() != null) {
+			sql.append(" and c.is_del=?");
+			paramList.add(paramObj.getIsDel());
+		}
+
+		Session session = this.factory.getCurrentSession();
+		Query query = session.createSQLQuery(sql.toString());
+		for (int i = 0; i < paramList.size(); i++) {
+			query.setParameter(i, paramList.get(i));
+		}
+		query.setResultTransformer(Transformers.aliasToBean(Subject.class));
+
+		List<Subject> list = query.list();
+
+		return list;
+	}
+
+	/*
+	 * 获取科目类目信息列表
+	 * 
+	 * @see sng.dao.BaseSetSubjectManageDao#getCategoryAndSubjecListInfo(sng.pojo.
+	 * ParamObj)
+	 */
+	@Override
+	public Paging getCategoryAndSubjecListInfo(ParamObj paramObj) {
+		Paging<CategoryAndSubjectPojo> paging = new Paging<CategoryAndSubjectPojo>();
+		StringBuffer sql = new StringBuffer();
+		StringBuffer sqlCount = new StringBuffer();
+		List<Object> paramList = new ArrayList<Object>();
+		sql.append("select s.subject_id,s.subject_name,s.org_id,s.category_id,c.category_name from category c");
+		sql.append(" left join subject s on  s.category_id=c.category_id and s.org_id=c.org_id ");
+		sql.append(" where s.subject_id is not null ");
+		sql.append(" and c.is_del=0");
+		sql.append(" and s.is_del=0");
+		if (paramObj.getOrg_id() != null) {
+			sql.append(" and c.org_id = ?");
+			paramList.add(paramObj.getOrg_id());
+		}
+		sql.append(" order by s.subject_name,c.category_name asc");
+
+		Session session = this.factory.getCurrentSession();
+		int count = 0; // 总条数
+		if (paramObj.isNeedCount()) {
+			sqlCount.append("select count(0) from (" + sql.toString() + ") T");
+			Query queryCount = session.createSQLQuery(sqlCount.toString());
+			for (int i = 0; i < paramList.size(); i++) {
+				queryCount.setParameter(i, paramList.get(i));
+			}
+			count = Integer.parseInt(queryCount.uniqueResult().toString());
+			sql.append(" limit ?,?");
+			paramList.add((paramObj.getPage() - 1) * paramObj.getLimit());
+			paramList.add(paramObj.getLimit());
+		}
+		Query query = session.createSQLQuery(sql.toString());
+		for (int i = 0; i < paramList.size(); i++) {
+			query.setParameter(i, paramList.get(i));
+		}
+		query.setResultTransformer(Transformers.aliasToBean(CategoryAndSubjectPojo.class));
+		List<CategoryAndSubjectPojo> categoryAndSubjectPojos = query.list();
+		paging.setPage(paramObj.getPage());
+		paging.setLimit(paramObj.getLimit());
+		paging.setTotal(count);
+		paging.setSize(
+				count % paramObj.getLimit() == 0 ? (count / paramObj.getLimit()) : (count / paramObj.getLimit() + 1));
+		paging.setData(categoryAndSubjectPojos);
+		paging.setSuccess(true);
+		return paging;
+	}
+
+	/*
+	 * 查询科目与班级信息
+	 * 
+	 * @see
+	 * sng.dao.BaseSetSubjectManageDao#querySubjectAndClassesInfo(sng.pojo.ParamObj)
+	 */
+	@Override
+	public List<Object[]> querySubjectAndClassesInfo(ParamObj paramObj) {
+		StringBuffer sql = new StringBuffer();
+		List<Object> paramList = new ArrayList<Object>();
+		sql.append("select s.subject_id,s.org_id,s.category_id,s.subject_name,c.clas_id,c.clas_name from subject s");
+		sql.append(" left join classes c on s.subject_id=c.subject_id and  s.org_id=c.org_id");
+		sql.append(" where c.org_id is not null");
+		sql.append(" and c.subject_id is not null");
+		sql.append(" and c.is_del=0");
+		sql.append(" and s.is_del=0");
+		if (paramObj.getSubject_id() != null) {
+			sql.append(" and s.subject_id=?");
+			paramList.add(paramObj.getSubject_id());
+		}
+		if (paramObj.getOrg_id() != null) {
+			sql.append(" and s.org_id=?");
+			paramList.add(paramObj.getOrg_id());
+		}
+		Session session = this.factory.getCurrentSession();
+		Query query = session.createSQLQuery(sql.toString());
+		for (int i = 0; i < paramList.size(); i++) {
+			query.setParameter(i, paramList.get(i));
+		}
+		query.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+		List<Object[]> list = query.list();
+		return list;
+	}
+
+	/*
+	 * 逻辑删除科目信息
+	 *
+	 * @see sng.dao.BaseSetSubjectManageDao#delSubjectInfo(sng.pojo.ParamObj)
+	 */
+	@Override
+	public void delSubjectInfo(ParamObj paramObj) {
+		StringBuffer sql = new StringBuffer();
+		List<Object> paramList = new ArrayList<Object>();
+		sql.append("update subject set is_del=1,del_time=? where subject_id=?");
+		paramList.add(new Date());
+		paramList.add(paramObj.getSubject_id());
+		Session session = this.factory.getCurrentSession();
+		Query query = session.createSQLQuery(sql.toString());
+		for (int i = 0; i < paramList.size(); i++) {
+			query.setParameter(i, paramList.get(i));
+		}
+		query.executeUpdate();
+
+	}
+
+}

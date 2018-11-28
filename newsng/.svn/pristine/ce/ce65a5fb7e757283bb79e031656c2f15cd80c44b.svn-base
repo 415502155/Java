@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>博客列表</title>
+	<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<link rel="stylesheet" href="//at.alicdn.com/t/font_431334_smk25a436zyhw7b9.css">
+	<link rel="stylesheet" href="../../../js/iscroll/css/css.css">
+	<link rel="stylesheet" href="../../../css/sm.css">
+	<style>
+		@charset "utf-8";
+		/*基本*/
+		body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,textarea,p,blockquote,th,td,input,select,textarea,button {
+			margin:0;padding:0;
+		}
+		/* rem转换说明：HTML为16px进行转换*/
+		html,body{
+			font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;
+			background-size: 100%;
+			font-size: 1rem;
+			width:100%;
+			background-image: url(../../../images/blog-parent.jpg);
+			background-position: top;
+			background-repeat: no-repeat;
+			background-size: contain;
+		}
+		.iconfont {
+			font-size: 1.3rem;
+		}
+		.toubu-bg{
+			height:7.1875rem;
+		}
+
+		a{
+			color:#7167ef;
+			text-align:center;
+			margin: 0 auto;
+			display:inline-block;
+			text-decoration: none;
+		}
+		a:link {
+			color:#7167ef;
+			text-align:center;
+			margin: 0 auto;
+			display:inline-block;
+			text-decoration: none;
+		}
+		a:visited {
+			color:#7167ef;
+			text-decoration:none;
+		}
+		a:hover {
+			color:#7167ef;
+			text-decoration:none;
+		}
+		a:active {
+			color:#7167ef;
+			text-decoration:none;
+		}
+		header{
+			height: 2.5rem;
+			line-height: 2.5rem;
+			background: #707071;
+			background-color: rgba(0,0,0,0.4);
+			padding: 0 3%;
+			color: #fff;
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			z-index: 999;
+		}
+		header span:first-child{
+			display:inline-block;
+			float:left;
+		}
+		header span:last-child{
+			display:inline-block;
+			float:right;
+		}
+		.main-list{
+			border-radius: 0.625rem;
+			background: #fff;
+			box-shadow: 0 0.625rem 1.25rem #e4e5e7;
+			padding: 3%;
+			text-align: left;
+			margin: 15px;
+			padding-bottom:0;
+		}
+		.main-list .list1{
+			font-weight:bold;
+		}
+		.main-list .list2{
+			color:#adadad;
+			line-height: 1.5rem;
+		}
+		.main-list .list2 span:last-child{
+			float:right;
+			margin-left:5px;
+		}
+		.main-list .list2 span:nth-child(2){
+			float:right;
+			margin-left:5px;
+		}
+		.main-list .list3{
+			margin-bottom: 10px;
+		}
+		.main-list .list3 span{
+			width:100%;
+			margin:0px 0 10px;
+			word-break: break-all;
+			text-overflow: ellipsis;
+			display: -webkit-box; /** 将对象作为伸缩盒子模型显示 **/
+			-webkit-box-orient: vertical; /** 设置或检索伸缩盒对象的子元素的排列方式 **/
+			-webkit-line-clamp: 4; /** 显示的行数 **/
+			overflow: hidden;  /** 隐藏超出的内容 **/
+		}
+		.main-list .list3 img{
+			display:inline-block;
+
+		}
+		.main-list .list4{
+			color:#adadad;
+			height:45px;
+			line-height: 45px;
+			border-top: 1px #adadad dotted;
+		}
+		.main-list .list4 span{
+			float:left;
+		}
+		.main-list .list4 span .iconfont{
+			font-size: 1.3rem;
+			padding:12px;
+		}
+
+		.main-list .list4 span:last-child{
+			float:right;
+		}
+		.main-list .list4 span:last-child .iconfont{
+			margin-right:0;
+			padding-left:0;
+			padding-right:0;
+		}
+		.main-list .list4 span:first-child .iconfont{
+			padding-left:0;
+		}
+		.red{
+			color:red;
+			transition: all 1s ease 0s;
+		}
+		/*九张图*/
+		.imgdiv{
+			width:90px;
+			height:90px;
+			overflow:hidden;
+			display:inline-block;
+			margin-bottom:5px;
+			margin-right:5px;
+			float: left;
+		}
+	</style>
+</head>
+<body>
+	<header class="bar bar-nav" style="height:44px;line-height:44px">
+		<span class="banji-name" style="font-weight:bold;"></span><span> </span>
+	</header>
+   		<!-- 分页开始 -->
+    <div id="wrapper">
+		<div id="scroller">
+			<div id="pullDown">
+				<span class="pullDownLabel">下拉刷新...</span>
+			</div>
+			<ul id="thelist" style="margin-top: 9.5rem">
+
+			</ul>
+			<div id="pullUp">
+				<span class="pullUpLabel">
+					<div class="infinite-scroll-preloader" style="margin-top: -2px;">
+						<!--<div class="preloader"></div>-->
+					</div>
+				</span>
+			</div>
+		</div>
+	</div>
+	<!-- 分页结束 -->
+</body>
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/iscroll/js/iscroll.js'></script>
+<script src='../../../js/sm.js'></script>
+<script src="../../../js/config.js"></script>
+<script>
+	/*重新定义时间时间格式*/
+	Date.prototype.toLocaleString = function() {
+		return this.getFullYear() + "/" + (this.getMonth() + 1) + "/" + this.getDate() + "/ " + this.getHours() + ":" + (this.getMinutes()<10? "0"+this.getMinutes():this.getMinutes());
+	};
+	var url=window.location.href;
+	var base=JSON.parse(sessionStorage.baseUser);
+	var identity=base.orguser["identity"];//身份  1教师 0家长
+	var nowStudent=JSON.parse(sessionStorage.nowStudent);
+	var clas_id=nowStudent.classList[0]["clas_id"];
+
+    var loading=false;
+
+    //确定查看的班级
+  	$(".banji-name").text(nowStudent.classList[0].clas_name)
+  	var parameter={
+              	token:base.token,
+              	udid:base.udid,
+              	version:3,
+              	org_id:nowStudent.classList[0]["org_id"],
+              	clas_id:nowStudent.classList[0]["clas_id"],
+              	viewer_id:base.orguser.parent["parent_id"],//当前登录教师的id
+				identity:identity,
+              	num:5,   //请求条数
+              	min:"",  //下拉刷新，传递页面中id的最大值
+              	max:"",  //下拉刷新，传递页面中id的最大值
+    }
+    PullAdd(parameter);
+  	function PullAdd(parameter,type){
+        loading=true;
+  		var type=type;
+      	var ports=domainName+"/shijiwxy/wechat/portal/blog/list.json";
+      	getData(ports,parameter,function(res){
+            if(res.code==200 && res.success==true){
+                 loading=false;
+            	var data=res.data;
+	 			var alldata=data.length;
+	 			$("#thelist").attr("alldata",alldata);
+	 		    $("#thelist").children("div:first-child").attr("data");
+
+      			var litext = "";
+      			for( i=0;i<=data.length-1; i++){
+					var commonTime = data[i].insert_time.replace(/\//g,"-");
+					var strimg="";
+					for(var m=0;m<=data[i].imgUrls.length-1;m++){
+						 imgurl=data[i].imgUrls[m];
+                            var newimg=imgurl.substring(0,imgurl.lastIndexOf("."))+"_200X200"+imgurl.substring(imgurl.lastIndexOf("."),imgurl.length);
+                            console.info(newimg);
+                            strimg+='<div class="imgdiv" style="background-image: url('+newimg+');background-size: cover;"></div>'
+					}
+					var blogcontent = '<span>'+data[i].content+'</span>';
+					if(!data[i].newsShare && typeof(data[i].newsShare)!="undefined" && data[i].newsShare!=0){
+						blogcontent = '';
+						if(!data[i].newsShare.summary && typeof(data[i].newsShare.summary)!="undefined" && data[i].newsShare.summary!=0){
+							blogcontent += '<span>'+data[i].newsShare.summary+'</span>';
+						}
+						if(!data[i].newsShare.picurls && typeof(data[i].newsShare.picurls)!="undefined" && data[i].newsShare.picurls.length>0){
+							blogcontent += '<div class="allimg" style="width: 100%;overflow: hidden;height: auto">'+data[i].newsShare.picurls[0]+'</div></div>';
+						}
+						if(!data[i].newsShare.title && typeof(data[i].newsShare.title)!="undefined" && data[i].newsShare.title!=0){
+							blogcontent += '<span>'+data[i].newsShare.title+'</span>';
+						}
+					}
+					//本人点过赞
+					if(data[i].exist_dz==1){
+      					litext='<div class="main-list" data='+data[i].blog_id+' >'
+						+'<div class="list1">'+data[i].tech_name+'</div>'
+						+'<div class="list2">'
+							+'<span>'+commonTime+'</span>'
+							+'<span><i class="iconfont icon-xinxi"></i><span>'+data[i].pl_num+'</span></span>'
+							+'<span><i class="iconfont icon-hongxin red"></i><span>'+data[i].dz_num+'</span></span>'
+						+'</div>'
+						+'<div class="list3">'+blogcontent+'<div class="allimg" style="width: 100%;overflow: hidden;height: auto">'+strimg+'</div></div>'
+						+'<div class="list4">'
+							+'<span><i class="iconfont icon-hongxin red"></i></span>'
+							+'<span class="ToDetail" is_del='+data[i].is_del+'><a style="color:#adadad"><i class="iconfont icon-xinxi"></i></a></span>'
+							+'<span class="ToDetail" is_del='+data[i].is_del+'><a style="color:#adadad"><span>详情</span><i class="iconfont icon-xiangyou"></i></a></span>'
+						+'</div> '
+					+'</div>'
+      				}else{
+      					litext='<div class="main-list" data='+data[i].blog_id+' >'
+						+'<div class="list1">'+data[i].tech_name+'</div>'
+						+'<div class="list2">'
+							+'<span>'+commonTime+'</span>'
+							+'<span><i class="iconfont icon-xinxi"></i><span>'+data[i].pl_num+'</span></span>'
+							+'<span><i class="iconfont icon-hongxin"></i><span class="all_dz_num">'+data[i].dz_num+'</span></span>'
+						+'</div>'
+						+'<div class="list3">'+blogcontent+'<div class="allimg" style="width: 100%;overflow: hidden;height: auto">'+strimg+'</div></div>'
+						+'<div class="list4">'
+							+'<span><i class="iconfont icon-hongxin"></i></span>'
+							+'<span class="ToDetail" is_del='+data[i].is_del+'><a style="color:#adadad"><i class="iconfont icon-xinxi"></i></a></span>'
+							+'<span class="ToDetail" is_del='+data[i].is_del+'><a style="color:#adadad"><span>详情</span><i class="iconfont icon-xiangyou"></i></a></span>'
+						+'</div> '
+					+'</div>'
+      				};
+
+					if(type==1){
+		      					$('#thelist').prepend(litext);//如果是刷新
+      				}else{
+      					$('#thelist').append(litext);
+      				};
+
+    			}
+
+   			 	//如果页面为空
+                if($(".main-list").length==0){
+                   	$("#pullUp").hide();
+                };
+                setTimeout(function () {
+                    myScroll.refresh();
+                }, 300);;    //请求完数据刷新滚动条
+	        }else{
+	        	$.alert(res.message);
+                loading=false;
+	        }
+
+	    });
+    }
+    var myScroll,
+        pullDownEl,
+        pullDownOffset,
+        pullUpEl,
+        pullUpOffset;
+
+    function pullDownAction () {
+			//取出页面最大值
+    		max=$("#thelist").children("div:first-child").attr("data");
+	    	parameter.max=max;
+	    	parameter.min="";
+			if(loading==true){
+				return false;
+			}
+	        PullAdd(parameter,1)
+	        myScroll.refresh();
+    }
+
+    function pullUpAction () {
+        	//取出页面最小值
+        	min=$("#thelist").children("div:last-child").attr("data");
+            parameter.min=min;
+    		parameter.max="";
+			if(loading==true){
+				return false;
+			}
+        	PullAdd(parameter,2)
+            myScroll.refresh();
+    }
+
+    function loaded() {
+        pullDownEl = document.getElementById('pullDown');
+        pullDownOffset = pullDownEl.offsetHeight;
+        pullUpEl = document.getElementById('pullUp');
+        pullUpOffset = pullUpEl.offsetHeight;
+        myScroll = new iScroll('wrapper', {
+            useTransition: true,
+            topOffset: pullDownOffset,
+            onRefresh: function () {
+                if (pullDownEl.className.match('loading')) {
+                    pullDownEl.className = '';
+                } else if (pullUpEl.className.match('loading')) {
+                    pullUpEl.className = '';
+                    pullUpEl.querySelector('.pullUpLabel').innerHTML = '上拉加载更多...';
+                }
+            },
+            onScrollMove: function () {
+                 if (this.y > 5 && !pullDownEl.className.match('flip')) {
+                    pullDownEl.className = 'flip';
+                    pullDownEl.querySelector('.pullDownLabel').innerHTML = '释放刷新...';
+                    this.minScrollY = 0;
+                } else if (this.y < 5 && pullDownEl.className.match('flip')) {
+                    pullDownEl.className = '';
+                    pullDownEl.querySelector('.pullDownLabel').innerHTML = '下拉刷新...';
+                    this.minScrollY = -pullDownOffset;
+                } else if (this.y < (this.maxScrollY - 0) && !pullUpEl.className.match('flip')) {
+                    console.info("1");
+                    pullUpEl.className = 'flip';
+                    //pullUpEl.querySelector('.pullUpLabel').innerHTML = '释放刷新...';
+                    this.maxScrollY = this.maxScrollY;
+                } else if (this.y > (this.maxScrollY + 0) && pullUpEl.className.match('flip')) {
+                    console.info("2");
+                    pullUpEl.className = '';
+                    pullUpEl.querySelector('.pullUpLabel').innerHTML = '上拉加载更多...';
+                    this.maxScrollY = pullUpOffset;
+                }
+            },
+            onScrollEnd: function () {
+
+                if (pullDownEl.className.match('flip')) {
+                    pullDownEl.className = 'loading';
+                    pullDownEl.querySelector('.pullDownLabel').innerHTML = '加载中...';
+                    myScroll.refresh();
+                    if (loading==false){
+                        pullDownAction();
+                    }
+                } else if (pullUpEl.className.match('flip')) {
+                    pullUpEl.className = 'loading';
+                     pullUpEl.querySelector('.pullUpLabel').innerHTML = '加载中...';
+                    if( $("#thelist").attr("alldata")>=5){
+                        if (loading==false){
+                            pullUpAction();
+                        }
+                    }else{
+                     pullUpEl.querySelector('.pullUpLabel').innerHTML ="更新完成！";
+                        return false;
+                    }
+                }
+               if(this.y==this.maxScrollY){
+                   if (loading==false){
+                       pullUpAction();
+                   }
+                }
+
+            }
+        });
+
+        setTimeout(function () { document.getElementById('wrapper').style.left = '0'; }, 800);
+    }
+    document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
+
+    document.addEventListener('DOMContentLoaded', function () { setTimeout(loaded, 200); }, false);
+
+    function GetQueryString(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+        var r = window.location.search.substr(1).match(reg);
+        return (r != null && r.length >= 2) ? decodeURI(r[2]) : null;
+    };
+    //点赞
+	$("body").on("click",".icon-hongxin",function(e){
+		e.stopPropagation();
+		if(identity==0){
+			var blog_id=$(this).parent().parent().parent().attr("data");
+			var parameter={
+				      	token:base.token,
+				      	udid:base.udid,
+				      	version:3,
+				      	blog_id:blog_id,
+				      	identity:identity,
+				      	type:0,//点赞
+				      	stud_id:nowStudent.stud_id,//当前登录家长的id ,
+				      	stud_name:nowStudent.stud_name,//当前登录教师的name ,
+				      	relation:nowStudent.relation,
+				      	parent_id:base.orguser.parent["parent_id"],
+			};
+			var $this=$(this);
+            if(!$(this).hasClass("red")){
+                getData(domainName+"/shijiwxy/wechat/portal/blog/blogInteractsave.json",parameter,function(res){
+                    if(res.code==200 && res.success==true){
+                        /*判断是否删除的*/
+                        if(res.data==-1){
+                            $.toast(res.message);
+                            $this.parent().parent().parent().remove()
+                            return false;
+                        }
+                        $this.parent().parent().parent().find($(".icon-hongxin")).addClass("red");
+                        var oldnum=$this.parent().parent().parent().find($(".all_dz_num")).text();
+                        newnum=Number(oldnum);
+                        $this.parent().parent().parent().find($(".all_dz_num")).text(newnum+1)
+                    }else{
+                        $.alert("点赞失败！");
+                    };
+                },"POST",false);
+			}
+		};
+	});
+
+	/*跳转到详情*/
+    $(window).on("click",".main-list",function(e){
+        e.stopPropagation()
+        $this=$(this)
+        blog_id=$this.attr("data");
+        var ports=domainName+"/shijiwxy/wechat/portal/blog/getDetail.json";
+	  	var parameter={
+	          	token:base.token,
+	          	udid:base.udid,
+	          	version:3,
+	          	blog_id:blog_id,
+	          	tech_id:0,//当前登录家长id
+	   	}
+	  	getData(ports,parameter,function(res){
+	      	if(res.code==200 && res.success==true){
+	      		var data=res.data;
+	      		if(data.is_del==1){
+	      			$.toast("博客已经不存在了！");
+					$this.remove();
+	      		}else{
+	      			window.location="Blog_text.html?"+url+"&blog_id="+blog_id
+	      		};
+	      	};
+      	 });
+    });
+
+    //后退刷新
+    window.addEventListener('pageshow', function(event) {
+        if(sessionStorage.backBlog==1){
+            sessionStorage.removeItem("backBlog");
+            window.location.reload();
+		}
+    })
+</script>

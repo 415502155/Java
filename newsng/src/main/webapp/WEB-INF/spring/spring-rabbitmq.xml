@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"	
+	xmlns:int="http://www.springframework.org/schema/integration"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:int-http="http://www.springframework.org/schema/integration/http"
+	xmlns:int-xml="http://www.springframework.org/schema/integration/xml"
+	xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+	xmlns:int-amqp="http://www.springframework.org/schema/integration/amqp"
+	xmlns:int-stream="http://www.springframework.org/schema/integration/stream" 
+	xsi:schemaLocation="  
+		     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd 
+		     http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration-2.1.xsd
+             http://www.springframework.org/schema/integration/amqp http://www.springframework.org/schema/integration/amqp/spring-integration-amqp-2.1.xsd 
+			 http://www.springframework.org/schema/integration/xml http://www.springframework.org/schema/integration/xml/spring-integration-xml.xsd 			 
+			 http://www.springframework.org/schema/integration/stream http://www.springframework.org/schema/integration/stream/spring-integration-stream.xsd 
+			 http://www.springframework.org/schema/integration/http http://www.springframework.org/schema/integration/http/spring-integration-http.xsd 
+             http://www.springframework.org/schema/rabbit http://www.springframework.org/schema/rabbit/spring-rabbit-1.7.xsd           
+             http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd 
+             http://www.springframework.org/schema/integration/http http://www.springframework.org/schema/integration/http/spring-integration-http.xsd 
+		     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd 	
+		">
+
+	<!-- A reference to the org.springframework.amqp.rabbit.connection.ConnectionFactory -->
+	<!--test  
+ 	<rabbit:connection-factory id="connectionFactory"
+		host="192.168.0.132" username="admin" password="rpcwFysng5PpKhSO" port="5672" virtual-host="/" />  --> 
+		
+	 <rabbit:connection-factory id="connectionFactory"
+		host="192.168.0.197" username="admin" password="Edugate@2015" port="5672" virtual-host="/" />   
+	
+	<rabbit:admin connection-factory="connectionFactory"/>
+	
+	<!-- 消息对象json转换类 -->
+    <bean id="jsonMessageConverter" class="org.springframework.amqp.support.converter.Jackson2JsonMessageConverter" />
+    
+	<!-- Creates a org.springframework.amqp.rabbit.core.RabbitTemplate for access to the broker -->
+	<rabbit:template id="rabbitTemplate" connection-factory="connectionFactory" message-converter="jsonMessageConverter"/>
+	
+	
+	<!-- 报名成功后插入相关表 -->
+	<rabbit:queue id="applyQueue" name="applyQueue" />
+	<!-- 报名作废 -->
+	<rabbit:queue id="applyCancelQueue" name="applyCancelQueue" />
+	<!-- 报名作废后设置不占坑 -->
+	<rabbit:queue id="quotaHoldQueue" name="quotaHoldQueue" />
+	
+	<!-- 报名相关exchange -->
+	<rabbit:direct-exchange id="applyExchange" name="applyExchange" delayed="true">
+        <rabbit:bindings>
+            <rabbit:binding queue="applyQueue" key="applyQueueKey"></rabbit:binding>
+            <rabbit:binding queue="applyCancelQueue" key="applyCancelQueuelKey"></rabbit:binding>
+            <rabbit:binding queue="quotaHoldQueue" key="quotaHoldQueueKey"></rabbit:binding>
+        </rabbit:bindings>
+    </rabbit:direct-exchange>
+    
+    
+    
+    
+    <!-- 消费者 -->
+    
+    <!-- 报名成功后插入相关表 -->
+    <rabbit:listener-container connection-factory="connectionFactory" message-converter="jsonMessageConverter">
+        <rabbit:listener queues="applyQueue" ref="applyServiceImpl" method="apply" />
+    </rabbit:listener-container>
+    <!-- 报名作废 -->
+    <rabbit:listener-container connection-factory="connectionFactory" message-converter="jsonMessageConverter">
+        <rabbit:listener queues="applyCancelQueue" ref="applyServiceImpl" method="applyCancel" />
+    </rabbit:listener-container>
+    <!-- 报名作废后设置不占坑 -->
+    <rabbit:listener-container connection-factory="connectionFactory" message-converter="jsonMessageConverter">
+        <rabbit:listener queues="quotaHoldQueue" ref="applyServiceImpl" method="doQuotaHold" />
+    </rabbit:listener-container>
+    
+    <!-- △△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△发送学生或教师通知 Begin △△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△ -->
+    
+    
+    
+    
+    
+    <!-- △△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△发送学生或教师通知 END △△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△ -->
+    <!-- 插班成功 通知班级教师 -->
+	<rabbit:queue id="joinClassQueue" name="joinClassQueue" />
+	<rabbit:direct-exchange id="joinClassExchange" name="joinClassExchange" delayed="true">
+        <rabbit:bindings>
+            <rabbit:binding queue="joinClassQueue" key="joinClassQueueKey"></rabbit:binding>
+        </rabbit:bindings>
+    </rabbit:direct-exchange>
+    <rabbit:listener-container connection-factory="connectionFactory" message-converter="jsonMessageConverter">
+        <rabbit:listener queues="joinClassQueue" ref="classServiceImpl" method="consumptionJoinClass" />
+    </rabbit:listener-container>
+</beans>

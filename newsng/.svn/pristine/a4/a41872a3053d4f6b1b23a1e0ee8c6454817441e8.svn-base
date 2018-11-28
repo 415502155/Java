@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>时间考勤</title>
+	<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+	<!--<link rel="shortcut icon" href="/favicon.ico">-->
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<!--ui包-->
+	<link rel="stylesheet" href="../../../css/sm.css">
+	<link rel="stylesheet" href="../../../css/layout.css">
+	<link rel="stylesheet" href="../../../css/teacher.css">
+	<link rel='stylesheet prefetch' href='../../../js/photoSwipe/photoswipe.css'>
+	<link rel='stylesheet prefetch' href='../../../js/photoSwipe/default-skin/default-skin.css'>
+
+	<script src='../../../js/zepto.min.js'></script>
+	<script>$.config = {router: false}</script>
+	<script src='../../../js/sm.min.js'></script>
+	<!--图片放大-->
+	<script src='../../../js/photoSwipe/photoswipe.min.js'></script>
+	<script src='../../../js/photoSwipe/photoswipe-ui-default.js'></script>
+	<script src='../../../js/config.js'></script>
+    <style>
+		.childName { padding-right: 10px;}
+		.item-title-row { padding: 5px 0}
+		.item-subtitle { padding: 10px 0; }
+		.list-block.media-list .item-media img {
+			border-radius: 1%;
+			/*-webkit-filter: grayscale(100%);
+			-moz-filter: grayscale(100%);
+			-ms-filter: grayscale(100%);
+			-o-filter: grayscale(100%);
+			filter: grayscale(100%);
+			filter: gray;*/
+		}
+		.list-block.media-list .item-inner, .list-block li.media-item .item-inner {
+			padding-top: 1rem;
+			padding-bottom: .9rem;
+		}
+		.list-block.media-list .item-inner {
+			padding-top: .5rem;
+			padding-bottom: .8rem;
+		}
+		.lastData {
+			margin-bottom: 1rem;
+		}
+		.noData_line .noData__tips {
+			background-color: #ffffff;
+		}
+		/*考勤状态*/
+		.stateNormal {background: #67cf5d}
+		.stateAabnormal {background:#efa91e}
+		.stateAunnormal {background:rgb(234, 108, 108)}
+		.unnormalText {color:rgb(234, 108, 108) }
+		.normalText{color:#67cf5d }
+		.changeState {
+			display: inline-block;
+			padding: .30rem .45rem .30rem;
+			font-size: .72rem;
+			line-height: 1;
+			background-color: #fff;
+			border-radius: .5rem;
+			color: #0a8ddf;
+			border: 1px #0a8ddf solid;
+			position: absolute;
+			right: .75rem;
+			top: 2.4rem;    z-index: 10000;
+		}
+		.attnNoData {background: url(../../../images/noleaver.jpg) center .75rem no-repeat;
+			text-align: center;
+			height: 193px;
+			line-height: 330px;
+			overflow: hidden;
+		    font-size: .72rem;
+			color: #a2a2a2;
+		}
+		html:not(.watch-active-state) label.label-checkbox:active, label.label-checkbox.active-state {
+			background: #fff;
+		}
+		.tag  {
+			display: block;
+			position: absolute;
+			top: .5rem;
+			right: .75rem;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			overflow: hidden;
+			max-width: 50%;
+		}
+		.imgLoading { height: 72px}
+		.imgLoading .iconloadingtip {
+			margin: 1.3rem;
+		}
+
+	</style>
+</head>
+<body>
+	<div class="page-group">
+		<div class="page page-current" id="set">
+			<!--<header class="bar bar-nav">
+				<a class="button button-link button-nav pull-left back" href="/demos/bar">
+					<span class="icon icon-left"></span>
+				</a>
+				<a class="button button-link button-nav pull-right">
+					<span class="icon icon-right"></span>
+				</a>
+				<h1 class="title">2018-04-20</h1>
+			</header>-->
+			<div class="content native-scroll">
+
+				<div class="list-block media-list" style="background: #fff;">
+					<ul>
+						<li>
+							<div class="item-content">
+								<div class="item-media"><img id="studentHead" src="../../../images/defaultHead.jpg" width="48" height="48" style="border-radius: 50%"></div>
+								<div class="item-inner">
+									<div class="item-title-row">
+										<div class="item-title" id="stu_name"></div>
+									</div>
+									<div class="item-subtitle"  id="stu_TSstate" style="padding: 0;"></div>
+								</div>
+								<div class="item-inner" style="padding: .5rem 0">
+									<div class="item-title-row">
+										<div class="item-subtitle" id="contactParent" style="line-height:36px;padding: 0;color: #0a8ddf;right: .75rem; width: 85px;position: absolute;"><span class="icon icon-phone" style="margin-right: 10px;"></span>联系家长 </div>
+									</div>
+
+								</div>
+							</div>
+						</li>
+					</ul>
+				</div>
+
+				<div class="content-block-title" >考勤状态 <a href="#" class="pull-right" id="recordList"  style="display: none">查看打卡记录<i class="icon  icon-right"></i></a></div>
+				<div class="list-block media-list" style="background:#fff; display: none" id="stu_record" >
+					<ul>
+						<li>
+							<div class="item-content">
+								<div class="item-media toDetail" id="amImg">
+
+									<!--<img src="../../../images/ts_defaultImg.png" width="108" height="72">-->
+
+									<figure itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject" style="position: relative;width: 108px;height: 72px;">
+										<a href="../../../images/ts_defaultImg.png" itemprop="contentUrl" class="external" data-size="1920x1080"  >
+											<img src="../../../images/ts_defaultImg.png" width="108" height="72"  data-sid=""  itemprop="thumbnail" alt="" style="display: none;">
+										</a>
+										<div class="imgLoading"  style="background: #e4e4e4;line-height:100px;font-size: .72rem;color: #aaa7a7;"><span class="iconloadingtip"></span></div>
+									</figure>
+
+
+								</div>
+								<div class="item-inner">
+									<div class="item-title-row">
+										<div class="item-title">上午入校</div>
+										<span class="badge stateNormal tag" id="showState"></span>
+										<span class="changeState" id="changeState">修改状态</span>
+									</div>
+									<div class="item-subtitle" id="firstTime" style="padding-top: 20px">未开始</div>
+								</div>
+							</div>
+						</li>
+						<li id="pmData">
+							<div class="item-content">
+								<div class="item-media" id="pmImg">
+
+									<figure itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject" style="position: relative;width: 108px;height: 72px;">
+										<a href="../../../images/ts_defaultImg.png" itemprop="contentUrl" class="external" data-size="1920x1080"  >
+											<img src="../../../images/ts_defaultImg.png" width="108" height="72"   data-sid=""  itemprop="thumbnail" alt="" style="display: none;">
+										</a>
+										<div class="imgLoading"  style="background: #e4e4e4;line-height:100px;font-size: .72rem;color: #aaa7a7;"><span class="iconloadingtip"></span></div>
+									</figure>
+
+								</div>
+								<div class="item-inner">
+									<div class="item-title-row">
+										<div class="item-title">下午离校</div>
+									</div>
+									<div class="item-subtitle" id="lastTime">未开始</div>
+								</div>
+							</div>
+						</li>
+					</ul>
+				</div>
+				<div class="content-block-title" style="display:none" id="stu_leaveRecord">请假记录</div>
+
+			</div>
+		</div>
+	</div>
+
+	<!--图片查看器-->
+	<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="pswp__bg"></div>
+		<div class="pswp__scroll-wrap">
+			<div class="pswp__container">
+				<div class="pswp__item"></div>
+				<div class="pswp__item"></div>
+				<div class="pswp__item"></div>
+			</div>
+			<div class="pswp__ui pswp__ui--hidden">
+				<div class="pswp__top-bar">
+					<div class="pswp__counter"></div>
+					<button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+					<!--<button class="pswp__button pswp__button&#45;&#45;share" title="Share"></button>-->
+
+					<div class="pswp__preloader">
+						<div class="pswp__preloader__icn">
+							<div class="pswp__preloader__cut">
+								<div class="pswp__preloader__donut"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+					<div class="pswp__share-tooltip"></div>
+				</div>
+				<div class="pswp__caption">
+					<div class="pswp__caption__center"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!--图片查看器End-->
+</body>
+</html>
+
+<script>
+    //参数
+    var parameter=JSON.parse(decodeURI(GetUrlParam("parameter").split("#")[0]));
+    $("title").text(parameter.studentName+"考勤记录");
+
+    sessionStorage.tsDate=parameter.attnDate;
+
+    if(parameter.isEchart==1){
+        $("#changeState").remove();
+	}
+
+$(function () {
+
+	sessionStorage.classDetail=1;
+
+    //获取考勤信息
+    getData(domainName+"/shijiwxy/wechat/portal/studentAttendance/getStudentAttendanceDetail.htm", parameter,function(res){
+        if(res.code==200 && res.success==true){
+
+            //基本数据
+			var allinfo=res.data;
+
+			if(allinfo.headImgUrl!==""){
+                $("#studentHead").attr("src",allinfo.headImgUrl);
+			}
+
+			$("#stu_name").text(allinfo.studentName);
+            $("#stu_TSstate").text(allinfo.attnStatus4Display);
+
+            if(allinfo.am_in_record!==null){
+                //获取记录id
+                $("#changeState").attr("data-cid", allinfo.am_in_record.id_str);
+			}
+
+			if(allinfo.canSubmit!=="1"){
+                $("#changeState").hide();
+			}
+
+             //考勤记录
+            var attnR=allinfo.am_in_record;
+
+            //判断考勤类型
+           if(allinfo.attnType=="01"){
+
+               var studentdsaveNum=0;
+               for(var m=allinfo.attnRecordHistory.length-1;m>=0;m--){
+                   if(allinfo.attnRecordHistory[m].card_id!==null){
+                       studentdsaveNum+=1;
+                   }
+               }
+
+               //时候能进入打卡记录
+               if(studentdsaveNum==0){
+                   $("#recordList").hide();
+               }else{
+                   $("#recordList").show();
+               }
+
+               //早上开始打卡
+               var jsDate=allinfo.attnDate ;
+               var amBegin = new Date(jsDate.replace(/\-/g,"/") + " " + allinfo.am_in_scope_begin).getTime();
+               var pmBegin = new Date(jsDate.replace(/\-/g,"/") + " " + allinfo.pm_out_scope_begin).getTime();
+               var sysTime = new Date(allinfo.currentTime.replace(/\-/g,"/")).getTime();
+
+
+               if(attnR!==null) {
+
+                   var studentS = allinfo.am_in_record.status;
+                   var stateHtml = "", classtype = "";
+                   switch (studentS) {
+                       case 1:
+                           stateHtml += "迟到";
+                           classtype += "stateAabnormal";
+                           var colorhtml = "unnormalText"
+                           break;
+                       case 2:
+                           stateHtml += "缺勤";
+                           classtype += "stateAunnormal";
+                           var colorhtml = "unnormalText"
+                           break;
+                       default:
+                           stateHtml += "正常出勤";
+                           classtype += "stateNormal";
+                           var colorhtml = "normalText"
+                   }
+
+                   $("#showState").html(stateHtml).removeClass("stateNormal stateDanger stateAabnormal").addClass(classtype);
+                   //$("#stu_TSstate").addClass(colorhtml);
+
+                   $("#amImg img").attr("data-sid",allinfo.am_in_record.id_str);
+
+
+                   //上午打卡
+                   if (sysTime >= amBegin) {
+                       if(attnR.card_id==null){
+                           $("#firstTime").text("未打卡").addClass("redFont");
+                       }else{
+                           $("#firstTime").text(attnR.card_time.substr(11,8));
+                       }
+
+                   } else {
+                       $("#firstTime").text("未开始");
+                   }
+
+
+               }else {
+
+                   $("#Ts_noData").show();
+                   //上午打卡
+                   if (sysTime >= amBegin) {
+                       $("#firstTime").text("未打卡").addClass("redFont");
+                   } else {
+                       $("#firstTime").text("未开始");
+                   }
+
+                   if(allinfo.attnStatus4Display=="正常"){
+                       $("#showState").text("正常出勤");
+                   }else{
+                       $("#showState").text(allinfo.attnStatus4Display).addClass("stateAunnormal");
+                   }
+
+               }
+
+              //if(allinfo.pm_out_record!==null) {
+
+               if(allinfo.pm_out_record!==null){
+
+                   $("#pmImg img").attr("data-sid",allinfo.pm_out_record.id_str);
+               }
+
+
+               //下午打卡
+                  if (sysTime >= pmBegin) {
+
+                      if (allinfo.pm_out_record == null) {
+                          $("#lastTime").text("未打卡").addClass("redFont");
+                      } else {
+                          $("#lastTime").text(allinfo.pm_out_record.card_time.substr(11, 8));
+                      }
+
+                  } else {
+                      $("#lastTime").text("未开始");
+                  }
+
+                  $("#typeData").show();
+
+              //}
+
+
+
+
+		   }else{
+
+               if(attnR!==null) {
+
+                   var studentS = allinfo.am_in_record.status;
+                   var stateHtml = "", classtype = "";
+                   switch (studentS) {
+                       case 1:
+                           stateHtml += "迟到";
+                           classtype += "stateAabnormal";
+                           var colorhtml = "unnormalText"
+                           break;
+                       case 2:
+                           stateHtml += "缺勤";
+                           classtype += "stateDanger";
+                           var colorhtml = "unnormalText"
+                           break;
+                       default:
+                           stateHtml += "正常出勤";
+                           classtype += "stateNormal";
+                           var colorhtml = "normalText"
+                   }
+
+                   $("#showState").html(stateHtml).removeClass("stateNormal stateDanger stateAabnormal").addClass(classtype);
+                   //$("#stu_TSstate").addClass(colorhtml);
+
+                   //上午打卡
+                    $("#firstTime").text("教师提交时间：" + attnR.card_time.substr(11,8));
+
+               }else {
+                   $("#Ts_noData").show();
+                   if(allinfo.attnStatus4Display=="正常"){
+                       $("#showState").text("正常出勤");
+				   }else{
+                       $("#showState").text(allinfo.attnStatus4Display).addClass("stateAunnormal");
+				   }
+
+               }
+
+               $("#recordList").remove();
+               $("#pmData").remove();
+               $("#amImg").remove();
+
+		   }
+
+            $("#stu_record").show();
+
+
+
+            //请假记录
+			var leaveR=allinfo.leaveRecordList;
+            var leaveRHtml="";
+
+            if(leaveR.length>0){
+
+                for(var m=leaveR.length-1;m>=0;m--){
+               // for(var m=0,n=leaveR.length;m<n;m++){
+
+                    var stuobj=leaveR[m];
+                    var typeHmtl=stuobj.type==1?"事假":"病假";//0：病假；1：事假）
+                    leaveRHtml+='<div class="list-block media-list">' +
+                        '<ul>' +
+							'<li id="'+stuobj.student_id+'" >' +
+								'<label class="label-checkbox item-content">' +
+									'<div class="item-inner">' +
+									'<div class="item-title-row">' +
+									'<div class="item-title">'+stuobj.student_name+' '+typeHmtl+'</div>' +
+								/*	'<div class="item-after">'+stuobj.insert_time+'</div>' +*/
+									'</div>' +
+									'<div class="item-subtitle">请假时间：'+stuobj.begin_date+' ~ '+stuobj.end_date+'</div>' +
+									'<div class="item-text" style="-webkit-line-clamp: initial">请假原因：'+stuobj.reason+'</div>' +
+									'</div>'+
+								'</label>' +
+								'<div class="card-footer" style="background: #fff; font-size: .72rem">' +
+									'<span>申请时间：'+stuobj.insert_time+'</span>' +
+									/*'<a id="'+stuobj.student_id+'" data-name="'+stuobj.student_name+'"><span class="icon icon-phone" style="margin-right: 10px;"></span>联系家长</a>' +*/
+								'</div>' +
+							'</li>' +
+                        '</ul>' +
+                        '</div>';
+				}
+
+                $("#stu_leaveRecord").show().after(leaveRHtml);
+
+            }else{
+
+                //$("#stu_leaveRecord").prev().remove();
+                $("#stu_leaveRecord").remove();
+            }
+
+            //图片预览
+            initPhotoSwipeFromDOM('.item-media');
+
+            //加载图片
+            $("[data-sid]").each(function () {
+                var opObj=$(this);
+                var sid=opObj.attr("data-sid");
+               if(sid==""){
+                   opObj.attr("src","../../../images/ts_defaultImg.png").attr("onload","showImg(this)").attr("onerror","nofind(this)");
+                   opObj.parent().attr("href","../../../images/ts_defaultImg.png")
+                   if(opObj.parent().next().length>0){
+                        opObj.show();
+                        opObj.parent().next().hide();
+                   }
+                    return true;
+                }
+
+              var parameter={
+                    sid:sid
+                }
+                getDataNoLoading(domainName + "/eduWeixin/weixin/getsign", parameter,function(res){
+                    if(res.code==200 && res.success==true){
+                        var obj=res.data;
+                        opObj.attr("src",obj.pic).attr("onerror","nofind(this)").attr("onload","showImg(this)");//.attr("onload","getimg(this)")
+                        opObj.parent().attr("href",obj.pic);
+                    }else{
+
+                        opObj.attr("src","../../../images/ts_defaultImg.png").attr("onload","showImg(this)").attr("onerror","nofind(this)");
+                        opObj.parent().attr("href","../../../images/ts_defaultImg.png").attr("data-size","108x72");
+                    }
+                },"GET");
+            })
+
+
+
+
+        }else{
+            $.alert(res.message);
+        }
+    },"GET");
+
+    //打卡记录
+    $('#recordList').click(function(event){
+        window.location="cardRecord.html?parameter="+encodeURI(JSON.stringify(parameter));
+	});
+
+
+
+
+
+    //联系家长
+    $('#contactParent').click(function(event){
+
+        var studentName=$(this).closest("tr").find(".studentName").text();
+        var sid=$(this).attr("id");
+
+        //获取家长联系信息
+        getData(domainName+"/shijiwxy/wechat/portal/studentAttendance/getParentInfo.htm", parameter,function(res){
+            if(res.code==200 && res.success==true){
+                var parentinfo="{text: '请选择',label:true},";
+                //家长信息
+                var tels=res.data
+                setTimeout(function () {
+                    //联系人信息
+                    if(tels.length>0){
+                        for( var i=tels.length-1; i>=0; i--){
+                            var name=allRelation[tels[i].relation];
+                            //var relation=allRelation[tels[i].relation];
+                            var mob=tels[i].mobile;
+                            parentinfo +='{text:"拨打-'+parameter.studentName+'-'+name+'-电话",onClick: function() { window.location.href="tel:'+mob+'";}},';
+                        }
+                    }
+
+                    var str=parentinfo;
+                    var substr=str.substring(0,str.length-1);
+                    var subtext= "["+substr+"]";
+
+                    var jsonTem=eval(subtext);//转成json对象
+
+                    var parentTel = jsonTem;
+                    var cancel = [
+                        {
+                            text: '取消',
+                            bg: 'danger'
+                        }
+                    ];
+                    var groups = [parentTel, cancel];
+                    $.actions(groups);
+
+                },10)
+
+            }else{
+                $.alert(res.message);
+            }
+        },"POST");
+
+    });
+
+
+
+
+   //改变学生考勤状态
+   $("#changeState").click(function(){
+
+       parameter.recordId=$(this).attr("data-cid");
+      // 考勤状态（0：正常；1：迟到；2：缺勤）
+
+       var buttons1 = [
+           {
+               text: '请选择',
+               label: true
+           },
+           {
+               text: '正常出勤',
+               onClick: function() {
+                   /*parameter.status=0;
+                   $("#showState").text("正常").addClass("stateNormal").removeClass("stateAabnormal");*/
+                   changeState ("正常",0);
+               }
+           },
+           {
+               text: '迟到',
+               onClick: function() {
+                   /*parameter.status=1;
+                   $("#showState").text("迟到").addClass("stateAabnormal").removeClass("stateNormal");*/
+                   changeState ("迟到",1);
+               }
+           },
+           {
+               text: '缺勤',
+               onClick: function() {
+                   changeState ("缺勤",2);
+               }
+           }
+       ];
+       var buttons2 = [
+           {
+               text: '取消',
+               bg: 'danger'
+           }
+       ];
+       var groups = [buttons1, buttons2];
+       $.actions(groups);
+   });
+});
+function changeState (stateText,status){
+
+    parameter.teacherId=JSON.parse(sessionStorage.baseUser).orguser.teacher.tech_id;
+    parameter.teacherName=JSON.parse(sessionStorage.baseUser).orguser.teacher.tech_name;
+    //(0：正常；1：迟到；2：缺勤)
+   // parameter.recordId="";
+    parameter.orgName=JSON.parse(sessionStorage.baseUser).orguser.organization.org_name_cn;
+    parameter.status=status;
+
+    getData(domainName+"/shijiwxy/wechat/portal/studentAttendance/modifyStudentAttnStatus.htm", parameter,function(res){
+
+        if(res.code==200 && res.success==true){
+            $.alert("修改成功","",function () {
+               // $("#showState").text(stateText).addClass("stateAabnormal").removeClass("stateNormal");
+                window.location.reload();
+            });
+
+
+        }else{
+           $.alert(res.message);
+        }
+    },"POST");
+
+}
+
+    function showImg(obj){
+        $(obj).show();
+        if($(obj).parent().next().length>0){
+            $(obj).parent().next().hide();
+        }
+    }
+
+    function nofind(Domlement){
+        Domlement.src="../../../images/ts_defaultImg.png";
+        $(Domlement).parent().attr("href","../../../images/ts_defaultImg.png").attr("data-size","108x72");
+        Domlement.onerror=null;
+        initPhotoSwipeFromDOM('.toDetail');
+        //$("#cerImg div").html("暂无图片");
+    }
+</script>

@@ -1,0 +1,1308 @@
+package sng.service.impl;
+
+import java.io.InputStream;
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpSession;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import sng.constant.Consts;
+import sng.dao.BaseDaoEx;
+import sng.dao.BaseSetCampusManageDao;
+import sng.dao.BaseSetCategoryManageDao;
+import sng.dao.BaseSetClassRoomManageDao;
+import sng.dao.BaseSetCooperativeManageDao;
+import sng.dao.BaseSetSubjectManageDao;
+import sng.dao.ClassDao;
+import sng.dao.impl.BaseSetCampusManageDaoImpl;
+import sng.entity.Campus;
+import sng.entity.Category;
+import sng.entity.Charge;
+import sng.entity.ChargeDetail;
+import sng.entity.Classes;
+import sng.entity.Classroom;
+import sng.entity.Cooperative;
+import sng.entity.ImportRecord;
+import sng.entity.StudentClass;
+import sng.entity.Subject;
+import sng.entity.TeacherClass;
+import sng.pojo.ClassTeacher;
+import sng.pojo.ClassToTeacher;
+import sng.pojo.ImportClass;
+import sng.pojo.ParamObj;
+import sng.pojo.SessionInfo;
+import sng.service.ClassService;
+import sng.util.CommonUtils;
+import sng.util.Constant;
+import sng.util.EnumLog;
+import sng.util.ExcelImport;
+import sng.util.LoggerUtil;
+import sng.util.Paging;
+import sng.util.ReturnResult;
+import sng.util.ValidateObject;
+
+/***
+ * 
+ *  @Company sjwy
+ *  @Title: ClassServiceImpl.java 
+ *  @Description: 班级管理实现类
+ *	@author: shy
+ *  @date: 2018年10月29日 下午1:25:49
+ */
+@Service
+@Transactional
+public class ClassServiceImpl implements ClassService{
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
+
+	@Autowired 
+	private ClassDao classDao;
+	@Autowired
+	private BaseDaoEx baseDaoEx;
+	//教室查询dao
+	@Autowired
+	private BaseSetClassRoomManageDao classRoomDao;
+	//类目查询dao
+	@Autowired
+	private BaseSetCategoryManageDao categoryManageDao;
+	//科目查询dao
+	@Autowired
+	private BaseSetSubjectManageDao baseSetSubjectManageDao;
+	//合作查询dao
+	@Autowired
+	private BaseSetCooperativeManageDao baseSetCooperativeManageDao;
+	//校区查询dao
+	@Autowired
+	private BaseSetCampusManageDao baseSetCampusManageDao;
+	/***
+	 * 添加班级
+	 * @throws ParseException 
+	 */
+	@Override
+	@Transactional//(propagation=Propagation.NOT_SUPPORTED,readOnly=true)
+	public void save(Map<String, Object> reqMap, SessionInfo sessionInfo) throws ParseException {
+		Integer orgId = sessionInfo.getOrgId();
+		String className = (String) reqMap.get("clasName");
+		Integer clasType = Integer.parseInt((String) reqMap.get("clasType"));
+		String classUnsetTime = (String) reqMap.get("classUnsetTime");
+		Classes classes = new Classes();
+		classes.setTerm_id(Integer.parseInt((String) reqMap.get("termId")));
+		classes.setClas_name((String) reqMap.get("clasName"));
+		classes.setClas_type(Integer.parseInt((String) reqMap.get("clasType")));
+		classes.setCategory_id(Integer.parseInt((String) reqMap.get("categoryId")));
+		classes.setSubject_id(Integer.parseInt((String) reqMap.get("subjectId")));
+		classes.setCam_id(Integer.parseInt((String) reqMap.get("camId")));
+		classes.setClassroom_id(Integer.parseInt((String) reqMap.get("classroomId")));
+		classes.setSize(Integer.parseInt((String) reqMap.get("size")));//size 班级容量
+		classes.setAge_range((String) reqMap.get("ageRange"));//年龄范围
+		classes.setStart_birthday((Date) reqMap.get("startBirthday"));
+		classes.setEnd_birthday((Date) reqMap.get("endBirthday"));
+		classes.setTotal_hours(Integer.parseInt((String) reqMap.get("totalHours")));//totalHours 总课时数
+		classes.setClass_start_date((Date) reqMap.get("classStartDate"));//classStartDate 开课日期
+		if (null == classUnsetTime) {
+			classes.setClass_week(Integer.parseInt((String) reqMap.get("classWeek")));//classWeek 上课星期 (周一  周二  周三 。。。)
+			String beginHours = (String) reqMap.get("classBeginTime");
+			String endHours = (String) reqMap.get("classOverTime");
+			StringBuffer sb1 = new StringBuffer("2000-01-01 ");
+			StringBuffer sb2 = new StringBuffer("2000-01-01 ");
+			sb1.append(beginHours).append(":00");
+			sb2.append(endHours).append(":00");
+			Date beginDate = CommonUtils.stringToDate(sb1.toString(), null);
+			Date overDate = CommonUtils.stringToDate(sb2.toString(), null);
+			classes.setClass_begin_time(beginDate);
+			classes.setClass_over_time(overDate);
+			classes.setClass_unset_time(null);
+		} else {
+			classes.setClass_unset_time(classUnsetTime);
+			classes.setClass_week(8);//
+			classes.setClass_begin_time(null);
+			classes.setClass_over_time(null);
+		}
+
+		classes.setTuition_fees((String) reqMap.get("tuitionFees"));//学费标准
+		classes.setCooperation_id(Integer.parseInt((String) reqMap.get("cooperationId")));//联合机构id(教师的所属机构)
+		classes.setOrg_id(orgId);
+		classes.setUsable_num(Integer.parseInt((String) reqMap.get("size")));//创建班级时，初始化可用名额  默认与班级容量相等
+		//插入班级表
+		Integer classId = (Integer) baseDaoEx.saveOne(classes);
+		String techIds = (String) reqMap.get("techIds"); //教师id，多个以英文逗号分隔（121,145）
+		//插入支付项目表
+		// TODO Auto-generated method stub
+		//班级教师关系表
+		if (StringUtils.isNotBlank(techIds)) {
+			String[] strArray = null; 
+	        strArray = techIds.split(","); //拆分字符为"," ,然后把结果交给数组strArray 
+	        for (int i = 0; i < strArray.length; i++) {
+	        	TeacherClass tc = new TeacherClass();
+	        	tc.setClas_id(classId);
+	        	tc.setTech_id(Integer.parseInt(strArray[i]));
+	        	baseDaoEx.saveOne(tc);
+	        }
+		} 
+		//操作日志表
+		Integer camId = sessionInfo.getCamId();
+		Integer userType = sessionInfo.getIdentity();
+		String userTypeName = sessionInfo.getLoginName();
+		Integer userTypeId = sessionInfo.getUserId();
+		
+        LoggerUtil.save(orgId, camId, classId, clasType, className, EnumLog.OPERATION_CLASS_CREATE.getKey(), EnumLog.OPERATION_CLASS_CREATE.getValue() + className, userType, userTypeId, userTypeName);
+	}
+	/***
+	 * 查询班级列表
+	 */
+	@Override
+	public Paging<ClassToTeacher> getClassList(Integer orgId, Integer termId, Integer clasType, Integer categoryId,
+			Integer subjectId, Integer camId, Integer classWeek, String techNames, Integer isAll, Paging<ClassToTeacher> page) {
+		List<Object> params = new ArrayList<>();
+		StringBuffer sql = new StringBuffer(" SELECT c.clas_id, c.clas_name,c.clas_type,cam.cam_name, c.age_range,\r\n" + 
+				"c.class_start_date, c.tuition_fees, c.size, c.ss_num,\r\n" + 
+				"cate.category_name, sub.subject_name ,cr.classroom_id, cr.building, cr.floor, cr.classroom_name, c.start_birthday,\r\n" + 
+				"c.end_birthday, c.total_hours, c.class_week, DATE_FORMAT(c.class_begin_time,'%H:%i') class_begin_time,\r\n" + 
+				"DATE_FORMAT(c.class_over_time,'%H:%i') class_over_time, c.class_unset_time, c.cooperation_id, co.name,\r\n" + 
+				"GROUP_CONCAT(CONCAT(t.tech_name, '_',u.user_mobile)) tech_names,\r\n" + 
+				"GROUP_CONCAT(t.tech_name) tech_name,\r\n" +
+				"GROUP_CONCAT(t.tech_id) tech_id,\r\n" +
+				"GROUP_CONCAT(t.user_id) user_id,\r\n" +
+				"CONCAT(c.ss_num, '/', c.size) divide\r\n" + 
+				"FROM newsng.classes c\r\n" + 
+				"LEFT JOIN newsng.teacher_class tc ON  c.clas_id = tc.clas_id AND tc.is_del = 0 \r\n" + 
+				"LEFT JOIN edugate_base.teacher t ON tc.tech_id = t.tech_id AND t.is_del = 0 \r\n" + 
+				"LEFT JOIN edugate_base.org_user u ON t.user_id = u.user_id AND u.is_del = 0\r\n" + 
+				"LEFT JOIN newsng.term tm ON c.term_id = tm.term_id AND tm.is_del = 0\r\n" + 
+				"LEFT JOIN newsng.category cate ON c.category_id = cate.category_id AND cate.is_del = 0\r\n" + 
+				"LEFT JOIN newsng.subject sub ON c.subject_id = sub.subject_id AND sub.is_del = 0\r\n" + 
+				"LEFT JOIN newsng.campus cam ON c.cam_id = cam.cam_id AND cam.is_del = 0\r\n" + 
+				"LEFT JOIN newsng.classroom cr ON c.classroom_id = cr.classroom_id AND cr.is_del = 0\r\n" + 
+				"LEFT JOIN newsng.cooperative co ON c.cooperation_id = co.cooperative_id AND co.is_del = 0\r\n" + 
+				"WHERE\r\n" + 
+				"c.is_del = 0 \r\n" + 
+				//"AND tc.is_del = 0\r\n" + 
+				//"AND t.is_del = 0\r\n" + 
+				//"AND tm.is_del = 0\r\n" + 
+				//"AND cate.is_del = 0\r\n" + 
+				//"AND sub.is_del = 0\r\n" + 
+				//"AND cam.is_del = 0\r\n" + 
+				//"AND cr.is_del = 0\r\n" + 
+				//"AND co.is_del = 0\r\n" +
+				"AND c.org_id = ?  ");
+
+		params.add(orgId);
+		if(null != termId ) {
+			sql.append(" AND c.term_id = ? ");
+			params.add(termId);
+		} else {
+			//默认查询最晚的学期 
+			//SELECT 	MAX(TERM_ID) FROM term WHERE NOW() > start_time 
+			sql.append(" AND c.term_id = (SELECT MAX(TERM_ID) FROM term WHERE NOW() > start_time) ");			
+		}
+		if(null != clasType ) {
+			sql.append(" AND c.clas_type = ? ");
+			params.add(clasType);
+		}
+		if(null != categoryId ) {
+			sql.append(" c.category_id = ? ");
+			params.add(categoryId);
+		}
+		if(null != subjectId ) {
+			sql.append(" AND c.subject_id = ? ");
+			params.add(subjectId);
+		}
+		if(null != camId ) {
+			sql.append(" AND c.cam_id = ? ");
+			params.add(camId);
+		}
+		if(null != classWeek ) {
+			sql.append(" AND c.class_week = ? ");
+			params.add(classWeek);
+		}
+		String group = " GROUP BY c.clas_id ";
+		String order1 = "ORDER BY cam.cam_name , c.clas_name, cr.classroom_name ASC";
+		sql.append(group);
+		sql.append(order1);
+		String finalSql = "";
+		String order2 = " ORDER BY tt.cam_name , tt.clas_name, tt.classroom_name ASC ";
+		String limit = "";//分页
+		//StringBuffer countNum1 = new StringBuffer(" SELECT SUM(ts.ss_num) zrs, COUNT(ts.clas_id) ztms FROM ( ");
+		StringBuffer countNum1 = new StringBuffer(" SELECT COUNT(ts.clas_id) ztms FROM ( ");
+		StringBuffer countNum2 = new StringBuffer(" ) ts ");
+		String countSql = "";
+		if (StringUtils.isNotBlank(techNames)) {//模糊查询
+			StringBuffer like1 = new StringBuffer(" SELECT tt.* FROM ( ");
+			StringBuffer like2 = new StringBuffer(" ) tt\r\n" + 
+					"where  LOCATE(? , tt.tech_names )>0 AND LOCATE(? , tt.clas_name )>0 ");
+			params.add(techNames);
+			params.add(techNames);
+			finalSql = like1.append(sql).append(like2).append(order2).toString();
+			countSql = countNum1.append(finalSql).append(countNum2).toString();
+			//int limitFrom = (page.getPage() - 1) * page.getLimit();
+			//limit = " limit " + limitFrom + "," + page.getLimit();
+			//finalSql = finalSql + limit;
+		} else {
+			finalSql = sql.toString();
+			countSql = countNum1.append(finalSql).append(countNum2).toString();
+			//int limitFrom = (page.getPage() - 1) * page.getLimit();
+			//limit = " limit " + limitFrom + "," + page.getLimit();
+			//finalSql = finalSql + limit;
+	
+		}
+		Paging<ClassToTeacher> paging = baseDaoEx.queryPageBySql(finalSql,countSql, page.getPage(), page.getLimit(),  ClassToTeacher.class, params);
+		List<ClassToTeacher> list = paging.getData();
+		//班级列表  实收金额
+		for (ClassToTeacher ct : list) {
+			//根据班级id(clas_id) 查询支付项目表，获取实缴金额
+			Charge cd = baseDaoEx.findById(Charge.class, ct.getClas_id());
+			Integer ssMoney = Integer.parseInt(cd.getSs_money());
+			Integer stMoney = Integer.parseInt(cd.getSt_money());
+			Integer balanceFen = ssMoney - stMoney;
+			double balanceYuan = (double) (balanceFen/100);
+			ct.setSs_tuition(String.valueOf(balanceYuan));//ss_money 实缴金额（单位：分）
+			//ctt.setSs_tuition(cd.getSs_money());//money 实缴金额（单位：分）
+		}
+		return paging;
+	}
+	/***
+	 * 导出班级学员列表
+	 */
+	@Override
+	public List<ClassToTeacher> getClassIdList(Integer orgId, Integer termId, Integer clasType, Integer categoryId,
+			Integer subjectId, Integer camId, Integer classWeek, String techNames, String ids, Integer isAll,
+			Paging<ClassToTeacher> page) {
+		List<Object> params = new ArrayList<>();
+		StringBuffer sql = new StringBuffer(" SELECT c.clas_id, c.clas_name,c.clas_type,cam.cam_name, c.age_range,\r\n" + 
+				"c.class_start_date, c.tuition_fees, c.size, c.ss_num,\r\n" + 
+				"cate.category_name, sub.subject_name ,cr.classroom_id, cr.building, cr.floor, cr.classroom_name, c.start_birthday,\r\n" + 
+				"c.end_birthday, c.total_hours, c.class_week, DATE_FORMAT(c.class_begin_time,'%H:%i') class_begin_time,\r\n" + 
+				"DATE_FORMAT(c.class_over_time,'%H:%i') class_over_time, c.class_unset_time, c.cooperation_id, co.name,\r\n" + 
+				"GROUP_CONCAT(CONCAT(t.tech_name, '_',u.user_mobile)) tech_names,\r\n" + 
+				"GROUP_CONCAT(t.tech_name) tech_name,\r\n" +
+				"CONCAT(c.ss_num, '/', c.size) divide \r\n" + 
+				"FROM newsng.classes c \r\n" + 
+				"LEFT JOIN newsng.teacher_class tc ON  c.clas_id = tc.clas_id AND tc.is_del = 0 \r\n" + 
+				"LEFT JOIN edugate_base.teacher t ON tc.tech_id = t.tech_id AND t.is_del = 0 \r\n" + 
+				"LEFT JOIN edugate_base.org_user u ON t.user_id = u.user_id AND u.is_del = 0 \r\n" +
+				"LEFT JOIN newsng.term tm ON c.term_id = tm.term_id AND tm.is_del = 0\r\n" + 
+				"LEFT JOIN newsng.category cate ON c.category_id = cate.category_id AND cate.is_del = 0\r\n" + 
+				"LEFT JOIN newsng.subject sub ON c.subject_id = sub.subject_id AND sub.is_del = 0\r\n" + 
+				"LEFT JOIN newsng.campus cam ON c.cam_id = cam.cam_id AND cam.is_del = 0\r\n" + 
+				"LEFT JOIN newsng.classroom cr ON c.classroom_id = cr.classroom_id AND cr.is_del = 0\r\n" + 
+				"LEFT JOIN newsng.cooperative co ON c.cooperation_id = co.cooperative_id AND co.is_del = 0\r\n" + 
+				"\r\n" + 
+				"WHERE\r\n" + 
+				"c.is_del = 0 \r\n" + 
+				//"AND tc.is_del = 0\r\n" + 
+				//"AND t.is_del = 0\r\n" + 
+				//"AND tm.is_del = 0\r\n" + 
+				//"AND cate.is_del = 0\r\n" + 
+				//"AND sub.is_del = 0\r\n" + 
+				//"AND cam.is_del = 0\r\n" + 
+				//"AND cr.is_del = 0\r\n" + 
+				//"AND co.is_del = 0\r\n" +
+				"AND c.org_id = ?  ");
+		List<ClassToTeacher> list = new ArrayList<ClassToTeacher>();//返回结果集
+		if (isAll == 1) {//判断 是否选择全部分页数据  1：是   其他：否
+			params.add(orgId);
+			if(null != termId ) {
+				sql.append(" AND c.term_id = ? ");
+				params.add(termId);
+			} else {
+				//默认查询最晚的学期 
+				sql.append(" AND c.term_id = (SELECT m.term_id FROM (SELECT MAX(start_time),term_id FROM term LIMIT 0,1) m) ");			
+			}
+			if(null != clasType ) {
+				sql.append(" AND c.clas_type = ? ");
+				params.add(clasType);
+			}
+			if(null != categoryId ) {
+				sql.append(" c.category_id = ? ");
+				params.add(categoryId);
+			}
+			if(null != subjectId ) {
+				sql.append(" AND c.subject_id = ? ");
+				params.add(subjectId);
+			}
+			if(null != camId ) {
+				sql.append(" AND c.cam_id = ? ");
+				params.add(camId);
+			}
+			if(null != classWeek ) {
+				sql.append(" AND c.class_week = ? ");
+				params.add(classWeek);
+			}
+			String group = " GROUP BY c.clas_id ";
+			String order1 = "ORDER BY cam.cam_name , c.clas_name, cr.classroom_name ASC";
+			sql.append(group);
+			sql.append(order1);
+			String finalSql = "";
+			String order2 = " ORDER BY tt.cam_name , tt.clas_name, tt.classroom_name ASC ";
+			String limit = "";//分页
+
+			String countSql = "";
+			if (StringUtils.isNotBlank(techNames)) {//模糊查询
+				StringBuffer like1 = new StringBuffer(" SELECT tt.* FROM ( ");
+				StringBuffer like2 = new StringBuffer(" ) tt\r\n" + 
+						"where  LOCATE(? , tt.tech_names )>0 AND LOCATE(? , tt.clas_name )>0 ");
+				params.add(techNames);
+				params.add(techNames);
+				finalSql = like1.append(sql).append(like2).append(order2).toString();
+				//int limitFrom = (page.getPage() - 1) * page.getLimit();
+				//limit = " limit " + limitFrom + "," + page.getLimit();
+				//finalSql = finalSql + limit;
+			} else {
+				finalSql = sql.toString();
+				//int limitFrom = (page.getPage() - 1) * page.getLimit();
+				//limit = " limit " + limitFrom + "," + page.getLimit();
+				//finalSql = finalSql + limit;
+			}
+			list = baseDaoEx.queryListBySql(finalSql, ClassToTeacher.class, params);
+			//班级列表  实收金额
+			for (ClassToTeacher ct : list) {
+				//根据班级id(clas_id) 查询支付项目表，获取实缴金额
+				ChargeDetail cd = baseDaoEx.findById(ChargeDetail.class, ct.getClas_id());
+				ct.setSs_tuition(cd.getMoney());//money 实缴金额（单位：分）
+			}
+		} else {//选择班级id[]查询， 返回班级列表
+			String[] strArray = null; 
+	        strArray = ids.split(",");
+	        for (int i = 0; i < strArray.length; i++) {
+	        	ClassToTeacher ctt = baseDaoEx.findById(ClassToTeacher.class, strArray[i]);
+	        	Charge cd = baseDaoEx.findById(Charge.class, strArray[i]);
+	        	Integer ssMoney = Integer.parseInt(cd.getSs_money());
+				Integer stMoney = Integer.parseInt(cd.getSt_money());
+				Integer balanceFen = ssMoney - stMoney;
+				double balanceYuan = (double) (balanceFen/100);
+				ctt.setSs_tuition(String.valueOf(balanceYuan));//ss_money 实缴金额（单位：分）
+				//ctt.setSs_tuition(cd.getSs_money());//money 实缴金额（单位：分）
+				list.add(ctt);
+	        }
+		}
+		return list;
+	}
+	@SuppressWarnings("null")
+	@Override
+	public List<Map<String, Object>> getStudentList(Integer orgId, Integer clasId, String status) {
+		// TODO Auto-generated method stub
+		String sql = " SELECT c.clas_name, s.stud_name, s.stud_card, sc.stu_status FROM newsng.classes c\r\n" + 
+				"INNER JOIN newsng.student_class sc ON c.clas_id = sc.clas_id AND sc.is_del = 0\r\n" + 
+				"INNER JOIN edugate_base.student s  ON sc.stud_id = s.stud_id AND sc.is_del = 0\r\n" + 
+				"WHERE\r\n" + 
+				"c.is_del = 0\r\n" + 
+				"AND c.org_id = ?\r\n" + 
+				"AND c.clas_id = ?\r\n" ;
+				//"AND s.stu_status in 5\r\n";
+		List<Object> params = new ArrayList<Object>();
+		params.add(orgId);
+		params.add(clasId);
+		String[] statusArr = null;
+		StringBuffer stu =  new StringBuffer("");
+		if (status != null) {
+			stu.append("AND s.stu_status in ( ");
+			statusArr = status.split(",");
+			for (int i = 0; i < statusArr.length; i++) {
+				
+				if(i == statusArr.length-1)//当循环到最后一个的时候 就不添加逗号,
+				{
+					stu.append(statusArr[i]);
+				} else {
+					stu.append(statusArr[i]);
+					stu.append(",");
+				}
+			}
+			stu.append(" )");
+		}
+		sql = sql + stu;
+		List<Map<String, Object>> list = baseDaoEx.queryListBySql(sql, params);
+		return list;
+	}
+	@SuppressWarnings("null")
+	@Override
+	public Map getById(Integer orgId, Integer clasId) {
+		String sql = " SELECT c.clas_id, c.term_id, c.clas_name, c.category_id, c.subject_id, c.clas_type,\r\n" + 
+				"c.cam_id, c.classroom_id, c.size, c.age_range, c.start_birthday, c.end_birthday,\r\n" + 
+				"c.total_hours, c.class_start_date, c.class_week, DATE_FORMAT(c.class_begin_time,'%H:%i') class_begin_time,\r\n" + 
+				"DATE_FORMAT(c.class_over_time,'%H:%i') class_over_time, c.class_unset_time,c.tuition_fees, \r\n" + 
+				"GROUP_CONCAT(t.tech_name) tech_names,\r\n" + 
+				"GROUP_CONCAT(t.tech_id) tech_ids,\r\n" + 
+				"c.cooperation_id\r\n" + 
+				"FROM newsng.classes c \r\n" + 
+				"LEFT JOIN newsng.teacher_class tc ON  c.clas_id = tc.clas_id AND tc.is_del = 0\r\n" + 
+				"LEFT JOIN edugate_base.teacher t ON tc.tech_id = t.tech_id AND t.is_del = 0\r\n" + 
+				"WHERE\r\n" + 
+				"c.is_del = 0\r\n" + 
+				"AND c.org_id = ?\r\n" + 
+				"AND c.clas_id = ?\r\n" + 
+				"GROUP BY c.clas_id ";
+		List<Object> params = new ArrayList<Object>();
+		params.add(orgId);
+		params.add(clasId);
+		
+		List<Map<String, Object>> clasList = baseDaoEx.queryListBySql(sql, params);
+		return clasList.get(0);
+	}
+	/***
+	 * 
+	 */
+	@Override
+	public void update(Map<String, Object> reqMap, SessionInfo sessionInfo, List<Map<String, Object>> techList) {
+		Integer orgId = sessionInfo.getOrgId();
+		Integer clasId = Integer.parseInt((String) reqMap.get("clasId"));
+		String clasName = (String) reqMap.get("clasName");
+		Integer clasType = Integer.parseInt((String) reqMap.get("clasType"));
+		Classes classes = new Classes();
+		classes.setClas_id(clasId);
+		classes.setOrg_id(orgId);
+		classes.setTerm_id(Integer.parseInt((String) reqMap.get("termId")));
+		classes.setClas_name(clasName);
+		classes.setClas_type(Integer.parseInt((String) reqMap.get("clasType")));
+		classes.setCategory_id(Integer.parseInt((String) reqMap.get("categoryId")));
+		classes.setSubject_id(Integer.parseInt((String) reqMap.get("subjectId")));
+		classes.setCam_id(Integer.parseInt((String) reqMap.get("camId")));
+		classes.setClassroom_id(Integer.parseInt((String) reqMap.get("classroomId")));
+		classes.setSize(Integer.parseInt((String) reqMap.get("size")));//size 班级容量
+		classes.setAge_range((String) reqMap.get("ageRange"));//年龄范围
+		classes.setStart_birthday((Date) reqMap.get("startBirthday"));
+		classes.setEnd_birthday((Date) reqMap.get("endBirthday"));
+		classes.setTotal_hours(Integer.parseInt((String) reqMap.get("totalHours")));//totalHours 总课时数
+		classes.setClass_start_date((Date) reqMap.get("classStartDate"));//classStartDate 开课日期
+		
+		String classUnsetTime = (String) reqMap.get("classUnsetTime");
+		if (null == classUnsetTime) {
+			String beginHours = (String) reqMap.get("classBeginTime");
+			String endHours = (String) reqMap.get("classOverTime");
+			StringBuffer sb1 = new StringBuffer("2000-01-01 ");
+			StringBuffer sb2 = new StringBuffer("2000-01-01 ");
+			sb1.append(beginHours).append(":00");
+			sb2.append(endHours).append(":00");
+			Date beginDate = null;
+			Date overDate = null;;
+			try {
+				beginDate = CommonUtils.stringToDate(sb1.toString(), null);
+				overDate = CommonUtils.stringToDate(sb2.toString(), null);
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			classes.setClass_week(Integer.parseInt((String) reqMap.get("classWeek")));//classWeek 上课星期 (周一  周二  周三 。。。)
+			classes.setClass_begin_time(beginDate);
+			classes.setClass_over_time(overDate);
+			classes.setClass_unset_time(null);
+		} else {
+			classes.setClass_week(8);//
+			classes.setClass_begin_time(null);
+			classes.setClass_over_time(null);
+			classes.setClass_unset_time(classUnsetTime);
+		}
+		
+		classes.setTuition_fees((String) reqMap.get("tuitionFees"));//学费标准
+		classes.setCooperation_id(Integer.parseInt((String) reqMap.get("cooperationId")));//联合机构id(教师的所属机构)
+		//修改班级表
+		baseDaoEx.updateOne(classes);
+		String techIds = (String) reqMap.get("techIds"); //教师id，多个以英文逗号分隔（121,145）
+		//  ？  更新班级 应该不用   插入支付项目表
+  		// TODO Auto-generated method stub
+		//班级教师关系表
+		String sql = " UPDATE teacher_class SET is_del = 1 WHERE clas_id = ? ";
+		if (StringUtils.isBlank(techIds)) {
+			//前段返回的班级教师为空，更新该班级与之前老师的关系
+			if (null != techList) {
+				for (Map map : techList) {
+					List<Object> params = new ArrayList<Object>();
+		        	String techId = (String) map.get("tech_id");
+		        	params.add(techId);
+		        	baseDaoEx.executeSql(sql, params);
+		        }
+			}
+		} else {
+			String[] strArray = null; 
+			strArray = techIds.split(","); //拆分字符为"," ,然后把结果交给数组strArray 
+			List<String> techArrayIds = new ArrayList<>(); 
+			for (int i = 0; i < strArray.length; i++) {
+				techArrayIds.add(strArray[i]);
+			}
+			//查询当前班级下的所有老师
+			List<String> techListIds = new ArrayList<>(); 
+			if (null != techList) {
+				for (Map map : techList) {
+					String techId = (String) map.get("tech_id");
+					techListIds.add(techId);
+				}
+			}
+			//listAll = new ArrayList<String>(new LinkedHashSet<>(listAll));//去重
+			if (null == techListIds || techListIds.size() == 0) {//原 班级与教师 无关系
+				for (int i = 0; i < techArrayIds.size(); i++) {//前段返回的教师id, 将前段返回的教师插入到关系表中
+					TeacherClass tc = new TeacherClass();
+					tc.setClas_id(clasId);
+					tc.setTech_id(Integer.parseInt(techArrayIds.get(i)));
+					tc.setInsert_time(new Date());
+					baseDaoEx.saveOne(tc);
+				}
+			} else {
+				//将原 班级与教师有关系的老师  打上 删除标记
+				String delSql = " UPDATE teacher_class SET is_del = 1 WHERE clas_id = ? AND tech_id = ? ";
+				for (int i = 0; i < techListIds.size(); i++) {
+					List<Object> delParams = new ArrayList<Object>();
+					delParams.add(clasId);
+					delParams.add(techListIds.get(i));
+					baseDaoEx.executeSql(delSql, delParams);
+				}
+				//1. 根据班级id和教师id先查询打上删除标记的 班级教师关系  是否存在
+				for (int i = 0; i < techArrayIds.size(); i++) {//前段返回的教师id
+					String tcSql = " SELECT * FROM teacher_class WHERE is_del = 1 AND clas_id = ? AND tech_id = ? ";
+					List<Object> tcParams = new ArrayList<Object>();
+					tcParams.add(clasId);
+					tcParams.add(techArrayIds.get(i));
+					List<Map<String, Object>> tcList = baseDaoEx.queryListBySql(tcSql, tcParams);
+					if (null != tcList) {
+						if (tcList.size() != 1) {//该教师不在有删除标记的 教师班级关系表中
+							TeacherClass tc = new TeacherClass();
+							tc.setClas_id(clasId);
+							tc.setTech_id(Integer.parseInt(techArrayIds.get(i)));
+							tc.setInsert_time(new Date());
+							baseDaoEx.saveOne(tc);
+						} else {// 该教师在已有删除标记的 关系表中
+							//将原 班级与教师有关系的老师  打上 删除标记
+							String ySql = " UPDATE teacher_class SET is_del = 0 WHERE clas_id = ? AND tech_id = ? ";
+							List<Object> yParams = new ArrayList<Object>();
+							yParams.add(clasId);
+							yParams.add(techArrayIds.get(i));
+							baseDaoEx.executeSql(ySql, yParams);
+						}
+					}
+				}
+			}
+		}
+		
+		//操作日志表
+		Integer camId = sessionInfo.getCamId();
+		Integer userType = sessionInfo.getIdentity();
+		String userTypeName = sessionInfo.getLoginName();
+		Integer userTypeId = sessionInfo.getUserId();
+        LoggerUtil.save(orgId, camId, clasId, clasType, clasName, EnumLog.OPERATION_CLASS_EDIT.getKey(), EnumLog.OPERATION_CLASS_EDIT.getValue() + clasName, userType, userTypeId, userTypeName);
+	}
+	/***
+	 * 获取当前班级下的所有老师
+	 */
+	@Override
+	public List<Map<String, Object>> getTecherIds(Integer orgId, Integer clasId) {
+		String sql = " SELECT t.tech_name, t.tech_id FROM  newsng.classes c\r\n" + 
+				"INNER JOIN newsng.teacher_class tc ON tc.clas_id = c.clas_id AND tc.is_del = 0\r\n" + 
+				"INNER JOIN edugate_base.teacher t ON tc.tech_id = t.tech_id AND t.is_del = 0\r\n" + 
+				"WHERE \r\n" + 
+				"c.is_del = 0\r\n" + 
+				"AND c.org_id = ?\r\n" + 
+				"AND c.clas_id = ? ";
+		List<Object> params = new ArrayList<Object>();
+		params.add(orgId);
+		params.add(clasId);
+		List<Map<String, Object>> listTech = baseDaoEx.queryListBySql(sql, params);
+		return listTech;
+	}
+	/***
+	 * 根据机构id和证件编号，返回该学员所在的班级列表
+	 */
+	@Override
+	public List<Map<String, Object>> getStudentInfo(Integer orgId, String studCard) {
+		String sql = " SELECT c.clas_id, s.stud_name, s.stud_id, u.user_idnumber,u.user_type, c.usable_num,c.class_week, \r\n" + 
+				"class_begin_time, class_over_time, \r\n" + 
+				"c.class_unset_time, c.start_birthday, c.end_birthday \r\n" + 
+				"FROM edugate_base.org_user u\r\n" + 
+				"INNER JOIN edugate_base.student s ON u.user_id = s.user_id\r\n" + 
+				"INNER JOIN newsng.student_class sc ON s.stud_id = sc.stud_id\r\n" + 
+				"INNER JOIN newsng.classes c ON c.clas_id = sc.clas_id\r\n" + 
+				"WHERE u.is_del = 0\r\n" + 
+				"AND c.is_del = 0\r\n" + 
+				"AND sc.is_del = 0\r\n" + 
+				"AND s.is_del = 0\r\n" + 
+				"AND u.org_id = ?\r\n" + 
+				"AND u.user_idnumber = ? ";
+		List<Object> params = new ArrayList<Object>();
+		params.add(orgId);
+		params.add(studCard);
+		List<Map<String, Object>> stuInfoList = baseDaoEx.queryListBySql(sql, params);
+		return stuInfoList;
+	}
+	
+	/***
+	 * 插班
+	 */
+	@Override
+	public void joinClass(Map<String, Object> reqMap, SessionInfo sessionInfo, Integer orgId, String studName, Integer studId, Integer clasId, Integer clasType, String tuitionFee) {
+		if (null == orgId) {
+			orgId = sessionInfo.getOrgId();
+		}
+		String clasName = (String) reqMap.get("clasName");
+		StudentClass sc = new StudentClass();
+		sc.setStudId(studId);
+		sc.setClasId(clasId);
+		sc.setCamId(sessionInfo.getCamId());
+		sc.setStuStatus(3);//报名待缴费
+		sc.setIsPrint(0);
+		sc.setIsDel(Constant.IS_DEL_NO);
+		sc.setInsertTime(new Date());
+		baseDaoEx.saveOne(sc);
+		//插入支付详情表
+		// TODO Auto-generated method stub
+		//插入操作日志表
+		Integer userType = sessionInfo.getIdentity();
+		String userTypeName = sessionInfo.getLoginName();
+		Integer userTypeId = sessionInfo.getUserId();
+        LoggerUtil.save(orgId, sessionInfo.getCamId(), studId, clasType, clasName, EnumLog.OPERATION_STU_JOIN_CLASS.getKey(), EnumLog.OPERATION_STU_JOIN_CLASS.getValue() + clasName, userType, userTypeId, userTypeName);
+	}
+	/***
+	 * 获取当前班级下的上课时间、班级可容纳人数、起始生日等
+	 */
+	@Override
+	public List<Map<String, Object>> getCurClassInfo(Integer orgId, Integer camId) {
+		String sql = " SELECT c.usable_num,c.class_week, \r\n" + 
+				"DATE_FORMAT(c.class_begin_time,'%H:%i') class_begin_time1, DATE_FORMAT(c.class_over_time,'%H:%i') class_over_time1, \r\n" + 
+				"class_begin_time, class_over_time,\r\n" +
+				"c.class_unset_time, c.start_birthday, c.end_birthday\r\n" + 
+				"FROM newsng.classes c\r\n" + 
+				"WHERE\r\n" + 
+				"c.org_id = ? \r\n" + 
+				"AND c.clas_id = ? ";
+		List<Object> params = new ArrayList<Object>();
+		params.add(orgId);
+		params.add(camId);
+		List<Map<String, Object>> stuInfoList = baseDaoEx.queryListBySql(sql, params);
+		return stuInfoList;
+	}
+	/***
+	 * 删除班级
+	 */
+	@Override
+	public void delClass(Integer orgId, Integer clasId) {
+		// TODO Auto-generated method stub
+		
+	}
+	/***
+	 * 查询班级的人数
+	 */
+	@Override
+	public Integer getClassNum(Integer orgId, Integer clasId) {
+		String sql = " SELECT COUNT(1) FROM newsng.classes c\r\n" + 
+				"INNER JOIN newsng.student_class sc ON c.clas_id = sc.clas_id\r\n" + 
+				"INNER JOIN edugate_base.student s  ON s.stud_id = sc.stud_id \r\n" + 
+				"WHERE \r\n" + 
+				"c.is_del = 0\r\n" + 
+				"AND sc.is_del = 0\r\n" + 
+				"AND s.is_del = 0\r\n" + 
+				"AND sc.stu_status NOT IN (4,8)\r\n" + 
+				"AND c.org_id = ?\r\n" + 
+				"AND c.clas_id = ? ";
+		List<Object> params = new ArrayList<Object>();
+		params.add(orgId);
+		params.add(clasId);
+		int num = baseDaoEx.countBySql(sql, params);
+		return num;
+	}
+	/***
+	 * 查询班级的钱数
+	 */
+	@Override
+	public BigDecimal getClassFees(Integer orgId, Integer clasId) {
+		String sql = " SELECT c.clas_id, c.clas_name, c.clas_type, cd.money, ch.ss_money, ch.st_money,\r\n" + 
+				"ch.ss_num, ch.st_num\r\n" + 
+				"FROM newsng.classes c\r\n" + 
+				"INNER JOIN newsng.charge ch ON c.clas_id = ch.clas_id\r\n" + 
+				"WHERE \r\n" + 
+				"c.is_del = 0 \r\n" + 
+				"AND ch.is_del = 0\r\n" + 
+				"AND c.org_id = ?\r\n" + 
+				"AND c.clas_id = ? ";
+		List<Object> params = new ArrayList<Object>();
+		params.add(orgId);
+		params.add(clasId);
+		List<Map<String, Object>> listFees = baseDaoEx.queryListBySql(sql, params);
+		BigDecimal balance = null;
+		if (null != listFees) {
+			Map feesMap = listFees.get(0);
+			BigDecimal ssMoney = (BigDecimal) feesMap.get("ss_money");
+			BigDecimal stMoney = (BigDecimal) feesMap.get("st_money");
+			balance = ssMoney.subtract(stMoney);  
+			ssMoney.divide(new BigDecimal(100));
+		}
+		return balance;
+	}
+	
+	@Override
+	public Integer getClassCount(Integer orgId, Integer termId, String clasName) {
+		String sql = " SELECT COUNT(1) FROM newsng.classes c WHERE\r\n" + 
+				" c.is_del = 0 AND  c.org_id = ? AND c.term_id = ? AND c.clas_name = ? ";
+		List<Object> params = new ArrayList<Object>();
+		params.add(orgId);
+		params.add(termId);
+		params.add(clasName);
+		int classCount = baseDaoEx.countBySql(sql, params);
+		return classCount;
+	}
+	
+	@Override
+	public Map getClassListByTerm(Integer orgId, Integer termId) {
+		String sql = " SELECT c.clas_id, c.clas_name FROM newsng.classes c WHERE\r\n" + 
+				" c.is_del = 0 AND  c.org_id = ? AND c.term_id = ? ";
+		List<Object> params = new ArrayList<Object>();
+		params.add(orgId);
+		params.add(termId);
+		Map clasMap = new HashMap();
+		List<Map<String, Object>> clasList = baseDaoEx.queryListBySql(sql, params);
+		if (null != clasList) {
+			for (Map clas : clasList) {
+				clasMap.put(clas.get("clas_name"), clas.get("clas_id"));
+			}
+		}
+		return clasMap;
+	}
+	
+	@Override
+	public boolean existsClassromm(Integer camId, String building, String floor, String classroomName) {
+		ParamObj paramObj = new ParamObj();
+		paramObj.setCam_id(camId);
+		boolean flag = false;
+		List<Classroom> classroomList = classRoomDao.queryClassRoomList(paramObj);
+		if (null != classroomList) {
+			for (Classroom room : classroomList) {
+				String roomBuilding = room.getBuilding();
+				String roomClassroomName = room.getClassroom_name();
+				String roomFloor = room.getFloor();
+				if (null != building && null != floor && null != classroomName) {
+					if (building.equals(roomBuilding)) {
+						return flag;
+					}
+					if (roomFloor.equals(roomFloor)) {
+						return flag;
+					}
+					if (roomClassroomName.equals(classroomName)) {
+						return flag;
+					}
+				} else {
+					return flag;
+				}
+			}
+		}
+		return true;
+	}
+	@Override
+	public boolean existsCategory(Integer orgId, String categoryName) {
+		boolean flag = false;
+		ParamObj paramObj = new ParamObj();
+		paramObj.setOrg_id(orgId);
+		paramObj.setIsDel(0); // 0:否 1:是
+		List<Category> list = categoryManageDao.queryCategoryListInfo(paramObj);
+		if (null != list) {
+			for (Category cate : list) {
+				String cateCategoryName = cate.getCategory_name();
+				if (categoryName != null) {
+					if (categoryName.equals(cateCategoryName)) {
+						return flag;
+					}
+				} else {
+					return flag;
+				}
+			}
+		}
+		return true;
+	}
+	@Override
+	public boolean existsSubject(Integer orgId, String subjectName) {
+		boolean flag = false;
+		ParamObj paramObj = new ParamObj();
+		paramObj.setOrg_id(orgId);
+		paramObj.setIsDel(0);
+		List<Subject> list = baseSetSubjectManageDao.querySubjectListInfo(paramObj);
+		if (null != list) {
+			for (Subject sub : list) {
+				String subSubject = sub.getSubject_name();
+				if (null != subjectName) {
+					if (subjectName.equals(subSubject)) {
+						return flag;
+					}
+				} else {
+					return flag;
+				}
+			}
+		}
+		return true;
+	}
+	@Override
+	public Map getClassromm(Integer camId) {
+		Map classRoomMap = new HashMap();
+		ParamObj paramObj = new ParamObj();
+		paramObj.setCam_id(camId);
+		boolean flag = false;
+		List<Classroom> classroomList = classRoomDao.queryClassRoomList(paramObj);
+		if (null != classroomList) {
+			for (Classroom room : classroomList) {
+				Integer clasroomId = room.getClassroom_id();
+				String roomBuilding = room.getBuilding();
+				String roomClassroomName = room.getClassroom_name();
+				String roomFloor = room.getFloor();
+				String valueStr = roomBuilding + "_" + roomFloor + "_" + roomClassroomName; 
+				classRoomMap.put(valueStr, clasroomId);
+			}
+		}
+		return classRoomMap;
+	}
+	@Override
+	public Map getCategory(Integer orgId) {
+		Map categoryMap = new HashMap();
+		ParamObj paramObj = new ParamObj();
+		paramObj.setOrg_id(orgId);
+		paramObj.setIsDel(0); // 0:否 1:是
+		List<Category> cateList = categoryManageDao.queryCategoryListInfo(paramObj);
+		if (null != cateList) {
+			for (Category cate : cateList) {
+				String categoryName = cate.getCategory_name();
+				Integer categoryId = cate.getCategory_id();
+				categoryMap.put(categoryName, categoryId);
+			}
+		}
+		return categoryMap;
+	}
+	@Override
+	public Map getSubject(Integer orgId) {
+		Map subjectMap = new HashMap();
+		ParamObj paramObj = new ParamObj();
+		paramObj.setOrg_id(orgId);
+		paramObj.setIsDel(0);
+		List<Subject> subList = baseSetSubjectManageDao.querySubjectListInfo(paramObj);
+		if (null != subList) {
+			for (Subject sub : subList) {
+				Integer subjectId = sub.getSubject_id();
+				String subjectName = sub.getSubject_name();
+				subjectMap.put(subjectName, subjectId);
+	 		}
+		}
+		return subjectMap;
+	}
+	@Override
+	public Map getTeacher(Integer orgId) {
+		String sql = " SELECT t.tech_id, t.tech_name, u.user_mobile FROM edugate_base.teacher t\r\n" + 
+				"INNER JOIN edugate_base.org_user u ON t.user_id = u.user_id AND u.is_del = 0\r\n" + 
+				"WHERE t.is_del = 0\r\n" + 
+				"AND t.org_id = ? ";
+		Map techMap = new HashMap();
+		List<Object> params = new ArrayList<Object>();
+		params.add(orgId);
+		List<Map<String, Object>> techList = baseDaoEx.queryListBySql(sql, params);
+		if (null != techList) {
+			for (Map tech : techList) {
+				String techId = (String) tech.get("tech_id");
+				String techName = (String) tech.get("tech_name");
+				String mobile = (String) tech.get("user_mobile");
+				String valueStr = techName + "_" + mobile; 
+				techMap.put(valueStr, techId);
+			}
+		}
+		return techMap;
+	}
+	@Override
+	public Map getCooperative(Integer orgId) {
+		Map cooMap = new HashMap();
+		ParamObj paramObj = new ParamObj();
+		paramObj.setOrg_id(orgId);
+		paramObj.setNeedCount(false);
+		Paging<Cooperative> paging = baseSetCooperativeManageDao.queryCooperativeListInfo(paramObj);
+		List<Cooperative> cooList = paging.getData();
+		for (Cooperative coo : cooList) {
+			cooMap.put(coo.getName(), coo.getCooperative_id());
+		}
+		return cooMap;
+	}
+	@Override
+	public Map getCampus(Integer orgId) {
+		Map campusMap = new HashMap();
+		ParamObj paramObj = new ParamObj();
+		paramObj.setOrg_id(orgId);
+		paramObj.setNeedCount(false);
+		Paging<Campus> paging = baseSetCampusManageDao.queryCampusListInfo(paramObj);
+		List<Campus> camList = paging.getData();
+		for (Campus campus : camList) {
+			campusMap.put(campus.getCam_name(), campus.getCam_id());
+		}
+		return campusMap;
+	}
+	
+	@Override
+	@Transactional//(propagation=Propagation.NOT_SUPPORTED,readOnly=true)
+	public void saveClass(ImportClass iClass, Map allTechMap, SessionInfo sessionInfo) {
+		Integer num = 0;
+		Classes classes = iClass.getClasses();
+		//插入班级表
+		Integer classId = (Integer) baseDaoEx.saveOne(classes);
+		String techNames = iClass.getTech_names(); //教师名称_手机号码，多个以英文逗号分隔（张三_18811223344,李四_15812378945）
+		//插入班级教师关系表
+		if (null != techNames) {//教师名称不为空，插入教师班级关系表
+			TeacherClass tech = new TeacherClass();
+			String[] techNameArray = techNames.split(","); //拆分字符为"," ,然后把结果交给数组strArray 
+	        if (0 != techNameArray.length) {
+	        	for (int i = 0; i < techNameArray.length; i++) {
+	        		Integer techId = (Integer) allTechMap.get(techNameArray[i]);
+	        		tech.setTech_id(techId);
+	        		tech.setInsert_time(new Date());
+	        		tech.setIs_del(Constant.IS_DEL_NO);
+			        tech.setClas_id(classId);
+			        baseDaoEx.saveOne(tech);
+		        }
+	        }
+		}
+				
+		 //插入支付项目表
+		// TODO Auto-generated method stub
+
+		//操作日志表
+		Integer orgId = sessionInfo.getOrgId();
+		Integer camId = sessionInfo.getCamId();
+		Integer userType = sessionInfo.getIdentity();
+		String userTypeName = sessionInfo.getLoginName();
+		Integer userTypeId = sessionInfo.getUserId();
+		
+        LoggerUtil.save(orgId, camId, classId, classes.getClas_type(), classes.getClas_name(), EnumLog.OPERATION_CLASS_CREATE.getKey(), EnumLog.OPERATION_CLASS_CREATE.getValue() + classes.getClas_name(), userType, userTypeId, userTypeName);
+	}
+	
+	/***
+	 * @Description:批量导出班级
+	 * @param fin 文件流
+	 * @param orgId 机构id
+	 * @param termId 学期id
+	 */
+	@Override
+	@Transactional(propagation=Propagation.NOT_SUPPORTED,readOnly=true)
+	public Map importClass(HttpSession session, SessionInfo sessionInfo, InputStream fin, Integer orgId, Integer termId) {
+		Map returnMap = new HashMap<>();
+		LinkedHashMap<String, String> clasMap = new LinkedHashMap<String, String>();
+		clasMap.put("班级名称", "clas_name");
+		clasMap.put("班级类别", "clas_type_name");
+		clasMap.put("所属类目", "category_name");
+		clasMap.put("所属科目", "subject_name");
+		clasMap.put("所属校区", "cam_name");
+		clasMap.put("所在教学楼", "building");
+		clasMap.put("所在楼层", "floor");
+		clasMap.put("所在教室", "classroom_name");
+		clasMap.put("班级容量", "size");
+		clasMap.put("年龄要求", "age_range");
+		clasMap.put("起始生日", "start_birthday");
+		clasMap.put("结束生日", "end_birthday");
+		clasMap.put("总课时数", "total_hours");
+		clasMap.put("开课日期", "class_start_date");
+		clasMap.put("上课星期", "class_week_name");
+		clasMap.put("上课时间", "class_begin_time");
+		clasMap.put("下课时间", "class_over_time");
+		clasMap.put("不固定时间", "class_unset_time");
+		clasMap.put("学费标准", "tuition_fees");
+		clasMap.put("职教老师", "tech_names");
+		clasMap.put("联合机构", "name");
+		Integer camId = sessionInfo.getCamId();
+		ImportRecord ir = new ImportRecord();
+		
+		//校验数据  不合法添加
+		List<ClassTeacher> errorList = new ArrayList<ClassTeacher>();
+		//校验数据  合法  添加到班级列表
+		List<ImportClass> correctClassList = new ArrayList<ImportClass>();
+		//获取当前学期下的所有班级
+		Map<String,Integer> allClassMap = this.getClassListByTerm(orgId, termId);
+		//获取当前机构下的所有校区
+		Map<String,Integer> allCampusMap = this.getCampus(orgId);
+		//获取当前校区的所有教室
+		Map<String,Integer> allClassRoomMap = this.getClassromm(camId);
+		//获取当前机构的所有类目
+		Map<String,Integer> allCategoryMap = this.getCategory(orgId);
+		//获取当前机构的所有科目
+		Map<String,Integer> allSubjectMap = this.getSubject(orgId);
+		//获取当前机构的所有老师
+		Map<String,Integer> allTechMap = this.getTeacher(orgId);
+		//获取当前机构的所有合作机构
+		Map<String,Integer> cooMap = this.getCooperative(orgId);
+		//读取excel数据转成list
+		List<ClassTeacher> ctList = ExcelImport.excelToList(fin, "", ClassTeacher.class, clasMap);
+		//判断list中的数据是否合法
+		if (null != ctList) {
+			ir.setTotalCount(ctList.size());
+			for (ClassTeacher ct : ctList) {
+				
+				StringBuffer errorBuffer = new StringBuffer("");
+				//校验excel中的每一行数据是否为合法数据，默认合法
+				boolean validateFlag = true;
+				//校验班级名称
+				String clasName = ct.getClas_name();
+				if (null != clasName) {
+					clasName = clasName.trim();
+					boolean clasNameFlag = allClassMap.containsKey(clasName);
+					if (clasNameFlag == false) {
+						errorBuffer.append("当前学期下的班级名称不可重复;");
+						validateFlag = false;
+					}
+				} else {
+					errorBuffer.append("班级名称不能为空;");
+					validateFlag = false;
+				}
+				//校区名称校验
+				String campusName = ct.getCam_name();
+				if (campusName != null) {
+					campusName = campusName.trim();
+					boolean campusFlag = allCampusMap.containsKey(campusName);
+					if (campusFlag == false) {
+						errorBuffer.append("校区名称不存在基础校区数据中;");
+						validateFlag = false;
+					}
+				} else {
+					errorBuffer.append("校区名称不能为空;");
+					validateFlag = false;
+				}
+				//校验类目名称
+				String categoryName = ct.getCategory_name();
+				if (categoryName != null) {
+					categoryName = categoryName.trim();
+					boolean categoryFlag = allCategoryMap.containsKey(categoryName);
+					if (categoryFlag == false) {
+						errorBuffer.append("类目名称不存在基础类目数据中;");
+						validateFlag = false;
+					}
+				} else {
+					errorBuffer.append("类目名称不能为空;");
+					validateFlag = false;
+				}
+				//校验教室名称
+				String building = ct.getBuilding();
+				String floor = ct.getFloor();
+				String classroomName = ct.getClassroom_name();
+				if (null != building && null != floor && null != classroomName) {
+					building = building.trim();
+					floor = floor.trim();
+					classroomName = classroomName.trim();
+					String bfc = building + "_" + floor + "_" + classroomName;
+
+					boolean classroomFlag = allClassRoomMap.containsKey(bfc);
+					if (classroomFlag == false) {
+						errorBuffer.append("所在教室、所在教学楼、所在楼层不存在基础教室数据中;");
+						validateFlag = false;
+					}
+				} else {
+					errorBuffer.append("所在教室、所在教学楼、所在楼层不能为空;");
+					validateFlag = false;
+				}
+				//校验科目名称
+				String subjectName = ct.getSubject_name();
+				if (null != subjectName) {
+					subjectName = subjectName.trim();
+					boolean subjectFlag = allSubjectMap.containsKey(subjectName);
+					if (subjectFlag == false) {
+						errorBuffer.append("科目名称不存在基础科目数据中;");
+						validateFlag = false;
+					}
+				} else {
+					errorBuffer.append("科目名称不能为空;");
+					validateFlag = false;
+				}
+
+				//校验 列表中的值是否合法
+				boolean legal = true;
+				legal = ValidateObject.validate(ct, errorBuffer, legal);
+				if (legal == false) {
+					validateFlag = false;
+				}
+				
+				//职教老师如果不在老师基础数据库存在，则建立个新教师数据，多个教师用半角“,”分割。  例如： 张三_13536251478,赵天_18812345678
+				String techNames = ct.getTech_names();
+				if (null != techNames) {//
+					String[] techArray = techNames.split(","); //拆分字符为"," ,然后把结果交给数组strArray 
+			        if (0 != techArray.length) {
+			        	for (int i = 0; i < techArray.length; i++) {
+				        	//String[] nameAndPhone = techArray[i].split(",");
+				        	//String techName = nameAndPhone[0];
+				        	//String phone = nameAndPhone[1];
+				        	//String valueStr = techName + "_" + phone; 
+				        	boolean techFlag = allTechMap.containsKey(techArray[i]);
+				        	if (techFlag == false) {
+				        		errorBuffer.append("教师名称不存在基础教师数据中;");
+				        		validateFlag = false;
+				        	}
+				        }
+			        }
+
+				}
+				//联合机构如果不为空，必须在合作机构中名字一致。
+				String cooName = ct.getName();
+				if (null != cooName) {
+					cooName = cooName.trim();
+					boolean cooFlag = cooMap.containsKey(cooName);
+					if (cooFlag == false) {
+						errorBuffer.append("联合机构的名称不存在合作结构数据中;");
+						validateFlag = false;
+					}
+				}
+				
+				if (validateFlag == false) {// 当前条校验不通过
+					//将错误信息的当前数据添加到错误列表中
+					ct.setError_msg(errorBuffer.toString());
+					errorList.add(ct);
+				} else {// 当前条数据校验合法
+					//将合法数据添加到正确列表中
+					ImportClass iClass = new ImportClass();//班级+教师
+					Classes clas = new Classes();//班级
+
+					clas.setOrg_id(orgId);//添加机构id
+					clas.setTerm_id(termId);//学期id
+					clas.setClas_name(ct.getClas_name());//班级名称
+					Integer clasType = null;
+					if (ct.getClas_type_name().equals("老生班")) {
+						clasType = 1;
+					} else if (ct.getClas_type_name().equals("新生班")) {
+						clasType = 2;
+					}
+					clas.setClas_type(clasType);//班级类型
+					//根据类目名称获取类目id
+					Integer categoryId = (Integer) allCategoryMap.get(ct.getCategory_name());
+					clas.setCategory_id(categoryId);//类目id
+					//根据科目名称获取科目id
+					Integer subjectId = (Integer) allSubjectMap.get(ct.getSubject_name());
+					clas.setSubject_id(subjectId);//科目id
+					//根据所属教学楼+所属楼层+教室名称获取教室id
+					Integer classRoomId = (Integer) allClassRoomMap.get(ct.getBuilding() + "_" + ct.getFloor() + "_" + ct.getClassroom_name());
+					clas.setClassroom_id(classRoomId);//教室id
+					//根据校区名称获取去校区id
+					Integer campusId = (Integer) allCampusMap.get(ct.getCam_name());
+					clas.setCam_id(campusId);//校区id
+					clas.setSize(Integer.parseInt(ct.getSize()));//班级容量
+					clas.setUsable_num(Integer.parseInt(ct.getSize()));//创建班级时，初始化可用名额  默认与班级容量相等
+					clas.setAge_range(ct.getAge_range());//年龄要求
+					try {
+						clas.setStart_birthday(CommonUtils.stringToDate(ct.getStart_birthday(), "yyyy-MM-dd"));
+						//开始生日
+						clas.setEnd_birthday(CommonUtils.stringToDate(ct.getEnd_birthday(), "yyyy-MM-dd"));//结束生日
+						clas.setClass_start_date(CommonUtils.stringToDate(ct.getClass_start_date(), "yyyy-MM-dd"));//开课日期
+					} catch (ParseException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+
+					clas.setTotal_hours(Integer.parseInt(ct.getTotal_hours()));//总课时数
+					Integer classWeek = 0;
+					if (null != ct.getClass_unset_time()) {//不固定时间 不为空
+						classWeek = 8;
+						clas.setClass_week(classWeek);//上课星期
+						clas.setClass_begin_time(null);//开始时间
+						clas.setClass_over_time(null);//结束时间
+						clas.setClass_unset_time(ct.getClass_unset_time());//不固定时间
+					} else {//不固定时间 为空
+						String classBeginTime = ct.getClass_begin_time();
+						String classOverTime = ct.getClass_over_time();
+						StringBuffer sb1 = new StringBuffer("2000-01-01 ");
+						StringBuffer sb2 = new StringBuffer("2000-01-01 ");
+						sb1.append(classBeginTime).append(":00");
+						sb2.append(classOverTime).append(":00");
+						Date classBeginDate = null;
+						Date classOverDate = null;
+						try {
+							classBeginDate = CommonUtils.stringToDate(sb1.toString(), null);
+							classOverDate = CommonUtils.stringToDate(sb2.toString(), null);
+						} catch (ParseException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						clas.setClass_week(ValidateObject.getClassWeek(classWeek, ct.getClass_week_name()));
+						clas.setClass_begin_time(classBeginDate);
+						clas.setClass_over_time(classOverDate);
+						clas.setClass_unset_time(null);
+					}
+					clas.setTuition_fees(ct.getTuition_fees());//学费
+					clas.setCooperation_id(cooMap.get(ct.getName()));//合作机构
+					iClass.setTech_names(techNames);
+					iClass.setClasses(clas);
+					//将班级信息放入正确列表
+					correctClassList.add(iClass);
+
+				}
+				
+			}
+			Integer succCount = correctClassList.size();
+			Integer errCount = errorList.size();
+			//如果班级列表（correctClassList）不为空，进行添加
+			for (ImportClass ic : correctClassList) {
+				try {
+					this.saveClass(ic, allTechMap, sessionInfo);
+				} catch (Exception e) {
+					ClassTeacher ct = new ClassTeacher();
+					Classes classes = ic.getClasses();
+					ct.setClas_name(classes.getClas_name());
+					ct.setClas_type_name(Consts.CLASS_TYPE_MAP.get(classes.getClas_type()));
+					ct.setCategory_name(ValidateObject.getKey(allCategoryMap, classes.getCategory_id()));
+					ct.setSubject_name(ValidateObject.getKey(allSubjectMap, classes.getSubject_id()));
+					ct.setCam_name(ValidateObject.getKey(allCampusMap, classes.getCam_id()));
+					//获取的buildingFloorClassroom （roomBuilding + "_" + roomFloor + "_" + roomClassroomName）
+					String buildingFloorClassroom = ValidateObject.getKey(allClassRoomMap, classes.getClassroom_id());
+					String[] arr = buildingFloorClassroom.split("_");
+					ct.setBuilding(arr[0]);
+					ct.setFloor(arr[1]);
+					ct.setClassroom_name(arr[2]);
+					ct.setSize(classes.getSize().toString());
+					ct.setAge_range(classes.getAge_range());
+					ct.setStart_birthday(classes.getStart_birthday().toString());
+					ct.setEnd_birthday(classes.getEnd_birthday().toString());
+					ct.setTotal_hours(classes.getTotal_hours().toString());
+					ct.setClass_start_date(classes.getClass_start_date().toString());
+					ct.setClass_week_name(Consts.WEEK_MAP.get(classes.getClass_week()));
+					ct.setClass_begin_time(classes.getClass_begin_time().toString().substring(11, 16));
+					ct.setClass_over_time(classes.getClass_over_time().toString().substring(11, 16));
+					ct.setClass_unset_time(classes.getClass_unset_time());
+					ct.setTuition_fees(classes.getTuition_fees());
+					ct.setName(ValidateObject.getKey(cooMap, classes.getCooperation_id()));
+					ct.setTech_names(ic.getTech_names());
+					ct.setError_msg("服务异常或数据库异常");
+					errorList.add(ct);//将异常数据写入errorList
+					errCount++;
+					succCount--;
+					log.info("importClass  Exception : " + e);
+				}
+			}
+			session.setAttribute("errNum", errCount);
+			session.setAttribute("sucNum", succCount);
+			session.setAttribute("total", ctList.size());
+			session.setAttribute("classExcel", errorList);
+			returnMap.put("total", ctList.size());
+			returnMap.put("errNum", errCount);
+			returnMap.put("sucNum", succCount);
+		} else {
+			returnMap.put("total", 0);
+			returnMap.put("errNum", 0);
+			returnMap.put("sucNum", 0);
+			return returnMap;
+		}
+		
+		return returnMap;
+	}
+	/***
+	 * @Description:批量导出学生
+	 * @param fin 文件流
+	 * @param orgId 机构id
+	 * @param termId 学期id
+	 */
+	@Override
+	public Map importStudent(HttpSession session, SessionInfo sessionInfo, InputStream fin, Integer orgId, Integer termId) {
+		Map returnMap = new HashMap();
+		//班级名称、学员名称、证件号码、学员状态
+		LinkedHashMap<String, String> stuMap = new LinkedHashMap<String, String>();
+		stuMap.put("班级名称", "clas_name");
+		stuMap.put("学员名称", "stud_name");
+		stuMap.put("证件号码", "user_idnumber");
+		stuMap.put("学员状态", "stu_status");
+		Integer camId = sessionInfo.getCamId();
+		ImportRecord ir = new ImportRecord();
+		//读取excel数据转成list
+		//List<ClassTeacher> ctList = ExcelImport.excelToList(fin, "", ClassTeacher.class, stuMap);
+
+		return returnMap;
+	}
+}

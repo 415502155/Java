@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>校园食谱</title>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+    <!--ui包-->
+    <link rel="stylesheet" href="../../../css/sm.css">
+    <link rel="stylesheet" href="../../../css/layout.css">
+    <link rel='stylesheet prefetch' href='../../../js/photoSwipe/photoswipe.css'>
+    <link rel='stylesheet prefetch' href='../../../js/photoSwipe/default-skin/default-skin.css'>
+
+    <style>
+        .bar .button-link {
+            color: #fff;
+        }
+
+        /*公用表格*/
+        .gui-table {
+            width: 100%;
+            text-align: left;
+            border-spacing: 0;
+            /* border: 1px solid #e0e0e0;*/
+            border-width: 1px 0 0 1px;
+        }
+
+        .gui-table td, .gui-table th {
+            /*border: 1px solid #e0e0e0;*/
+            border-width: 0 1px 1px 0
+        }
+
+        .gui-table th, .gui-table thead td {
+            color: #3f4851;
+            background-color: #fff;
+            border-collapse: collapse;
+            padding: 4px;
+            font-size: 16px;
+            height: 24px;
+            line-height: 24px;
+            text-align: center;
+            font-weight: 400
+        }
+
+        .gui-table tbody td, .gui-table tfoot td, .gui-table tfoot th {
+            padding: 3px 4px 4px;
+            vertical-align: top;
+            max-width: 140px
+        }
+
+        .gui-table td {
+            padding: 4px;
+            vertical-align: top;
+            height: 24px;
+            line-height: 24px;
+            text-align: center;
+            color: #69748a;
+            font-size: 14px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap
+        }
+
+        .gui-table td.text-left {
+            text-align: left
+        }
+
+        .gui-table td.text-right {
+            text-align: right
+        }
+
+        .gui-table tbody > tr.even.hover > td, .gui-table tbody > tr.even:hover + tr.tablesorter-childRow + tr.tablesorter-childRow > td, .gui-table tbody > tr.even:hover + tr.tablesorter-childRow > td, .gui-table tbody > tr.even:hover > td, .gui-table tbody > tr.hover > td, .gui-table tbody > tr:hover + tr.tablesorter-childRow + tr.tablesorter-childRow > td, .gui-table tbody > tr:hover + tr.tablesorter-childRow > td, .gui-table tbody > tr:hover > td {
+            background-color: #faf5e3;
+
+        }
+
+        .gui-table tbody > tr.odd.hover > td, .gui-table tbody > tr.odd:hover + tr.tablesorter-childRow + tr.tablesorter-childRow > td, .gui-table tbody > tr.odd:hover + tr.tablesorter-childRow > td, .gui-table tbody > tr.odd:hover > td {
+            background-color: #faf5e3;
+
+        }
+
+        .gui-table tbody tr.odd > td {
+            background-color: #fbfcfe
+        }
+
+        .gui-table tbody tr > td.operation span {
+            padding: 0 5px 0 10px;
+            cursor: pointer;
+            border-right: 1px #e0e0e0 solid;
+            position: relative
+        }
+
+        .gui-table tbody tr > td.operation span:last-child {
+            border-right: none
+        }
+
+        .gui-table tbody tr > td.operation span:hover {
+            color: #f2564e
+        }
+
+        .gui-table tbody tr > td.operation span em {
+            display: block;
+            position: absolute;
+            width: 0;
+            height: 0;
+            background: #f2564e;
+            top: 24px;
+            left: 50%;
+            transition: all .3s ease-out
+        }
+
+        .gui-table tbody tr > td.operation span:hover em {
+            width: 100%;
+            height: 1px;
+            background: #f2564e;
+            left: 0;
+            right: 0
+        }
+
+        .gui-table tbody tr.even > td {
+            background-color: #fff
+        }
+
+        .gui-table .tablesorter-filter-row td {
+            background-color: #eee;
+            line-height: normal;
+            text-align: center;
+            -webkit-transition: line-height .1s ease;
+            -moz-transition: line-height .1s ease;
+            -o-transition: line-height .1s ease;
+            transition: line-height .1s ease
+        }
+
+        .gui-table .tablesorter-filter-row.hideme td {
+            padding: 2px;
+            margin: 0;
+            line-height: 0;
+            cursor: pointer
+        }
+
+        .gui-table .tablesorter-filter-row.hideme * {
+            height: 1px;
+            min-height: 0;
+            border: 0;
+            padding: 0;
+            margin: 0;
+            opacity: 0;
+            filter: alpha(opacity=0)
+        }
+
+        .gui-table th.focus {
+            background: #c1def1;
+            color: #fff;
+        }
+
+        .gui-table tr:first-child th.focus {
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+        }
+
+        .input_nostyle {
+            height: 44px;
+            background: none;
+            border: none;
+            text-align: center;
+        }
+
+        .list-block .item-after {
+            max-height: none;
+            white-space: normal;
+            line-height: 24px;
+            width: 72%;
+        }
+
+        .cookImList {
+            padding-left: 2%
+        }
+
+        .cookImList ul li {
+            display: inline-block;
+            width: 22.5%;
+            margin-right: 1%;
+            border: 1px #ccc solid;
+            overflow: hidden;
+            min-height: 96px;
+            vertical-align: top;
+            position: relative;
+            margin-bottom: .5rem;
+        }
+
+        .cookImList ul li img {
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
+            z-index: 0;
+            vertical-align: middle;
+            -o-object-fit: cover;
+            object-fit: cover;
+            position: absolute;
+        }
+
+        .my-gallery {
+            margin-bottom: 0;
+            padding: 0 .5rem .5rem;
+        }
+
+        .my-gallery figure {
+            width: 25%;
+            display: inline-block;
+            padding-left: .15rem;
+            padding-right: .15rem;
+            margin-bottom: .15rem;
+            vertical-align: top;
+        }
+
+        .fourimg figure:nth-child(2n) {
+            margin-right: 20px
+        }
+
+        .oneimg figure {
+            width: 275px;
+        }
+
+        .smallImglist .oneimg img {
+            max-width: 100%;
+            z-index: 0;
+            vertical-align: middle;
+            -o-object-fit: contain;
+            object-fit: contain;
+            position: inherit;
+            height: auto;
+            width: auto;
+        }
+
+        .my-gallery figure a {
+            padding-bottom: 100%;
+            height: 0;
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .oneimg figure a {
+            padding-bottom: 0;
+            height: auto;
+        }
+
+        .my-gallery figure a img {
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
+            z-index: 0;
+            vertical-align: middle;
+            -o-object-fit: cover;
+            object-fit: cover;
+            position: absolute;
+        }
+
+        .cooknoData {
+            text-align: center;
+            color: #c5c5c5;
+            padding: 80px 0;
+        }
+        .cookTipFont { line-height: 45px;}
+
+        .dataTip {
+            display: block;
+            width: 6px;
+            height: 6px;
+            background: #1ad2a7;
+            margin: 5px auto 10px; border-radius: 50%;
+        }
+
+        .nodataTip {
+            display: block;
+            width: 6px;
+            height: 6px;
+            margin: 5px auto 10px;
+        }
+
+    </style>
+</head>
+<body>
+<div class="page-group">
+    <div class="page page-current" id="cook">
+        <header class="bar bar-nav">
+            <!--<span class="icon icon-left" id="prevDay" style="padding: 10px 20px 10px 0px;">上一周</span>
+                   <span ><input type="text" data-toggle='date' data-currentDate=""  value="2018-06" id="nowDate" class="input_nostyle" style="text-align: center" /></span>
+                   <span class="icon icon-right" id="nextDay" style="padding: 10px 0 10px 20px;">下一周</span>-->
+            <button class="button button-link button-nav pull-left" id="prevWeek">
+                <span class="icon icon-left"></span>
+                上一周
+            </button>
+            <button class="button button-link button-nav pull-right" id="nextWeek">
+                下一周
+                <span class="icon icon-right"></span>
+            </button>
+            <h1 class="title"><input type="text" data-toggle='date' data-currentDate="" value=" " id="nowDate" readonly="readonly"
+                                     class="input_nostyle" style="text-align: center"/></h1>
+            <input type="hidden" value="" id="jmonth">
+            <input type="hidden" value="" id="today">
+        </header>
+
+
+        <div class="content native-scroll">
+            <!--日历-->
+            <div class="list-block" style="margin-top: 0">
+                <li style="background: #fff;padding: 10px 0 0;">
+                    <table cellspacing="1" cellpadding="0" class="gui-table" border="0" id="showStudentCapacity_table"
+                           style="background:#fff;">
+                        <thead>
+                        <tr id="weekText">
+                            <th>一</th>
+                            <th>二</th>
+                            <th>三</th>
+                            <th>四</th>
+                            <th>五</th>
+                            <th>六</th>
+                            <th>日</th>
+                        </tr>
+                        <tr id="dateText">
+                            <th style="height: 53px;">0<span class="nodataTip"></span></th>
+                            <th>0<span class="nodataTip"></span></th>
+                            <th>0<span class="nodataTip"></span></th>
+                            <th>0<span class="nodataTip"></span></th>
+                            <th>0<span class="nodataTip"></span></th>
+                            <th>0<span class="nodataTip"></span></th>
+                            <th>0<span class="nodataTip"></span></th>
+                        </tr>
+                        </thead>
+                    </table>
+                </li>
+            </div>
+            <div class="content-block-title" id="cookImgTitle">食谱照片</div>
+            <div class="smallImglist">
+                <div class="my-gallery " id="imgBox" data-pswp-uid="2">
+                    <!-- <figure itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject"><a
+                             href="http://yun.5tree.cn/esb/res/pic/0/89/8931.jpg" itemprop="contentUrl" class="external"
+                             data-size="1080x1440"><img src="http://yun.5tree.cn/esb/res/pic/0/89/8931.jpg"
+                                                        onload="getWH(this)" itemprop="thumbnail" alt=""
+                                                        style="display: inline;"></a></figure>
+                     <figure itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject"><a
+                             href="http://yun.5tree.cn/esb/res/pic/0/89/8932.jpg" itemprop="contentUrl" class="external"
+                             data-size="1080x1440"><img src="http://yun.5tree.cn/esb/res/pic/0/89/8932.jpg"
+                                                        onload="getWH(this)" itemprop="thumbnail" alt=""
+                                                        style="display: inline;"></a></figure>
+                     <figure itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject"><a
+                             href="http://yun.5tree.cn/esb/res/pic/0/89/8933.jpg" itemprop="contentUrl" class="external"
+                             data-size="1080x1440"><img src="http://yun.5tree.cn/esb/res/pic/0/89/8933.jpg"
+                                                        onload="getWH(this)" itemprop="thumbnail" alt=""
+                                                        style="display: inline;"></a></figure>
+                     <figure itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject"><a
+                             href="http://yun.5tree.cn/esb/res/pic/0/89/8934.jpg" itemprop="contentUrl" class="external"
+                             data-size="1080x1440"><img src="http://yun.5tree.cn/esb/res/pic/0/89/8934.jpg"
+                                                        onload="getWH(this)" itemprop="thumbnail" alt=""
+                                                        style="display: inline;"></a></figure>
+                     <figure itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject"><a
+                             href="http://yun.5tree.cn/esb/res/pic/0/89/8935.jpg" itemprop="contentUrl" class="external"
+                             data-size="1080x1440"><img src="http://yun.5tree.cn/esb/res/pic/0/89/8935.jpg"
+                                                        onload="getWH(this)" itemprop="thumbnail" alt=""
+                                                        style="display: inline;"></a></figure>
+                     <figure itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject"><a
+                             href="http://yun.5tree.cn/esb/res/pic/0/89/8936.jpg" itemprop="contentUrl" class="external"
+                             data-size="1080x1440"><img src="http://yun.5tree.cn/esb/res/pic/0/89/8936.jpg"
+                                                        onload="getWH(this)" itemprop="thumbnail" alt=""
+                                                        style="display: inline;"></a></figure>
+                     <figure itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject"><a
+                             href="http://yun.5tree.cn/esb/res/pic/0/89/8937.jpg" itemprop="contentUrl" class="external"
+                             data-size="1440x1080"><img src="http://yun.5tree.cn/esb/res/pic/0/89/8937.jpg"
+                                                        onload="getWH(this)" itemprop="thumbnail" alt=""
+                                                        style="display: inline;"></a></figure>
+                     <figure itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject"><a
+                             href="http://yun.5tree.cn/esb/res/pic/0/89/8938.jpg" itemprop="contentUrl" class="external"
+                             data-size="1080x1440"><img src="http://yun.5tree.cn/esb/res/pic/0/89/8938.jpg"
+                                                        onload="getWH(this)" itemprop="thumbnail" alt=""
+                                                        style="display: inline;"></a></figure>-->
+                </div>
+            </div>
+
+
+            <!--菜谱 照片-->
+            <div class="list-block" style="margin:.25rem 0 1.25rem">
+                <ul id="cookTextInfo">
+                    <li class="item-content">
+                        <div class="item-inner">
+                            <div class="item-title">早餐</div>
+                            <div class="item-after" id="breakfast"></div>
+                        </div>
+                    </li>
+                    <li class="item-content">
+                        <div class="item-inner">
+                            <div class="item-title">上午加餐</div>
+                            <div class="item-after" id="snack1"></div>
+                        </div>
+                    </li>
+                    <li class="item-content">
+
+                        <div class="item-inner">
+                            <div class="item-title">午餐</div>
+                            <div class="item-after" id="lunch"></div>
+                        </div>
+                    </li>
+                    <li class="item-content">
+                        <div class="item-inner">
+                            <div class="item-title">下午加餐</div>
+                            <div class="item-after" id="snack2"></div>
+                        </div>
+                    </li>
+                    <li class="item-content">
+
+                        <div class="item-inner">
+                            <div class="item-title">晚餐</div>
+                            <div class="item-after" id="supper"></div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <div id="noData" class="cooknoData" style="display: none">
+                <img src="../../../images/nocook.png" width="40%">
+                <div class="cookTipFont">还没有本日的食谱信息</div>
+            </div>
+
+            <div class="content-block pl-operation" style="display: none">
+                <a href="javascript:void(0)" onclick="return false" class="button button-fill external" id="editBtn">添加食谱</a>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<!--图片查看器-->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="pswp__bg"></div>
+    <div class="pswp__scroll-wrap">
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+        <div class="pswp__ui pswp__ui--hidden">
+            <div class="pswp__top-bar">
+                <div class="pswp__counter"></div>
+                <button class="pswp__button pswp__button--close" title="关闭"></button>
+                <!--<button class="pswp__button pswp__button&#45;&#45;share" title="Share"></button>-->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--图片查看器 END-->
+</body>
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script>$.config = {router: false}</script>
+<script src='../../../js/sm.js'></script>
+<script src="../../../js/config.js"></script>
+<script src='../../../js/photoSwipe/photoswipe.js'></script>
+<script src='../../../js/photoSwipe/photoswipe-ui-default.js'></script>
+
+<script>
+
+    //默认时间
+    var d = new Date(), day = d.getDay();
+    var tbDate = $('#tbDate'),
+        tdDays = $('#weekText th');
+
+    //点击事件
+    $('#weekText th,#dateText th').click(function () {
+
+        if (this.className == 'focus') return;
+        var i = $(this).index(),
+            j = $('#weekText th').filter('.focus').removeClass('focus').index();
+
+        $('#dateText th').filter('.focus').removeClass('focus');
+
+        $(this).addClass('focus');
+        $('#dateText th').eq($(this).index()).addClass('focus');
+        $('#weekText th').eq($(this).index()).addClass('focus');
+        d.setDate(d.getDate() + i - j);
+
+
+        var i=$(this).attr("data-date").replace(/\//g,"-");
+
+
+        $('#nowDate').val(i.substr(0,7));
+
+        var tObj=JSON.parse(sessionStorage.localCook);
+
+        if (tObj[i] !== null && tObj[i] !== undefined) {
+
+            $("#editBtn").attr({"data-date":i,"data-id":tObj[i].id==undefined?"":tObj[i].id});
+
+
+            var imgStr = "";
+
+            if (tObj[i].images !== null && tObj[i].images !== "") {
+                var imgObj = tObj[i].images.split(",");
+
+                if (imgObj.length > 0) {
+                    //图片
+                    for (var x = 0, y = imgObj.length; x < y; x++) {
+                        if (imgObj[x] !== "") {
+
+                            var imgurl = changeImgUrl(imgObj[x]);
+                            /*imageHtml +="<img src='"+url+"' id='"+imgObj[x]+"'>";*/
+                            imgStr += '<figure itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject"  id="' + imgObj[x] + '" >' +
+                                '<a href="' + imgurl + '" itemprop="contentUrl" class="external" data-size="750x740">' +
+                                '<img src="' + imgurl + '" onload="getWH(this)" itemprop="thumbnail" alt="" >' +
+                                '</a>' +
+                                ' </figure>';
+
+                        }
+
+                    }
+
+                }
+            }
+
+            if(tObj[i].breakfast.replace(/(^\s*)|(\s*$)/g, "")==""){
+                $("#breakfast").text(tObj[i].breakfast).parent().parent().hide();
+            }else{
+                $("#breakfast").text(tObj[i].breakfast).parent().parent().show()
+            }
+
+            if(tObj[i].snack1.replace(/(^\s*)|(\s*$)/g, "")==""){
+                $("#snack1").text(tObj[i].snack1).parent().parent().hide();
+            }else{
+                $("#snack1").text(tObj[i].snack1).parent().parent().show()
+            }
+
+            if(tObj[i].lunch.replace(/(^\s*)|(\s*$)/g, "")==""){
+                $("#lunch").text(tObj[i].lunch).parent().parent().hide();;
+            }else{
+                $("#lunch").text(tObj[i].lunch).parent().parent().show()
+            }
+
+            if(tObj[i].snack2.replace(/(^\s*)|(\s*$)/g, "")==""){
+                $("#snack2").text(tObj[i].snack2).parent().parent().hide();
+            }else{
+                $("#snack2").text(tObj[i].snack2).parent().parent().show();
+            }
+
+            if(tObj[i].supper.replace(/(^\s*)|(\s*$)/g, "")=="") {
+                $("#supper").text(tObj[i].supper).parent().parent().hide();
+            }else{
+                $("#supper").text(tObj[i].supper).parent().parent().show()
+            }
+
+
+            if(imgStr==""){
+                $("#cookImgTitle").hide();
+                $("#imgBox").html("").hide();
+            }else{
+                $("#cookImgTitle").show();
+                $("#imgBox").html(imgStr).show();
+                //图片预览
+                initPhotoSwipeFromDOM('.my-gallery');
+            }
+
+            //文字都为空的情况下
+            if(tObj[i].supper.replace(/(^\s*)|(\s*$)/g, "")=="" && tObj[i].snack2.replace(/(^\s*)|(\s*$)/g, "")=="" && tObj[i].lunch.replace(/(^\s*)|(\s*$)/g, "")=="" && tObj[i].snack1.replace(/(^\s*)|(\s*$)/g, "")=="" && tObj[i].breakfast.replace(/(^\s*)|(\s*$)/g, "")=="") {
+                $("#cookTextInfo").hide();
+            }else {
+                $("#cookTextInfo").show();
+            }
+
+            //文字和图片都为空的情况
+            if(tObj[i].supper.replace(/(^\s*)|(\s*$)/g, "")=="" && tObj[i].snack2.replace(/(^\s*)|(\s*$)/g, "")=="" && tObj[i].lunch.replace(/(^\s*)|(\s*$)/g, "")=="" && tObj[i].snack1.replace(/(^\s*)|(\s*$)/g, "")=="" && tObj[i].breakfast.replace(/(^\s*)|(\s*$)/g, "")=="" && imgStr=="") {
+                $("#cookTextInfo").hide();
+                $("#editBtn").text("添加食谱");
+                $("#noData").show();
+            }else{
+                $("#noData").hide();
+                $("#editBtn").text("修改");
+            };
+
+            /*$("#cookTextInfo").show();
+
+            $("#noData").hide();
+
+            //图片预览
+            initPhotoSwipeFromDOM('.my-gallery');
+            $("#editBtn").text("修改");*/
+
+
+        } else {
+            $("#editBtn").attr({"data-date":i,"data-id":""});
+
+            $("#cookTextInfo").hide();
+            $("#imgBox").html("").hide();
+
+            $("#breakfast").text("").parent().parent().hide();
+            $("#snack1").text("").parent().parent().hide();
+            $("#lunch").text("").parent().parent().hide();
+            $("#snack2").text("").parent().parent().hide();
+            $("#supper").text("").parent().parent().hide();
+
+
+            $("#cookImgTitle").hide();
+            $("#editBtn").text("添加食谱");
+            $("#noData").show();
+        }
+
+    });
+
+
+    showWeekDate();
+
+    //循环显示日期
+    function showWeekDate(nowDate) {
+
+        var tdDates = $('#dateText th');
+
+        for (var i = tdDates.length - 1; i >= 0; i--) {
+
+            var x = day == 0 ? 6 : day - 1
+
+            if ($("#jmonth").val() == "") {
+
+                var now = new Date();
+
+                $("#today").val(now.getFullYear() + "/" + (now.getMonth() + 1) + "/" + now.getDate());
+
+                now.setDate(now.getDate() + i - x);
+
+                if (i == tdDates.length - 1) {
+
+                    $("#jmonth").val(now.getFullYear() + "/" + (now.getMonth() + 1));
+                }
+
+
+            } else {
+
+                var now = new Date($("#dateText th").eq(i + 1 > 6 ? 6 : i + 1).attr("data-date"));
+
+                if (i == tdDates.length - 1) {
+
+                    if (nowDate == undefined) {
+                        var fm = 0;
+                    } else {
+
+                        if (nowDate > 0) {
+                            var fm = 8;
+                        } else {
+                            var fm = -6;
+                        }
+                    }
+
+                    now.setDate(now.getDate() - 1 + fm);
+
+                } else {
+                    now.setDate(now.getDate() - 1);
+                }
+            }
+
+            var monthText=now.getMonth() + 1;
+            var dayText=now.getDate()<10?"0"+now.getDate():now.getDate()
+
+            var dateStr = now.getFullYear() + "/" + (monthText<10?"0"+monthText:monthText) + "/" + dayText;
+
+            $("#jmonth").val(now.getFullYear() + "/" + (now.getMonth() + 1));
+
+            if (dateStr == $("#today").val()) {
+                tdDates.eq(i).addClass('focus');
+                $('#weekText th').eq(i).addClass('focus');
+            }
+
+            tdDates.eq(i).html(now.getDate()+"<span class=\"nodataTip\"></span>").attr("data-date", dateStr);
+            $('#weekText th').eq(i).attr("data-date", dateStr);
+        }
+    }
+
+
+    //下一周
+    $("#nextWeek").click(function (e) {
+
+        $('#dateText th.focus,#weekText th.focus').removeClass('focus');
+        var next = day == 0 ? 6 : day - 1;
+        showWeekDate(7);
+        $('#dateText th').eq(0).addClass('focus');
+        $('#weekText th').eq(0).addClass('focus');
+        var loadDate=$("#dateText th").attr("data-date").replace(/\//g,"-");
+        loadWeekCooK(loadDate);
+        $("#nowDate").val(loadDate.substr(0,7));
+
+
+    });
+
+    //上一周
+    $("#prevWeek").click(function () {
+
+        $('#dateText th.focus,#weekText th.focus').removeClass('focus');
+        showWeekDate(-7);
+        $('#dateText th').eq(0).addClass('focus');
+        $('#weekText th').eq(0).addClass('focus');
+        var loadDate=$("#dateText th").attr("data-date").replace(/\//g,"-");
+        loadWeekCooK(loadDate);
+        $("#nowDate").val(loadDate.substr(0,7));
+    });
+
+    $(function () {
+        //图片预览
+        initPhotoSwipeFromDOM('.my-gallery');
+
+        //初始化
+        $.init();
+
+        //加载默认数据
+        loadWeekCooK();
+
+    })
+
+
+    //加载周食谱
+    function loadWeekCooK(date) {
+
+        if (date == undefined) {
+            var searchDate = "";
+        } else {
+            var searchDate = date;
+
+            sessionStorage.nowCookDate = date;
+        }
+
+
+        var ports = domainName + "/shijiwxy/portal/recipe/getList.json";
+        var parameter = {
+            token: JSON.parse(sessionStorage.baseUser).token,
+            udid: JSON.parse(sessionStorage.baseUser).udid,
+            version: 3,
+            date: searchDate
+        };
+
+
+        getData(ports, parameter, function (res) {
+
+            if (res.code == 200 && res.success == true) {
+                // console.info(res);
+
+                sessionStorage.localCook = JSON.stringify(res.data.map);
+
+                var tObj = res.data.map;
+                var m = 0;
+                for (var i in tObj) {
+
+                    //系统时间 //当前日期--加标识
+                    var now = res.data.date;
+
+                    var dataTip=i.replace(/\-/g,"/");
+
+
+                    if (tObj[i] !== null){
+                        //文字和图片都为空的情况
+                        if(tObj[i].supper.replace(/(^\s*)|(\s*$)/g, "")=="" && tObj[i].snack2.replace(/(^\s*)|(\s*$)/g, "")=="" && tObj[i].lunch.replace(/(^\s*)|(\s*$)/g, "")=="" && tObj[i].snack1.replace(/(^\s*)|(\s*$)/g, "")=="" && tObj[i].breakfast.replace(/(^\s*)|(\s*$)/g, "")=="" && tObj[i].images == null) {
+                            $("#dateText [data-date='"+dataTip+"']").find("span").remove();
+                            $("#dateText [data-date='"+dataTip+"']").append("<span class='nodataTip'></span>");
+                        }else{
+                            $("#dateText [data-date='"+dataTip+"']").find("span").remove();
+                            $("#dateText [data-date='"+dataTip+"']").append("<span class='dataTip'></span>");
+                        };
+
+                    }else{
+                        $("#dateText [data-date='"+dataTip+"']").find("span").remove();
+                        $("#dateText [data-date='"+dataTip+"']").append("<span class='nodataTip'></span>");
+                    }
+
+
+                    if (tObj[now]!==undefined) {
+
+                        if(i!==now){
+                            continue;
+                        }
+
+                        var nowText = now.replace(/\-/g,"/");
+                        $('#dateText th.focus,#weekText th.focus').removeClass('focus');
+                        $("[data-date='"+nowText+"']").addClass('focus');
+                        $('#weekText th').eq($("[data-date='"+nowText+"']").index()).addClass('focus');
+
+                        $("#nowDate").val(now.substring(0,7));
+
+                        if (tObj[now] !== null) {
+
+                            $("#editBtn").attr({"data-date":i,"data-id":tObj[now].id});
+                            var imgStr = "";
+                            if (tObj[now].images !== null && tObj[now].images !== "") {
+                                var imgObj = tObj[now].images.split(",");
+                                if (imgObj.length > 0) {
+                                    //图片
+                                    for (var x = 0, y = imgObj.length; x < y; x++) {
+                                        if (imgObj[x] !== "") {
+                                            var imgurl = changeImgUrl(imgObj[x]);
+                                            /*imageHtml +="<img src='"+url+"' id='"+imgObj[x]+"'>";*/
+                                            imgStr += '<figure itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject"  id="' + imgObj[x] + '" >' +
+                                                '<a href="' + imgurl + '" itemprop="contentUrl" class="external" data-size="750x740">' +
+                                                '<img src="' + imgurl + '" onload="getWH(this)" itemprop="thumbnail" alt="" >' +
+                                                '</a>' +
+                                                ' </figure>';
+                                        }
+                                    }
+
+                                }
+                            }
+
+                            if(imgStr==""){
+                                $("#cookImgTitle").hide();
+                                $("#imgBox").html("").hide();
+                            }else{
+                                $("#cookImgTitle").show();
+                                $("#imgBox").html(imgStr).show();
+                            }
+
+
+                            if(tObj[now].breakfast.replace(/(^\s*)|(\s*$)/g, "")==""){
+                                $("#breakfast").text(tObj[now].breakfast).parent().parent().hide();
+                            }else{
+                                $("#breakfast").text(tObj[now].breakfast).parent().parent().show()
+                            }
+
+                            if(tObj[now].snack1.replace(/(^\s*)|(\s*$)/g, "")==""){
+                                $("#snack1").text(tObj[now].snack1).parent().parent().hide();
+                            }else{
+                                $("#snack1").text(tObj[now].snack1).parent().parent().show()
+                            }
+
+                            if(tObj[now].lunch.replace(/(^\s*)|(\s*$)/g, "")==""){
+                                $("#lunch").text(tObj[now].lunch).parent().parent().hide();;
+                            }else{
+                                $("#lunch").text(tObj[now].lunch).parent().parent().show()
+                            }
+
+                            if(tObj[now].snack2.replace(/(^\s*)|(\s*$)/g, "")==""){
+                                $("#snack2").text(tObj[now].snack2).parent().parent().hide();
+                            }else{
+                                $("#snack2").text(tObj[now].snack2).parent().parent().show();
+                            }
+
+                            if(tObj[now].supper.replace(/(^\s*)|(\s*$)/g, "")=="") {
+                                $("#supper").text(tObj[now].supper).parent().parent().hide();
+                            }else{
+                                $("#supper").text(tObj[now].supper).parent().parent().show()
+                            }
+
+
+
+                            //文字都为空的情况下
+                            if(tObj[now].supper.replace(/(^\s*)|(\s*$)/g, "")=="" && tObj[now].snack2.replace(/(^\s*)|(\s*$)/g, "")=="" && tObj[now].lunch.replace(/(^\s*)|(\s*$)/g, "")=="" && tObj[now].snack1.replace(/(^\s*)|(\s*$)/g, "")=="" && tObj[now].breakfast.replace(/(^\s*)|(\s*$)/g, "")=="") {
+                                $("#cookTextInfo").hide();
+                            }else {
+                                $("#cookTextInfo").show();
+                            }
+
+                            //文字和图片都为空的情况
+                            if(tObj[now].supper.replace(/(^\s*)|(\s*$)/g, "")=="" && tObj[now].snack2.replace(/(^\s*)|(\s*$)/g, "")=="" && tObj[now].lunch.replace(/(^\s*)|(\s*$)/g, "")=="" && tObj[now].snack1.replace(/(^\s*)|(\s*$)/g, "")=="" && tObj[now].breakfast.replace(/(^\s*)|(\s*$)/g, "")=="" && imgStr=="") {
+                                $("#cookTextInfo").hide();
+                                $("#editBtn").text("添加食谱");
+                                $("#noData").show();
+                            }else{
+                                $("#noData").hide();
+                                $("#editBtn").text("修改");
+                            };
+
+                            //图片预览
+                            initPhotoSwipeFromDOM('.my-gallery');
+
+                        } else {
+
+                            $("#breakfast").text("").parent().parent().hide();
+                            $("#snack1").text("").parent().parent().hide();
+                            $("#lunch").text("").parent().parent().hide();
+                            $("#snack2").text("").parent().parent().hide();
+                            $("#supper").text("").parent().parent().hide();
+                            $("#imgBox").html(imgStr).hide();
+
+                            $("#cookTextInfo").hide();
+                            $("#cookImgTitle").hide();
+                            $("#noData").show();
+                            $("#editBtn").text("添加食谱");
+                        }
+
+                    } else {
+
+                        if(m<1){
+
+                            if (tObj[i] !== null) {
+
+                                $("#editBtn").attr({"data-date":i,"data-id":tObj[i].id});
+                                var imgStr = "";
+                                if (tObj[i].images !== null && tObj[i].images !== "") {
+                                    var imgObj = tObj[i].images.split(",");
+                                    if (imgObj.length > 0) {
+                                        //图片
+                                        for (var x = 0, y = imgObj.length; x < y; x++) {
+                                            if (imgObj[x] !== "") {
+                                                var imgurl = changeImgUrl(imgObj[x]);
+                                                /*imageHtml +="<img src='"+url+"' id='"+imgObj[x]+"'>";*/
+                                                imgStr += '<figure itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject"  id="' + imgObj[x] + '" >' +
+                                                    '<a href="' + imgurl + '" itemprop="contentUrl" class="external" data-size="750x740">' +
+                                                    '<img src="' + imgurl + '" onload="getWH(this)" itemprop="thumbnail" alt="" >' +
+                                                    '</a>' +
+                                                    ' </figure>';
+                                            }
+                                        };
+                                    }
+
+
+                                }
+
+
+                                if(imgStr==""){
+                                    $("#cookImgTitle").hide();
+                                    $("#imgBox").html("");
+                                }else{
+                                    $("#imgBox").html(imgStr).show();
+                                    $("#cookImgTitle").show();
+                                    //图片预览
+                                    initPhotoSwipeFromDOM('.my-gallery');
+                                }
+
+
+                                if(tObj[i].breakfast.replace(/(^\s*)|(\s*$)/g, "")==""){
+                                    $("#breakfast").text(tObj[i].breakfast).parent().parent().hide();
+                                }else{
+                                    $("#breakfast").text(tObj[i].breakfast).parent().parent().show()
+                                }
+
+                                if(tObj[i].snack1.replace(/(^\s*)|(\s*$)/g, "")==""){
+                                    $("#snack1").text(tObj[i].snack1).parent().parent().hide();
+                                }else{
+                                    $("#snack1").text(tObj[i].snack1).parent().parent().show()
+                                }
+
+                                if(tObj[i].lunch.replace(/(^\s*)|(\s*$)/g, "")==""){
+                                    $("#lunch").text(tObj[i].lunch).parent().parent().hide();;
+                                }else{
+                                    $("#lunch").text(tObj[i].lunch).parent().parent().show()
+                                }
+
+                                if(tObj[i].snack2.replace(/(^\s*)|(\s*$)/g, "")==""){
+                                    $("#snack2").text(tObj[i].snack2).parent().parent().hide();
+                                }else{
+                                    $("#snack2").text(tObj[i].snack2).parent().parent().show();
+                                }
+
+                                if(tObj[i].supper.replace(/(^\s*)|(\s*$)/g, "")=="") {
+                                    $("#supper").text(tObj[i].supper).parent().parent().hide();
+                                }else{
+                                    $("#supper").text(tObj[i].supper).parent().parent().show()
+                                }
+
+
+                                //文字都为空的情况下
+                                if(tObj[i].supper.replace(/(^\s*)|(\s*$)/g, "")=="" && tObj[i].snack2.replace(/(^\s*)|(\s*$)/g, "")=="" && tObj[i].lunch.replace(/(^\s*)|(\s*$)/g, "")=="" && tObj[i].snack1.replace(/(^\s*)|(\s*$)/g, "")=="" && tObj[i].breakfast.replace(/(^\s*)|(\s*$)/g, "")=="") {
+                                    $("#cookTextInfo").hide();
+                                }else {
+                                    $("#cookTextInfo").show();
+                                }
+
+                                //文字和图片都为空的情况
+                                if(tObj[i].supper.replace(/(^\s*)|(\s*$)/g, "")=="" && tObj[i].snack2.replace(/(^\s*)|(\s*$)/g, "")=="" && tObj[i].lunch.replace(/(^\s*)|(\s*$)/g, "")=="" && tObj[i].snack1.replace(/(^\s*)|(\s*$)/g, "")=="" && tObj[i].breakfast.replace(/(^\s*)|(\s*$)/g, "")=="" && imgStr=="") {
+                                    $("#cookTextInfo").hide();
+                                    $("#editBtn").text("添加食谱");
+                                    $("#noData").show();
+                                }else{
+                                    $("#noData").hide();
+                                    $("#editBtn").text("修改");
+                                };
+
+
+                                //break;
+                            } else {
+
+                                $("#breakfast").text("").parent().parent().hide();
+                                $("#snack1").text("").parent().parent().hide();
+                                $("#lunch").text("").parent().parent().hide();
+                                $("#snack2").text("").parent().parent().hide();
+                                $("#supper").text("").parent().parent().hide();
+                                $("#imgBox").html(imgStr).hide();
+
+                                $("#cookTextInfo").hide();
+                                $("#cookImgTitle").hide();
+                                $("#noData").show();
+                                $("#editBtn").text("添加食谱");
+
+                            }
+
+                        }
+
+                    }
+
+
+                    m += 1;
+                }
+
+
+            } else {
+                alert(res.message);
+            }
+        });
+
+    }
+</script>
+
+
+
+
+

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>忘记密码</title>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <!--ui包-->
+    <link rel="stylesheet" href="/shijiwxy/weixin/css/sm.css">
+    <link rel="stylesheet" href="/shijiwxy/weixin/css/layout.css">
+		<link rel="stylesheet" href="/shijiwxy/weixin/css/teacher.css">
+  </head>
+  <body>
+    <div class="page-group">
+        <div class="page page-current">
+        <!--图例说明rotate(-45deg);-->
+        	<div class="iconShow">
+        		<!-- <span><img class="card-cover" src="/shijiwxy/weixin/images/sng.png"  alt=""></span>
+				<span><img class="card-cover" src="/shijiwxy/weixin/images/link.png"  alt="" style="width: 1.5rem;height: 1.5rem;"></span> -->
+				<span><img class="card-cover" src="/shijiwxy/weixin/images/sjwxy.png" alt="" style="background: #fff"></span>
+        	</div>
+        <!-- 表单 -->
+        <div class="list-block">
+			    <ul>
+			      <!-- Text inputs -->
+			      <li>
+			        <div class="item-content">
+			          <div class="item-inner">
+			            <div class="item-title label">手机号码</div>
+			            <div class="item-input">
+			              <input type="tel" placeholder="请输入手机号码" id="userMob" name="mobile">
+			            </div>
+			          </div>
+			        </div>
+			      </li>
+			      <li>
+			        <div class="item-content" style="background: #fff;">
+			          <div class="item-inner">
+			            <div class="item-title label">验证码</div>
+			            <div class="item-input">
+			              <input type="tel" placeholder="请输入验证码" id="mobCode">
+			              <div class="getCode" id="getCode" style="width:102px;">获取验证码</div>
+			            </div>
+			          </div>
+			        </div>
+			      </li>
+			      <li>
+			        <div class="item-content">
+			          <div class="item-inner">
+			            <div class="item-title label">新密码</div>
+			            <div class="item-input">
+			              <input type="password" placeholder="请输入登录新密码" id="psw" name="mobile">
+			            </div>
+			          </div>
+			        </div>
+			      </li>
+			      <li>
+			        <div class="item-content">
+			          <div class="item-inner">
+			            <div class="item-title label">确认密码</div>
+			            <div class="item-input">
+			              <input type="password"  placeholder="请再次输入登录新密码" id="repassword" name="mobile">
+			            </div>
+			          </div>
+			        </div>
+			      </li>
+			    </ul>
+        </div>
+       <!-- 提交操作-->
+        <div class="content-block">
+    		<a href="javascript:void(0)" class="button button-fill external" id="getPsw">修改密码</a>
+    		<a class="button close-popup back" href="/shijiwxy/weixin/html/teacher/login/login_byPSW.html" style="margin-top:1rem">返回登录</a> 
+  		</div>
+    </div>
+  </body>
+</html>
+<script src='/shijiwxy/weixin/js/zepto.min.js'></script>
+<script type="text/javascript">
+$.config = {router: false}
+</script>
+<script src='/shijiwxy/weixin/js/sm.min.js'></script>
+<script src='/shijiwxy/weixin/js/config.js'></script>
+<script>
+function getId(id){
+	return id.replace("#","");
+}
+$(function(){
+	/*提交绑定     mobile, validateCode, weixinInfoId41*/
+	$("#getPsw").click(function(){
+		var mob=$.trim($("#userMob").val()),
+		validateCode=$("#mobCode").val(),
+			psw=$("#psw").val(),
+			repassword=$("#repassword").val();
+		if(mob==""){
+			$.alert("手机号不能为空！");
+			return false
+		}
+		if(!(/^1\d{10}$/.test(mob))){
+			$.alert("手机号码格式输入错误，请重新填写！");
+	        return false;
+	    }
+		if(validateCode==""){
+			$.alert("验证码不能为空！");
+			return false
+		}
+		if(psw==""){
+			$.alert("密码不能为空！");
+			return false
+		}
+		if(repassword==""){
+			$.alert("请确认密码！");
+			return false
+		}
+		if(repassword!==psw){
+			$.alert("两次密码输入不一致，请从新输入！");
+			return false
+		}
+		if(psw.length<6){
+			$.alert("密码长度不能小于6位");
+			return false
+		}
+		var parameter={
+                phone:mob,
+				//用户手机号
+                code:validateCode,
+				//验证码
+                passwd:psw,
+				//密码
+                identity:1,
+				org_id:baseParameter.org_id,
+				openid:baseParameter.openid,
+				version:3
+		}
+		getData(domainName + "/esb/validCode",{phone:mob,code:validateCode},function (res){
+				if(res.code==200 && res.success==true){
+						//忘记密码
+						getData(domainName+"/esb/reSetPassword", parameter,function(res){
+										if(res.code==200 && res.success==true){
+												sessionStorage.baseUser=JSON.stringify(res.data);
+												$.alert("重置密码成功,请重新登录");
+												setTimeout(function () {
+														window.location="login_byPSW.html";
+												},100)
+
+
+										}else{
+												$.alert(res.message);
+										}
+						},"GET");
+				}else{
+						$.alert(res.message);
+				}
+		})
+	});
+
+	$("#getCode").click(function(){
+		var $this=$(this);
+		var val=$("#userMob").val();
+		if(val==""){
+			$.alert("手机号不能为空！");
+			return false
+		}
+		if(val.length!=11){
+			$.alert("请输入正确的手机号");
+			return false
+		}
+		//获取验证码
+		getData(domainName+"/esb/sendValidCodeWX", {phone:val},function(res){
+            if(res.code==200 && res.success==true){
+				$.toast("验证码已发送，请查看您的新短消息！");
+				var second=60000;
+				var timeRun=setInterval(function(){
+							second=second-1000;
+			                 if(second>=1000){
+			                	 $this.text(second/1000+"s后可发送").attr("data-states","off").css("color","#ccc");
+							 }else{
+								 $this.text("获取验证码").attr("data-states","on").css("color","");
+								clearInterval(timeRun);
+							 }
+			   			 }, 1000);
+			}else{
+				$.alert(res.message);
+			}
+		})
+	});
+
+	//防止安卓系统遮挡输入框
+	var u = navigator.userAgent;
+	var isAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1;
+	if(isAndroid){
+		$("input").focus(function(){
+			var height=$("#topObj").offset().top;
+			if(height>10){
+				$("#btn-ground").attr("style","padding-bottom:"+(height*2)+"px");
+				$(".native-scroll").scrollTop(height);
+			}
+		}).blur(function(){
+			$(".native-scroll").scrollTop("0");
+		});
+	}
+	//清空输入框
+	var selector = ['#userMob', '#mobCode', '#psw', '#repassword'];
+	selector.forEach(function (item) {
+		$(item).after('<span class="clear-btn" style="display:none;"></span>');
+		$(item).on('input propertychange', function () {
+				clearInputText(item);
+			}).on('blur', function () {
+				$(item + '+.clear-btn').hide();
+				$(item).css('background','none');
+			}).on('focus', function () {
+				clearInputText(item);
+			})
+	})
+	$('#userMob').attr('Maxlength', '11');
+	$('#mobCode').attr('Maxlength', '6');
+});
+</script>

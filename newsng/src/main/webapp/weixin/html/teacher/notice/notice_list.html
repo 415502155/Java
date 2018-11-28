@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>通知列表</title>
+<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+<link rel="shortcut icon" href="/favicon.ico">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<!--ui包-->
+<link rel="stylesheet" href="../../css/sm.css">
+<link rel="stylesheet" href="../../css/layout.css">
+<style type="text/css">
+.infinite-scroll-preloader {
+	margin-top: -20px;
+}
+</style>
+</head>
+<body>
+	 <div id="wrapper">
+	    <div id="scroller">
+	        <div class="pullDown">
+	            <span class="pullDownIcon">&nbsp;</span>
+	            <span class="pullDownLabel">下拉刷新...</span>
+	        </div>
+	        <ul style="margin-left:0;padding-left: 0;"></ul>
+	        <div class="pullUp"></div>
+	    </div>
+	</div>
+</body>
+</html>
+<script type="text/javascript" src="../../js/zepto.min.js"></script>
+<script type="text/javascript" src="../../js/config.js"></script>
+<script type="text/javascript" src="../../js/iscroll.js"></script>
+<script>
+var maxId="",minId="";
+function dataShow(data){
+	var noticeHtml="";
+	for(var i=0;i<data.length;i++){  //这按上次那个改的
+		  var res=data[i];
+	   var time=res.publishTime,//发布时间
+	   	   author=res.createName,//发布教师
+	   	   messageContent=res.messageContent,//通知内容
+	   	   noRead=res.noRead==null?"0":res.noRead,//是否必读
+	       allCount=res.allCount;//附件数量
+	       
+		  var receipt="",fileSign="",html="",authorText="";
+	       //是否登录者就是作者
+		  if(res.createBy==JSON.parse(sessionStorage.baseInfo).userId){
+       	      var authorText="我";
+	       }else{
+	    	   authorText+=author+" 老师";
+	       }
+	      //判断是否必须回执
+	      if(i==0){
+	    	  maxId=res.id;
+	      }
+	      if(i==data.length-1){
+	    	  minId=res.id;
+	      }
+	      if(messageContent.length>90){
+	    	 var con=(messageContent.substring(0,95)+"")+'...';
+	      }else{
+	    	 var con=messageContent  
+	      }
+	             
+        noticeHtml+='<li id="'+res.id+'"><div class="content-block-title">'+time+'</div>'+
+					  '<div class="card">'+
+					    '<div class="bar card-header notice-title ">'+authorText+'</div>'+
+					    '<div class="card-content">'+
+					      '<div class="list-block media-list">'+
+					        '<ul>'+
+					          '<li class="item-content">'+
+					           ' <div class="item-inner">'+
+					           		con+
+					            '</div>'+
+					          '</li>'+
+					        '</ul>'+
+					      '</div>'+
+					    '</div>'+
+					     '<a class="card-footer" href="unRead.html?id='+res.id+'">'+
+					      '<span>发送'+allCount+'人</span>'+
+					      '<span>接收详情</span>'+
+					   ' </a>'+
+					 ' </div></li>';
+      }
+	  return noticeHtml;
+}
+
+</script>
+ <script type="text/javascript">
+        var ports="../../../api/message/getSendMsg"
+        var items_per_page = 5;
+        var scroll_in_progress = false;
+        var myScroll;
+        var data={
+        		token:sessionStorage.token,
+        		userId:JSON.parse(sessionStorage.baseInfo).userId,
+        		limit:items_per_page,
+        		sidx:"create_time",
+        		order:"desc", 
+        		page:1, 
+        		/* lastRequest_time: new Date() */
+        		}
+        load_content = function (refresh, next_page) {
+        	 
+            setTimeout(function () {  
+                if (!refresh) {
+                    getData(ports,data,function(res){
+	                 	  if(res.code=="0"){
+	                 		 if(res.data.list.length>0){
+			                       var noticelist=dataShow(res.data.list)
+			                       $('#wrapper > #scroller > ul').append(noticelist);
+			                       var n=$('#scroller ul li[id]').length;
+			                       if(n<3){
+			                    	   var html="";
+			                    	   for(i=5-n;i>0;i--){
+			                    		    html+="<li class='minData'></li>";
+			                    	    }
+			                    	   $('#scroller .pullDown').next("ul").append(html);
+			                       }  
+			                      myScroll.refresh();
+			                      $(".pullDown").css("display","block");
+			                      myScroll.scrollTo(0, -40, 200);
+	                 		  }else{
+	                 			 $('#wrapper > #scroller > ul').html('<div class="noData noData_line"><span class="noData__tips">暂无通知</span></div>');
+	                 			
+	                 			 myScroll.destroy();
+	                             $(myScroll.scroller).attr('style', ''); // Required since the styles applied by IScroll might conflict with transitions of parent layers.
+	                             myScroll = null;
+	                 		  }
+	                 	  } else{
+	             			 $.alert(res.msg);
+	             		 }
+	                 });
+                } else if (refresh && !next_page) {
+                     //加载最新数据 
+                   data.page=$('#wrapper > #scroller > ul').data('page')||1;
+                     data.maxId=maxId;
+                     data.minId="";
+                     getData(ports,data,function(res){
+                    	
+ 	                 	  if(res.code=="0"){
+ 	                 		 if(res.data.list.length>0){
+ 			                     var noticelist=dataShow(res.data.list);
+ 			                     $('#wrapper > #scroller > ul').prepend(noticelist);
+ 			                       myScroll.refresh();
+ 			                       myScroll.scrollTo(0, -40, 200);
+ 			                      delete data.maxId;
+ 	                 		  }else{
+ 	                 			 $('.pullUp').removeClass('loading').html('');
+ 	                 		  }
+ 	                 	  } else{
+ 	            			 $.alert(res.msg);
+ 	            		 }
+ 	                 });
+                     
+                } else if (refresh && next_page) {
+                	
+                	if($('#scroller .minData').length>=1){
+                		$('.pullUp').removeClass('loading').html('');
+                   	    return false
+                      }  
+                    //查看老数据;
+                    data.page=$('#wrapper > #scroller > ul').data('page')||1;
+                    data.minId=minId;
+                    data.maxId="";
+                    getData(ports,data,function(res){
+	                 	  if(res.code=="0"){
+	                 		 if(res.data.list.length>0){
+			                       var noticelist=dataShow(res.data.list)
+			                       $('#wrapper > #scroller > ul').append(noticelist);
+			                       myScroll.refresh();
+			                       delete data.minId
+	                 		  }else{
+	                 			 $(".pullUp").addClass("nodata").html("<span class='pullUpLabel'>没有数据了！</span>");
+	                 		  }
+	                 	  } else{
+	             			 $.alert(res.msg);
+	             		  }
+	                 });
+                }
+                if (refresh) {
+                    myScroll.refresh();
+                    pullActionCallback();
+                } else {
+                    if (myScroll) {
+                        myScroll.destroy();
+                        $(myScroll.scroller).attr('style', ''); 
+                        myScroll = null;
+                    }
+                    trigger_myScroll();
+                }
+            }, 100);
+        };
+
+ /*    document.addEventListener('touchmove', function (e) {
+          e.preventDefault();
+      }, false);  
+       */
+    $(function(){
+    	load_content();
+    })
+
+</script>

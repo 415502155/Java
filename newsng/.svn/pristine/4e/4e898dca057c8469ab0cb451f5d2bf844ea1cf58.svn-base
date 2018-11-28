@@ -1,0 +1,176 @@
+package sng.util;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URLEncoder;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFFont;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+
+public class ExcelExport {
+	
+	public static void export(ExcelParam excelParam, String fileName, HttpServletRequest request, /*String [] sheetName,*/ HttpServletResponse response) throws IOException {
+        if (excelParam.widths == null) {
+            excelParam.widths = new int[excelParam.headers.length];
+            for (int i = 0; i < excelParam.headers.length; i++) {
+                excelParam.widths[i] = excelParam.width;
+            }
+        }
+        if (excelParam.ds_format == null) {
+            excelParam.ds_format = new int[excelParam.headers.length];
+            for (int i = 0; i < excelParam.headers.length; i++) {
+                excelParam.ds_format[i] = 1;
+            }
+        }
+        //创建一个工作薄
+        HSSFWorkbook wb = new HSSFWorkbook();
+        int rowCount = 0;
+        int rowCount2 = 0;
+        //创建一个sheet
+        HSSFSheet sheet = wb.createSheet("校区详情");
+        //创建第二一个sheet
+        //HSSFSheet sheet2 = wb.createSheet("说明");
+        if (excelParam.headers != null) {
+            HSSFRow row = sheet.createRow(rowCount);
+            //HSSFRow row2 = sheet2.createRow(rowCount2);
+            //表头样式
+            HSSFCellStyle style = wb.createCellStyle();
+            HSSFFont font = wb.createFont();
+            font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+            font.setFontHeightInPoints((short) 11);
+            style.setFont(font);
+            style.setAlignment(HSSFCellStyle.ALIGN_CENTER);
+            
+            for (int i = 0; i < excelParam.headers.length; i++) {
+                sheet.setColumnWidth(i, excelParam.widths[i]);
+                HSSFCell cell = row.createCell(i);
+                cell.setCellValue(excelParam.headers[i]);
+                cell.setCellStyle(style);
+            }
+            
+//            for (int i = 0; i < 3; i++) {
+//                sheet2.setColumnWidth(i, excelParam.widths[0]);
+//                HSSFCell cell = row2.createCell(i);
+//                cell.setCellValue("校区类型");
+//                cell.setCellStyle(style);
+//            }
+            rowCount++;
+            //rowCount2++;
+        }
+        HSSFCellStyle style = wb.createCellStyle();
+        style.setAlignment(HSSFCellStyle.ALIGN_CENTER);
+        //表格主体  解析list
+        for (int i = 0; i < excelParam.data.size(); i++) {  //行数
+            HSSFRow row = sheet.createRow(rowCount);
+            for (int j = 0; j < excelParam.headers.length; j++) {  //列数
+                HSSFCell cell = row.createCell(j);
+                cell.setCellValue(excelParam.data.get(i)[j]);
+                cell.setCellStyle(style);
+            }
+            rowCount++;
+        }
+        //表2
+//        for (int i = 1; i < 10; i++) {  //行数
+//            HSSFRow row = sheet2.createRow(rowCount2);
+//            for (int j = 0; j < 3; j++) {  //列数
+//                HSSFCell cell = row.createCell(j);
+//                cell.setCellValue("lisi");
+//                cell.setCellStyle(style);
+//            }
+//            rowCount2++;
+//        }
+        //设置文件名
+        //String fileName = "users.xls";
+        response.setContentType("application/vnd.ms-excel");
+    	String agent = request.getHeader("USER-AGENT");
+		//response.setContentType("application/x-download");
+		if(agent!=null && (agent.indexOf("Firefox")>-1 || agent.indexOf("Safari")>-1)){
+			response.setHeader("Content-disposition", "attachment; filename="+ new String(fileName.getBytes("UTF-8"),"ISO8859-1"));
+		}else{
+			response.setHeader("Content-disposition", "attachment; filename="+ URLEncoder.encode(fileName, "UTF-8"));
+		}
+        response.setHeader("Pragma", "No-cache");
+        OutputStream outputStream = response.getOutputStream();
+        wb.write(outputStream);
+        outputStream.flush();
+        outputStream.close();
+    }
+	
+	
+	public static void exportToMany(ExcelParam excelParam, String fileName, HttpServletRequest request, /*String [] sheetName,*/ HttpServletResponse response) throws IOException {
+        if (excelParam.widths == null) {
+            excelParam.widths = new int[excelParam.headers.length];
+            for (int i = 0; i < excelParam.headers.length; i++) {
+                excelParam.widths[i] = excelParam.width;
+            }
+        }
+        if (excelParam.ds_format == null) {
+            excelParam.ds_format = new int[excelParam.headers.length];
+            for (int i = 0; i < excelParam.headers.length; i++) {
+                excelParam.ds_format[i] = 1;
+            }
+        }
+        //创建一个工作薄
+        HSSFWorkbook wb = new HSSFWorkbook();
+        int rowCount = 0;
+        //循环工作表Sheet
+        for (int numSheet = 0; numSheet < 3/*wb.getNumberOfSheets()*/; numSheet++) {
+            HSSFSheet hssfSheet = wb.getSheetAt(numSheet);
+            wb.setSheetName(numSheet, "校区信息-" + String.valueOf(numSheet));
+            if (hssfSheet == null) {
+                continue;
+            }
+            if (excelParam.headers != null) {
+                HSSFRow row = hssfSheet.createRow(rowCount);
+                //表头样式
+                HSSFCellStyle style = wb.createCellStyle();
+                HSSFFont font = wb.createFont();
+                font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+                font.setFontHeightInPoints((short) 11);
+                style.setFont(font);
+                style.setAlignment(HSSFCellStyle.ALIGN_CENTER);
+                
+                for (int i = 0; i < excelParam.headers.length; i++) {
+                	hssfSheet.setColumnWidth(i, excelParam.widths[i]);
+                    HSSFCell cell = row.createCell(i);
+                    cell.setCellValue(excelParam.headers[i]);
+                    cell.setCellStyle(style);
+                }
+                rowCount++;
+            }
+          //表格主体  解析list
+            for (int i = 0; i < excelParam.data.size(); i++) {  //行数
+                HSSFRow row = hssfSheet.createRow(rowCount);
+                for (int j = 0; j < excelParam.headers.length; j++) {  //列数
+                    HSSFCell cell = row.createCell(j);
+                    cell.setCellValue(excelParam.data.get(i)[j]);
+                }
+                rowCount++;
+            }
+        }
+        response.setContentType("application/vnd.ms-excel");
+    	String agent = request.getHeader("USER-AGENT");
+		//response.setContentType("application/x-download");
+		if(agent!=null && (agent.indexOf("Firefox")>-1 || agent.indexOf("Safari")>-1)){
+			response.setHeader("Content-disposition", "attachment; filename="+ new String(fileName.getBytes("UTF-8"),"ISO8859-1"));
+		}else{
+			response.setHeader("Content-disposition", "attachment; filename="+ URLEncoder.encode(fileName, "UTF-8"));
+		}
+        response.setHeader("Pragma", "No-cache");
+        OutputStream outputStream = response.getOutputStream();
+        wb.write(outputStream);
+        outputStream.flush();
+        outputStream.close();
+    }
+	
+	public ExcelExport() {
+		
+	}
+}

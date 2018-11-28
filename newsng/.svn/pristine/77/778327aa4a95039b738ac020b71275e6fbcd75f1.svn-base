@@ -1,0 +1,177 @@
+var token = localStorage.getItem('token');
+var udid = localStorage.getItem('udid');
+var domain = localStorage.getItem('domain');
+var org_id = localStorage.getItem('org_id');
+var rlids = localStorage.getItem('rlids');
+var user_id = localStorage.getItem('user_id');
+var index = localStorage.getItem('index');
+$(function(){
+    //加载页面
+    requestData(
+	 	domain+'/shijiwxy/portal/salaryManagement/getRecordDetail.json',
+	 	
+		{"token":token,"udid":udid,"version":0,"org_id":org_id,"recordID":index,"searchContent":'',"pageSize":10,"currentPageNum":1},
+		'GET',
+     	'JSON',
+     	function successfn(d){
+     		
+     		if(d.code == "200" && d.success == true){
+     			//console.log(d)
+     			lo(d.data)
+     			$('.bod-con-se3-PAGE').text('第1页  >')
+     		}else{
+     			alert('加载失败')
+     		}
+     	},
+		function error(e){
+     		alert('失败了')
+        }
+	)
+})
+//每页显示条数
+$('.bod-con-se3-page').click(function(){
+	var searchContent;
+	searchContent = $('.bod-con-se1wa-c').val();
+	if(searchContent){
+		searchContent = searchContent;
+	}else{
+		searchContent = '';
+	}
+	//页码
+	var num = $('.bod-con-se3-PAGE').text();
+	num = num.slice(1,-4);
+	//点击显示的条数
+	var pageSize;	
+	pageSize = this.innerText;	
+	
+	console.log(num)
+	console.log(pageSize)
+	requestData(
+	 	domain+'/shijiwxy/portal/salaryManagement/getRecordDetail.json',
+		{"token":token,"udid":udid,"version":0,"org_id":org_id,"recordID":index,"searchContent":searchContent,"pageSize":pageSize,"currentPageNum":num},
+		'GET',
+     	'JSON',
+     	function successfn(d){
+     		if(d.code == "200" && d.success == true){
+     			//console.log(d)
+     			lo(d.data)
+     			$('.bod-con-se3-PAGE').text('第'+num+'页  >')
+     		}else{
+     			alert('加载失败')
+     		}
+     	},
+		function error(e){
+			console.log(e)
+     		alert('失败了')
+        }
+	)
+})
+/*//教师姓名筛选
+	*/
+//点击换页
+$('.bod-con-se3-PAGE').click(function(){
+	var searchContent;
+	searchContent = $('.bod-con-se1wa-c').val();
+	if(searchContent){
+		searchContent = searchContent;
+	}else{
+		searchContent = '';
+	}
+	var num = $('.bod-con-se3-PAGE').text();
+	num = num.slice(1,-4);
+	num = ++num;
+	requestData(
+	 	domain+'/shijiwxy/portal/salaryManagement/getRecordDetail.json',
+		{"token":token,"udid":udid,"version":0,"org_id":org_id,"recordID":index,"searchContent":searchContent,"pageSize":10,"currentPageNum":num},
+		'GET',
+     	'JSON',
+     	function successfn(d){
+     		if(d.code == "200" && d.success == true){
+     			lo(d.data)  			
+     			$('.bod-con-se3-PAGE').text('第'+num+'页  >')
+     		}else{
+     			alert('加载失败')
+     		}
+     	},
+		function error(e){
+     		alert('请求失败')
+        }
+	)
+})
+//教师姓名筛选
+$('.bod-con-se1wa-d').click(function(){
+	var searchContent;
+	searchContent = $('.bod-con-se1wa-c').val();
+	if(searchContent){
+		searchContent = searchContent;
+	}else{
+		searchContent = '';
+	}
+	var num = $('.bod-con-se3-PAGE').text();
+	num = num.slice(1,-4);
+	requestData(
+	 	domain+'/shijiwxy/portal/salaryManagement/getRecordDetail.json',
+		{"token":token,"udid":udid,"version":0,"org_id":org_id,"recordID":index,"searchContent":searchContent,"pageSize":10,"currentPageNum":num},
+		'GET',
+     	'JSON',
+     	function successfn(d){
+     		if(d.code == "200" && d.success == true){
+     			lo(d.data)  			
+     			$('.bod-con-se3-PAGE').text('第'+num+'页  >')
+     		}else{
+     			alert('加载失败')
+     		}
+     	},
+		function error(e){
+     		alert('请求失败')
+        }
+	)
+})
+//排序
+function compare(property) {
+	return function(a, b) {
+	    var value1 = a[property];
+	    var value2 = b[property];
+	    return value1 - value2;
+	}
+}
+//渲染函数
+function lo(data){
+	$('tBody').html('');
+	$('thead').html('');
+	//表头
+	var Tr;	
+	//表身
+	var tr;
+	var operation;
+	//退费
+	var Refund;
+		Tr = '<tr>';
+		Tr +='<td>序号</td>'
+		for(var i=0;i<data.headLine.length;i++){
+			
+			Tr+= '<td>'+data.headLine[i]+'</td>';			
+		}
+		Tr += '</tr>';
+		
+		var data = data.recordList.sort(compare("itemIndex"));
+		console.log(data)
+			$(data).each(function(i,e){
+				console.log(e)
+				i = ++i;
+				tr += '<tr>'
+				tr += '<td>'+i+'</td>'
+				for(var i=0;i<e.items.length;i++){
+					//alert(1)
+					//console.log(e.items)
+					tr += '<td>'+e.items[i].value+'</td>'
+				}
+				tr+='</tr>'		
+			})									
+	
+	if(tr){
+		$('thead').html(Tr);
+		$('tBody').html(tr);
+	}else{$('tBody').html("暂无数据")}
+	
+}

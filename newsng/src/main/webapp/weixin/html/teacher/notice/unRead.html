@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title>发布通知</title>
+		<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+		<link rel="shortcut icon" href="/favicon.ico">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<!--ui包-->
+		<link rel="stylesheet" href="../../css/sm.css">
+		<link rel="stylesheet" href="../../css/layout.css">
+	</head>
+	<body>
+		<div class="page-group">
+			<div class="page page-current" id="sendNotice">
+				<!--班级信息-->
+				<div class="list-block media-list" style="margin-top:0">
+				    <ul id="allClass">
+				       <!--  <li>
+				          <label class="label-checkbox item-content">
+				            <div class="item-inner">
+				              <div class="item-title-row">
+				                <div class="item-title class_name">儿童画（儿162-1-2B）3期</div>
+				                <div class="item-after stutent-detail"><span class="icon icon-right"></span></div>
+				              </div>
+				            </div>
+				          </label>
+				        </li> -->
+				    </ul>
+				</div>
+				<!--班级信息 End-->
+  				<div class="content-block">
+			    	<!-- <a href="#" class="button button-fill" id="toSMS">短信提醒<span></span></a> -->
+			  	</div>
+	  			</div>
+			</div>
+		</div>
+    <!-- 班级学生信息-->
+    <div class="page" id='studentView'>
+			<header class="bar bar-nav">
+				<a class="button button-link button-nav pull-left back" href="notice.html">
+				    <span class="icon icon-left"></span>
+				    返回
+				</a>
+			<!--<h1 class="title">主持（儿162-1-2B）3期</h1>-->
+			</header>
+				<div class="content native-scroll">
+				    <!--  学生列表 -->
+			 		<div class="list-block media-list" style="margin: 0;">
+					    <ul id="allStudents">
+					       <!--  <li>
+					          <label class="label-checkbox item-content">
+					            <input type="checkbox" name="checkbox">
+					            <div class="item-media"><i class="icon icon-form-checkbox"></i></div>
+					            <div class="item-inner">
+					              <div class="item-title-row">
+					                <div class="item-title class_name">张飞</div>
+					                <div class="item-after  ">未读</div>
+					              </div>
+					            </div>
+					          </label>
+					        </li> -->
+					    </ul>
+				    </div>
+				    <!-- 学生列表 -->
+			</div>
+		</div>
+    <!-- 班级学生信息End-->
+	</body>
+</html>
+<script src='../../js/zepto.min.js'></script>
+<script src='../../js/sm.min.js'></script>
+<script src='../../js/config.js'></script>
+<script>
+	 $(function(){
+		 
+	     var allClassData="";
+		 var ports="../../../api/message/infoList";
+		 var parameter={
+				 token:sessionStorage.token,
+	        	 userId:JSON.parse(sessionStorage.baseInfo).userId,
+				 id:GetUrlParam("id")
+		         } 
+		 //获取消息
+		 getData(ports, parameter,function(result){
+			    allClassData=result.classList;
+				if(result.code=="0"){
+					var res=result.data;
+					//系统时间 发布时间 上次提醒时间,
+				    var sysTime=new Date(GetDateDiff(res.sysTime)).getTime();
+				    var publishTime=new Date(GetDateDiff(res.publishTime)).getTime();
+				    var lastRemindTime=res.lastRemindTime==null?"0":new Date(GetDateDiff(res.lastRemindTime)).getTime();
+				    
+				    if(lastRemindTime==""||lastRemindTime==null||lastRemindTime=="0"){
+				    	var countR=(sysTime-publishTime)/1000/60;
+				    	var longTime=sysTime-publishTime;
+				    }else{
+				    	var countR=(sysTime-lastRemindTime)/1000/60;
+				    	var longTime=sysTime-lastRemindTime;
+				    };
+				    
+				    
+				    if(countR<30){ 
+				    	$("#toSMS").attr("data-time",longTime);
+				    	$("#toSMS span").text("("+Math.ceil((30-countR))+"分钟候可以进行提醒)");
+				    };
+				    
+				    var html="";
+				    
+ 				    for(var i=result.classList.length-1;i>=0;i--){
+ 				    	var classObj=result.classList[i];
+ 				    	html+='<li id="'+classObj.classId+'">'+
+			 					 '<label class="label-checkbox item-content">'+
+						            '<div class="item-inner">'+
+						              '<div class="item-title-row">'+
+						                '<div class="item-title class_name">'+classObj.className+'<span class="gray">('+classObj.noRead+'人未读)</span></div>'+
+						                '<div class="item-after"><span class="icon icon-right"></span></div>'+
+						              '</div>'+
+						            '</div>'+
+						         '</label>'+
+						       '</li>';
+ 				    }	
+ 				    
+ 				    $("#allClass").html(html);
+					 
+				}else{
+					$.alert(result.msg);
+				}
+		  }); 
+		 
+          //产看班级学生详情
+          $("#allClass").on('click',"li", function(event){
+        	  var id=$(this).attr("id");
+        	  var studentHtml="";
+        	  for(var m=allClassData.length-1;m>=0;m--){
+        		  var changedId=allClassData[m].classId;
+        		  if(changedId==id){
+	        		  for(var i=allClassData[m].userList.length-1;i>=0;i--){
+	        			  var obj=allClassData[m].userList[i];
+	        			  var readSign=obj.is_readed=="1"?"<span class='gray'>已读</span>":"<span class='failedTip_text'>未读</span>";
+	        		      studentHtml += '<li>'+
+						          '<label class="label-checkbox item-content">'+
+						            '<div class="item-inner">'+
+						              '<div class="item-title-row">'+
+						                '<div class="item-title class_name">'+obj.userName+'</div>'+
+						                '<div class="item-after">'+readSign+'</div>'+
+						              '</div>'+
+						            '</div>'+
+						          '</label>'+
+						        '</li>';
+	        		  }
+        		  }
+        	  }
+        	  $("#allStudents").html(studentHtml);
+        	  $.router.loadPage("#studentView");
+          });
+          
+		 //如果不超过30分钟--短信提醒
+		 $("#toSMS").click(function(){
+			 var tipObj=$(this).find("span");
+			 if(tipObj.length!==0){
+				 $.alert(tipObj.text());
+				 return false
+			 }
+			 //接口
+			 var backPorts="../../../api/message/remindMsg";
+			 var changedStudent=[];
+			 //遍历未读的学生
+  			for(var m=allClassData.length-1;m>=0;m--){
+		        for(var i=allClassData[m].userList.length-1;i>=0;i--){
+		        	var obj=allClassData[m].userList[i];
+		        	if(obj.is_readed=="0"){
+		        		changedStudent.push(obj.userId)
+		        	}
+        		  }
+        	  }
+  			 var parameter={
+  					 token:sessionStorage.token,
+  		        	 userId:JSON.parse(sessionStorage.baseInfo).userId,
+  					 id:GetUrlParam("id"),
+  					 userIds:changedStudent.join("|")
+  			         } 
+			 getData(backPorts, parameter,function(result){
+					if(result.success=="true"){
+						$.alert("消息提醒成功！");
+					}else{
+						$.alert(result.msg);
+					}
+				});  
+		 });
+		 
+		 var timer=setInterval(function(){
+			    	var timeM=parseInt($("#toSMS").attr("data-time"))-1000;
+			    	if(30-(timeM/1000/60)>=0){
+			    		$("#toSMS").attr("data-time",timeM);
+			    		$("#toSMS span").text(Math.ceil((timeM/1000/60))+"分钟候可以进行短信提醒");
+				     }else{
+				    	 $("#toSMS span").remove();
+				    	 window.clearInterval(timer);
+				     }
+		    }, 60000);
+		 
+	 });
+</script>

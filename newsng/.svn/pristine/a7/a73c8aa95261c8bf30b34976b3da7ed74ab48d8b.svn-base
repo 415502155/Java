@@ -1,0 +1,119 @@
+<!--用户管理-->
+<style>
+    .tablesorter-blue tbody td.stu_status {color: #e89090;}
+</style>
+
+<div class="content-wrap" id="sub_loadBox"  >
+    <div class="search">
+
+        <!-- &lt;!&ndash;开始时间&ndash;&gt;
+         <input type="text" class="gui-input" data-date="YYYY-MM-DD" placeholder="请选择开始时间" id="startDate" readonly style="width: 120px" >
+         &lt;!&ndash;结束时间&ndash;&gt;
+         <input type="text" class="gui-input" data-date="YYYY-MM-DD" placeholder="请选择结束时间" id="endDate" readonly  style="width: 120px" >-->
+
+        <input type="text" class="gui-input" id="content" placeholder="请输入学员姓名、证件号或家长手机号" style="width: 240px" />
+        <button class="gui-btn  gui-btn-normal" id="sentSearch"><i class="fa fa-search"></i>搜索</button>
+        <button class="gui-btn gui-btn-warm" id="sentEmpty"><i class="fa fa-trash-o"></i>清空</button>
+        <!--<input type="text" id="sendInp" class="gui-input" placeholder="请输入收费主题关键字搜索"/>-->
+    </div>
+    <div class="bod-con-fer-form">
+        <table align="center" class="tab tablesorter-blue">
+            <thead>
+            <tr>
+                <th>序号</th>
+                <th>教师姓名</th>
+                <th>手机号</th>
+                <th>教师类型</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>1</td>
+                <td>刘涛</td>
+                <td class="stu_status">13812345678</td>
+                <td>专职</td>
+                <td class="operation">
+                    <span  class="toDetail">编辑<em></em></span>
+                    <span  class="toDetail">停用<em></em></span>
+                    <span  class="toDetail">删除<em></em></span>
+                </td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>王老三</td>
+                <td class="stu_status">13812345678</td>
+                <td>联合</td>
+                <td class="operation">
+                    <span  class="toDetail">编辑<em></em></span>
+                    <span  class="toDetail">停用<em></em></span>
+                    <span  class="toDetail">删除<em></em></span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <!-- 分页 -->
+    <div class="gui-page-wapper" style="margin:20px 0;line-height: 28px;">
+        <ul class="gui-page" id="limitUi">
+            <span class="gui-page-total">共151页 15065数据</span>
+            <!---->
+            <li title="上一页" class="gui-page-prev gui-page-disabled">
+                <a><i class="fa fa-angle-left"></i></a>
+            </li>
+            <li title="1" class="gui-page-item gui-page-item-active">
+                <a>1</a>
+            </li>
+            <li title="2" class="gui-page-item">
+                <a>2</a>
+            </li>
+            <li title="3" class="gui-page-item">
+                <a>3</a>
+            </li>
+            <li title="向后 5 页" class="gui-page-item-jump-next">
+                <a><i class="fa fa-ellipsis-h"></i></a>
+            </li>
+            <li title="10" class="gui-page-item">
+                <a>10</a>
+            </li>
+            <li title="下一页" class="gui-page-next">
+                <a>
+                </a><a><i class="fa fa-angle-right"></i></a>
+            </li>
+        </ul>
+
+        <span class="gui-page-options-elevator" style="padding-left: 10px;">
+                每页条数：
+                <select id="limit" class="">
+                     <option value="20">20</option>
+                     <option value="50">50</option>
+                     <option value="100">100</option>
+                </select>
+            </span>
+
+        <span class="gui-page-options">
+            <span class="gui-page-options-elevator">跳至第
+            <input id="page" class="gui-input">
+             页</span>
+           </span>
+    </div>
+    <!--分页-->
+
+    <div class="dataStatistics">
+         教师数：<span class="numberShow" id="sum_teacher"><i class="fa fa-circle-o-notch fa-spin" ></i></span> </span>
+    </div>
+
+</div>
+<script src="js/countUp.js"></script>
+<script>
+    $(function () {
+        $(".toDetail").click(function () {
+            window.location.href="#12?id=12"
+        })
+
+        //统计接口目前是演示，实际是ajax回调
+        setTimeout(function () {
+            countup("sum_teacher",168);
+        },2000)
+    })
+</script>

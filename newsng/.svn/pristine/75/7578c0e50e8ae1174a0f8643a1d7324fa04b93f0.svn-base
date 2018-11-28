@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>学生考勤</title>
+	<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+	<!--<link rel="shortcut icon" href="/favicon.ico">-->
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<!--ui包-->
+	<link rel="stylesheet" href="../../../css/sm.css">
+	<link rel="stylesheet" href="../../../css/layout.css">
+	<link rel="stylesheet" href="../../../css/teacher.css">
+	<style>
+	.list-block .item-media+.item-inner {
+		margin-left:0;
+	}
+	/*公用表格*/
+	.gui-table {
+		width: 100%;
+		text-align: left;
+		border-spacing: 0;
+		border: 1px solid #e0e0e0;
+		border-width: 1px 0 0 1px;
+	}
+	.gui-table td,.gui-table th {
+		border: 1px solid #e0e0e0;
+		border-width: 0 1px 1px 0
+	}
+
+	.gui-table th,.gui-table thead td {
+		color: #3f4851;
+		background-color: #f7f7f7;
+		border-collapse: collapse;
+		padding: 4px;
+		font-size: 16px;
+		height: 32px;
+		line-height: 32px;
+		text-align: center;
+		font-weight: 400
+	}
+
+	.gui-table tbody td,.gui-table tfoot td,.gui-table tfoot th {
+		padding: 3px 4px  4px;
+		vertical-align: top;
+		max-width: 140px
+	}
+
+
+
+	.gui-table td {
+		padding: 4px;
+		vertical-align: top;
+		height: 30px;
+		line-height: 30px;
+		text-align: center;
+		color: #69748a;
+		font-size: 14px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap
+	}
+
+	.gui-table td.text-left {
+		text-align: left
+	}
+
+	.gui-table td.text-right {
+		text-align: right
+	}
+
+	.gui-table tbody>tr.even.hover>td,.gui-table tbody>tr.even:hover+tr.tablesorter-childRow+tr.tablesorter-childRow>td,.gui-table tbody>tr.even:hover+tr.tablesorter-childRow>td,.gui-table tbody>tr.even:hover>td,.gui-table tbody>tr.hover>td,.gui-table tbody>tr:hover+tr.tablesorter-childRow+tr.tablesorter-childRow>td,.gui-table tbody>tr:hover+tr.tablesorter-childRow>td,.gui-table tbody>tr:hover>td {
+		background-color: #faf5e3;
+
+	}
+
+	.gui-table tbody>tr.odd.hover>td,.gui-table tbody>tr.odd:hover+tr.tablesorter-childRow+tr.tablesorter-childRow>td,.gui-table tbody>tr.odd:hover+tr.tablesorter-childRow>td,.gui-table tbody>tr.odd:hover>td {
+		background-color: #faf5e3;
+
+	}
+
+
+
+	.gui-table tbody tr.odd>td {
+		background-color: #fbfcfe
+	}
+
+
+	.gui-table tbody tr>td.operation span {
+		padding: 0 5px 0 10px;
+		cursor: pointer;
+		border-right: 1px #e0e0e0 solid;
+		position: relative
+	}
+
+	.gui-table tbody tr>td.operation span:last-child {
+		border-right: none
+	}
+
+	.gui-table tbody tr>td.operation span:hover {
+		color: #f2564e
+	}
+
+	.gui-table tbody tr>td.operation span em {
+		display: block;
+		position: absolute;
+		width: 0;
+		height: 0;
+		background: #f2564e;
+		top: 24px;
+		left: 50%;
+		transition: all .3s ease-out
+	}
+
+	.gui-table tbody tr>td.operation span:hover em {
+		width: 100%;
+		height: 1px;
+		background: #f2564e;
+		left: 0;
+		right: 0
+	}
+
+	.gui-table tbody tr.even>td {
+		background-color: #fff
+	}
+
+
+	.gui-table .tablesorter-filter-row td {
+		background-color: #eee;
+		line-height: normal;
+		text-align: center;
+		-webkit-transition: line-height .1s ease;
+		-moz-transition: line-height .1s ease;
+		-o-transition: line-height .1s ease;
+		transition: line-height .1s ease
+	}
+	.gui-table .tablesorter-filter-row.hideme td {
+		padding: 2px;
+		margin: 0;
+		line-height: 0;
+		cursor: pointer
+	}
+
+	.gui-table .tablesorter-filter-row.hideme * {
+		height: 1px;
+		min-height: 0;
+		border: 0;
+		padding: 0;
+		margin: 0;
+		opacity: 0;
+		filter: alpha(opacity=0)
+	}
+	.studentState i { padding: 3px 11px;color: #ffffff;
+			border-radius: 50%;}
+		.successIcon {
+			background: #1ad2a7;
+		}
+		.warnIcon {
+			background: #efb51e;
+		}
+		.dangerIcon {
+			background: #f6383a;
+		}
+
+		.telIcon {
+			padding: 3px 11px;
+			color: #ffffff;
+			border-radius: 50%;
+			background:#61b5ea;
+		}
+		.input_nostyle {
+			text-align: center;
+		}
+	.gui-table td {
+		line-height: 40px;
+	}
+		.htmlGray {
+			filter: progid:DXImageTransform.Microsoft.BasicImage(grayscale=0.8);
+			-webkit-filter: grayscale(80%);
+		}
+	</style>
+</head>
+<body>
+	<div class="page-group">
+			<div class="content native-scroll">
+				<div class="list-block" style="margin-top: 0">
+					<li class="item-link item-content" style="padding-right:.75rem; background: #cde9fb;color: #5e7a96;">
+						<span class="icon icon-left" id="prevDay" style="padding: 10px 20px 10px 0px;"></span>
+						<span ><input type="text" data-toggle='date' data-currentdate=""  value="" id="nowDate" class="input_nostyle" /></span>
+						<span class="icon icon-right" id="nextDay" style="padding: 10px 0 10px 20px;"></span>
+					</li>
+					<li>
+					<table cellspacing="1" cellpadding="0" class="gui-table" border="0" id="showStudentCapacity_table" style="background: #fff">
+						<thead>
+						<tr>
+							<th>班级</th>
+							<th width="77">正常</th>
+							<th width="77">缺勤</th>
+							<th width="77">迟到</th>
+							<th>状态/提醒</th>
+						</tr>
+						</thead>
+						<tbody id="studentList">
+						</tbody>
+					</table>
+					</li>
+				</div>
+				<div class="content-block">
+					<a href="javascript:void(0)" class="button button-fill external" id="saveTSData">结考勤</a>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</body>
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script>
+	//主页刷新
+    sessionStorage.home=1;
+    //返回刷新 vivo手机
+    if(sessionStorage.allClass==1){
+        sessionStorage.removeItem("allClass");
+        window.location.reload();
+	}
+    if(sessionStorage.allClassDate!==undefined){
+        $("#nowDate").val(sessionStorage.allClassDate);
+    }
+	//判断是否是管理员
+   var str=JSON.parse(sessionStorage.baseUser).orguser.rlids;
+    purview=str.substring(0,str.length-1).split(",");
+
+    //如果是考勤管理员校长副校长管理员才能进来
+    if ($.inArray("19", purview) < 0||$.inArray("10", purview) < 0 ||$.inArray("2", purview) < 0||$.inArray("1", purview) < 0) {
+    }else{
+    	$.alert("您无考勤管理员权限","",function () {
+  		  window.location="../login/index.html"
+        });
+        setTimeout(function () {
+            window.location="../login/index.html"
+        },800);
+    }
+
+	var timesheet={};
+    $(function(){
+		//上一天考勤
+        $("#prevDay").click(function(){
+            GetDateStr(-1);
+        });
+
+		//下一天考勤
+        $("#nextDay").click(function(){
+            GetDateStr(1);
+        });
+		//forvivo
+        $.hidePreloader();
+
+        //调用控件
+        $("#nowDate").calendar({inputReadOnly:true,dateFormat:'yyyy-mm-dd',onClose:function (p) {
+                var now=new Date($("#nowDate").attr("data-currentdate")).getTime();
+                var seeDate=new Date($("#nowDate").val()).getTime();
+                if(now<seeDate){
+                    $.alert("只能查看当天及以前的考勤");
+                    $("#nowDate").val($("#nowDate").attr("data-currentdate"));
+                    return false
+                }else{
+                    loadTSdata($("#nowDate").val());
+				}
+         }});
+
+        //加载考勤班级
+        var base=JSON.parse(sessionStorage.baseUser);
+        var parameter={
+            token:base.token,
+            // 登录获得token
+            udid:base.udid,
+            // 登录获得udid
+            version:3,
+            uid:base.orguser.user_id,//base.orguser.teacher.tech_id,
+            org_id:base.orguser.org_id,
+        };
+        getData(domainName+"/esb/api/grade/getGradesAndClas",parameter,function(res){
+
+            if(res.code==200 && res.success==true){
+
+                sessionStorage.allC=JSON.stringify(res.data);
+                for(var i=res.data.depData.length-1;i>=0;i--){
+
+                    var obj=res.data.depData[i];
+                    timesheet[obj.grade_id]={};
+                    timesheet[obj.grade_id]["grade_name"]=obj.grade_name;
+                    timesheet[obj.grade_id]["classList"]={};//班级信息
+                    for(var m=obj.clasList.length-1;m>=0;m--){
+                        var classobj=obj.clasList[m];
+                        timesheet[obj.grade_id]["classList"][classobj.clas_id]={};
+                        timesheet[obj.grade_id]["classList"][classobj.clas_id]["className"]=classobj.clas_name;
+                        timesheet[obj.grade_id]["classList"][classobj.clas_id]["students"]=[];
+                    }
+                    if(i==0){
+                        sessionStorage.timeSheetData=JSON.stringify(timesheet);
+                    }
+                }
+
+                //加载默认数据
+                setTimeout(function () {
+                    loadTSdata();
+                },20)
+
+            }else{
+                $.alert(res.message);
+            }
+        });
+
+
+    });
+
+    //上一天下一天切换
+    function GetDateStr(AddDayCount) {
+
+        var now=$("#nowDate").val().replace(/\-/g,"/");
+        var dd =now==""?new Date():new Date(now);
+        dd.setDate(dd.getDate()+AddDayCount);//获取AddDayCount天后的日期
+        var y = dd.getFullYear();
+        var m = dd.getMonth()+1; //获取当前月份的日期
+        var d = dd.getDate();
+        var date=y+"-"+(m<10?"0"+m:m)+"-"+(d<10?"0"+d:d);
+
+        if(AddDayCount==1){
+            var now=new Date($("#nowDate").attr("data-currentdate").replace(/\-/g,"/")).getTime();
+            var seeDate=new Date(date.replace(/\-/g,"/")).getTime();
+            if(now<seeDate){
+                $.alert("只能查看当天及以前的考勤");
+                return false
+            }
+        }
+
+
+        $("#nowDate").val(date);
+        //发请求查询
+        loadTSdata(date);
+    }
+
+    //查看班级详情
+
+    $('body').on('click',".className", function(event){
+        var clas_id=$(this).parent().attr("id");
+        var grade_id=$(this).parent().attr("data-gradeid")
+        var nowDate=$("#nowDate").val();
+        window.location="classDetail.html?clas_id="+clas_id+"&grade_id="+grade_id+"&attnDate="+nowDate;
+	});
+
+    //提交考勤
+    $("#saveTSData").click(function(){
+
+        if($(this).hasClass("button-light")){
+
+            $.confirm('确定要取消结考勤吗?','',
+                function () {
+
+                    var url= domainName+"/shijiwxy/wechat/portal/studentAttendance/unLockClassSubmitStatus4Manage.htm";
+                    toSave (url,"取消结考勤成功")
+                }
+                ,null,"确定","取消");
+
+		}else{
+            $.confirm('结考勤后，教师将不能提交考勤，是否确认结考勤?','',
+                function () {
+                    var url= domainName+"/shijiwxy/wechat/portal/studentAttendance/lockClassSubmitStatus4Manage.htm";
+                    toSave (url,"结考勤成功")
+                }
+                ,null,"确定","取消");
+		}
+
+
+        function toSave(url,okText){
+            //班级考勤状态
+            var classState = new Array();
+
+            if($("#studentList tr").length==1&&$("#studentList tr td").length==1){
+                $.alert("没有考勤数据不能提交！");
+                return false
+            }
+            //获取当前班级状态
+            $("#studentList tr").each(function(){
+                var cid=$(this).attr("id");
+                if(cid!==""&&cid!==undefined){
+                    var gid=$(this).attr("data-gradeid");
+                    var str=gid+"_"+cid;
+                    //年级id_班级id;
+                    classState.push(str)
+                }
+            });
+
+            var parameter = {
+                token:JSON.parse(sessionStorage.baseUser).token,
+                udid:JSON.parse(sessionStorage.baseUser).udid,
+                version:3,
+                org_id:JSON.parse(sessionStorage.baseUser).orguser.org_id,
+
+                /* gradeId:GetUrlParam("grade_id"),
+                 classId:GetUrlParam("clas_id"),*/
+                org_id:JSON.parse(sessionStorage.baseUser).orguser.org_id,
+
+                attnDate:$("#nowDate").val(),//"2018-05-24"
+                teacherId:JSON.parse(sessionStorage.baseUser).orguser.teacher.tech_id,
+                teacherName:JSON.parse(sessionStorage.baseUser).orguser.teacher.tech_name,
+                gradeId_classId:classState.join(";")
+            };
+
+            //保存考勤信息
+            getData(url, parameter,function(res){
+                if(res.code==200 && res.success==true){
+                    $.alert(okText,"",function () {
+                        window.location.reload()
+                    });
+
+                }else{
+                    $.alert(res.message);
+                }
+            },"POST");
+		}
+
+	});
+
+
+
+    //联系班主任
+    $('body').on('click',".callTeacher", function(event){
+
+        if($("#saveTSData").hasClass("button-light")){
+            return false
+		}
+
+        var cid=$(this).parent().parent().attr("id");
+        var parameter = {
+            token:JSON.parse(sessionStorage.baseUser).token,
+            udid:JSON.parse(sessionStorage.baseUser).udid,
+            version:3,
+            org_id:JSON.parse(sessionStorage.baseUser).orguser.org_id,
+            classId:cid
+        };
+        //获取班主任联系信息
+        getData(domainName+"/shijiwxy/wechat/portal/studentAttendance/getBZRTeacherInfo.htm", parameter,function(res){
+            if(res.code==200 && res.success==true){
+
+                ///------------------------
+                var parentinfo="{text: '请选择',label:true},";
+                //家长信息
+                var tels=res.data;
+
+                if(tels.length==0){
+                    $.alert("该班暂无班主任","",null);
+                    return false
+				}
+
+                setTimeout(function () {
+                    //联系人信息
+                    if(tels.length>0){
+                        for( var i=tels.length-1; i>=0; i--){
+                            var name=allRelation[tels[i].relation];
+                            //var relation=allRelation[tels[i].relation];
+                            var mob=tels[i].user_mobile;
+                            //parentinfo +='{text:"拨打-'+studentName+'-'+name+'-电话",onClick: function() { window.location.href="tel:'+mob+'";}},';
+                            parentinfo +='{text:"拨打-'+tels[i].tech_name+'老师-电话",onClick: function() { window.location.href="tel:'+mob+'";}},';
+                        }
+                    }
+
+                    var str=parentinfo;
+                    var substr=str.substring(0,str.length-1);
+                    var subtext= "["+substr+"]";
+                    var jsonTem=eval(subtext);//转成json对象
+                    var parentTel = jsonTem;
+                    var cancel = [
+                        {
+                            text: '取消',
+                            bg: 'danger'
+                        }
+                    ];
+                    var groups = [parentTel, cancel];
+                    $.actions(groups);
+
+                },10)
+				///=------------------------
+
+            }else{
+                $.alert(res.message);
+            }
+        },"POST");
+
+    });
+
+
+    function loadTSdata(attnDate) {
+
+        var date=attnDate==undefined?"":attnDate;
+
+        if(sessionStorage.allClassDate!==undefined){
+            var date=sessionStorage.allClassDate;
+        }else{
+            var date=attnDate;
+        }
+
+        var all_str=""
+        for(var i in JSON.parse(sessionStorage.timeSheetData)){
+            for(var x in JSON.parse(sessionStorage.timeSheetData)[i].classList){
+              all_str+=i+"_"+x+";";
+			}
+		}
+        //获取考勤参数
+        var parameter={
+            token:JSON.parse(sessionStorage.baseUser).token,
+            udid:JSON.parse(sessionStorage.baseUser).udid,
+            version:3,
+            org_id:JSON.parse(sessionStorage.baseUser).orguser.org_id,
+            gradeId:GetUrlParam("grade_id"),
+            gradeId_classId:all_str,
+            attnDate:date
+        }
+
+        //获取考勤信息
+        getData(domainName+"/shijiwxy/wechat/portal/studentAttendance/getClassSubmitStatus4Manage.htm", parameter,function(res){
+            if(res.code==200 && res.success==true){
+
+                sessionStorage.removeItem("allClassDate");
+
+                var html="";
+                var obj=res.data.gradeSubmitRecordList;
+
+                $("#nowDate").val(res.data.attnDate);
+                if(res.data.currentDate !== undefined){
+                    $("#nowDate").attr("data-currentdate",res.data.currentDate);
+				}
+
+               if(obj.length>0){
+
+                    for(var n=0;n<obj.length;n++){
+
+                        var gradeObj=obj[n];
+
+                        html+='<tr>'+
+                              '<td class="studentName" colspan="5" style="background: #f2f2f2;color:#434343;text-align:left; padding: 0 .75rem">'+gradeObj.gradeName+'</td>' +
+                             '</tr>';
+                        for(var i=gradeObj.classSubmitRecordList.length,x=0;x<i;x++){
+
+                            var classobj=gradeObj.classSubmitRecordList[x];
+
+
+                            if(classobj.submit_date == null || classobj.submit_date == ""){
+
+                                if(res.data.canLock=="0"){
+                                    $("#saveTSData").addClass("button-light");
+                                    var subHtml="<span class='callTeacher' style='background:#ccc;padding: 6px 15px;border-radius:3px;color:#fff'>提醒</span>";
+                                }else{
+                                    $("#saveTSData").removeClass("button-light");
+                                    var subHtml="<span class='callTeacher' style='background:#ff4b4c;padding: 6px 15px;border-radius:3px;color:#fff'>提醒</span>";
+                                }
+
+                               var tipText="<div style='color: red;margin-top: -7px; font-size: 12px;line-height: 20px;'>未提交</div>";
+
+                                html+='<tr id="'+classobj.class_id+'" data-gradeid="'+obj[n].gradeId+'">' +
+                                    '<td class="className" style="color:#054491;line-height: 24px">'+classobj.clas_name+tipText+'</td>' +//tipText+
+                                    '<td>--</td>'+
+                                    '<td>--</td>'+
+                                    '<td>--</td>'+
+                                    '<td>'+subHtml+'</td>' +
+                                    '</tr>';
+
+							}else{
+                               var subHtml="已提交";
+                                //var tipText="";
+                                var tipText="<div style='color: #c9c9ce;margin-top:-7px; font-size: 12px;line-height: 20px;'>总人数"+classobj.class_num+"</div>";
+
+                                html+='<tr id="'+classobj.class_id+'" data-gradeid="'+obj[n].gradeId+'">' +
+                                    '<td class="className" style="color:#054491;line-height: 24px">'+classobj.clas_name+tipText+'</td>' +//tipText+
+                                    '<td>'+classobj.normal_num+'</td>'+
+                                    '<td>'+classobj.absence_num+'</td>'+
+                                    '<td>'+classobj.late_num+'</td>'+
+                                    '<td>'+subHtml+'</td>' +
+                                    '</tr>';
+							}
+						}
+                    }
+                }else{
+                    var html='<tr><td colspan="5">暂无数据</td></tr>';
+                }
+
+				//判断考勤是否关闭 0不能提交
+                if(res.data.canLock=="0"){
+                    $("html").addClass(".gray");
+                    $("#saveTSData").addClass("button-light").text("已结考勤（点击取消）");
+				}else{
+                    //可以·
+                    $("#saveTSData").removeClass("button-light").text("结考勤");
+				}
+
+                $("#studentList").html(html);
+
+            }else{
+                $.alert(res.message);
+            }
+        },"POST");
+	}
+
+</script>

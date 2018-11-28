@@ -1,0 +1,114 @@
+.bar {
+    background: -webkit-linear-gradient(-90deg,#1b7eff,#42b8fe);
+    background: linear-gradient(-90deg,#1b7eff,#42b8fe);
+    border-bottom: 1px solid #99c4fd;
+    box-shadow: 2px 0px 10px #c0dff3;
+}
+
+.button.button-fill {
+    background: -webkit-linear-gradient(-90deg,#1b7eff,#42b8fe);
+    background: linear-gradient(-90deg,#1b7eff,#42b8fe);
+    box-shadow: 2px 0px 10px #77b0f3;
+}
+
+.button.button-light {
+    color: #fff;
+    border-color: #ccc;
+    background: #bbbbbb;
+    box-shadow: 2px 0 10px #f1f1f1;
+}
+
+
+
+.button-light.button-fill {
+    color: white;
+    background-color: #ccc;
+
+}
+
+.button-light.button-fill:active {
+    background-color: #ccc;
+}
+
+
+
+a {
+    color: #0a8ddf;
+    text-decoration: none;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+.payBanner {
+    background: -webkit-linear-gradient(-180deg,#1b7eff,#42b8fe);
+    background: linear-gradient(-180deg,#1b7eff,#42b8fe);
+}
+
+
+.payTitle {
+    color: #ffffff;
+    text-shadow: 3px 3px 3px #0d61c7;
+}
+
+.payMoney {
+    text-shadow: 3px 3px 3px #1c80ff;
+}
+label.label-checkbox input[type="checkbox"]:checked+.item-media i.icon-form-checkbox, label.label-checkbox input[type="radio"]:checked+.item-media i.icon-form-checkbox {
+    background-color:#35a5fe;
+    border: none;
+}
+
+.changedSum {color:#f60}
+.label-switch input[type="checkbox"]:checked+.checkbox {
+    background: #5fafde;
+}
+
+.getCode {
+    color: #34a3ff;
+}
+
+.button {
+    position: relative;
+    display: block;
+    height: 1.85rem;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    -webkit-appearance: none;
+    padding: 0 .5rem;
+    margin: 0;
+    font-family: inherit;
+    font-size: .8rem;
+    line-height: 1.75rem;
+    color: #0a8ddf;
+    text-align: center;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+    background: none;
+    border: 1px solid #0a8ddf;
+    border-radius: 2rem;
+    -moz-appearance: none;
+    -ms-appearance: none;
+    appearance: none;
+}
+.button.button-fill.active,
+.button.button-fill:active {
+    background: #34a3ff;
+}
+.modal-button {
+    color: #0a8ddf;
+}
+.userInfo .usserName {
+    color: #fff;
+    font-size: .82rem;
+    font-weight: bolder;
+}
+li { list-style: none}
+.actions-modal-button {
+    color: #0a8ddf;
+}
+.button.button-light:active {
+    color: #fff;
+    border-color: #ccc;
+    background: #ccc;
+}

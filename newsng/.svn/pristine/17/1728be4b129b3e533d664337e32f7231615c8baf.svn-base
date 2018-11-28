@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>教师通讯录</title>
+	<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+	<link rel="shortcut icon" href="../../favicon.ico">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<!--ui包-->
+	<link rel="stylesheet" href="../../../css/sm.css">
+	<link rel="stylesheet" href="../../../css/layout.css">
+	<style>
+		span.icon{
+			background: #4792ed;
+			color: #fff;
+			padding: 5px;
+			border-radius: 50%;
+	}
+		.list-block .item-content { cursor: pointer}
+	</style>
+</head>
+<body>
+<div class="page-group">
+	<div class="page page-current">
+		<header class="bar bar-nav">
+			<!--<span class="title pull-left" id="className"></h1>-->
+			<button class="button button-link button-nav pull-left" id="className" style='margin-left:0'></button>
+			<button class="button button-link button-nav pull-right">
+				共<span id="allStudentC"></span>人
+			</button>
+		</header>
+		<!--<header class="bar bar-nav" style="background: rgb(245, 245, 245); box-shadow: none; border: none">
+            <div class="searchbar">
+                <a class="searchbar-cancel" style="">取消</a>
+                <div class="search-input">
+                    <label class="icon icon-search" for="search"></label>
+                    <input type="search" id="search" placeholder="输入姓名">
+                </div>
+            </div>
+        </header>-->
+		<div class="content native-scroll " style="top:.96rem">
+			<div class="list-block " >
+				<div id="letter" ></div>
+				<ul class="sort_box" id="allClass">
+				</ul>
+				<!-- 首字母 -->
+				<div class="initials">
+					<ul></ul>
+				</div>
+				<!-- 首字母 End-->
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script src='../../../js/phonebook/jquery.charfirst.pinyin.js'></script>
+<script src='../../../js/phonebook/sort.js'></script>
+<script>
+
+    var nowId=GetUrlParam("id");
+
+    var groupObj=JSON.parse(sessionStorage.phonebook);
+
+    $(function(){
+
+        for(var i=0; i<groupObj.length;i++){
+
+            var id=groupObj[i].group_id;
+
+            if(id==nowId){
+
+                var html="";
+                for(var m=groupObj[i].memberData.length-1;m>=0;m--){
+                    var res=groupObj[i].memberData[m];
+
+                    html +='<li class="item-content" data-mob="'+res.mobile+'"  >'+
+                        '<div class="item-media"><span class="icon icon-phone"></span></div>'+
+                        '<div class="item-inner">'+
+                        '<div class="item-title">'+res.mem_name+'</div>'+
+                        //'<div class="item-after gray">'+gz+'</div>'+
+                        '</div>'+
+                        ' </li>';
+
+                }
+                $("#allStudentC").html(groupObj[i].memberData.length);
+                $("#allClass").html(html);
+
+                $("#className").html(groupObj[i].group_name);
+            }
+
+        }
+
+
+        var Initials=$('.initials');
+        var LetterBox=$('#letter');
+        initials();
+
+        var last=0;
+
+        $(".initials ul li").click(function(){
+
+            var _this=$(this);
+            var LetterHtml=_this.html();
+            LetterBox.html(LetterHtml).show();
+            Initials.css('background','rgba(145,145,145,0.6)');
+            setTimeout(function(){
+                Initials.css('background','rgba(145,145,145,0)');
+                LetterBox.hide();
+            },1000);
+            var container = $('.native-scroll');
+            container.scrollTop(0);
+            var scrollTo = $("#"+LetterHtml).offset().top;
+
+            container.scrollTop(
+                scrollTo-56
+            );
+        });
+        $(".initials ul li").ontouchmove(function(){
+
+            var _this=$(this);
+            var LetterHtml=_this.html();
+            LetterBox.html(LetterHtml).show();
+            Initials.css('background','rgba(145,145,145,0.6)');
+            setTimeout(function(){
+                Initials.css('background','rgba(145,145,145,0)');
+                LetterBox.hide();
+            },1000);
+            var container = $('.native-scroll');
+            container.scrollTop(0);
+            var scrollTo = $("#"+LetterHtml).offset().top;
+
+            container.scrollTop(
+                scrollTo-56
+            );
+        });
+
+        //字母自动按屏幕设置高度···关闭
+        /*  var windowHeight=$(window).height();
+         var InitHeight=windowHeight-45;
+         Initials.height(InitHeight);
+         var LiHeight=InitHeight/$('.initials ul li').length;
+         Initials.find('li').height(LiHeight); */
+        /*	}else{
+                $.alert(result.msg);
+            }
+        });*/
+    });
+
+    //拨打电话
+    $("#allClass").on('click','li', function(){
+
+        var mob=$(this).attr("data-mob");
+
+        var name=$(this).find(".item-title").text();
+        var buttons1 = [
+            {
+                text: '请选择',
+                label: true
+            },
+            {
+                text: '电话联系 - '+name,
+                onClick: function() {
+                    console.info(mob);
+                    window.location.href="tel:"+mob;
+                }
+            },
+            {
+                text: '短信联系 - '+name,
+                onClick: function() {
+                    window.location.href="SMS:"+mob;
+                }
+            }
+        ];
+        var buttons2 = [
+            {
+                text: '取消',
+                bg: 'danger'
+            }
+        ];
+        var groups = [buttons1, buttons2];
+        $.actions(groups);
+    });
+
+</script>

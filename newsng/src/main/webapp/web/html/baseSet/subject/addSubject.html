@@ -1,0 +1,111 @@
+<!--创建科目-->
+<div style="padding: 40PX;">
+    <form class="gui-form gui-form-label-right" id="addSubject-form" novalidate="novalidate">
+        <div class="line"></div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">科目名称</label>
+            <div class="gui-form-item-content">
+                <input type="text" name="subjectName" id="subject_name" placeholder="请输入科目名称" class="gui-input" value="" maxlength="50" required >
+            </div>
+        </div>
+
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">所属类目</label>
+            <div class="gui-form-item-content">
+                <select class="gui-input" name="camType" id="categoryId" required>
+                    <option value="none">选择类目</option>
+                    <option value="1">舞蹈类</option>
+                    <option value="2">音乐类</option>
+                </select>
+            </div>
+        </div>
+
+
+        <div class="line"></div>
+        <div class="gui-form-item">
+            <div class="gui-form-item-content" >
+                <button type="button" class="gui-btn gui-btn-normal" id="savaSubject"><i class="fa fa-save"></i><span>保存科目</span></button>
+                <button type="button" class="gui-btn gui-btn-primary" id="back"><i class="fa fa-angle-left"></i><span>返回列表</span></button>
+            </div>
+        </div>
+    </form>
+    <script type="text/javascript" src="plus/validate/jquery-validate.js"></script>
+
+    <script>
+        $(function() {
+
+            //赋值
+            $("#subject_name").val(decodeURI(GetUrlParam("subject_name")));
+            $("#categoryId").val(GetUrlParam("category_id"));
+
+            //取消编辑返回列表
+            $("#back").click(function () {
+                window.history.back();
+            })
+
+            //获取校区下拉
+            allSelect();
+
+            //校验规则
+            $("#addSubject-form").validate({
+                rules: {
+                    subjectName: {
+                        required: true
+                    },
+                    camType: {
+                        number: true
+                    }
+                },
+                messages: {
+                    subjectName: {
+                        required: '请输入科目名称'
+                    },
+                    camType: {
+                        number: '请选择一个类目'
+                    }
+                },
+                errorPlacement: function(error, element) {
+                    console.info(element)
+                    error.appendTo(element.parent().after())
+                },
+                errorClass: 'gui-form-item-error',
+                errorElement: 'span',
+                submitHandler: function(form) {
+
+                    //通过之后回调
+                    //保存类目
+                    var saveSubject = {
+                        parameter:{
+                            "category_id":GetUrlParam("category_id"),
+                            "org_id": option.org_id,
+                            "subject_id":GetUrlParam("subject_id"),
+                            "subject_name":$("#subject_name").val()
+                        },
+                        url:domain+"/baseSet/categoryManage/createAndUpdateSubjectInfo.json"
+
+                    };
+
+
+                    //保存或者更新类目
+                    getData(saveSubject.url,saveSubject.parameter,function (data) {
+                        console.log(data)
+                        if(data.code==200 && data.success==true){
+                            myAlert("保存成功",1,data.code,function () {
+                                window.location.href="#f23"
+                            });
+                        }else {
+                            myAlert(data.msg,2,data.code,null);
+                        }
+                    },"POST",false)
+
+                }
+
+            });
+
+            $("#savaSubject").click(function () {
+                $("#addSubject-form").submit();
+            });
+
+
+        })
+    </script>
+
+</div>

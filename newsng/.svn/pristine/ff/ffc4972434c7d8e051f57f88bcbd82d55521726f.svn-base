@@ -1,0 +1,199 @@
+package sng.dao.impl;
+
+import java.io.Serializable;
+import java.math.BigInteger;
+import java.util.List;
+import java.util.Map;
+
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.criterion.CriteriaSpecification;
+import org.hibernate.transform.Transformers;
+import org.springframework.stereotype.Repository;
+
+import sng.dao.BaseDaoEx;
+import sng.entity.TempEntity;
+import sng.util.Paging;
+
+/**
+ * 
+ * @author sjz
+ *
+ */
+@Repository
+public class BaseDaoExImpl extends BaseDaoImpl<TempEntity> implements BaseDaoEx {
+
+	@Override
+	public <T> Serializable saveOne(T t) {
+		Session session = this.factory.getCurrentSession();
+		Serializable serializable=session.save(t);
+		session.flush();
+		return serializable;
+	}
+
+	@Override
+	public <T> void updateOne(T t) {
+		Session session = this.factory.getCurrentSession();
+		session.update(t);
+		session.flush();
+	}
+
+	@Override
+	public <T> T findById(Class<T> clazz,Serializable id) {
+		Session session = this.factory.getCurrentSession();
+		T t=(T)session.get(clazz, id);
+		return t;
+	}
+	
+	
+	public List queryListByHql(String hql,List<Object> params){
+		Session session = this.factory.getCurrentSession();
+		Query query=session.createQuery(hql);
+		if(params!=null){
+			for(int i=0;i<params.size();i++){
+				query.setParameter(i, params.get(i));
+			}
+		}
+		List list=query.list();
+		return list;
+	}
+	
+	public List queryListByHql(String hql,Map<String,Object> params){
+		Session session = this.factory.getCurrentSession();
+		Query query=session.createQuery(hql);
+		if(params!=null){
+			for(Map.Entry<String, Object> entry : params.entrySet()){
+				query.setParameter(entry.getKey(), entry.getValue());
+			}
+		}
+		List list=query.list();
+		return list;
+	}
+	
+	@Override
+	public <T> Paging<T> queryPageBySql(String sql,String countSql,int pageNo,int pageSize,Class<T> clazz,List<Object> params){
+		int maxPageSize=this.countBySql(countSql, params);
+		List<T> list=this.queryListSql(sql, pageNo, pageSize, clazz, params);
+		Paging<T> page = new Paging<T>();
+		page.setPage(pageNo);//页号
+		page.setLimit(pageSize);//每页记录数
+		page.setSize(this.getMaxPageNo(maxPageSize, pageSize));//总页数
+		page.setTotal(maxPageSize);//总记录数
+		page.setStart((pageNo-1)*pageSize);//起始记录数
+		page.setData(list);
+		return page;
+	}
+	
+	@Override
+	public <T> List<T> queryListBySql(String sql,Class<T> clazz,List<Object> params) {
+		List<T> list=this.queryListSql(sql, null, null, clazz, params);
+		return list;
+	}
+	
+	@Override
+	public int countBySql(String sql,List<Object> params){
+		Session session = this.factory.getCurrentSession();
+		Query query=session.createSQLQuery(sql);
+		if(params!=null){
+			for(int i=0;i<params.size();i++){
+				query.setParameter(i, params.get(i));
+			}
+		}
+		return ((BigInteger)query.uniqueResult()).intValue();
+	}
+	
+	@Override
+	public Object queryObjectBySql(String sql,List<Object> params) {
+		Session session = this.factory.getCurrentSession();
+		Query query=session.createSQLQuery(sql);
+		if(params!=null){
+			for(int i=0;i<params.size();i++){
+				query.setParameter(i, params.get(i));
+			}
+		}
+		return query.uniqueResult();
+	}
+	
+	@Override
+	public List<Map<String,Object>> queryListBySql(String sql,List<Object> params){
+		List<Map<String,Object>> list=this.queryListSql(sql, null, null, params);
+		return list;
+	}
+	
+	@Override
+	public Paging<Map<String,Object>> queryPageBySql(String sql,String countSql,int pageNo,int pageSize,List<Object> params){
+		int maxPageSize=this.countBySql(countSql, params);
+		List<Map<String,Object>> list=this.queryListSql(sql, pageNo, pageSize, params);
+		Paging<Map<String,Object>> page = new Paging<Map<String,Object>>();
+		page.setPage(pageNo);//页号
+		page.setLimit(pageSize);//每页记录数
+		page.setSize(this.getMaxPageNo(maxPageSize, pageSize));//总页数
+		page.setTotal(maxPageSize);//总记录数
+		page.setStart((pageNo-1)*pageSize);//起始记录数
+		page.setData(list);
+		return page;
+	}
+	
+	public int executeSql(String sql,List<Object> params){
+		Session session = this.factory.getCurrentSession();
+		Query query=session.createSQLQuery(sql);
+		if(params!=null){
+			for(int i=0;i<params.size();i++){
+				query.setParameter(i, params.get(i));
+			}
+		}
+		return query.executeUpdate();
+	}
+	
+	
+	private <T> List<T> queryListSql(String sql,Integer pageNo,Integer pageSize,Class<T> clazz,List<Object> params){
+		Session session = this.factory.getCurrentSession();
+		Query query=session.createSQLQuery(sql);
+		query.setResultTransformer(Transformers.aliasToBean(clazz));
+		if(params!=null){
+			for(int i=0;i<params.size();i++){
+				query.setParameter(i, params.get(i));
+			}
+		}
+		if(pageNo!=null && pageSize!=null){
+			query.setFirstResult((pageNo-1)*pageSize);
+			query.setMaxResults(pageSize);
+		}
+		List<T> list=query.list();
+		return list;
+	}
+	
+	private List<Map<String, Object>> queryListSql(String sql,Integer pageNo,Integer pageSize,List<Object> params){
+		Session session = this.factory.getCurrentSession();
+		Query query=session.createSQLQuery(sql);
+		query.setResultTransformer(CriteriaSpecification.ALIAS_TO_ENTITY_MAP);
+		if(params!=null){
+			for(int i=0;i<params.size();i++){
+				query.setParameter(i, params.get(i));
+			}
+		}
+		if(pageNo!=null && pageSize!=null){
+			query.setFirstResult((pageNo-1)*pageSize);
+			query.setMaxResults(pageSize);
+		}
+		List<Map<String, Object>> list=query.list();
+		return list;
+	}
+	
+	/**
+	 * 计算总页数
+	 * @param maxPageSize 总记录数
+	 * @param pageSize 每页显示记录数
+	 * @return
+	 */
+	private int getMaxPageNo(int maxPageSize,int pageSize){
+		int maxPageNo=0;
+		if(maxPageSize%pageSize==0){
+			maxPageNo=maxPageSize/pageSize;
+		}else{
+			maxPageNo=maxPageSize/pageSize+1;
+		}
+		return maxPageNo;
+	}
+
+}

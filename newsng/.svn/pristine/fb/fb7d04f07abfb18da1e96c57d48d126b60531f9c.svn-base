@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>通讯联络</title>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <!--ui包-->
+    <link rel="stylesheet" href="../../../css/sm.css">
+    <link rel="stylesheet" href="../../../css/layout.css">
+    <style>
+        span.icon {
+            background: #4792ed;
+            color: #fff;
+            padding: 5px;
+            border-radius: 50%;
+        }
+        .list-block .item-content {
+            cursor: pointer
+        }
+        .content-title{
+            height: 1rem;
+            line-height: 2.25rem;
+            padding-left:0.75rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page-group">
+        <div class="page page-current">
+            <div class="content native-scroll" id="class_list" >
+                <div class="content-title">
+                    <h4></h4>
+                </div>
+
+                <div class="list-block" id="unbinded">
+                    <ul class="sort_box">
+                        <li class="item-content">
+                            <div class="item-inner" bind_num=""></div>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="list-block" id="binded">
+                    <ul class="sort_box">
+                        <li class="item-content">
+                            <div class="item-inner" bind_num=""></div>
+                        </li>
+                        
+                    </ul>
+                </div>
+
+                
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script>
+    //设置返回首页标识
+    sessionStorage.echart = 1;
+    $(function () {
+        var nowId = GetUrlParam("clas_id");
+        var students,bind,unbind,clas_name;
+        if(!sessionStorage.classes){
+            var thisclass = {};
+            $('#class_list').empty();
+            $('#class_list').append('<div class="error-img"><p class="error-text">网络不是很给力哦~</p><p>请检查网络设置</p><button type="button" id="reloadpage">刷新一下~</button></div>');
+            noContentImg($('#class_list .error-text'), 'images/neterror.png');
+
+        }else{
+            var thisclass = JSON.parse(sessionStorage.classes);
+            console.log(thisclass);
+            for (var k in thisclass) {
+                for (var l in thisclass[k].classes) {
+                    if (nowId === l) {
+                        clas_name = thisclass[k].classes[l].clas_name;
+                        students = thisclass[k].classes[l].students;
+                        bind = thisclass[k].classes[l].bind_num;
+                        unbind = thisclass[k].classes[l].unbind_num;
+                        break;
+                    }
+                }
+            }
+            if (students.length<=0) {
+                $('#class_list').empty();
+                $('#class_list').append('<div class="error-img"><p class="error-text">还没有什么内容哦~</p></div>');
+                noContentImg($('#class_list .error-text'), 'images/empty.png');
+            }else{
+                var bind_html = '';
+                var unbind_html = '';
+                var reg_phone = /[0-9]{11}/;
+                $('#class_list .content-title h4').text(clas_name);
+                $('#unbinded [bind_num]').text('未关注:' + unbind + '人');
+                $('#binded [bind_num]').text('已关注:' + bind + '人');
+                for (var i = 0; i < students.length; i++) {
+                    // var reg_phone = new RegExp("["+ students[i].stud_name +"]-[0-9]{11}");
+                    if(students[i].info){
+                        var phone_number = students[i].info.match(reg_phone)[0];
+                    }
+                    
+                    for (var k=0;k<students[i].parents.length;k++) {
+                        if (students[i].stud_name === students[i].parents[k].parent_name) {
+                            phone_number = students[i].parents[k].mobile;
+                        }
+                    }
+                    if (students[i].isBind != 0) {
+                        bind_html += '<li class="item-content" data-mob="' + phone_number + '">' +
+                            '<div class="item-media">' +
+                            '<span class="icon icon-phone"></span>' +
+                            '</div>' +
+                            '<div class="item-inner">' +
+                            '<div class="item-title">' + students[i].stud_name + '</div>' +
+                            '</div>' +
+                            '</li>';
+                    } else {
+                        unbind_html += '<li class="item-content" data-mob="' + phone_number + '">' +
+                            '<div class="item-media">' +
+                            '<span class="icon icon-phone"></span>' +
+                            '</div>' +
+                            '<div class="item-inner">' +
+                            '<div class="item-title">' + students[i].stud_name + '</div>' +
+                            '<div class="item-after">未关注</div>' +
+                            '</div>' +
+                            '</li>';
+                    }
+                
+                }
+                $('#binded .sort_box').append(bind_html);
+                $('#unbinded .sort_box').append(unbind_html);
+
+                //拨打电话
+                $("#class_list ul li:not(:first-child)").on('click', function () {
+
+                    var mob = $(this).attr("data-mob");
+
+                    var name = $(this).find(".item-title").text();
+                    var buttons1 = [
+                        {
+                            text: '请选择',
+                            label: true
+                        },
+                        {
+                            text: '电话联系 - ' + name,
+                            onClick: function () {
+                                console.info(mob);
+                                window.location.href = "tel:" + mob;
+                            }
+                        },
+                        {
+                            text: '短信联系 - ' + name,
+                            onClick: function () {
+                                window.location.href = "SMS:" + mob;
+                            }
+                        }
+                    ];
+                    var buttons2 = [
+                        {
+                            text: '取消',
+                            bg: 'danger'
+                        }
+                    ];
+                    var groups = [buttons1, buttons2];
+                    $.actions(groups);
+                });
+                $('.item-after').css('color', '#fe4c4c');
+            }
+        }
+
+        if ($('#reloadpage')) {
+            $('#reloadpage').on('click', function () {
+                window.location.reload();
+            })
+        }
+            
+    })
+</script>

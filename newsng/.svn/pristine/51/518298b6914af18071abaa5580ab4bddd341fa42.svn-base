@@ -1,0 +1,207 @@
+package sng.controller.web;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.core.type.TypeReference;
+
+import sng.controller.common.BaseAction;
+import sng.pojo.ParamObj;
+import sng.pojo.Result;
+import sng.pojo.base.Teacher;
+import sng.util.JsonUtil;
+import sng.util.Paging;
+
+/**
+ * @desc 教师管理模块
+ * @author magq
+ * @data 2018-11-1
+ * @version 1.0
+ */
+@Controller
+@RequestMapping("/protal/teacherManage")
+public class TeacherManageWebController extends BaseAction {
+
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+	/**
+	 * 新增/编辑教师接口
+	 * 
+	 * @param request
+	 * @param response
+	 * @param teacher
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/createAndUpdateTeacherInfo.json", method = RequestMethod.POST, produces = "application/*")
+	public void createAndUpdateTeacherInfo(HttpServletRequest request, HttpServletResponse response, ParamObj paramObj)
+			throws Exception {
+
+		Result result = new Result();
+		if (paramObj.getOrg_id() == null || StringUtils.isBlank(paramObj.getTech_name())
+				|| StringUtils.isBlank(paramObj.getUser_mobile())) {
+			result.setMessage("教师管理新增/编辑参数有误");
+			result.setSuccess(false);
+			response.getWriter().println(JSONObject.toJSON(result));
+			return;
+		}
+
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("tech_name", paramObj.getTech_name());
+		map.put("org_id", paramObj.getOrg_id());
+		map.put("user_mobile", paramObj.getUser_mobile());
+		// map.put("dep_id", ""); //临时保留
+		if (paramObj.getTech_id() == null) {
+			// 创建
+			String resultAddTeacherInfo = this.callUrl(request, "/api/tech/addTeacher", map);
+			Result<Map<String, Object>> resultMap = JsonUtil.getObjectFromJson(resultAddTeacherInfo,
+					new TypeReference<Result<Map<String, Object>>>() {
+					});
+			if (resultMap.getCode() != 204) {
+				result.setMessage("添加老师成功");
+				result.setSuccess(true);
+				response.getWriter().println(JSONObject.toJSON(resultMap));
+			}
+		} else {
+			// 编辑
+			map.put("tech_id", paramObj.getTech_id());
+			String resultUpdateTeacherInfo = this.callUrl(request, "api/tech/updateTeacher", map);
+			Result<sng.entity.Teacher> updateTeacher = JsonUtil.getObjectFromJson(resultUpdateTeacherInfo,
+					new TypeReference<Result<Teacher>>() {
+					});
+			if (updateTeacher.getData() != null || updateTeacher.getCode() == 200) {
+				result.setMessage("编辑老师成功");
+				result.setSuccess(true);
+				response.getWriter().println(JSONObject.toJSON(updateTeacher));
+			}
+
+		}
+
+	}
+
+	/**
+	 * 教师管理列表
+	 * 
+	 * @param request
+	 * @param response
+	 * @param paramObj
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/queryTeacherListInfo.json", method = RequestMethod.POST, produces = "application/*")
+	public void queryTeacherListInfo(HttpServletRequest request, HttpServletResponse response, ParamObj paramObj)
+			throws Exception {
+		Result<Paging<Teacher>> resultPaging = new Result<Paging<Teacher>>();
+		if (paramObj.getOrg_id() == null) {
+			resultPaging.setMessage("获取教师列表参数有误");
+			resultPaging.setSuccess(false);
+			response.getWriter().println(JSONObject.toJSON(resultPaging));
+			return;
+		}
+
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("org_id", paramObj.getOrg_id());
+		map.put("seach_name", StringUtils.isNotBlank(paramObj.getTech_name()) ? paramObj.getTech_name() : "");
+		map.put("start", paramObj.getStart() == null ? 0 : paramObj.getStart());
+		map.put("pageNum", paramObj.getPage() == null ? 1 : paramObj.getPage());
+		map.put("numPerPage", paramObj.getLimit() == null ? 20 : paramObj.getLimit());
+		String resultQueryListPage = this.callUrl(request, "api/tech/getTechsOfOrgByPage", map);
+		resultPaging = JsonUtil.getObjectFromJson(resultQueryListPage, new TypeReference<Result<Paging<Teacher>>>() {
+		});
+		if (resultPaging.getData() != null && resultPaging.getData().getData() != null && resultPaging.getCode() == 200
+				&& !resultPaging.getData().getData().isEmpty()) {
+			resultPaging.setMessage("获取教师列表成功");
+			resultPaging.setSuccess(true);
+		} else {
+			resultPaging.setMessage("获取教师列表失败");
+			resultPaging.setSuccess(false);
+		}
+		response.getWriter().println(JSONObject.toJSON(resultPaging));
+	}
+
+	/**
+	 * 停用教师
+	 * 
+	 * @param request
+	 * @param response
+	 * @param paramObj
+	 */
+	@RequestMapping(value = "/stopTeacherInfo.json", method = RequestMethod.POST, produces = "application/*")
+	public void stopTeacherInfo(HttpServletRequest request, HttpServletResponse response, ParamObj paramObj)
+			throws Exception {
+		Result<Teacher> result = new Result<Teacher>();
+		if (paramObj.getOrg_id() == null || paramObj.getTech_id() == null || paramObj.getStatus() == null) {
+			result.setMessage("教师停用请求参数有误");
+			result.setSuccess(false);
+			response.getWriter().println(JSONObject.toJSON(result));
+			return;
+		}
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("tech_id", paramObj.getTech_id());
+		map.put("org_id", paramObj.getOrg_id());
+		map.put("tech_name", "");
+		map.put("status", paramObj.getStart());
+		String resultStopTeacher = this.callUrl(request, "api/tech/updateTeacher", map);
+		result = JsonUtil.getObjectFromJson(resultStopTeacher, new TypeReference<Result<Teacher>>() {
+		});
+		if (result != null && result.getCode() != 204) {
+			result.setMessage("停用教师成功");
+			result.setSuccess(true);
+		}
+		response.getWriter().println(JSONObject.toJSON(result));
+	}
+
+	/**
+	 * 逻辑删除教师
+	 * 
+	 * @param request
+	 * @param response
+	 * @param paramObj
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/deleteTeacherInfo.json", method = RequestMethod.POST, produces = "application/*")
+	public void deleteTeacherInfo(HttpServletRequest request, HttpServletResponse response, ParamObj paramObj)
+			throws Exception {
+		Result<Map<String, Object>> result = new Result<Map<String, Object>>();
+		if (paramObj.getOrg_id() == null || paramObj.getTech_id() == null) {
+			result.setMessage("删除教师请求参数有误");
+			result.setSuccess(false);
+			response.getWriter().println(JSONObject.toJSON(result));
+			return;
+		}
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("tech_id", paramObj.getTech_id());
+		map.put("org_id", paramObj.getOrg_id());
+
+		String resultStopTeacher = this.callUrl(request, "api/tech/getSkTechClas", map);
+		result = JsonUtil.getObjectFromJson(resultStopTeacher, new TypeReference<Result<Map<String, Object>>>() {
+		});
+		boolean flag =false;
+		if (result.getData() != null && result.getData().get("class") != null) {
+			Map<String, Object> teachMap = (Map<String, Object>) result.getData().get("class");
+			if(teachMap!=null && !teachMap.isEmpty()) {
+				flag = true;
+			}
+		}
+		if(flag) {
+			result.setMessage("教师在班级业务数据中存在不能删除");
+			result.setSuccess(false);
+		}else {
+			//逻辑删除
+			resultStopTeacher = this.callUrl(request, "api/tech/deleteTeacher", map);
+			result.setMessage("逻辑删除教师成功");
+			result.setSuccess(true);
+		}
+		response.getWriter().println(JSONObject.toJSON(result));
+	}
+
+}

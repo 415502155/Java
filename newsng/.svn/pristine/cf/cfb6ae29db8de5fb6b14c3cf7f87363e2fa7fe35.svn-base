@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>支付详情</title>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <!--ui包-->
+    <link rel="stylesheet" href="../../../css/sm.css">
+    <link rel="stylesheet" href="../../../css/layout.css">
+    <link rel="stylesheet" href="../../../css/teacher.css">
+
+    <style>
+        .list-block .list-group-title {
+            padding: .6rem .75rem .4rem;
+            ;
+            border-bottom: 1px solid #e7e7e7;
+            cursor: pointer
+        }
+
+        .label-checkbox {
+            border-bottom: 1px solid #e7e7e7;
+        }
+
+        .icon-down {
+            position: absolute;
+            right: .75rem;
+        }
+
+        .item-title-row {
+            line-height: 1.4rem
+        }
+
+        .chooseText {
+            padding: 4px 40px 0;
+            font-size: .83rem;
+            position: absolute;
+        }
+
+        .list-block.media-list .list-group-title .item-media {
+            padding: 0
+        }
+
+        .studentDetail {
+            width: 50%;
+            height: 100%;
+            position: absolute;
+            right: 0;
+            background: #0a8ddf18;
+            z-index: 9;
+            top: 0;
+            cursor: pointer;
+        }
+
+        .list-block .color-danger {
+            color: #f6383a;
+        }
+
+        .myDialog {
+            position: absolute;
+            top: 0;
+            z-index: 10700;
+            background: #f5f5f5;
+            width: 100%;
+            background: rgba(0, 0, 0, .4);
+            HEIGHT: 100%;
+            display: none;
+        }
+
+        .myDialog_buttons {
+            border-top: 1px solid #e7e7e7;
+            display: -webkit-box;
+            display: -ms-flexbox;
+            display: -webkit-flex;
+            display: flex;
+            height: 2.2rem;
+            overflow: hidden;
+            -webkit-box-pack: center;
+            -ms-flex-pack: center;
+            -webkit-justify-content: center;
+            justify-content: center;
+
+        }
+
+        .myDialog_btn {
+            background: none;
+            border-right: 1px solid #e7e7e7;
+            font-weight: 500;
+            border-bottom: 0;
+            border-left: 0;
+            border-radius: 0 0 .35rem 0;
+            position: relative;
+            display: block;
+            width: 100%;
+            height: 2.2rem;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+            padding: 0 .25rem;
+            overflow: hidden;
+            font-size: .85rem;
+            line-height: 2.2rem;
+            color: #1ad2a7;
+            text-align: center;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            cursor: pointer;
+            background: #e8e8e8;
+            border-right: 1px solid #b5b5b5;
+            -webkit-box-flex: 1;
+            -ms-flex: 1;
+        }
+
+        .item-content span.icon {
+            background: #4792ed;
+            color: #fff;
+            padding: 5px;
+            border-radius: 50%;
+            margin-right: .5rem;
+            font-size: .6rem;
+        }
+
+        .list-block .item-title {
+            overflow: inherit;
+        }
+
+        .list-block .item-title span {
+            height: 24px;
+        }
+
+        .payNum {
+            color: #bfbfbf
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page-group">
+        <div class="page page-current" id="payD">
+            <!--内容显示区-->
+            <div class="content native-scroll">
+
+                <div class="payBanner">
+                    <div class="payTitle" id="payTitle"></div>
+                    <div class="payMoney" id="payMoney">¥
+                        <span>000.00</span>元</div>
+                    <div class="payTip" id="paywzTip" style="display: none;line-height:2rem;">统一收费
+                        <span></span>
+                    </div>
+                </div>
+                <div class="payInstructions" id="payInstructions">暂无收费说明</div>
+                <div class="content-block-title text-center" style="margin-top:1rem">支付详情</div>
+                <div class="list-block" id="allClass">
+                    <ul>
+                        <!--		<li class="item-content">
+								<div class="item-inner">
+									<div class="item-title">流水号</div>
+									<div class="item-after">568458d154d</div>
+								</div>
+							</li>
+							<li class="item-content">
+								<div class="item-inner">
+									<div class="item-title">支付金额</div>
+									<div class="item-after">280.00元</div>
+								</div>
+							</li>
+							<li class="item-content">
+								<div class="item-inner">
+									<div class="item-title">支付时间</div>
+									<div class="item-after">2017-02-25 00:00:00</div>
+								</div>
+							</li>
+-->
+                    </ul>
+                    <!--<div class="list-block-label">您的校服费已支付</div>-->
+                </div>
+
+
+            </div>
+
+
+        </div>
+    </div>
+
+
+
+</body>
+
+</html>
+
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script src='https://res.wx.qq.com/open/js/jweixin-1.2.0.js'></script>
+<script type="text/javascript">
+    var baseP = getJPermissions(JSON.parse(sessionStorage.baseUser).orguser.org_id);
+    wx.config({
+        debug: false,
+        appId: baseP.appId,
+        timestamp: baseP.timestamp,
+        nonceStr: baseP.nonceStr,
+        signature: baseP.signature,
+        jsApiList: []
+    });
+    wx.ready(function () {
+        //隐藏非基础类菜单
+        wx.hideAllNonBaseMenuItem();
+    })
+</script>
+<script>
+    var localJsonPayer = {};
+
+    $(function () {
+        //取消退费
+        $("#cancelRefund").click(function (e) {
+            //隐藏退费
+            $("#refundDialog").hide();
+            //清空金额
+            $("#refundMoney-all").text(0);
+            $("#refundMoney-detail").val("");
+        });
+        var payDetail = JSON.parse(sessionStorage.pay_info);
+        var payId = GetUrlParam("cid"),class_id = GetUrlParam('class_id');
+
+        for (var i = payDetail.length - 1; i >= 0; i--) {
+            if (payId == payDetail[i].cid) {
+                $("#payTitle").text(payDetail[i].item);
+                if (payDetail[i].pay_type == 1) {
+                    $("#payMoney span").text(payDetail[i].money);
+                    if (payDetail[i].refund == 1) {
+                        $("#paywzTip").show().find("span").text("允许退费");
+                    } else {
+                        $("#paywzTip").show().find("span").text("不允许退费");
+                    }
+
+                } else {
+                    if (payDetail[i].refund == 1) {
+                        $("#payMoney").html("个性化收费 允许退费").css("font-size", ".8rem");
+                    } else {
+                        $("#payMoney").html("个性化收费 禁止退费").css("font-size", ".8rem");
+                    }
+
+                }
+                $("#payInstructions").html(payDetail[i].content == null ? "暂无收费说明" : payDetail[i].content);
+            }
+        }
+        var ports = domainName + "/shijiwxy/wechat/portal/charge/getTDetailForClass.json";
+        var parameter = {
+            token: JSON.parse(sessionStorage.baseUser).token,
+            // 登录获得token
+            udid: JSON.parse(sessionStorage.baseUser).udid,
+            // 登录获得udid
+            version: 3,
+            cid: payId,
+            clas_id: class_id
+        }
+        //获取消息
+        getData(ports, parameter, function (res) {
+            if (res.code == 200 && res.success == true) {
+                var sysTime = res.data.systime;
+                var sum = 0;
+                $("#payMoney span").text(res.data.list[0].money);
+                //遍历数据
+                for (var i = res.data.list.length - 1; i >= 0; i--) {
+                    var obj = res.data.list[i];
+                    if (localJsonPayer[obj.clas_id] == undefined) {
+                        sum = 0;
+                        if (obj.status == 0) {
+                            sum += 1;
+                        }
+                        localJsonPayer[obj.clas_id] = {};
+                        localJsonPayer[obj.clas_id]["clas_name"] = obj.clas_name;
+                        localJsonPayer[obj.clas_id]["noPay"] = sum;
+                        localJsonPayer[obj.clas_id]["students"] = {}; //学生信息
+
+                        localJsonPayer[obj.clas_id]["students"][obj.stud_id] = {};
+                        localJsonPayer[obj.clas_id]["students"][obj.stud_id]["name"] = obj.stud_name;
+                        localJsonPayer[obj.clas_id]["students"][obj.stud_id]["status"] = obj.status;
+                        localJsonPayer[obj.clas_id]["students"][obj.stud_id]["money"] = obj.money;
+                        localJsonPayer[obj.clas_id]["students"][obj.stud_id]["cd_id"] = obj.cd_id;
+                    } else {
+                        if (localJsonPayer[obj.clas_id]["students"][obj.stud_id] == undefined) {
+                            localJsonPayer[obj.clas_id]["students"][obj.stud_id] = {}
+                            if (obj.status == 0) {
+                                sum += 1;
+                            }
+                            localJsonPayer[obj.clas_id]["students"][obj.stud_id]["name"] = obj.stud_name;
+                            localJsonPayer[obj.clas_id]["students"][obj.stud_id]["status"] = obj.status;
+                            localJsonPayer[obj.clas_id]["students"][obj.stud_id]["money"] = obj.money;
+                            localJsonPayer[obj.clas_id]["students"][obj.stud_id]["cd_id"] = obj.cd_id;
+                        }
+                    }
+                    localJsonPayer[obj.clas_id]["noPay"] = sum;
+                }
+                console.log(localJsonPayer);
+                var classHmtl = "";
+                for (var i in localJsonPayer) {
+                    classHmtl += '<div class="list-group" id="' + i +
+                        '"><ul><li class="list-group-title" >' +
+                        localJsonPayer[i].clas_name + '(' + localJsonPayer[i].noPay + '人未交)' +
+                        '<span class="icon icon-down"></span>' +
+                        '</li>';
+                    for (var m in localJsonPayer[i].students) {
+                        if (localJsonPayer[i].students[m].status == 0) {
+                            var textcolor = "color-danger";
+                            sum += 1;
+                        } else {
+                            var textcolor = "";
+                        }
+                        var state = {
+                            0: "未支付",
+                            1: "已支付",
+                            2: "申请退款",
+                            3: "已退全款",
+                            4: "已退部分款",
+                            5: "已驳回",
+                            9: "不参与"
+                        }
+                        classHmtl += '<li id="' + m + '"  class="item-content" data-num="' +
+                            localJsonPayer[i].students[m].money + '" data-cdid="' + localJsonPayer[i].students[
+                                m].cd_id + '">' +
+                            '<div class="item-inner">' +
+                            '<div class="item-title "><span class="icon icon-phone"></span><span class="studentName">' +
+                            localJsonPayer[i].students[m].name + '</span><span class="payNum">(' +
+                            localJsonPayer[i].students[m].money + '元)</span></div>' +
+                            '<div class="item-after ' + textcolor + '">' + state[localJsonPayer[i].students[
+                                m].status] + '</div>' +
+                            '</div>' +
+                            '</li>';
+                    }
+                    classHmtl += '</ul></div>';
+                    console.log(sum)
+                }
+                $("#allClass").html(classHmtl);
+                if (sum == 0) {
+                    $("#tipBtn").hide();
+                }
+            } else {
+                $.alert(res.message);
+            }
+        });
+        //折叠班级
+        $('body').on('click', ".list-group-title", function (event) {
+            if ($(this).hasClass("off")) {
+                $(this).nextAll().show();
+                $(this).removeClass("off");
+            } else {
+                $(this).nextAll().hide();
+                $(this).addClass("off");
+            }
+            //var studentObj=$(this).closest(".list-group").find("li:gt(0)");
+        });
+    });
+</script>

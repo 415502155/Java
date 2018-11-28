@@ -1,0 +1,226 @@
+package sng.dao.impl;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.transform.Transformers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
+
+import sng.dao.BaseSetClassRoomManageDao;
+import sng.entity.Classroom;
+import sng.pojo.CampusAndClassRoomPojo;
+import sng.pojo.ClassRoomAndClassesPojo;
+import sng.pojo.ParamObj;
+import sng.util.Paging;
+
+/**
+ * @author magq
+ * @version 1.0
+ * @desc 基础设置模块-教室管理dao实现
+ * @data 2018-10-29
+ */
+@Repository
+public class BaseSetClassRoomManageDaoImpl extends BaseDaoImpl<Classroom> implements BaseSetClassRoomManageDao {
+
+    private Logger log = LoggerFactory.getLogger(BaseSetClassRoomManageDaoImpl.class);
+
+    /*
+     * 查询教室列表
+     *
+     * @see sng.dao.BaseSetClassRoomManageDao#queryClassRommList(sng.pojo.ParamObj)
+     */
+    @Override
+    public List<Classroom> queryClassRoomList(ParamObj paramObj) {
+        // TODO Auto-generated method stub
+        StringBuffer sql = new StringBuffer();
+        List<Object> paramList = new ArrayList<Object>();
+        sql.append("select classroom_id,cam_id,classroom_name,is_del from classroom where 1=1");
+        if (paramObj != null) {
+            // 按学区id搜索
+            if (paramObj.getCam_id() != null) {
+                sql.append(" and cam_id=?");
+                paramList.add(paramObj.getCam_id());
+            }
+            // 按照教室id搜索
+            if (paramObj.getClassroom_id() != null) {
+                sql.append(" and classroom_id=?");
+                paramList.add(paramObj.getClassroom_id());
+            }
+            // 按照教室名称搜索
+            if (StringUtils.isNotBlank(paramObj.getClassroom_name())) {
+                if (paramObj.isBlurQuery()) {
+                    // 模糊查询
+                    sql.append(" and classroom_name like ?");
+                    paramList.add("%" + paramObj.getClassroom_name() + "%");
+                } else {
+                    // 非模糊查询
+                    sql.append(" and classroom_name = ?");
+                    paramList.add(paramObj.getClassroom_name());
+                }
+            }
+
+        }
+        sql.append(" and is_del<>1");
+
+        Session session = this.factory.getCurrentSession();
+        Query query = session.createSQLQuery(sql.toString());
+        for (int i = 0; i < paramList.size(); i++) {
+            query.setParameter(i, paramList.get(i));
+        }
+        query.setResultTransformer(Transformers.aliasToBean(Classroom.class));
+
+        List<Classroom> list = query.list();
+
+        return list;
+    }
+
+    /*
+     * (non-Javadoc) 根据不同条件查询校区与教室信息数据
+     *
+     * @see sng.dao.BaseSetClassRoomManageDao#queryCampusAndClassRoomInfo(sng.pojo.
+     * ParamObj)
+     */
+    @Override
+    public Paging queryCampusAndClassRoomInfo(ParamObj paramObj) {
+        StringBuffer sql = new StringBuffer();
+        StringBuffer sqlCount = new StringBuffer();
+        Paging paging = new Paging();
+
+        List<Object> paramList = new ArrayList<Object>();
+        sql.append(
+                "select c.cam_id,c.cam_name,cr.classroom_id,cr.classroom_name,c.cam_address,c.cam_type,cr.building,cr.floor from campus c");
+        sql.append(" left join classroom cr on c.cam_id = cr.cam_id");
+        sql.append(" where cr.cam_id IS NOT NULL");
+        sql.append(" and c.is_del=0");
+        sql.append(" and cr.is_del=0");
+        // 当前机构下
+        if (paramObj.getOrg_id() != null) {
+            sql.append(" and c.org_id = ?");
+            paramList.add(paramObj.getOrg_id());
+        }
+        // 搜索条件校区ID
+        if (paramObj.getCam_id() != null) {
+            sql.append(" and c.cam_id=?");
+            paramList.add(paramObj.getCam_id());
+        }
+        // 搜索条件教室名称
+        if (StringUtils.isNotBlank(paramObj.getClassroom_name())) {
+            if (paramObj.isBlurQuery()) {
+                sql.append(" and cr.classroom_name like ?");
+                paramList.add("%" + paramObj.getClassroom_name() + "%");
+            } else {
+                sql.append(" and cr.classroom_name=?");
+                paramList.add(paramObj.getClassroom_name());
+            }
+
+        }
+        
+        if(StringUtils.isNotBlank(paramObj.getBuilding())) {
+        	sql.append(" and cr.building=?");
+            paramList.add(paramObj.getBuilding());
+        }
+        if(StringUtils.isNotBlank(paramObj.getFloor())) {
+        	sql.append(" and cr.floor=?");
+            paramList.add(paramObj.getFloor());
+        }
+        
+        // 排序
+        sql.append(" order by c.cam_name,cr.classroom_name");
+
+        Session session = this.factory.getCurrentSession();
+        Query query = null;
+        int count = 0;
+        if (paramObj.isNeedCount()) {
+            sqlCount.append("select count(0) from (" + sql.toString() + ") T");
+            query = session.createSQLQuery(sqlCount.toString());
+            for (int i = 0; i < paramList.size(); i++) {
+                query.setParameter(i, paramList.get(i));
+            }
+            count = Integer.parseInt(query.uniqueResult().toString());
+
+            sql.append(" limit ?,?");
+            paramList.add(paramObj.getLimit() * (paramObj.getPage() - 1));
+            paramList.add(paramObj.getLimit());
+
+        }
+
+        query = session.createSQLQuery(sql.toString());
+        for (int i = 0; i < paramList.size(); i++) {
+            query.setParameter(i, paramList.get(i));
+        }
+        query.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+        List<Map<String,Object>> campusAndClassRoomPojos = query.list();
+        paging.setPage(paramObj.getPage());
+        paging.setLimit(paramObj.getLimit());
+        paging.setTotal(count);
+        paging.setSize(
+                count % paramObj.getLimit() == 0 ? (count / paramObj.getLimit()) : (count / paramObj.getLimit() + 1));
+        paging.setData(campusAndClassRoomPojos);
+        paging.setSuccess(true);
+        return paging;
+    }
+
+    /*
+     * (non-Javadoc) 根据不同条件查询教室与班级信息数据
+     *
+     * @see sng.dao.BaseSetClassRoomManageDao#queryClassRoomAndClassesInfo(sng.pojo.
+     * ParamObj)
+     */
+    @Override
+    public List<ClassRoomAndClassesPojo> queryClassRoomAndClassesInfo(ParamObj paramObj) {
+        StringBuffer sql = new StringBuffer();
+        List<Object> paramList = new ArrayList<Object>();
+        sql.append("select cr.cam_id,cr.classroom_id,cr.classroom_name,cr.building,cr.floor,");
+        sql.append(" c.clas_id,c.clas_name,c.term_id,c.plan_id,c.clas_type ");
+        sql.append(" from classroom cr");
+        sql.append(" left join classes c on cr.classroom_id = c.classroom_id and cr.cam_id = c.cam_id");
+        sql.append(" where cr.is_del=0 and c.is_del=0");
+        // 根据机构id过滤
+        if (paramObj.getOrg_id() != null) {
+            sql.append(" and c.org_id=?");
+            paramList.add(paramObj.getOrg_id());
+        }
+        // 根据教室ID过滤
+        if (paramObj.getClassroom_id() != null) {
+            sql.append(" and cr.classroom_id=?");
+            paramList.add(paramObj.getClassroom_id());
+        }
+        Session session = this.factory.getCurrentSession();
+        Query query = session.createSQLQuery(sql.toString());
+        for (int i = 0; i < paramList.size(); i++) {
+            query.setParameter(i, paramList.get(i));
+        }
+        query.setResultTransformer(Transformers.aliasToBean(ClassRoomAndClassesPojo.class));
+        List<ClassRoomAndClassesPojo> list = query.list();
+        return list;
+    }
+
+    /*
+     * 逻辑删除教室信息 (non-Javadoc)
+     *
+     * @see sng.dao.BaseSetClassRoomManageDao#deleteClassRoomInfo(sng.pojo.ParamObj)
+     */
+    @Override
+    public void deleteClassRoomInfo(ParamObj paramObj) {
+        StringBuffer sql = new StringBuffer();
+        List<Object> paramList = new ArrayList<Object>();
+        sql.append("update classroom set is_del=1,del_time=?");
+        sql.append(" where classroom_id=?");
+        paramList.add(new Date());
+        paramList.add(paramObj.getClassroom_id());
+        Session session = this.factory.getCurrentSession();
+        Query query = session.createSQLQuery(sql.toString());
+        for (int i = 0; i < paramList.size(); i++) {
+            query.setParameter(i, paramList.get(i));
+        }
+        query.executeUpdate();
+    }
+
+}

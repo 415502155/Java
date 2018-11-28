@@ -1,0 +1,126 @@
+package sng.service.impl;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import sng.dao.BaseDaoEx;
+import sng.dao.StudentDao;
+import sng.entity.Classes;
+import sng.entity.Term;
+import sng.exception.EsbException;
+import sng.pojo.base.Student;
+import sng.util.Paging;
+
+@Service
+@Transactional
+public class StudentReserveServiceImpl {
+	@Resource
+	private BaseDaoEx baseDaoEx;
+	@Resource
+	private StudentDao studentDao;
+	
+	public Paging getPageReserve(Map<String,Object> paramMap) {
+		String termId=(String)paramMap.get("termName");//学期名称
+		List<Object> params=new ArrayList<>();
+		StringBuffer sb=new StringBuffer();
+		sb.append(" select stud_reserve_id as studReserveId,term_id as termId,clas_id as classId,stud_id as studId ");
+		sb.append(" ,term_name as termName,class_name as className,stud_name as studName,stud_card as studCard ");
+		sb.append(" from student_reserve where 1=1 ");
+		if(!StringUtils.isBlank(termId)) {
+			sb.append(" and term_id=? ");
+			params.add(termId);
+		}
+		String countSql="select count(*) from ("+sb.toString()+") t";
+		sb.append(" order by class_name,stud_name ");
+		
+		Paging page=baseDaoEx.queryPageBySql(sb.toString(), countSql, 1, 3, params);
+		return page;
+	}
+	
+	public void importReserve(Map<String,Object> paramMap) throws EsbException {
+		String orgId="";//机构id
+		String termId="";//学期id，应该是页面选择的
+		String className="";//班级名称-excel
+		String studName="";//学员名称-excel
+		String studCard="";//学员证件号-excel
+		List<Object> params=new ArrayList<>();
+		
+		Map<Integer,Classes> classMap=new HashMap<>();
+		Map<Integer,Student> studMap=new HashMap<>();
+		
+		//循环里面判断班级和学生
+		//for{/////////////////////
+		Integer classId=null;
+		Integer studId=null;
+		Classes classes=classMap.get(classId);
+		if(classes==null) {
+			classes=this.getClassesByName(orgId, className);
+			classMap.put(classId, classes);
+		}
+		if(classes!=null) {
+			classId=classes.getClas_id();
+		}
+		
+		Student student=studMap.get(studId);
+		if(student==null) {
+			student=this.getStudentByName(orgId, studCard, studName);
+			studMap.put(studId, student);
+		}
+		if(student!=null) {
+			studId=student.getStud_id();
+		}
+		
+		//插入预留学生表
+		if(classId!=null && studId!=null) {
+			//通过termId,classId,studId查询是否在预留表中
+		}
+		/////////////////}
+	}
+	
+	private Term getTermByName(String orgId,String termName) {
+		List<Object> params=new ArrayList<>();
+		StringBuffer hql=new StringBuffer("from Term t where t.org_id=? and t.term_name=?");
+		params.add(orgId);
+		params.add(termName.trim());
+		List<Term> termList=baseDaoEx.queryListByHql(hql.toString(), params);
+		if(termList!=null && termList.size()>0) {
+			return termList.get(0);
+		}
+		return null;
+	}
+	
+	private Classes getClassesByName(String orgId,String className) {
+		List<Object> params=new ArrayList<>();
+		StringBuffer hql=new StringBuffer("from Classes t where t.org_id=? and t.clas_name=?");
+		params.add(orgId);
+		params.add(className.trim());
+		List<Classes> classList=baseDaoEx.queryListByHql(hql.toString(), params);
+		if(classList!=null && classList.size()>0) {
+			return classList.get(0);
+		}
+		return null;
+	}
+	
+	private Student getStudentByName(String orgId,String studCard,String studName) {
+		List<Object> params=new ArrayList<>();
+		StringBuffer sql=new StringBuffer("select stud_id,stud_name from edugate_base.student where 1=1 ");
+		sql.append(" and org_id=? and stud_name=? and stud_card");
+		params.add(orgId);
+		params.add(studName.trim());
+		params.add(studCard.trim());
+		List<Student> studList=baseDaoEx.queryListBySql(sql.toString(), Student.class, params);
+		if(studList!=null && studList.size()>0) {
+			return studList.get(0);
+		}
+		return null;
+	}
+	
+}

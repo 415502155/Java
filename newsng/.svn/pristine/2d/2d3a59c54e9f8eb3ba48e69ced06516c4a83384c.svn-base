@@ -1,0 +1,723 @@
+package sng.dao.impl;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.transform.Transformers;
+import org.springframework.stereotype.Repository;
+
+import sng.comparator.ChargeDetailSorter;
+import sng.dao.ChargeDetailDao;
+import sng.entity.ChargeDetail;
+import sng.pojo.Classes;
+import sng.util.Constant;
+import sng.util.MoneyUtil;
+import sng.util.Paging;
+
+
+/**
+ * Title:Charge4ParentDaoImpl
+ * Description:
+ * Company:世纪伟业
+ * @author Liuyang
+ * @date 2018年1月4日下午12:06:40
+ */
+@Repository
+public class ChargeDetailDaoImpl extends BaseDaoImpl<ChargeDetail> implements ChargeDetailDao{
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<ChargeDetail> getListByCIDForTeacher(Integer cid, String classIds) {
+		Session session = this.factory.getCurrentSession();
+		String sql = " SELECT cd.cd_id,cd.stud_id,cd.stud_name,cd.grade_id,cd.grade_name,cd.clas_id,cd.clas_name,cd.`status`,cd.is_send,cd.txnAmt,cd.online_pay,cd.offline_pay,cd.money FROM charge_detail cd WHERE cd.cid=:cid AND cd.clas_id IN (:classIds) AND cd.is_del=0 ";
+		Query query = session.createSQLQuery(sql);
+		query.setResultTransformer(Transformers.aliasToBean(ChargeDetail.class));
+		query.setInteger("cid", cid);
+		query.setParameterList("classIds", classIds.split(","));
+		return query.list();
+	}
+
+	@Override
+	public ChargeDetail getDetailForTeacher(Integer stud_id, Integer cid) {
+		Session session = this.factory.getCurrentSession();
+		String sql = " SELECT cd.cd_id,cd.`status`,cd.is_send,cd.txnAmt,cd.online_pay,cd.offline_pay,c.refund FROM charge_detail cd INNER JOIN charge c ON cd.cid=c.cid WHERE cd.cid=:cid AND cd.stud_id = :stud_id AND cd.is_del=0 AND c.is_del = 0 ";
+		Query query = session.createSQLQuery(sql);
+		query.setResultTransformer(Transformers.aliasToBean(ChargeDetail.class));
+		query.setInteger("cid", cid);
+		query.setInteger("stud_id", stud_id);
+		return (ChargeDetail) query.uniqueResult();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<ChargeDetail> getListForRemind(Integer cid, String classIds) {
+		Session session = this.factory.getCurrentSession();
+		String sql = " SELECT c.item,cd.end_time,cd.cd_id,cd.send_time,cd.stud_id,cd.stud_name,cd.money,c.content,cd.is_send "+
+					" FROM charge_detail cd INNER JOIN charge c ON cd.cid=c.cid AND c.is_del=0 AND c.org_id=cd.org_id AND c.status=:status"+
+					" WHERE cd.cid= :cid AND cd.`status` = 0 AND ( cd.send_time< (STR_TO_DATE( :time , '%Y-%m-%d %T')) OR cd.send_time IS NULL) ";
+		if(StringUtils.isNotEmpty(classIds)){
+			sql += " AND cd.clas_id in (:classIds) ";
+		}
+		Query query = session.createSQLQuery(sql);
+		query.setResultTransformer(Transformers.aliasToBean(ChargeDetail.class));
+		query.setInteger("cid", cid);
+		Calendar calendar=Calendar.getInstance();   
+		calendar.add(Calendar.MINUTE, -Constant.REMIND_INTERVAL_MINUTES);
+		query.setString("time", Constant.sdf.format(calendar.getTime()));
+		query.setInteger("status", Constant.CHARGE_STATUS_PUSH_OK);
+		if(StringUtils.isNotEmpty(classIds)){
+			query.setParameterList("classIds", classIds.split(","));
+		}
+		return query.list();
+	}
+
+	@Override
+	public Integer update(ChargeDetail cd) {
+		Session session = this.factory.getCurrentSession();
+		String sql = " UPDATE charge_detail cd SET cd.modify_time =:modify_time ";
+		if(null!=cd.getIs_send()){
+			sql += " , cd.is_send =:is_send ";
+		}
+		if(StringUtils.isNotEmpty(cd.getMoney())){
+			sql += " , cd.money =:money ";
+		}
+		if(null!=cd.getOnline_pay()){
+			sql += " , cd.online_pay =:online_pay ";
+		}
+		if(null!=cd.getOffline_pay()){
+			sql += " , cd.offline_pay =:offline_pay ";
+		}
+		if(StringUtils.isNotEmpty(cd.getOrder_id())){
+			sql += " , cd.order_id =:order_id ";
+		}
+		if(null!=cd.getSend_time()){
+			sql += " , cd.send_time =:send_time ";
+		}
+		if(null!=cd.getStatus()){
+			sql += " , cd.`status` =:status ";
+		}
+		if(StringUtils.isNotEmpty(cd.getTxnAmt())){
+			sql += " , cd.txnAmt =:txnAmt ";
+		}
+		if(StringUtils.isNotEmpty(cd.getOrderDesc())){
+			sql += " , cd.orderDesc =:orderDesc ";
+		}
+		if(null!=cd.getTxnTime()){
+			sql += " , cd.txnTime =:txnTime ";
+		}
+		if(null!=cd.getPay_type()){
+			sql += " , cd.pay_type =:pay_type ";
+		}
+		if(null!=cd.getTry_time()){
+			sql += " , cd.try_time =:try_time ";
+		}
+		if(null!=cd.getCd_id()){
+			sql += " WHERE cd.cd_id=:cd_id ";
+		}
+		Query query = session.createSQLQuery(sql);
+		if(null!=cd.getIs_send()){
+			query.setInteger("is_send", cd.getIs_send());
+		}
+		if(StringUtils.isNotEmpty(cd.getMoney())){
+			query.setString("money", cd.getMoney());
+		}
+		if(null!=cd.getOnline_pay()){
+			query.setInteger("online_pay", cd.getOnline_pay());
+		}
+		if(null!=cd.getOffline_pay()){
+			query.setInteger("offline_pay", cd.getOffline_pay());
+		}
+		if(StringUtils.isNotEmpty(cd.getOrder_id())){
+			query.setString("order_id", cd.getOrder_id());
+		}
+		if(null!=cd.getSend_time()){
+			query.setTimestamp("send_time", cd.getSend_time());
+		}
+		if(null!=cd.getStatus()){
+			query.setInteger("status", cd.getStatus());
+		}
+		if(StringUtils.isNotEmpty(cd.getTxnAmt())){
+			query.setString("txnAmt", cd.getTxnAmt());
+		}
+		if(StringUtils.isNotEmpty(cd.getOrderDesc())){
+			query.setString("orderDesc", cd.getOrderDesc());
+		}
+		if(null!=cd.getTxnTime()){
+			query.setTimestamp("txnTime", cd.getTxnTime());
+		}
+		if(null!=cd.getPay_type()){
+			query.setInteger("pay_type", cd.getPay_type());
+		}
+		if(null!=cd.getTry_time()){
+			query.setTimestamp("try_time", cd.getTry_time());
+		}
+		if(null!=cd.getCd_id()){
+			query.setInteger("cd_id", cd.getCd_id());
+		}
+		if(null!=cd.getModify_time()){
+			query.setTimestamp("modify_time", cd.getModify_time());
+		}else{
+			query.setTimestamp("modify_time", new Date());
+		}
+		return query.executeUpdate();
+	}
+
+	@Override
+	public Integer lockChargeDetail(Date lockDate, ChargeDetail cd) {
+		Session session = this.factory.getCurrentSession();
+		String sql = " UPDATE charge_detail cd SET cd.modify_time =:modify_time WHERE 1=1 ";
+		if(StringUtils.isNotEmpty(cd.getOrder_id())){
+			sql += " AND cd.order_id=:order_id ";
+		}else if(null!=cd.getCd_id()){
+			sql += " AND cd.cd_id=:cd_id ";
+		}else{
+			return 0;
+		}
+		Query query = session.createSQLQuery(sql);
+		query.setTimestamp("modify_time", lockDate);
+		if(StringUtils.isNotEmpty(cd.getOrder_id())){
+			query.setString("order_id", cd.getOrder_id());
+		}else if(null!=cd.getCd_id()){
+			query.setInteger("cd_id", cd.getCd_id());
+		}
+		return query.executeUpdate();
+	}
+
+	@Override
+	public Integer updateWithLock(ChargeDetail cd, Date lockDate) {
+		Session session = this.factory.getCurrentSession();
+		String sql = " UPDATE charge_detail cd SET cd.modify_time=:lockDate ";
+		if(null!=cd.getIs_send()){
+			sql += " , cd.is_send =:is_send ";
+		}
+		if(StringUtils.isNotEmpty(cd.getMoney())){
+			sql += " , cd.money =:money ";
+		}
+		if(null!=cd.getOnline_pay()){
+			sql += " , cd.online_pay =:online_pay ";
+		}
+		if(null!=cd.getOffline_pay()){
+			sql += " , cd.offline_pay =:offline_pay ";
+		}
+		if(StringUtils.isNotEmpty(cd.getOrder_id())){
+			sql += " , cd.order_id =:order_id ";
+		}
+		if(null!=cd.getSend_time()){
+			sql += " , cd.send_time =:send_time ";
+		}
+		if(null!=cd.getStatus()){
+			sql += " , cd.`status` =:status ";
+		}
+		if(StringUtils.isNotEmpty(cd.getOrderDesc())){
+			sql += " , cd.orderDesc =:orderDesc ";
+		}
+		if(StringUtils.isNotEmpty(cd.getTxnAmt())){
+			sql += " , cd.txnAmt =:txnAmt ";
+		}
+		if(null!=cd.getTxnTime()){
+			sql += " , cd.txnTime =:txnTime ";
+		}
+		if(null!=cd.getPay_type()){
+			sql += " , cd.pay_type =:pay_type ";
+		}
+		if(null!=cd.getTry_time()){
+			sql += " , cd.try_time =:try_time ";
+		}
+		if(null!=cd.getCd_id()){
+			sql += " WHERE cd.cd_id=:cd_id ";
+		}
+		Query query = session.createSQLQuery(sql);
+		if(null!=cd.getIs_send()){
+			query.setInteger("is_send", cd.getIs_send());
+		}
+		if(StringUtils.isNotEmpty(cd.getMoney())){
+			query.setString("money", cd.getMoney());
+		}
+		if(null!=cd.getOnline_pay()){
+			query.setInteger("online_pay", cd.getOnline_pay());
+		}
+		if(null!=cd.getOffline_pay()){
+			query.setInteger("offline_pay", cd.getOffline_pay());
+		}
+		if(StringUtils.isNotEmpty(cd.getOrder_id())){
+			query.setString("order_id", cd.getOrder_id());
+		}
+		if(null!=cd.getSend_time()){
+			query.setTimestamp("send_time", cd.getSend_time());
+		}
+		if(null!=cd.getStatus()){
+			query.setInteger("status", cd.getStatus());
+		}
+		if(StringUtils.isNotEmpty(cd.getTxnAmt())){
+			query.setString("txnAmt", cd.getTxnAmt());
+		}
+		if(null!=cd.getTxnTime()){
+			query.setTimestamp("txnTime", cd.getTxnTime());
+		}
+		if(StringUtils.isNotEmpty(cd.getOrderDesc())){
+			query.setString("orderDesc", cd.getOrderDesc());
+		}
+		if(null!=cd.getPay_type()){
+			query.setInteger("pay_type", cd.getPay_type());
+		}
+		if(null!=cd.getTry_time()){
+			query.setTimestamp("try_time", cd.getTry_time());
+		}
+		if(null!=cd.getCd_id()){
+			query.setInteger("cd_id", cd.getCd_id());
+		}
+		query.setTimestamp("lockDate", lockDate);
+		return query.executeUpdate();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public ChargeDetail getByIdWithAccInfo(Integer cd_id,String txnType) {
+		Session session = this.factory.getCurrentSession();
+		String sql = " SELECT "+
+					" cd.*,  "+
+					" a.accId, "+
+					" a.accName, "+
+					" a.accNo, "+
+					" a.accType, "+
+					" a.bankName, "+
+					" cr.queryId "+
+					" FROM "+
+					"	 charge_detail cd "+
+					" INNER JOIN account a ON cd.org_id = a.org_id "+
+					" INNER JOIN charge_record cr ON cd.cid = cr.cid "+
+					" AND cr.cd_id = cd.cd_id "+
+					" AND cr.txnType = :txnType "+
+					" WHERE "+
+					" 	cd.org_id = a.org_id "+
+					" AND cd.cd_id = :cd_id "+
+					" AND cd.is_del = 0 "+
+					" ORDER BY "+
+					" 	cr.insert_time DESC ";
+		Query query = session.createSQLQuery(sql);
+		query.setResultTransformer(Transformers.aliasToBean(ChargeDetail.class));
+		query.setInteger("cd_id", cd_id);
+		query.setString("txnType", txnType);
+		List<ChargeDetail> list = query.list();
+		if(null!=list&&list.size()!=0){
+			return list.get(0);
+		}else{
+			return new ChargeDetail();
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<ChargeDetail> getDetailForParent(Integer stud_id, Integer max, Integer min, Integer num) {
+		Session session = this.factory.getCurrentSession();
+		String sql = " SELECT cd.cd_id, cd.grade_id, cd.grade_name, cd.clas_id, cd.clas_name, cd.start_time, cd.end_time, cd.`status`, cd.stud_id, cd.stud_name, cd.money, c.item, c.content, cd.order_id, cd.txnTime, cd.online_pay, cd.offline_pay "+
+					"	FROM charge_detail cd "+
+					"	INNER JOIN charge c ON cd.cid=c.cid AND cd.org_id=c.org_id AND c.is_del=0 "+
+					"	WHERE cd.stud_id=:stud_id AND cd.is_del = 0 ORDER BY cd.start_time DESC";
+		Query query = session.createSQLQuery(sql);
+		query.setResultTransformer(Transformers.aliasToBean(ChargeDetail.class));
+		query.setInteger("stud_id", stud_id);
+		List<ChargeDetail> list = query.list();
+		if(null!=list&&list.size()!=0){
+			ChargeDetailSorter mc = new ChargeDetailSorter();  
+			Collections.sort(list,mc); 
+			List<ChargeDetail> reList = new ArrayList<ChargeDetail>();
+			int size = list.size()>num?num:list.size();
+			if(null!=max&&max>0){//刷新，查比较新的记录
+				int count = 0;
+				for (ChargeDetail cd : list) {
+					if(!cd.getCd_id().equals(max)&&count<size){
+						reList.add(cd);
+						count++;
+					}else{
+						break;
+					}
+				}
+			}else if(null!=min&&min>0){//下拉，查比较旧的记录
+				int count = -1;
+				for (ChargeDetail cd : list) {
+					if(cd.getCd_id().equals(min)){
+						count=0;
+					}else if(count>-1&&count<size){
+						reList.add(cd);
+						count++;
+					}else if(count>=size){
+						break;
+					}
+				}
+			}else{//默认，查最新的num条记录
+				for (int i = 0; i < size; i++) {
+					reList.add(list.get(i));
+				}
+			}
+			return reList;
+		}else{
+			return new ArrayList<ChargeDetail>();
+		}
+	}
+
+	@Override
+	public ChargeDetail getByIdForRefund(Integer cd_id) {
+		Session session = this.factory.getCurrentSession();
+		String sql = " SELECT cd.*,c.refund,c.item FROM charge_detail cd INNER JOIN charge c ON cd.cid=c.cid AND cd.org_id=c.org_id AND cd.is_del=0 AND c.is_del=0 WHERE cd.cd_id=:cd_id ";
+		Query query = session.createSQLQuery(sql);
+		query.setResultTransformer(Transformers.aliasToBean(ChargeDetail.class));
+		query.setInteger("cd_id", cd_id);
+		return (ChargeDetail) query.uniqueResult();
+	}
+
+	@Override
+	public ChargeDetail getByIdForPay(Integer cd_id) {
+		Session session = this.factory.getCurrentSession();
+		String sql = " SELECT "+
+				"  c.cid,c.org_id,cd.cd_id,cd.money,cd.order_id,a.merId,a.accType,cd.`status`,cd.online_pay,cd.offline_pay,cd.start_time,cd.end_time,cd.txnAmt,c.`status` as c_status, a.signCert, a.pwd, c.item, cd.stud_id, cd.stud_name, cd.clas_id, a.url as orderDesc, a.billNum"+
+				" FROM charge_detail cd "+
+				" INNER JOIN charge c ON c.cid = cd.cid AND c.org_id = cd.org_id AND c.start_time = cd.start_time AND c.end_time = cd.end_time "+
+				" INNER JOIN account a ON a.org_id=c.org_id AND a.org_id=cd.org_id AND cd.accId = a.accId "+
+				" WHERE c.is_del=0  AND cd.is_del=0 AND cd.cd_id=:cd_id ";
+		Query query = session.createSQLQuery(sql);
+		query.setResultTransformer(Transformers.aliasToBean(ChargeDetail.class));
+		query.setInteger("cd_id", cd_id);
+		return (ChargeDetail) query.list().get(0);
+	}
+
+	@Override
+	public Integer countNoPay(Integer cid) {
+		Session session = this.factory.getCurrentSession();
+		String sql = " SELECT COUNT(1) FROM charge_detail cd WHERE cd.`status`=0 AND cd.offline_pay=0 AND cd.online_pay=0 AND cd.is_del=0 AND cd.cid=:cid";
+		Query query = session.createSQLQuery(sql);
+		query.setInteger("cid", cid);
+		return ((BigInteger)query.uniqueResult()).intValue();
+	}
+
+	@Override
+	public Paging<ChargeDetail> getList(Paging<ChargeDetail> page, ChargeDetail cd) {
+		Session session = this.factory.getCurrentSession();
+		String sql = " SELECT cd.cd_id,cd.cid,cd.grade_name,cd.stud_name,cd.clas_name,cd.`status`,cd.money,cd.txnAmt,cd.order_id,cd.txnTime,cd.online_pay,cd.offline_pay FROM charge_detail cd WHERE cd.is_del=0 ";
+		String countSql = " SELECT count(1) FROM charge_detail cd WHERE cd.is_del=0 ";
+		if(null!=cd.getCid()){
+			sql += " AND cd.cid = :cid ";
+			countSql += " AND cd.cid = :cid ";
+		}
+		if(StringUtils.isNotBlank(cd.getOrder_id())){
+			sql += " AND cd.order_id like :order_id ";
+			countSql += " AND cd.order_id like :order_id ";
+		}
+		if(null!=cd.getOrg_id()){
+			sql += " AND cd.org_id = :org_id ";
+			countSql += " AND cd.org_id = :org_id ";
+		}
+		if(null!=cd.getStart_time()){
+			sql += " AND cd.txnTime > :start_time ";
+			countSql += " AND cd.txnTime > :start_time ";
+		}
+		if(null!=cd.getEnd_time()){
+			sql += " AND cd.txnTime < :end_time ";
+			countSql += " AND cd.txnTime < :end_time ";
+		}
+		if(null!=cd.getStatus()){
+			sql += " AND cd.`status` = :status ";
+			countSql += " AND cd.`status` = :status ";
+		}
+		if(null!=cd.getClas_id()){
+			sql += " AND cd.clas_id = :clas_id ";
+			countSql += " AND cd.clas_id = :clas_id ";
+		}
+		if(null!=cd.getOffline_pay()){
+			sql += " AND cd.offline_pay > :offline_pay ";
+			countSql += " AND cd.offline_pay > :offline_pay ";
+		}
+		if(null!=cd.getOnline_pay()){
+			sql += " AND cd.online_pay > :online_pay ";
+			countSql += " AND cd.online_pay > :online_pay ";
+		}
+		if(StringUtils.isNotEmpty(cd.getStud_name())){
+			sql += " AND cd.stud_name like :stud_name ";
+			countSql += " AND cd.stud_name like :stud_name ";
+		}
+		sql += " LIMIT :pagenum,:pagesize ";
+		Query query = session.createSQLQuery(sql);
+		Query countQuery = session.createSQLQuery(countSql);
+		query.setResultTransformer(Transformers.aliasToBean(ChargeDetail.class));
+		if(null!=cd.getCid()){
+			query.setInteger("cid",cd.getCid());
+			countQuery.setInteger("cid",cd.getCid());
+		}
+		if(null!=cd.getOrg_id()){
+			query.setInteger("org_id",cd.getOrg_id());
+			countQuery.setInteger("org_id",cd.getOrg_id());
+		}
+		if(StringUtils.isNotBlank(cd.getOrder_id())){
+			query.setString("order_id","%"+cd.getOrder_id()+"%");
+			countQuery.setString("order_id","%"+cd.getOrder_id()+"%");
+		}
+		if(null!=cd.getStart_time()){
+			query.setTimestamp("start_time",cd.getStart_time());
+			countQuery.setTimestamp("start_time",cd.getStart_time());
+		}
+		if(null!=cd.getEnd_time()){
+			query.setTimestamp("end_time",cd.getEnd_time());
+			countQuery.setTimestamp("end_time",cd.getEnd_time());
+		}
+		if(null!=cd.getStatus()){
+			query.setInteger("status",cd.getStatus());
+			countQuery.setInteger("status",cd.getStatus());
+		}
+		if(null!=cd.getClas_id()){
+			query.setInteger("clas_id",cd.getClas_id());
+			countQuery.setInteger("clas_id",cd.getClas_id());
+		}
+		if(null!=cd.getOffline_pay()){
+			query.setInteger("offline_pay",Constant.CHARGE_DETAIL_STATUS_NEVER);
+			countQuery.setInteger("offline_pay",Constant.CHARGE_DETAIL_STATUS_NEVER);
+		}
+		if(null!=cd.getOnline_pay()){
+			query.setInteger("online_pay",Constant.CHARGE_DETAIL_STATUS_NEVER);
+			countQuery.setInteger("online_pay",Constant.CHARGE_DETAIL_STATUS_NEVER);
+		}
+		if(StringUtils.isNotEmpty(cd.getStud_name())){
+			query.setString("stud_name","%"+cd.getStud_name()+"%");
+			countQuery.setString("stud_name","%"+cd.getStud_name()+"%");
+		}
+		query.setInteger("pagenum",  (page.getPage() - 1) * page.getLimit());
+		query.setInteger("pagesize", page.getLimit());
+		@SuppressWarnings("unchecked")
+		List<ChargeDetail> list = query.list();
+		list = MoneyUtil.fromFENtoYUAN(list, new String[]{"txnAmt"});
+		BigInteger pageTotal = (BigInteger) countQuery.uniqueResult();
+		page.setTotal(pageTotal.intValue());
+		page.setSize(page.getTotal()%page.getLimit()==0 ? (page.getTotal()/page.getLimit()) : (page.getTotal()/page.getLimit()+1));
+		page.setData(list);
+		page.setSuccess(true);
+		return page;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Classes> getClasses(Integer cid) {
+		Session session = this.factory.getCurrentSession();
+		String sql = " SELECT cd1.clas_id,CONCAT(IFNULL(cd1.grade_name,''),cd1.clas_name) as clas_name,COUNT(cd2.cd_id) as num FROM charge_detail cd1 "+
+					 " LEFT JOIN charge_detail cd2 ON cd1.cd_id=cd2.cd_id AND cd1.clas_id=cd2.clas_id AND cd1.cid=cd2.cid AND cd2.`status`=0 AND cd1.is_del=cd2.is_del "+
+				 	 " WHERE cd1.cid=:cid AND cd1.is_del=0 GROUP BY cd1.clas_id ";
+		Query query = session.createSQLQuery(sql);
+		query.setResultTransformer(Transformers.aliasToBean(Classes.class));
+		query.setInteger("cid", cid);
+		return query.list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<ChargeDetail> getListForRefund(Integer cid) {
+		Session session = this.factory.getCurrentSession();
+		String sql = "SELECT cd.clas_id,cd.clas_name,cd.grade_id,cd.grade_name,cd.stud_id,cd.stud_name,cd.txnAmt,cd.order_id,cd.online_pay,cd.offline_pay FROM charge_detail cd WHERE cd.cid=:cid AND cd.`status`=:status AND cd.is_del=0";
+		Query query = session.createSQLQuery(sql);
+		query.setResultTransformer(Transformers.aliasToBean(ChargeDetail.class));
+		query.setInteger("cid", cid);
+		query.setInteger("status", Constant.CHARGE_DETAIL_STATUS_OK);
+		return query.list();
+	}
+
+	@Override
+	public ChargeDetail getByOrderId(String order_id) {
+		Session session = this.factory.getCurrentSession();
+		String sql = " SELECT "+
+				"  cd.cid, cd.cd_id,cd.money,cd.order_id,a.merId,cd.`status`,cd.online_pay,cd.offline_pay,cd.start_time,cd.end_time,cd.txnAmt,c.`status` as c_status,c.refund "+
+				" FROM charge_detail cd "+
+				" INNER JOIN charge c ON c.cid = cd.cid AND c.org_id = cd.org_id AND c.start_time = cd.start_time AND c.end_time = cd.end_time "+
+				" INNER JOIN account a ON a.org_id=c.org_id AND a.org_id=cd.org_id  AND c.accId=a.accId "+
+				" WHERE c.is_del=0  AND cd.is_del=0 AND cd.order_id=:order_id";
+		Query query = session.createSQLQuery(sql);
+		query.setResultTransformer(Transformers.aliasToBean(ChargeDetail.class));
+		query.setString("order_id", order_id);
+		return (ChargeDetail) query.uniqueResult();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<ChargeDetail> getList(Integer cid) {
+		Session session = this.factory.getCurrentSession();
+		String sql = "SELECT cd.stud_id,cd.stud_name, cd.grade_id,cd.grade_name, cd.clas_id,cd.clas_name, cd.`status`, cd.money, cd.order_id, cd.txnAmt, cd.offline_pay, cd.online_pay,cr.txnTime FROM charge_detail cd LEFT JOIN charge_record cr ON cd.cid=cr.cid AND cd.cd_id=cr.cd_id AND (cr.txnType = :online OR cr.txnType = :offline) WHERE cd.cid = :cid AND cd.is_del = 0";
+		Query query = session.createSQLQuery(sql);
+		query.setResultTransformer(Transformers.aliasToBean(ChargeDetail.class));
+		query.setInteger("cid", cid);
+		query.setString("online", Constant.TXNTYPE_UNIONPAY_PAY);
+		query.setString("offline", Constant.TXNTYPE_SJWY_OFFLINE_PAY);
+		return query.list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<ChargeDetail> getRefundApplyList(ChargeDetail cd) {
+		Session session = this.factory.getCurrentSession();
+		String sql = " SELECT c.cid, cd.cd_id, c.item, cd.stud_name, cd.grade_name, cd.clas_name, pay.txnType, cd.money, cr.txnAmt, cd.order_id, pay.queryId, pay.txnTime, cd.`status` FROM charge_record cr "+
+					 " INNER JOIN charge c ON cr.cid=c.cid AND c.is_del=0 "+
+				 	 " INNER JOIN charge_detail cd ON cd.cid=cr.cid AND cd.cd_id=cr.cd_id AND cd.org_id=c.org_id AND cd.is_del=0 ";
+		if(StringUtils.isEmpty(cd.getCr_status())||cd.getCr_status().equals(Constant.CHARGE_DETAIL_STATUS_REFUND_APPLY)){
+			sql += " AND cd.`status`=:status ";
+		}else{
+			sql += " AND cd.`status`>:status ";
+		}
+	 	sql += " INNER JOIN charge_record pay ON cd.cid=pay.cid AND cd.cd_id=pay.cd_id AND pay.cid=c.cid ";
+		if(null!=cd.getOffline_pay()){
+			sql += " AND pay.txnType=:XXJF WHERE cr.txnType=:SQXXTF ";
+		}else if(null!=cd.getOnline_pay()){
+			sql += " AND pay.txnType=:YLZF WHERE cr.txnType=:SQYLTF ";
+		}else{
+			sql += " AND (pay.txnType=:YLZF OR pay.txnType=:XXJF) WHERE (cr.txnType = :SQYLTF OR cr.txnType = :SQXXTF )";
+		}
+		if(null!=cd.getStart_time()){
+			sql += " AND pay.txnTime > :start_time ";
+		}
+		if(null!=cd.getEnd_time()){
+			sql += " AND pay.txnTime < :end_time ";
+		}
+		if(null!=cd.getClas_id()){
+			sql += " AND cd.clas_id=:clas_id ";
+		}
+		if(StringUtils.isNotEmpty(cd.getStud_name())){
+			sql += " AND cd.stud_name like :stud_name ";
+		}
+		if(null!=cd.getOrg_id()){
+			sql += " AND cd.org_id=:org_id ";
+		}
+		if(StringUtils.isNotEmpty(cd.getItem())){
+			sql += " AND c.item like :item ";
+		}
+		if(StringUtils.isNotBlank(cd.getOrder_id())){
+			sql += " AND cd.order_id like :order_id ";
+		}
+		sql += "  ORDER BY cr.insert_time DESC";
+		Query query = session.createSQLQuery(sql);
+		query.setResultTransformer(Transformers.aliasToBean(ChargeDetail.class));
+		if(null!=cd.getOffline_pay()){
+			sql += " AND pay.txnType=:XXJF WHERE cr.txnType=:SQXXTF ";
+			query.setString("XXJF", Constant.TXNTYPE_SJWY_OFFLINE_PAY);
+			query.setString("SQXXTF", Constant.TXNTYPE_SJWY_OFFLINE_REFUND_APPLY);
+		}else if(null!=cd.getOnline_pay()){
+			sql += " AND pay.txnType=:YLZF WHERE cr.txnType=:SQYLTF ";
+			query.setString("YLZF", Constant.TXNTYPE_UNIONPAY_PAY);
+			query.setString("SQYLTF", Constant.TXNTYPE_SJWY_ONLINE_REFUND_APPLY);
+		}else{
+			sql += " AND (pay.txnType=:YLZF OR pay.txnType=:XXJF) WHERE (cr.txnType = :SQYLTF OR cr.txnType = :SQXXTF )";
+			query.setString("YLZF", Constant.TXNTYPE_UNIONPAY_PAY);
+			query.setString("XXJF", Constant.TXNTYPE_SJWY_OFFLINE_PAY);
+			query.setString("SQYLTF", Constant.TXNTYPE_SJWY_ONLINE_REFUND_APPLY);
+			query.setString("SQXXTF", Constant.TXNTYPE_SJWY_OFFLINE_REFUND_APPLY);
+		}
+		query.setInteger("status", Constant.CHARGE_DETAIL_STATUS_REFUND_APPLY);
+		if(null!=cd.getStart_time()){
+			query.setTimestamp("start_time", cd.getStart_time());
+		}
+		if(null!=cd.getEnd_time()){
+			query.setTimestamp("end_time", cd.getEnd_time());
+		}
+		if(null!=cd.getClas_id()){
+			query.setInteger("clas_id", cd.getClas_id());
+		}
+		if(null!=cd.getOrg_id()){
+			query.setInteger("org_id", cd.getOrg_id());
+		}
+		if(StringUtils.isNotEmpty(cd.getStud_name())){
+			query.setString("stud_name", "%"+cd.getStud_name()+"%");
+		}
+		if(StringUtils.isNotEmpty(cd.getItem())){
+			query.setString("item", "%"+cd.getItem()+"%");
+		}
+		if(StringUtils.isNotBlank(cd.getOrder_id())){
+			query.setString("order_id", "%"+cd.getOrder_id()+"%");
+		}
+		List<ChargeDetail> list = query.list();
+		list = MoneyUtil.fromFENtoYUAN(list, new String[]{"txnAmt"});
+		return list;
+	}
+
+	@Override
+	public ChargeDetail getById(Integer cd_id) {
+		Session session = this.factory.getCurrentSession();
+		String sql = " SELECT cd.*,a.signCert,a.pwd,a.merId,c.item FROM charge_detail cd INNER JOIN charge c ON cd.cid=c.cid AND c.is_del=0 AND c.org_id=cd.org_id "+
+					 " INNER JOIN account a ON a.accId=c.accId AND a.org_id=c.org_id AND a.org_id=cd.org_id LEFT JOIN charge_record cr ON cr.cid=cd.cid AND cr.cid=c.cid AND cr.cd_id=cd.cd_id AND cr.txnType='01' WHERE cd.cd_id=:cd_id AND cr.cr_id IS NULL";
+		Query query = session.createSQLQuery(sql);
+		query.setResultTransformer(Transformers.aliasToBean(ChargeDetail.class));
+		query.setInteger("cd_id", cd_id);
+		return (ChargeDetail) query.uniqueResult();
+	}
+
+	@Override
+	public void updateSendStatus(ChargeDetail cd) {
+		Session session = this.factory.getCurrentSession();
+		String sql = " UPDATE charge_detail cd SET cd.is_send =:is_send, cd.send_time = SYSDATE() WHERE cd.cd_id=:cd_id ";
+		Query query = session.createSQLQuery(sql);
+		query.setInteger("is_send", cd.getIs_send());
+		query.setInteger("cd_id", cd.getCd_id());
+		query.executeUpdate();
+	}
+
+	@Override
+	public ChargeDetail getByOrderIdForQuery(String orderId) {
+		Session session = this.factory.getCurrentSession();
+		String sql = " SELECT cd.cd_id,a.signCert,a.pwd,cr.queryId,a.accType,cd.org_id,cd.txnTime,a.billNum FROM charge_detail cd INNER JOIN account a ON cd.accId=a.accId AND cd.org_id=a.org_id  LEFT JOIN charge_record cr ON cd.cid = cr.cid AND cd.cd_id = cr.cd_id AND  cr.txnType = '01' WHERE cd.is_del = 0  AND cd.order_id =:orderId ";
+		Query query = session.createSQLQuery(sql);
+		query.setResultTransformer(Transformers.aliasToBean(ChargeDetail.class));
+		query.setString("orderId", orderId);
+		return (ChargeDetail) query.uniqueResult();
+	}
+
+	@Override
+	public String getPayType(String cdid) {
+		// TODO Auto-generated method stub
+		Session session = this.factory.getCurrentSession();
+		String sql = " SELECT a.accType FROM charge_detail cdd inner JOIN  charge c ON cdd.cid=c.cid INNER JOIN account a ON c.accId=a.accId WHERE cdd.cd_id=:cdid";
+		Query query = session.createSQLQuery(sql);
+		query.setString("cdid", cdid);
+		return query.uniqueResult().toString();
+	}
+
+	@Override
+	public ChargeDetail getForAuthentication(Integer user_id, Integer org_id) {
+		Session session = this.factory.getCurrentSession();
+		String sql = " SELECT * FROM charge c LEFT JOIN charge_detail cd ON c.cid=cd.cid AND c.org_id=cd.org_id AND cd.is_del=0 AND cd.user_register_id=:user_id WHERE c.type=:type AND c.org_id=:org_id AND c.is_del=0 AND c.`status`=:status";
+		Query query = session.createSQLQuery(sql);
+		query.setResultTransformer(Transformers.aliasToBean(ChargeDetail.class));
+		query.setInteger("type", Constant.CHARGE_TYPE_AUTHENTICATION);
+		query.setInteger("user_id", user_id);
+		query.setInteger("org_id", org_id);
+		query.setInteger("status", Constant.CHARGE_STATUS_PUSH_OK);
+		@SuppressWarnings("unchecked")
+		List<ChargeDetail> list = query.list();
+		if(null!=list&&0!=list.size()){
+			return list.get(0);
+		}else{
+			return new ChargeDetail();
+		}
+	}
+
+	@Override
+	public ChargeDetail getByIdForCorrect(Integer cd_id) {
+		Session session = this.factory.getCurrentSession();
+		String sql = " SELECT cd.*,a.signCert,a.pwd,a.merId,c.item FROM charge_detail cd INNER JOIN charge c ON cd.cid=c.cid AND c.is_del=0 AND c.org_id=cd.org_id "+
+					 " INNER JOIN account a ON a.accId=c.accId AND a.org_id=c.org_id AND a.org_id=cd.org_id LEFT JOIN charge_record cr ON cr.cid=cd.cid AND cr.cid=c.cid AND cr.cd_id=cd.cd_id AND cr.txnType='01' WHERE cd.cd_id=:cd_id ";
+		Query query = session.createSQLQuery(sql);
+		query.setResultTransformer(Transformers.aliasToBean(ChargeDetail.class));
+		query.setInteger("cd_id", cd_id);
+		return (ChargeDetail) query.uniqueResult();
+	}
+
+	@Override
+	public ChargeDetail getByStuClaId(Integer stu_class_id) {
+		Session session = this.factory.getCurrentSession();
+		String sql = " SELECT cd.* FROM charge_detail cd INNER JOIN charge c ON cd.cid=c.cid AND cd.org_id=c.org_id AND cd.cam_id=c.cam_id AND cd.accId=c.accId AND cd.clas_id=c.clas_id AND c.is_del=:is_del AND c.type=:type WHERE cd.is_del=:is_del AND cd.stu_class_id=:stu_class_id ";
+		Query query = session.createSQLQuery(sql);
+		query.setResultTransformer(Transformers.aliasToBean(ChargeDetail.class));
+		query.setInteger("is_del", Constant.IS_DEL_NO);
+		query.setInteger("stu_class_id", stu_class_id);
+		query.setInteger("type", Constant.CHARGE_TYPE_TUITION);
+		return (ChargeDetail) query.uniqueResult();
+	}
+}

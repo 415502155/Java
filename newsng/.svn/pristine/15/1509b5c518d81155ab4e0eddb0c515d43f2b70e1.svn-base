@@ -1,0 +1,247 @@
+package sng.pojo;
+
+import java.io.Serializable;
+import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class ClassToTeacher implements Serializable {
+
+	/**
+	 * 班级-教师 列表
+	 */
+	private static final long serialVersionUID = 1L;
+	// c.clas_id, c.clas_name,c.clas_type,cam.cam_name,
+	// c.class_start_date, c.tuition_fees, c.size, c.ss_num,
+	// cate.category_name, sub.subject_name, cr.classroom_name, c.start_birthday,
+	// c.end_birthday, c.total_hours, c.class_week, c.class_begin_time,
+	// c.class_over_time, c.class_unset_time, c.cooperation_id,
+	// c.class_over_time, c.class_unset_time, c.cooperation_id, co.name,
+	// GROUP_CONCAT(t.tech_name) tech_names,
+	// CONCAT(c.ss_num, '/', c.size) divide
+	private Integer clas_id;
+	private String clas_name;
+	private Integer clas_type;
+	private String cam_name;
+	private String age_range;
+	private Date class_start_date;
+	private String tuition_fees;
+	private Integer size; // 班容量
+	private Integer ss_num;// 实收人数
+
+	private String category_name;
+	private String subject_name;
+	private String classroom_name;
+	private Date start_birthday;
+	private Date end_birthday;
+	private Integer total_hours;
+	private Integer class_week;
+	private Date class_begin_time;
+
+	private Date class_over_time;
+	private Date class_unset_time;
+	private Integer cooperation_id;
+	private String name;
+
+	private String tech_names;
+	private String divide;// 实收人数/班容量
+	private String ss_tuition;// 实收学费（班级）
+
+	public Integer getClas_id() {
+		return clas_id;
+	}
+
+	public void setClas_id(Integer clas_id) {
+		this.clas_id = clas_id;
+	}
+
+	public String getClas_name() {
+		return clas_name;
+	}
+
+	public void setClas_name(String clas_name) {
+		this.clas_name = clas_name;
+	}
+
+	public Integer getClas_type() {
+		return clas_type;
+	}
+
+	public void setClas_type(Integer clas_type) {
+		this.clas_type = clas_type;
+	}
+
+	public String getCam_name() {
+		return cam_name;
+	}
+
+	public void setCam_name(String cam_name) {
+		this.cam_name = cam_name;
+	}
+
+	public Date getClass_start_date() {
+		return class_start_date;
+	}
+
+	public void setClass_start_date(Date class_start_date) {
+		this.class_start_date = class_start_date;
+	}
+
+	public String getTuition_fees() {
+		return tuition_fees;
+	}
+
+	public void setTuition_fees(String tuition_fees) {
+		this.tuition_fees = tuition_fees;
+	}
+
+	public Integer getSize() {
+		return size;
+	}
+
+	public void setSize(Integer size) {
+		this.size = size;
+	}
+
+	public Integer getSs_num() {
+		return ss_num;
+	}
+
+	public void setSs_num(Integer ss_num) {
+		this.ss_num = ss_num;
+	}
+
+	public String getCategory_name() {
+		return category_name;
+	}
+
+	public void setCategory_name(String category_name) {
+		this.category_name = category_name;
+	}
+
+	public String getSubject_name() {
+		return subject_name;
+	}
+
+	public void setSubject_name(String subject_name) {
+		this.subject_name = subject_name;
+	}
+
+	public String getClassroom_name() {
+		return classroom_name;
+	}
+
+	public void setClassroom_name(String classroom_name) {
+		this.classroom_name = classroom_name;
+	}
+
+	public Date getStart_birthday() {
+		return start_birthday;
+	}
+
+	public void setStart_birthday(Date start_birthday) {
+		this.start_birthday = start_birthday;
+	}
+
+	public Date getEnd_birthday() {
+		return end_birthday;
+	}
+
+	public void setEnd_birthday(Date end_birthday) {
+		this.end_birthday = end_birthday;
+	}
+
+	public Integer getTotal_hours() {
+		return total_hours;
+	}
+
+	public void setTotal_hours(Integer total_hours) {
+		this.total_hours = total_hours;
+	}
+
+	public Integer getClass_week() {
+		return class_week;
+	}
+
+	public void setClass_week(Integer class_week) {
+		this.class_week = class_week;
+	}
+
+	public Date getClass_begin_time() {
+		return class_begin_time;
+	}
+
+	public void setClass_begin_time(Date class_begin_time) {
+		this.class_begin_time = class_begin_time;
+	}
+
+	public Date getClass_over_time() {
+		return class_over_time;
+	}
+
+	public void setClass_over_time(Date class_over_time) {
+		this.class_over_time = class_over_time;
+	}
+
+	public Date getClass_unset_time() {
+		return class_unset_time;
+	}
+
+	public void setClass_unset_time(Date class_unset_time) {
+		this.class_unset_time = class_unset_time;
+	}
+
+	public Integer getCooperation_id() {
+		return cooperation_id;
+	}
+
+	public void setCooperation_id(Integer cooperation_id) {
+		this.cooperation_id = cooperation_id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getTech_names() {
+		return tech_names;
+	}
+
+	public void setTech_names(String tech_names) {
+		this.tech_names = tech_names;
+	}
+
+	public String getDivide() {
+		return divide;
+	}
+
+	public void setDivide(String divide) {
+		this.divide = divide;
+	}
+
+	public String getSs_tuition() {
+		return ss_tuition;
+	}
+
+	public void setSs_tuition(String ss_tuition) {
+		this.ss_tuition = ss_tuition;
+	}
+
+	public String getAge_range() {
+		return age_range;
+	}
+
+	public void setAge_range(String age_range) {
+		this.age_range = age_range;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
+
+}

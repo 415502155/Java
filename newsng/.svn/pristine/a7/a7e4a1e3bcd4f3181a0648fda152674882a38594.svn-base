@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>校长信箱</title>
+	<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+	<!--<link rel="shortcut icon" href="/favicon.ico">-->
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<!--ui包-->
+	<link rel="stylesheet" href="../../../css/sm.css">
+	<link rel="stylesheet" href="../../../css/layout.css">
+	<link rel="stylesheet" href="../../../css/teacher.css">
+	<style type="text/css">
+		.infinite-scroll-preloader {
+			margin-top: -20px;
+		}
+
+		oText {
+			overflow:hidden;
+			text-overflow:ellipsis;
+			display:-webkit-box;
+			-webkit-box-orient:vertical;
+			-webkit-line-clamp:3;
+			padding: 0;
+			margin: .75rem;
+		}
+		.oTelText {
+			padding: 0 .75rem .75rem;
+			color: #b1b1b1;
+		}
+		.oClasstext {
+			font-size:  14px;
+			color: #b1b1b1;
+		}
+
+	</style>
+</head>
+<body>
+<div class="page-group">
+	<div id="page-infinite-scroll-bottom" class="page page-current">
+		<!-- 添加 class infinite-scroll 和 data-distance  向下无限滚动可不加infinite-scroll-bottom类，这里加上是为了和下面的向上无限滚动区分-->
+		<div class="content infinite-scroll infinite-scroll-bottom  pull-to-refresh-content" data-distance="100">
+			<!-- 默认的下拉刷新层 -->
+			<div class="pull-to-refresh-layer">
+				<div class="preloader"></div>
+				<div class="pull-to-refresh-arrow"></div>
+			</div>
+			<div class="list-block" style="margin-top: 0">
+				<ul class="list-container" style="border:none"  id="addData">
+
+				</ul>
+			</div>
+			<!-- 加载提示符 -->
+			<div class="infinite-scroll-preloader">
+				<div class="preloader"></div>
+			</div>
+		</div>
+
+	</div>
+</div>
+
+</div>
+</body>
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script type="text/javascript">
+    $.config = {router: false}
+</script>
+<script src='../../../js/sm.js'></script>
+<script src="../../../js/config.js"></script>
+<script>
+    //后退刷新
+    window.addEventListener('pagehide', function(event) {
+        sessionStorage.back=1;
+    });
+
+    var maxId="",minId="";
+    var base=JSON.parse(sessionStorage.baseUser);
+    var parameter={
+        token:base.token,
+        // 登录获得token
+        udid:base.udid,
+        // 登录获得udid
+        version:3,
+        // 默认0web 1ios 2android 3h5
+        max:"",
+        // 当前主键最大值(需要刷新时必须)
+        min:"",
+        //当前主键最小值(需要下拉时必须)
+        limit:5,
+        // 每次刷新时追加显示的条数
+        uid:base.orguser.user_id,//base.orguser.teacher.tech_id,
+        org_id:base.orguser.org_id,
+    }
+
+    var loading = false;
+
+    $(function () {
+        'use strict';
+        addItems();
+        //无限滚动
+        $(document).on("pageInit", "#page-infinite-scroll-bottom", function(e, id, page) {
+            $(page).on('infinite', function() {
+
+                // 如果正在加载，则退出
+                if (loading) return;
+                // 设置flag
+                loading = true;
+                addItems();
+            });
+        });
+
+        //初始化
+        $.init();
+
+        $("#addData").on("click", "li", function(e, id, page) {
+            var cid=$(this).attr("id");
+            if(cid=="none"){
+                return false
+            }
+            window.location="detail.html?id="+cid;
+        });
+    });
+
+    sessionStorage.notices="";
+
+    function addItems() {
+        parameter.min=$("#addData li:last-child").attr("id");
+        if(parameter.min=="none"){
+            return false
+        }
+        parameter.max="";
+
+        getDataNoLoading(domainName+"/shijiwxy/suggestion/getList.json", parameter,function(res){
+            if(res.code==200 && res.success==true){
+
+				if(sessionStorage.suggestion==""||sessionStorage.suggestion==undefined){
+                    sessionStorage.suggestion=JSON.stringify(res.data.list);
+                }else{
+                    sessionStorage.suggestion=JSON.stringify(extend(JSON.parse(sessionStorage.suggestion).concat(res.data.list)));
+                }
+                var html = '';
+                if(res.data.list.length>0){
+
+                    var listObj=res.data.list;
+                    // 生成新条目的HTML
+                    for (var m=0;m<listObj.length; m++) {
+
+                        var cstr=listObj[m].content;
+
+                        html +='<li  id="'+listObj[m].sug_id+'">' +
+                            '                            <div class="content-block-title text-center">'+listObj[m].insert_time+'</div>' +
+                            '                        <div class="card demo-card-header-pic">' +
+                            '                            <div valign="bottom" class="card-header color-white ">' +
+                            '                           '+listObj[m].stud_name+"的家长"+
+                            '                        <div class="oClasstext">'+listObj[m].clas_name+'</div>' +
+                            '                            </div>' +
+                            '                            <div class="card-content">' +
+                            '                            <div class="card-content-inner oText">' + cstr +
+                            '                    </div>' +
+                            '                        <div class="oTelText">联系电话：' + listObj[m].mobile +'</div>' +
+                            '                        </div>' +
+                            '                        <div class="card-footer">' +
+                            '                            <span style="font-size:1rem; "> </span>' +
+                            '                            <a href="JavaScript:void(0)" class="link external">正文<span class="icon icon-right"></span></a>' +
+                            '                        </div>' +
+                            '                        </div>' +
+                            '                        </li>';
+
+                    }
+
+                    if(listObj.length<5){
+                        html += ' <li id="none" class="noData noData_line lastData" ><span class="noData__tips">我是有底线的</span></li>';
+                        parameter.min = "none";
+
+                        // 删除加载提示符
+                        $('.infinite-scroll-preloader').remove();
+                    }
+
+                }else{
+                    if($("#addData li").length==0){
+                        $('#addData').empty();
+                        html += '<div class="error-img"><p class="error-text">还没有什么内容哦~</p></div>';
+                    }else{
+                        var text="我是有底线的";
+                        html +=' <li id="none" class="noData noData_line lastData"><span class="noData__tips">'+text+'</span></li>';
+                    }
+                    // 删除加载提示符
+                    $('.infinite-scroll-preloader').remove();
+                }
+                loading = false;
+
+                // 添加新条目
+                $('#addData').append(html);
+                noContentImg($('#addData .error-text'), 'images/empty.png');
+                $.refreshScroller();
+
+            }else{
+                $.alert(res.message);
+            }
+        },"GET");
+    }
+
+    //加载最新的数据
+    $(document).on('refresh', '.pull-to-refresh-content',function(e) {
+        parameter.min = "";
+        //parameter.max = maxId;
+        parameter.max=$("#addData li:first-child").attr("id");
+
+        getDataNoLoading(domainName+"/shijiwxy/suggestion/getList.json", parameter, function (res) {
+
+            if (res.code == 200 && res.success == true) {
+                if (sessionStorage.suggestion == "") {
+                    sessionStorage.suggestion = JSON.stringify(res.data);
+                } else {
+                    sessionStorage.suggestion = JSON.stringify(extend(JSON.parse(sessionStorage.suggestion).concat(res.data.list)));
+                }
+                var html = '';
+                if (res.data.list.length > 0) {
+
+                    var listObj = res.data.list;
+                    // 生成新条目的HTML
+                    for (var m = 0; m < listObj.length; m++) {
+
+                        var cstr=listObj[m].content;
+
+                        html +='<li  id="'+listObj[m].sug_id+'">' +
+                            '                            <div class="content-block-title text-center">'+listObj[m].insert_time+'</div>' +
+                            '                        <div class="card demo-card-header-pic">' +
+                            '                            <div valign="bottom" class="card-header color-white ">' +
+                            '                           '+listObj[m].stud_name+
+                            '                        <div class="oClasstext">'+listObj[m].clas_name+'</div>' +
+                            '                            </div>' +
+                            '                            <div class="card-content">' +
+                            '                            <div class="card-content-inner oText">' + cstr +
+                            '                    </div>' +
+                            '                        <div class="oTelText">联系电话：' + listObj[m].mobile +'</div>' +
+                            '                        </div>' +
+                            '                        <div class="card-footer">' +
+                            '                            <span style="font-size:1rem; "> </span>' +
+                            '                            <a href="JavaScript:void(0)" class="link external">正文<span class="icon icon-right"></span></a>' +
+                            '                        </div>' +
+                            '                        </div>' +
+                            '                        </li>';
+
+                    }
+                }
+
+                loading = false;
+
+                // 添加新条目
+                $('#addData').prepend(html);
+                $.pullToRefreshDone('.pull-to-refresh-content');
+
+            } else {
+                $.alert(res.message);
+            }
+        }, "GET");
+    });
+</script>

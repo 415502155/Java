@@ -1,0 +1,98 @@
+	.clearFix:after{content:".";height:0;clear:both;display:block;overflow:hidden;visibility:hidden;}
+	.modal-a{width: 452px;}
+	/*.modal-body{display: flex;justify-content: center;align-items: center;}*/
+	.modal-content{width: 400px;}
+	.modal-check{position: absolute;opacity: 0;}
+	.modal-search{right: 152px;}
+	.model-se{margin-left: 18px;}
+	.gui-transfer-list-content {overflow: scroll;}
+	.thir{margin-left: 18px;}
+	.model-log{background: #009E94;color: #fff;font-size: 15px;}
+	.mal{position: relative;}
+	.bod-con-pay1-cho-c {    padding-bottom: 10px;
+        margin-top: -3px;
+        color: #ccc;
+        margin-left: 120px;}
+     /*选择界面*/
+    .changedUI { padding: 20px; color: #a5a5a5;}
+    .changedUI li { font-size: 14px; padding-bottom:3px; position: relative;cursor: pointer; padding:5px 10px}
+    .changedUI li.gradelis {color:#7097b9}
+    .changedUI li.gradelis:hover {background:#f1f1f1}
+    .changedUI li.studlis input {z-index: -1}
+
+    .changedUI li i { margin-right: 5px}
+    .changedUI li i.fa-caret-right {
+        color: #999;
+    }
+	.bod-con-spay2-b{color: #08CDFE;text-decoration: underline;cursor:pointer;padding-left: 10px}
+	#Num{position: absolute;bottom: 2px;right:27px;}
+	.toDown {
+        -moz-transform:rotate(90deg);
+        -webkit-transform:rotate(90deg);
+        filter:progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+    }
+    label { cursor: pointer}
+    .dialog-classList { margin-left: 18px; display:none}
+    .checkedboxp  {
+        position: absolute;
+        right: 10px;
+        top: 5px;
+        width: 50px;
+        text-align: right;
+    }
+    /*图片name多出的部分...*/
+   #fileList .attachment-name{
+   	white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+   }
+    /*提醒(发送提醒)*/
+	.animated {
+		-webkit-animation-duration: 1s;
+		animation-duration: 1s;
+		-webkit-animation-fill-mode: both;
+		animation-fill-mode: both;
+		color:#f35626;
+		padding: 20px;
+	}
+	/*发送列表*/
+	.bod-con-se1{height:54px;position: relative;}
+	.bod-con-se1-b{margin: 14px 0 0 10px;float: left;border-radius: 5px;height: 22px;}
+	.bod-con-se1-d{width: 170px;margin-right: 20px;padding-left: 10px;float: right;}
+	.bod-con-se1-e{float: right;margin-right: 20px;}
+	.bod-con-se2-a{color: #28A4C9;text-decoration: underline;}
+	.bod-con-se2-b{color: #28A4C9;margin-left:12px;text-decoration: underline;cursor:pointer}
+	.toDel{color: red;margin-left:12px;}
+	td .bod-con-se2-d{color: #28A4C9;text-decoration: underline;width: 70px;cursor:pointer}
+	.bod-con-fer-form{border-right:1px solid #e0e0e0;overflow-x: scroll;}
+	.bod-con-fer-form td span{cursor: pointer;}
+	.bod-con-se3{width:227px;height:30px; float: left;}
+	.bod-con-se3 p{float: left;height: 30px;line-height: 30px;cursor: pointer; padding: 0 2px}
+	.bod-con-se3 p:nth-of-type(1){cursor:default}
+	.recordFoot{margin-top: 30px;}
+	.pagColor{color:#39f}
+	.bod-con-sentTim1{float: left;clear:none;}
+	.bod-con-sentTim1 .bod-con-sentTim1-inp{width:92px;}
+	.bod-con-sentTim1-inP{width: 90px;}
+	.gui-form-item .con-inp{width: 200px;}
+	.gui-form-item .con-form-label{width: 58px;}
+	.bod-con-fer-form table{table-layout:fixed;}
+	.bod-con-fer-form td{width:100%;word-break:keep-all;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+	.bod-con-fer-form tbody td:nth-of-type(2){cursor: pointer;text-decoration: underline;}
+	#homeworkForm tbody td:nth-of-type(3){cursor: pointer;text-decoration: underline;}
+	#homeworkForm tbody td:nth-of-type(2){cursor: default;text-decoration: none;}  
+	/*详情页*/
+	/*提醒*/
+	.bod-con-se3-e{border:0;width:120px;height: 30px;font-size:14px;color: #fff;background: #DE770F;border-radius: 5%;cursor:pointer;position: absolute;right:55px;}
+	.remind{text-align: center;margin-top: 18px;font-size: 16px;color: #524bbd;}
+	/*发送内容详情*/
+	.content{padding:30px}
+    .conDetDate{color: #A6ABBC;float: left;}
+    .conDetStatus{color: #0089DB; float: right;padding-right: 190px;}
+    .noticeTxt{margin-top: 20px;overflow: hidden;line-height:27px ;letter-spacing: 1px;}
+    #imgBox{width: 330px;cursor: pointer;position: relative;}
+    /*返回顶部*/
+   .box{position: fixed;bottom:110px;right:90px;width: 60px;height: 30px; display: none;cursor:pointer;}
+   /*浏览详情*/
+  	#bott{width:100%;height:30px;position:absolute;left: 0;bottom: 0;background:#fff;}
+ 

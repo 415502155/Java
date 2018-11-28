@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title>邮箱详情</title>
+		<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+		<link rel="shortcut icon" href="/favicon.ico">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<!--ui包-->
+		<link rel="stylesheet" href="../../../css/sm.css">
+		<link rel="stylesheet" href="../../../css/layout.css">
+
+		<style>
+			.oTelText {
+				padding: 0 .75rem .75rem;
+				color: #b1b1b1;font-size: 14px;
+			}
+			.iconpright {
+				padding-bottom: .1rem;
+				display: block;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="page-group">
+			<div class="page-current" id="noticeD" >
+                <!--内容显示区-->
+			    <div class="content native-scroll" style="background:#fff">
+					<div valign="bottom" class="card-header color-white" style="line-height:1.1rem;padding:.5rem .75rem">
+						<div class="author">
+							<span class="iconpright fontbolder" id="author"></span> <!--<span class="fontbolder">的家长</span>-->
+							<div class="subtitle" id="subTitle" >
+								<span id="suggestion_class"></span> · <span id="suggestion_time"></span>
+							</div>
+						</div>
+
+					</div>
+
+                    <!--文字内容显示区-->
+					<pre class="content-padded contentLineheight notice-text" id="message">
+
+					</pre>
+					<!--文字内容显示区 END-->
+
+                    <!-- 联系方式-->
+					 <div class="oTelText">联系电话：<span id="suggestion_mobile"></span></div>
+					<!-- 联系方式 End-->
+
+					<div class="content-block">
+				    	<a href="javascript:void(0)" class="button button-fill" id="receiptBtn" style="display:none">已读</a>
+				  	</div>
+
+			    </div>
+				<!--内容显示区 End-->
+			</div>
+		</div>
+
+
+
+	</body>
+</html>
+
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+
+<script>
+    var base = null;
+    //如果从通过微信消息模板登录
+/*    if(sessionStorage.baseUser==undefined || sessionStorage.baseUser== null){
+        var nowNoticeID=GetUrlParam("noticeID ");
+        var nowNu_id=GetUrlParam("nu_id");
+
+        getData(domainName+"/eduWeixin/notice/detail",{nu_id:nowNu_id},function(res){
+            if(res.code==200 && res.success==true){
+                var noticeObj=res.data;
+                //发布时间
+                $("#subTitle span").text(noticeObj.created_Date);
+                //通知内容
+                $("#message").text(noticeObj.content);
+
+                //作者
+                $("#author").text((noticeObj.name==null?"":noticeObj.name)+"的家长");
+
+                //发布时间
+                $("#suggestion_time").text(allNotices[i].insert_time);
+                //所在年级
+                $("#suggestion_class").text(allNotices[i].clas_name);
+                //联系方式
+                $("#suggestion_mobile").text(allNotices[i].mobile);
+                //通知内容
+                $("#message").text(allNotices[i].content);
+                //作者
+                $("#author").text((res.name==null?"":res.name)+"的家长");
+
+
+            }else{
+                $.alert(res.message);
+            }
+        });
+
+    }else{*/
+
+        var allNotices=JSON.parse(sessionStorage.suggestion);
+        var noticeID=GetUrlParam("id");
+        for(var i=allNotices.length-1;i>=0;i--){
+            var res=allNotices[i];
+            if(allNotices[i].sug_id==noticeID){
+                //发布时间
+                $("#suggestion_time").text(allNotices[i].insert_time);
+                //所在年级
+                $("#suggestion_class").text(allNotices[i].clas_name);
+                //联系方式
+                $("#suggestion_mobile").text(allNotices[i].mobile);
+                //通知内容
+                $("#message").text(allNotices[i].content);
+                //作者
+                $("#author").text((allNotices[i].stud_name==null?"":allNotices[i].stud_name)+"的家长");
+
+                break;
+            }
+
+        }
+  /*  }*/
+
+	 $(function(){
+
+         //图片预览
+         initPhotoSwipeFromDOM('.my-gallery');
+
+         $("#countReader").click(function(){
+        	var r=$(this).attr("data-r");
+            window.location="readCount.html?nid="+noticeID+"&r="+r;
+         });
+
+         //图片报错处理
+        $('img').error(function(){
+           $(this).next().hide();
+           $(this).attr('src',domainName+"/shijiwxy/weixin/images/error.gif");
+        });
+
+	 });
+
+</script>
+

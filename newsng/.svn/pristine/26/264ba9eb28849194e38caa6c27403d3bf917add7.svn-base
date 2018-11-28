@@ -1,0 +1,35 @@
+package sng.dao.impl;
+
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.transform.Transformers;
+import org.springframework.stereotype.Repository;
+
+import sng.dao.StudentClassDao;
+import sng.entity.StudentClass;
+
+/**
+ * @类 名： StudentClassDaoImpl
+ * @功能描述：学生班级关系 
+ * @作者信息： LiuYang
+ * @创建时间： 2018年11月20日下午2:50:17
+ */
+@Repository
+public class StudentClassDaoImpl extends BaseDaoImpl<StudentClass> implements StudentClassDao{
+
+	@Override
+	public StudentClass getWithNames(Integer stud_id, Integer clas_id) {
+		Session session = this.factory.getCurrentSession();
+		String sql = "SELECT s.stud_name,c.clas_name,sc.stu_class_id,c.tuition_fees FROM student_class sc INNER JOIN edugate_base.student s ON s.stud_id = sc.stud_id AND s.is_del = 0 INNER JOIN classes c ON sc.clas_id = c.clas_id AND c.cam_id=sc.cam_id AND c.is_del=0 AND c.org_id=s.org_id  WHERE sc.is_del=0 AND s.stud_id=:stud_id AND c.clas_id=:clas_id";
+		Query query = session.createSQLQuery(sql);
+		query.setResultTransformer(Transformers.aliasToBean(StudentClass.class));
+		query.setInteger("stud_id", stud_id);
+		query.setInteger("clas_id", clas_id);
+		try {
+			return (StudentClass) query.list().get(0);
+		} catch (Exception e) {
+			return new StudentClass();
+		}
+	}
+
+}

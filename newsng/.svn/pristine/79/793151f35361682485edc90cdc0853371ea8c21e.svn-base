@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title>掌上报名</title>
+		<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+		<link rel="shortcut icon" href="/favicon.ico">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<!--ui包-->
+		<link rel="stylesheet" href="../../../css/sm.css">
+		<link rel="stylesheet" href="../../../css/layout.css">
+		<style>
+			.list-block {
+				overflow: auto;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="page-group">
+			<div class="page page-current" id="signList">
+				
+				<!--报名列表-->
+				<div class="content native-scroll" id="allSign">
+					<div id="" class="card demo-card-header-pic" data-open="res.isOpen" data-type="res.typeId">
+						<div valign="bottom" class="card-header color-white no-border listtitle text-center">
+							<div class="train"></div>2018第二学期艺术培训招生</div>
+						<div class="card-content">
+							<div class="card-content-inner">
+								<p style="color:#efb51e" data-countdown="mss">距离报名结束还有:4天3小时28分34秒</p>
+							</div>
+						</div>
+						<div class="card-footer">
+							<a href="#" class="link color-gray" id="remark">您还没有报名</a>
+							<a href="#" class="link external">详情</a>
+						</div>
+					</div>
+					<div class="noData noData_line">
+			         	<span class="noData__tips">暂无报名</span>
+			         </div>
+				</div>
+				<!--报名列表 End-->
+			</div>
+		</div>
+	</body>
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script>
+	
+	$(function(){
+		// var baseWeixinInfo=JSON.parse(sessionStorage.baseInfo);
+		// var baseUser=JSON.parse(sessionStorage.baseUser);
+		var param = {
+			token:baseUser.token,
+			org_id:baseUser.org_id
+		}
+		getData(domainName + "/apply/plan/list",param,function(res){
+			var d = res.data;
+			var list = d.list,
+			html = '';
+			for(var i=0;i<list.length;i++){
+				var status = '',
+				is_over = 0,//是否超时关闭,超时1,未超时0
+				clas_count = '';
+				data = list[i],
+				beginTime = data.beginTime,
+				endTime = data.endTime;
+				if(d.serverTime>=endTime){
+					status = '报名已结束';
+					clas_count = '已成功报名'+ data.applyClassCount + '个班';
+					is_over = 1;
+				}else if(d.serverTime<endTime && d.serverTime>beginTime){
+					status = '距离报名结束还有:' + formatDuring(data.beginTime - new Date(d.serverTime).getTime());
+					clas_count = '已成功报名'+ data.applyClassCount + '个班';
+				}else if(d.serverTime<beginTime){
+					status = '距离报名开始还有:' + formatDuring(new Date(d.serverTime).getTime() - data.beginTime);
+					clas_count = '未报名';
+				}
+				html += `<div data-planId="${data.planId}" data-termId="${data.termId}" data-open="${is_over}" class="card demo-card-header-pic"  data-type="${data.classType}">
+							<div valign="bottom" class="card-header color-white no-border listtitle text-center">
+								<div class="train"></div>${data.title}</div>
+							<div class="card-content">
+								<div class="card-content-inner">
+									<p style="color:#efb51e" data-countdown="mss">${status}</p>
+								</div>
+							</div>
+							<div class="card-footer">
+								<a href="#" class="link color-gray" id="remark">${clas_count}</a>
+								<a href="#" class="link external">详情</a>
+							</div>
+						</div>`
+			}
+		})
+		
+
+		/*
+		   
+		    var data={
+		    		token:sessionStorage.token,
+		    		userid:baseWeixinInfo.userId,
+		            time:new Date().getTime()		
+		    }
+		    
+	        //判断是否实名认证 改为实时获取
+	 	 	  if(baseUser.isCertification=="0"){
+   			    $.confirm('您需要完成实名认证后方可进行报名，一次认证即可终身通用。', '实名认证', 
+   			    		null,
+   			    	  function () {
+				          window.location="authentication.html"
+				        },
+   				        "暂时跳过",
+   				        "这就去认证" 
+   				      );
+		    }  
+			//判断用户是否实名认证
+			getData("../../../api/userInfo", {token:sessionStorage.token,da:Math.random()},function(result){
+				if(result.code=="0"){
+					 var certificationState=result.baseUser.isCertification;
+					 if(certificationState=="0"){
+						 setTimeout(function(){
+							 $.confirm('您需要完成实名认证后方可进行报名，一次认证即可终身通用。', '实名认证', 
+				   			    		null,
+				   			    	  function () {
+								          window.location="authentication.html"
+								        },
+				   				        "暂时跳过",
+				   				        "这就去认证" 
+				   				      );
+						 },300)
+					  } 
+				}else{
+						$.alert(result.msg)
+				}
+			}); 
+			*/
+		    
+	    	//获取报名列表
+			// getData("../../../api/recruit/getListByUserId",data,function(result){
+			 
+			// 	if(result.code=="0"){
+			// 		var systime=new Date(GetDateDiff(result.sysTime)).getTime();
+			// 		var classhtml="";
+			// 		if(result.data.length>0){
+			// 			for(var i=result.data.length-1;i>=0;i--){
+			// 				var res=result.data[i];
+			// 				//是否开启报名，开启显示倒计时
+			// 				if(res.isOpen=="0"){
+			// 					/* var mss=0;
+			// 					var openTip="招生暂未开启，敬请关注！"; */
+			// 				}else{
+			// 					var startTime=new Date(GetDateDiff(res.startTime)).getTime();
+			// 					var endTime=new Date(GetDateDiff(res.endTime)).getTime();
+			// 					//如果系统时间小于报名开始时间，报名未开始显示倒计时
+			// 					if(systime<startTime){
+			// 						var opensign="on";
+			// 						var mss=startTime-systime;
+			// 						var openTip="距离报名开始:<span data-end='"+endTime+"' data-sys='"+systime+"' >"+formatDuring(mss)+"</span>";
+			// 					}else{
+			// 						//如果系统时间大于报名时间：报名结束；否则显示距离报名结束时间提示
+			// 						var mss=endTime-systime;
+			// 						if(mss<=0){
+			// 							var openTip="报名已在"+res.endTime+"结束";
+			// 							var opensign="off";
+			// 						}else{
+			// 							var openTip="距离报名结束:<span  class='on'>"+formatDuring(mss)+"</span>";
+			// 							var opensign="on";
+			// 						}
+			// 					}
+
+							
+			// 				//是否报名··及报名个数
+			// 				var remarkHtml="";
+							
+			// 				if(res.remark=="0"){
+			// 					//是否允许报名
+			// 					if(res.isOpen=="0"){
+			// 						remarkHtml+="您还不能报名！";
+			// 					}else{
+			// 						remarkHtml+="您没有报名！";
+			// 					}
+			// 				}else{
+			// 					remarkHtml+="已成功报名"+res.remark+"个班";
+			// 				}
+							
+			// 				classhtml +='<div id="'+res.id+'" data-open="'+opensign+'" class="card demo-card-header-pic" data-open="'+res.isOpen+'" data-type="'+res.typeId+'">'+
+			// 					'<div valign="bottom" class="card-header color-white no-border listtitle text-center">'+
+			// 						'<div class="train"></div>'+res.title+'</div>'+
+			// 					'<div class="card-content">'+
+			// 						'<div class="card-content-inner">'+
+		 	// 							'<p style="color:#efb51e" data-countdown="'+mss+'">'+openTip+'</p>'+
+			// 						'</div>'+
+			// 					'</div>'+
+			// 					'<div class="card-footer">'+
+			// 						'<a href="#" class="link color-gray" id="remark">'+remarkHtml+'</a>'+
+			// 						'<a href="#" class="link external">详情</a>'+
+			// 					'</div>'+
+			// 				 '</div>';
+			// 				$("#allSign").html(classhtml);
+			// 			}
+			// 		}
+			// 	 }
+			// 	}else{
+			// 		$.alert(result.msg);
+			// 	}
+			// });
+		    
+		    //倒计时
+		    var dd=setInterval(function(){
+			    $("[data-countdown]").each(function(){
+			    	var timeM=parseInt($(this).attr("data-countdown"))-1000;
+			    	var index=$(this).index();
+			    	if(timeM>=0){
+				    	$(this).attr("data-countdown",timeM);
+				        if(timeM==0){
+				        	//判断是距离报名开始=0，还是到报名结束=0，如果到开始=0，需要显示到报名结束的时间
+				        	//$(this).closest(".card ").remove();
+				        	if($(this).find("span").hasClass("on")){
+				        		$(this).text("报名结束");
+				        	}else{
+				        		var endTime=$(this).find("span").attr("data-end");
+				        		var systime=$(this).find("span").attr("data-sys");
+				        		var mss=endTime-systime;
+								var openTip="距离报名结束:<span  class='on'>"+formatDuring(mss)+"</span>";
+								$(this).html(openTip);
+				        	}
+				        	  setTimeout(function(){
+				        		  window.location.reload();
+				        	  },200)
+				        }else{
+				        	if(timeM<0){
+				        	 window.location.reload();
+				        	}else{
+				        		$(this).find("span").html(formatDuring(timeM));
+				        	}
+				        	
+				        }
+			    	}
+			    })
+			    
+		    }, 1000);
+		    
+		    //如果报名结束前往支付页面
+		    //sign_class_list.html?id='+res.id+'
+		    $(document).on('click', '.card', function(){
+		    	//招生计划是否关闭
+		    	var sign=$(this).attr("data-open");
+		    	//招生计划类型
+		    	var typeID=$(this).attr("data-type");
+		    	
+		    	var planId=$(this).attr("data-planId");
+		    	
+		    	if(sign=="1"){
+		    		window.location="pay_list.html?planId="+planId;
+		    	}else{
+		    		//类型id 1老生2新生
+		    		if(typeID=="1"){
+		    			window.location="sign_class_list.html?planId="+planId;
+		    		}else{
+		    			window.location="sign_class_list_new.html?planId="+planId;
+		    		}
+		    		
+		    	}
+		    });
+	});
+</script>

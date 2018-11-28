@@ -1,0 +1,131 @@
+package sng.pojo;
+/**
+ * 请求参数对象
+ * @author Administrator
+ *
+ */
+public class ParamObj {
+	// 校区主键
+	private Integer cam_id;
+	// 机构主键
+	private Integer org_id;
+	//学期
+	private Integer term_id;
+	//学期名称
+	private String term_name;
+	//学期类型
+	private Integer term_type;
+	
+	//教室
+	private Integer classroom_id;
+	//合作机构
+	private Integer cooperative_id;
+	//科目
+	private Integer subject_id;
+	
+	// 当前页
+	private Integer page = 1;
+	// 每页多少条
+	private Integer limit = 20;
+	// 排序类型
+	private String orderType;
+	// 排序内容
+	private String orderContent;
+	// 是否分页
+	private boolean isNeedCount = true;
+	public Integer getCam_id() {
+		return cam_id;
+	}
+	public void setCam_id(Integer cam_id) {
+		this.cam_id = cam_id;
+	}
+	public Integer getOrg_id() {
+		return org_id;
+	}
+	public void setOrg_id(Integer org_id) {
+		this.org_id = org_id;
+	}
+	public Integer getTerm_id() {
+		return term_id;
+	}
+	
+	public String getTerm_name() {
+		return term_name;
+	}
+	public void setTerm_name(String term_name) {
+		this.term_name = term_name;
+	}
+	public Integer getTerm_type() {
+		return term_type;
+	}
+	public void setTerm_type(Integer term_type) {
+		this.term_type = term_type;
+	}
+	public void setTerm_id(Integer term_id) {
+		this.term_id = term_id;
+	}
+	public Integer getClassroom_id() {
+		return classroom_id;
+	}
+	public void setClassroom_id(Integer classroom_id) {
+		this.classroom_id = classroom_id;
+	}
+	public Integer getCooperative_id() {
+		return cooperative_id;
+	}
+	public void setCooperative_id(Integer cooperative_id) {
+		this.cooperative_id = cooperative_id;
+	}
+	public Integer getSubject_id() {
+		return subject_id;
+	}
+	public void setSubject_id(Integer subject_id) {
+		this.subject_id = subject_id;
+	}
+	public Integer getPage() {
+		return page;
+	}
+	public void setPage(Integer page) {
+		this.page = page;
+	}
+	public Integer getLimit() {
+		return limit;
+	}
+	public void setLimit(Integer limit) {
+		this.limit = limit;
+	}
+	public String getOrderType() {
+		return orderType;
+	}
+	public void setOrderType(String orderType) {
+		this.orderType = orderType;
+	}
+	public String getOrderContent() {
+		return orderContent;
+	}
+	public void setOrderContent(String orderContent) {
+		this.orderContent = orderContent;
+	}
+	public boolean isNeedCount() {
+		return isNeedCount;
+	}
+	public void setNeedCount(boolean isNeedCount) {
+		this.isNeedCount = isNeedCount;
+	}
+	@Override
+	public String toString() {
+		return "ParamObj [cam_id=" + cam_id + ", org_id=" + org_id + ", term_id=" + term_id + ", classroom_id="
+				+ classroom_id + ", cooperative_id=" + cooperative_id + ", subject_id=" + subject_id + ", page=" + page
+				+ ", limit=" + limit + ", orderType=" + orderType + ", orderContent=" + orderContent + ", isNeedCount="
+				+ isNeedCount + "]";
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+
+}

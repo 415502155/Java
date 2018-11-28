@@ -1,0 +1,126 @@
+package sng.service;
+
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import sng.entity.Account;
+import sng.entity.Charge;
+import sng.entity.ChargeDetail;
+import sng.entity.ChargeRecord;
+import sng.entity.Classes;
+import sng.util.Paging;
+
+
+/**
+ * Title: ChargeService
+ * Description: 支付接口
+ * Company: 世纪伟业
+ * @author Liuyang
+ * @date 2018年1月4日下午1:22:21
+ */
+@Service
+@Transactional
+public interface ChargeService {
+	
+	/**
+	 * @Title : createChargeForNewClass 
+	 * @功能描述:为班级创建学费支付项目 
+	 * @返回类型：int 成功返回charge主键，失败返回0
+	 */
+	int createChargeForNewClass(Classes classes);
+	
+	/**
+	 * @Title : updateChargeForClass 
+	 * @功能描述: 更新班级时更新学费标准(预留，未实现）
+	 * @返回类型：String 
+	 * @throws ：
+	 */
+	@Deprecated
+	String updateChargeForClass(Classes classes);
+	
+	
+
+	/**
+	 * 教师查询支付列表
+	 * @param classIds 班主任教师管辖的班级主键
+	 * @param max 当前最大的主键 刷新时使用
+	 * @param min 当前最小的主键 下拉展示更多时使用
+	 * @param num 每次刷新查询的条数
+	 * @return
+	 */
+	List<Charge> getTList(String classIds, Integer max, Integer min, Integer num);
+
+	/**
+	 * 更新支付状态
+	 */
+	Charge updateStatus(List<ChargeRecord> list, Charge charge);
+
+	/**
+	 * 查询
+	 * @param cid
+	 * @return
+	 */
+	Charge getById(Integer cid);
+
+	/**
+	 * 查询学校下的所有支付信息
+	 * @param charge.org_id 机构主键
+	 * @param page.limit 每页显示条数
+	 * @param page.page 当前页
+	 * @param charge.item 收费主体（模糊）
+	 * @param charge.status 状态
+	 * @param charge.endtime 结束时间
+	 * @param charge.starttime 开始时间
+	 * @return
+	 */
+	Paging<Charge> getTList(Charge charge, Paging<Charge> page);
+
+	/**
+	 * 保存支付信息
+	 * @param charge
+	 */
+	void save(Charge charge);
+
+	/**
+	 * 更新
+	 * @param charge
+	 */
+	void update(Charge charge);
+
+	/**
+	 * 查询指定日期的支付单
+	 * @param org_id
+	 * @return
+	 */
+	List<Charge> getTodayCharge(Integer org_id,Date date);
+
+	/**
+	 * 重复校验
+	 * @param org_id
+	 * @param item
+	 * @param money
+	 * @param range
+	 * @param payTypeUnified
+	 * @return
+	 */
+	Integer duplication(String org_id, String item, String money, String range, Integer payType);
+
+	/**
+	 * 将支付结果记入数据库，并修改对应各表的状态
+	 * 处理支付结果的最终方法
+	 * @param charge
+	 * @param cd
+	 */
+	Boolean chargeFinally(Charge charge, ChargeDetail cd, ChargeRecord cr);
+	
+	/**
+	 * @Title : getCEBList 
+	 * @功能描述: 获取光大账户
+	 * @返回类型：List<Account> 
+	 * @throws ：
+	 */
+	List<Account> getCEBList();
+}

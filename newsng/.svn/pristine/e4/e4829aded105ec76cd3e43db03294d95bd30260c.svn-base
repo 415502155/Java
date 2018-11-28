@@ -1,0 +1,43 @@
+package sng.controller.web;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import sng.pojo.ClassToTeacher;
+import sng.service.ClassService;
+import sng.util.Constant;
+import sng.util.Paging;
+import sng.util.ReturnResult;
+@Controller
+@RequestMapping("/print/export")
+public class PrintExportController {
+	
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
+	@Autowired
+	private ClassService classService;
+	
+	@RequestMapping(value = "/list.htm")
+	@ResponseBody
+	public ReturnResult getClassList(@RequestParam(name = "pageNum", defaultValue = "1") Integer pageNum,
+			@RequestParam(name = "pageSize", defaultValue = Constant.NUM_PER_PCPAGE_STRING) Integer pageSize,
+			Integer orgId, Integer termId, Integer clasType, Integer categoryId,
+			Integer subjectId, Integer camId, Integer classWeek, String tech_names, Integer isAll) {
+		Paging<ClassToTeacher> page = new Paging<ClassToTeacher>();
+		page.setPage(pageNum);
+		page.setLimit(pageSize);
+		Paging<ClassToTeacher> paging = null;
+		try {
+			paging = classService.getClassList(orgId, termId, clasType, categoryId, subjectId, camId, classWeek, tech_names, isAll, page);
+		} catch (Exception e) {
+			log.info("getClassList Ex : " + e);
+			return ReturnResult.error();
+		}
+		return ReturnResult.success(paging);
+	}
+
+}

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>问卷详情</title>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+    <link rel="shortcut icon" href="../../favicon.ico">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <!--ui包-->
+    <link rel="stylesheet" href="../../../css/sm.css">
+    <link rel="stylesheet" href="../../../css/layout.css">
+    <link rel='stylesheet prefetch' href='../../../js/photoSwipe/photoswipe.css'>
+    <link rel='stylesheet prefetch' href='../../../js/photoSwipe/default-skin/default-skin.css'>
+    
+    <style>
+        body{
+            background-color:#F4F5F7;
+            overflow-y:scroll;
+            -webkit-overflow-scrolling: touch
+        }
+        .content-padded{
+            font-size:0.7rem
+        }
+        .q-title{
+            word-break:break-all
+        }
+        .q-info{
+            margin:0.4rem 0;
+        }
+        .q-info p{
+            text-indent:0;
+            color:#999
+        }
+        .q-introduce{
+            line-height:1.1rem
+        }
+        .q-introduce img{
+            width:100%;
+            margin-top:0.4rem
+        }
+        .q-option{
+            border-radius: 0.5rem;
+            background-color:#fff;
+            padding:0.8rem;
+            margin:1rem 0;
+        }
+        .q-option img{
+            width:100%;
+            display: block
+        }
+        .option-select{
+            position: relative;
+            border-bottom:1px solid #eee;
+            line-height:2rem;
+            display: block
+        }
+        .option-select:last-of-type{
+            border-bottom:0
+        }
+        [q-type] .option-select .select-img{
+            width: 0.8rem;
+            height: 0.8rem;
+            display: inline-block;            
+            position: absolute;
+            top: 0.6rem;
+            left: 0
+        }
+        [q-type="1"] .option-select .select-img{
+            background: url(../../../images/radio-checkbox.jpg) no-repeat;
+            background-size: 2.4rem 0.8rem;
+            background-position-x:-0.8rem 
+        }
+        [q-type="1"] .option-select input:checked+.select-img{
+            background: url(../../../images/radio-checkbox.jpg) no-repeat;
+            background-size: 2.4rem 0.8rem;
+            background-position-x:-1.6rem
+        }
+        [q-type="2"] .option-select .select-img{
+            background: url(../../../images/radio-checkbox.jpg) no-repeat;
+            background-size: 2.4rem 0.8rem;
+            background-position-x:-0.8rem 
+        }
+        [q-type="2"] .option-select input:checked+.select-img{
+            background: url(../../../images/radio-checkbox.jpg) no-repeat;
+            background-size: 2.4rem 0.8rem;
+            background-position-x:0rem 
+        }
+        .option-text{
+            display: block
+        }
+        .option-title{
+            font-weight: 600
+        }
+        .option-title img{
+            width:100%
+        }
+        .option-required{
+            color:red
+        }
+        .option-type{
+            text-indent: 0;
+            /* color:#009DD9 */
+            font-weight: normal
+        }
+        .text-answer{
+            border-radius:0.2rem;
+            border-color:#ebebeb;
+            margin:1rem 0;
+            -webkit-appearance: none;
+            appearance: none
+        }
+        #q_submit{
+            display: block;
+            margin: 1rem auto;
+            color:#fff;
+            padding:0 5rem
+        }
+        .result-per{
+            position: relative;
+            display: inline-block;
+            width: 70%;
+            background-color: #eee;
+            height: 0.4rem;
+            border-radius: 1rem
+        }
+        .result-per i{
+            width: 70%;
+            height: 0.4rem;
+            /* background-color: #0ff; */
+            display: inline-block;
+            border-radius: 1rem;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: -webkit-linear-gradient(left, #6DD586 , #0DD0AE); /* Safari 5.1 - 6.0 */
+            background: -o-linear-gradient(right, #6DD586, #0DD0AE); /* Opera 11.1 - 12.0 */
+            background: -moz-linear-gradient(right, #6DD586, #0DD0AE); /* Firefox 3.6 - 15 */
+            background: linear-gradient(to right, #6DD586 ,#0DD0AE); /* 标准的语法 */
+        }
+        .my-gallery {
+            padding:0
+        }
+        .option-select .my-gallery{
+            width:50%
+        }
+        .my-gallery figure{
+            margin-bottom:0
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page-group">
+        <div class="page-current" id="noticeD" >
+            <div class="content native-scroll" style="background:#fff">
+                <div class="content-padded">
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--图片查看器-->
+    <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="pswp__bg"></div>
+        <div class="pswp__scroll-wrap">
+            <div class="pswp__container">
+                <div class="pswp__item"></div>
+                <div class="pswp__item"></div>
+                <div class="pswp__item"></div>
+            </div>
+            <div class="pswp__ui pswp__ui--hidden">
+                <div class="pswp__top-bar">
+                    <div class="pswp__counter"></div>
+                    <button class="pswp__button pswp__button--close" title="关闭"></button>
+                    <!--<button class="pswp__button pswp__button&#45;&#45;share" title="Share"></button>-->
+                    <div class="pswp__preloader">
+                        <div class="pswp__preloader__icn">
+                            <div class="pswp__preloader__cut">
+                                <div class="pswp__preloader__donut"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                    <div class="pswp__share-tooltip"></div>
+                </div>
+                <div class="pswp__caption">
+                    <div class="pswp__caption__center"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--图片查看器 END-->
+</body>
+
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script src='../../../js/photoSwipe/photoswipe.js'></script>
+<script src='../../../js/photoSwipe/photoswipe-ui-default.js'></script>
+<script src="../../../js/question/question.js"></script>
+<script>
+    //设置返回首页标识
+    sessionStorage.echart = 1;
+    //后退刷新
+    window.addEventListener('pageshow', function (event) {
+        if (sessionStorage.echartBlog == 1) {
+            sessionStorage.removeItem("echartBlog");
+            window.location.reload();
+        }
+    });
+    $(function(){
+        var baseUser = JSON.parse(sessionStorage.baseUser);
+        var surveyId = GetUrlParam("surveyId"),answerId = GetUrlParam("answerId")||"",is_show = 0,qType = 0;
+
+        getData(domainName + "/shijiwxy/survey/getSurveyDetail.htm",{
+            token:baseUser.token,
+            udid:baseUser.udid,
+            version:3,
+            surveyId:surveyId
+        },function (res){
+            if(res.code !== 200 && res.success !== true){
+                $.hidePreloader();
+                
+                if(isDel(res.message)){
+                    location.href="question_deleted.html";
+                };
+                $.alert(res.message);
+                 throw new Error(res.message);
+            }
+            console.log(res);
+            var survey = res.data.survey,html = '',titimg = '';
+            var stem = JSON.parse(survey.stem);sessionStorage.a = JSON.stringify(stem);
+            is_show = survey.is_show;
+            qType = survey.type;
+            if(survey.img!==""){
+                try {
+                    var imgs = survey.img.split(",");
+                    titimg += '<div class="my-gallery" id="" data-pswp-uid="1">'
+                    for(var i=0;i<imgs.length;i++){
+                        titimg += ("<figure itemprop=\"associatedMedia\" itemscope=\"\" itemtype=\"http://schema.org/ImageObject\">\n                                        <a href=\"" + changeImgUrl(imgs[i]) + "\" itemprop=\"contentUrl\" class=\"external\" data-size=\"750x740\"><img src=\"" + changeImgUrl(imgs[i]) + "\" onload=\"getWH(this)\" itemprop=\"thumbnail\" alt=\"\" ></a>\n                                    </figure>");
+                        // titimg += `<figure itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject">
+                        //                 <a href="${changeImgUrl(imgs[i])}" itemprop="contentUrl" class="external" data-size="750x740"><img src="${changeImgUrl(imgs[i])}" onload="getWH(this)" itemprop="thumbnail" alt="" ></a>
+                        //             </figure>`
+                    }
+                    titimg += '</div>'
+                } catch (error) {
+                    $.alert(error);
+                }
+            }
+            html += ("<div id=\"" + survey.id + "\" class=\"q-header\">\n                        <h3 class=\"q-title\">" + survey.title + "</h3>\n                        <div class=\"q-info\">\n                            <p class=\"q-anthor\">发布教师:" + survey.create_name + "</p>\n                            <p class=\"q-end-time\">截止时间:" + survey.end_time + "</p>\n                        </div>\n                        <div class=\"q-introduce\">\n                            " + survey.info + "\n                            " + titimg + "\n                        </div>\n                    </div>");
+            // html += `<div id="${survey.id}" class="q-header">
+            //             <h3 class="q-title">${survey.title}</h3>
+            //             <div class="q-info">
+            //                 <p class="q-anthor">发布教师:${survey.create_name}</p>
+            //                 <p class="q-end-time">截止时间:${survey.end_time}</p>
+            //             </div>
+            //             <div class="q-introduce">
+            //                 ${survey.info}
+            //                 ${titimg}
+            //             </div>
+            //         </div>`
+            html += '<div class="q-content">';
+            for(var i in stem){
+                html += ("<div class=\"q-option\" q-type=\"" + stem[i].type + "\" question-id=\"" + i + "\">\n                        <div class=\"option-title\">\n                            <p class=\"option-type\">" + (stem[i].type === "2" ? "[多选题]" : "") + "</p>\n                            " + i + "." + stem[i].title + "\n                        </div>");
+                // html += `<div class="q-option" q-type="${stem[i].type}" question-id="${i}">
+                //         <div class="option-title">
+                //             <p class="option-type">${stem[i].type === "2"? "[多选题]":""}</p>
+                //             ${i}.${stem[i].title}
+                //         </div>`
+                if(stem[i].type !== "3"){
+                    for(var j in stem[i].options){
+                        var optionImg = '',optionImgs = stem[i].options[j].img;
+                        if(stem[i].options[j].img.length>0){
+                            optionImg += ("<div class=\"my-gallery\" id=\"\" data-pswp-uid=\"a" + i + "\">\n                                            <figure itemprop=\"associatedMedia\" itemscope=\"\" itemtype=\"http://schema.org/ImageObject\" >\n                                                <a id=\"ttt\" href=\"" + changeImgUrl(optionImgs[0].url) + "\" itemprop=\"contentUrl\" class=\"external\" data-size=\"750x740\"><img src=\"" + changeImgUrl(optionImgs[0].url) + "\" onload=\"getWH(this)\" itemprop=\"thumbnail\" alt=\"\" ></a>\n                                            </figure>\n                                        </div>");
+                            // optionImg += `<div class="my-gallery" id="" data-pswp-uid="a${i}">
+                            //                 <figure itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject" >
+                            //                     <a id="ttt" href="${changeImgUrl(optionImgs[0].url)}" itemprop="contentUrl" class="external" data-size="750x740"><img src="${changeImgUrl(optionImgs[0].url)}" onload="getWH(this)" itemprop="thumbnail" alt="" ></a>
+                            //                 </figure>
+                            //             </div>`
+                        }
+                        html += ("<label class=\"option-select\" max=\"" + stem[i].max_choose + "\">\n                                    <span class=\"option-text\">" + j + "." + stem[i].options[j].title + "</span>\n                                    " + optionImg + "\n                                    <div class=\"result-per\" per=\"" + stem[i].options[j].percent + "\"><i style='width:" + stem[i].options[j].percent + "'></i></div>\n                                    <span class=\"result-per-txt\" >" + stem[i].options[j].num + "票 " + stem[i].options[j].percent + "</span>\n                                </label>");
+                        // html += `<label class="option-select" max="${stem[i].max_choose}">
+                        //             <span class="option-text">${j}.${stem[i].options[j].title}</span>
+                        //             ${optionImg}
+                        //             <div class="result-per" per="${stem[i].options[j].percent}"><i style='width:${stem[i].options[j].percent}'></i></div>
+                        //             <span class="result-per-txt" >${stem[i].options[j].num}票 ${stem[i].options[j].percent}</span>
+                        //         </label>`
+                    }
+                    html += '</div>';
+                }else{
+                    html += '</div>';
+                }
+            }
+            html += '</div>';
+            $(".content-padded").append(html);
+             //设置图片放大
+            initPhotoSwipeFromDOM(".my-gallery");
+        })
+    })
+</script>

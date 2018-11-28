@@ -1,0 +1,79 @@
+package sng.dao;
+
+import java.util.Date;
+import java.util.List;
+
+import sng.entity.Account;
+import sng.entity.Charge;
+import sng.util.Paging;
+
+
+/**
+ * 支付DAO
+ * Title: ChargeDao
+ * Description:支付总表DAO接口 
+ * Company: 世纪伟业
+ * @author Liuyang
+ * @date 2018年1月17日下午3:36:48
+ */
+public interface ChargeDao extends BaseDao<Charge>{
+
+
+	/**
+	 * 查询班级下所有支付信息
+	 * @param classIds
+	 * @param max
+	 * @param min
+	 * @param num
+	 * @return
+	 */
+	List<Charge> getTList(String classIds, Integer max, Integer min, Integer num);
+
+	/**
+	 * 查询学校下的所有支付信息
+	 * @param charge.org_id 机构主键
+	 * @param page.limit 每页显示条数
+	 * @param page.page 当前页
+	 * @param charge.item 收费主体（模糊）
+	 * @param charge.status 状态
+	 * @param charge.endtime 结束时间
+	 * @param charge.starttime 开始时间
+	 * @return
+	 */
+	Paging<Charge> getTList(Charge charge, Paging<Charge> page);
+
+	/**
+	 * 查询当天的支付信息
+	 * @param org_id
+	 * @return
+	 */
+	List<Charge> getTodayCharge(Integer org_id,Date date);
+
+	/**
+	 * 重复校验
+	 * @param org_id
+	 * @param item
+	 * @param txnAmt
+	 * @param range
+	 * @param payType
+	 * @return
+	 */
+	Integer duplication(String org_id, String item, String money, String range, Integer payType);
+
+	/**
+	 * @Title : getCharge 
+	 * @功能描述: 查询支付项目
+	 * @返回类型：Charge 
+	 * @throws ：
+	 */
+	Charge getCharge(Integer org_id, Integer cam_id, Integer clas_id);
+	
+	/**
+	 * @Title : getCEBList 
+	 * @功能描述: 获取光大账户列表
+	 * @返回类型：List<Account> 
+	 * @throws ：
+	 */
+	List<Account> getCEBList();
+
+}

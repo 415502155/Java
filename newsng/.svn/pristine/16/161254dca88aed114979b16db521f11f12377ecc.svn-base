@@ -1,0 +1,368 @@
+package sng.service.impl;
+
+import java.util.Date;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import sng.dao.BaseSetCampusManageDao;
+import sng.dao.BaseSetCategoryManageDao;
+import sng.dao.BaseSetClassRoomManageDao;
+import sng.dao.BaseSetSubjectManageDao;
+import sng.dao.BaseSetTermManageDao;
+import sng.entity.Campus;
+import sng.entity.Category;
+import sng.entity.Classroom;
+import sng.entity.Subject;
+import sng.entity.Term;
+import sng.pojo.CategoryAndSubjectPojo;
+import sng.pojo.ParamObj;
+import sng.pojo.Result;
+import sng.pojo.SubjectAndClassesPojo;
+import sng.pojo.TermInfoPojo;
+import sng.service.BaseSetService;
+import sng.util.Paging;
+
+/**
+ * @desc 基础设置模块Service层接口实现(校区管理、学期管理、科目管理、教师管理、合作机构、规则设置)
+ * @author magq
+ * @data 2018-10-26
+ * @version 1.0
+ */
+@Component
+@Transactional("transactionManager")
+public class BaseSetServiceImpl implements BaseSetService {
+
+	// 校区
+	@Autowired
+	private BaseSetCampusManageDao baseSetCampusManageDao;
+
+	// 教室
+	@Autowired
+	private BaseSetClassRoomManageDao baseSetClassRoomManageDao;
+
+	// 学期
+	@Autowired
+	private BaseSetTermManageDao baseSetServiceImpl;
+
+	// 类目
+	@Autowired
+	private BaseSetCategoryManageDao categoryManageDao;
+
+	// 科目
+	@Autowired
+	private BaseSetSubjectManageDao baseSetSubjectManageDao;
+
+	/*
+	 * 创建更新校区
+	 * @see sng.service.BaseSetService#createAndUpdateCampus(sng.entity.Campus)
+	 */
+	@Override
+	public Result createAndUpdateCampus(Campus campus) {
+		Result result = new Result();
+		if (campus == null || campus.getOrg_id() == null) {
+			result.setSuccess(false);
+			return result;
+		}
+
+		Integer cam_id = campus.getCam_id();
+		if (cam_id == null) {
+			baseSetCampusManageDao.save(campus);
+		} else {
+			baseSetCampusManageDao.update(campus);
+		}
+		result.setSuccess(true);
+
+		return result;
+	}
+
+	/*
+	 * 校区管理列表
+	 * @see sng.service.BaseSetService#queryCampusListInfo(sng.pojo.ParamObj)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public Result queryCampusListInfo(ParamObj paramObj) {
+		Result result = new Result();
+		if (paramObj == null || paramObj.getOrg_id() == null) {
+			result.setSuccess(false);
+			return result;
+		}
+		Paging<Campus> paging = baseSetCampusManageDao.queryCampusListInfo(paramObj);
+		result.setSuccess(true);
+		result.setData(paging);
+		return result;
+	}
+
+	/*
+	 * 删除校区
+	 * @see sng.service.BaseSetService#deleteCampus(sng.pojo.ParamObj)
+	 */
+	@Override
+	public Result deleteCampus(ParamObj paramObj) {
+		// TODO Auto-generated method stub
+		Result result = new Result();
+		if (paramObj == null || paramObj.getCam_id() == null) {
+			result.setSuccess(false);
+			return result;
+		}
+
+		// 1:判断当前校区在其他的业务数据中是否使用如果使用了，则不能删除
+		List<Classroom> classRoomList = baseSetClassRoomManageDao.queryClassRommList(paramObj);
+		if (classRoomList != null && !classRoomList.isEmpty()) {
+			result.setSuccess(false);
+			return result;
+		}
+
+		// 如果在其他的业务中么有用到此校区id则可以删除
+		baseSetCampusManageDao.deleteCampus(paramObj);
+		result.setSuccess(true);
+		return result;
+	}
+
+	/*
+	 * 创建学期
+	 * @see sng.service.BaseSetService#createAndUpdateTerm(sng.entity.Term)
+	 */
+	@Override
+	public Result createAndUpdateTerm(Term term) {
+		// TODO Auto-generated method stub
+		Result result = new Result();
+		if (term == null || term.getOrg_id() == null) {
+			result.setSuccess(false);
+			return result;
+		}
+		Integer term_id = term.getTerm_id();
+		if (term_id == null) {
+			baseSetServiceImpl.save(term);
+		} else {
+			baseSetServiceImpl.update(term);
+		}
+		result.setSuccess(true);
+		return result;
+	}
+
+	/*
+	 * 查询学期信息列表
+	 * @see sng.service.BaseSetService#queryTermListInfo(sng.pojo.ParamObj)
+	 */
+	@Override
+	public Result queryTermListInfo(ParamObj paramObj) {
+		// TODO Auto-generated method stub
+		Result result = new Result();
+		if (paramObj == null || paramObj.getOrg_id() == null) {
+			result.setSuccess(false);
+			return result;
+		}
+		Paging<TermInfoPojo> paging = baseSetServiceImpl.queryTermListInfo(paramObj);
+		result.setData(paging);
+		result.setSuccess(true);
+		return result;
+	}
+
+	/*
+	 * 删除学期信息
+	 * @see sng.service.BaseSetService#deleteTermByTerm(sng.pojo.ParamObj)
+	 */
+	@Override
+	public Result deleteTermByTerm(ParamObj paramObj) {
+		// TODO Auto-generated method stub
+		Result result = new Result();
+		if (paramObj == null || paramObj.getOrg_id() == null || paramObj.getTerm_id() == null) {
+			result.setSuccess(false);
+			return result;
+		}
+		baseSetServiceImpl.deleteTermByTerm(paramObj);
+		result.setSuccess(true);
+		return result;
+	}
+
+	/*
+	 * 创建/编辑类目
+	 * @see sng.service.BaseSetService#createAndUpdateCategoryInfo(sng.entity.Category)
+	 */
+	@Override
+	public Result createAndUpdateCategoryInfo(Category category) {
+		// TODO Auto-generated method stub
+		Result result = new Result();
+
+		// 如果类目名字为空不允许添加类目名称（更新也是如此）
+		if (category == null || category.getOrg_id() == null || StringUtils.isBlank(category.getCategory_name())) {
+			result.setSuccess(false);
+			result.setMessage("参数有误");
+			return result;
+		}
+
+		// 创建和更新类目之前先判断名称是否有重复，如果有重复不允许更新和添加
+		ParamObj paramObj = new ParamObj();
+		paramObj.setOrg_id(category.getOrg_id());
+		paramObj.setCategory_name(category.getCategory_name());
+		List<Category> list = categoryManageDao.queryCategoryListInfo(paramObj);
+		if (list != null && !list.isEmpty()) {
+			result.setSuccess(false);
+			result.setMessage("类目有重名");
+			return result;
+		}
+
+		// 如果类目ID为空，则新添加类目
+		if (category.getCategory_id() == null) {
+			category.setInsert_time(new Date());
+			category.setIs_del(0);
+			categoryManageDao.save(category);
+			result.setMessage("添加成功");
+		} else {
+			// 如果类目id不为空，则更新类目信息
+			category.setUpdate_time(new Date());
+			category.setIs_del(0);
+			categoryManageDao.update(category);
+			result.setMessage("更新成功");
+		}
+		result.setSuccess(true);
+		return result;
+	}
+
+	/*
+	 * 查询类目信息
+	 * @see sng.service.BaseSetService#queryCategoryListInfo(sng.pojo.ParamObj)
+	 */
+	@Override
+	public Result queryCategoryListInfo(ParamObj paramObj) {
+		Result result = new Result();
+		// 如果类目名字为空不允许添加类目名称（更新也是如此）
+		if (paramObj.getOrg_id() == null) {
+			result.setSuccess(false);
+			result.setMessage("获取类目信息参数有误");
+			return result;
+		}
+		paramObj.setIsDel(0); // 0:否 1:是
+		List<Category> list = categoryManageDao.queryCategoryListInfo(paramObj);
+		result.setSuccess(true);
+		result.setData(list);
+		return result;
+	}
+
+	/*
+	 * 创建科目信息
+	 * @see sng.service.BaseSetService#createAndUpdateSubjectInfo(sng.entity.Subject)
+	 */
+	@Override
+	public Result createAndUpdateSubjectInfo(Subject subject) {
+		Result result = new Result();
+		if (subject == null || subject.getOrg_id() == null || subject.getCategory_id() == null
+				|| StringUtils.isBlank(subject.getSubject_name())) {
+			result.setMessage("创建更新科目参数错误");
+			result.setSuccess(false);
+			return result;
+		}
+
+		// 同一类目下科目名称不能相同判断逻辑
+		ParamObj paramObj = new ParamObj();
+		paramObj.setOrg_id(subject.getOrg_id());
+		paramObj.setCategory_id(subject.getCategory_id());
+		paramObj.setIsDel(0);
+		List<Subject> list = baseSetSubjectManageDao.querySubjectListInfo(paramObj);
+
+		if (list != null && !list.isEmpty()) { // 说明同机构 同类目 有相同的科目名字
+			boolean flag = false;
+			for (Subject sub : list) {
+				String subjectName = sub.getSubject_name();
+				if (subjectName.equalsIgnoreCase(paramObj.getSubject_name())) {
+					flag = true;
+					break;
+				}
+			}
+			if (flag) {
+				result.setMessage("创建更新科目名字重复");
+				result.setSuccess(false);
+				return result;
+			}
+		} else {
+			result.setMessage("选择的类目可能是删除状态");
+			result.setSuccess(false);
+			return result;
+		}
+
+		// 如果在同机构 同类目 没有相同的科目名称则可以添加 和更新
+		if (subject.getSubject_id() == null) { // 科目id没有添加 否则更新
+			subject.setInsert_time(new Date());
+			subject.setIs_del(0);
+			baseSetSubjectManageDao.save(subject);
+			result.setMessage("科目创建成功");
+		} else {
+			subject.setUpdate_time(new Date());
+			subject.setIs_del(0);
+			baseSetSubjectManageDao.update(subject);
+			result.setMessage("科目更新成功");
+		}
+		result.setData(null);
+		result.setSuccess(true);
+		return result;
+	}
+
+	/*
+	 * 科目管理列表
+	 * @see sng.service.BaseSetService#querySubjectListInfo(sng.pojo.ParamObj)
+	 */
+	@Override
+	public Result querySubjectListInfo(ParamObj paramObj) {
+		Result result = new Result();
+		Paging<CategoryAndSubjectPojo> list = baseSetSubjectManageDao.getCategoryAndSubjecListInfo(paramObj);
+		result.setData(list);
+		result.setMessage(" 科目管理列表");
+		result.setSuccess(true);
+		return result;
+	}
+
+	/*
+	 * 删除科目
+	 * @see sng.service.BaseSetService#deleteSubjectInfo(sng.pojo.ParamObj)
+	 */
+	@Override
+	public Result deleteSubjectInfo(ParamObj paramObj) {
+		Result result =new Result();
+		if(paramObj.getSubject_id()==null || paramObj.getOrg_id()==null) {
+			result.setMessage("删除科目参数有误");
+			result.setSuccess(false);
+			return result;
+		}
+		//先判断当前科目在班级里是否有业务数据，如果有业务数据则不能删除，否则才能删除
+		List<SubjectAndClassesPojo> list = baseSetSubjectManageDao.querySubjectAndClassesInfo(paramObj);
+		if(list!=null && !list.isEmpty()) {
+			result.setMessage("所选择科目已经在班级表中存在不能删除");
+			result.setSuccess(false);
+			return result;
+		}
+		
+		//逻辑删除
+		baseSetSubjectManageDao.delSubjectInfo(paramObj);
+		result.setMessage("逻辑删除成功");
+		result.setSuccess(true);
+		return result;
+	}
+
+	/*
+	 * 创建/编辑教室
+	 * @see sng.service.BaseSetService#createAndUpdateClassRoomInfo(sng.entity.Classroom)
+	 */
+	@Override
+	public Result createAndUpdateClassRoomInfo(Classroom classroom) {
+		Result result =new Result();
+		if(classroom==null || classroom.getCam_id()==null || StringUtils.isBlank(classroom.getClassroom_name())) {
+			result.setMessage("创建/编辑教室参数有误");
+			result.setSuccess(false);
+			return result;
+		}
+		
+		//教室名称在同一教学楼同一层内名称唯一
+		
+		
+		
+		
+		
+		return null;
+	}
+
+}

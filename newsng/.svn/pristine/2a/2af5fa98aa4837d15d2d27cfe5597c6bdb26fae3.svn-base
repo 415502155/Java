@@ -1,0 +1,269 @@
+package sng.controller.web;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import sng.constant.Consts;
+import sng.controller.common.BaseAction;
+import sng.pojo.ClassToTeacher;
+import sng.pojo.SessionInfo;
+import sng.service.ClassService;
+import sng.util.Constant;
+import sng.util.Paging;
+import sng.util.ReturnResult;
+@Controller
+@RequestMapping("/print/export")
+public class PrintExportController extends BaseAction {
+	
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
+	@Autowired
+	private ClassService classService;
+	
+	@RequestMapping(value = "/list.htm")
+	@ResponseBody
+	public ReturnResult getClassList(@RequestParam(name = "pageNum", defaultValue = "1") Integer pageNum,
+			@RequestParam(name = "pageSize", defaultValue = Constant.NUM_PER_PCPAGE_STRING) Integer pageSize,
+			Integer orgId, Integer termId, Integer clasType, Integer categoryId,
+			Integer subjectId, Integer camId, Integer classWeek, String techNames,
+			HttpServletRequest request) {
+		SessionInfo sessionInfo=this.getSessionInfo(request);
+		if (null == orgId) {
+			orgId = sessionInfo.getOrgId();
+		}
+		Paging<ClassToTeacher> page = new Paging<ClassToTeacher>();
+		page.setPage(pageNum);
+		page.setLimit(pageSize);
+		Paging<ClassToTeacher> paging = null;
+		try {
+			paging = classService.getClassList(orgId, termId, clasType, categoryId, subjectId, camId, classWeek, techNames, page);
+		} catch (Exception e) {
+			log.info("getClassList Ex : " + e);
+			e.printStackTrace();
+			return ReturnResult.error();
+		}
+		return ReturnResult.success(paging);
+	}
+	/***
+	 * 
+	 *  @Description: 统计当前班级的老师所有开课的班级开课时间、学员人数、学费等信息, 以教师分组统计班级上课及学费总额
+	 *  @param pageNum
+	 *  @param pageSize
+	 *  @param orgId
+	 *  @param termId
+	 *  @param clasType
+	 *  @param categoryId
+	 *  @param subjectId
+	 *  @param camId
+	 *  @param classWeek
+	 *  @param techNames (按照教师名称和班级名称进行模糊查询)
+	 *  @param isAll (是否选择全部分页数据 1:是  其他:否)
+	 *  @param ids  教师ids 以英文逗号分隔（1,2,3）
+	 *  @return
+	 */
+	@RequestMapping(value = "download/statistics.htm")
+	@ResponseBody
+	public ReturnResult downloadStatistics(HttpServletRequest request, HttpServletResponse response,
+			Integer orgId, Integer termId, Integer clasType, Integer categoryId,
+			Integer subjectId, Integer camId, Integer classWeek, String techNames, Integer isAll, String ids) {
+		SessionInfo sessionInfo=this.getSessionInfo(request);
+		if (null == orgId) {
+			orgId = sessionInfo.getOrgId();
+		}
+		List<ClassToTeacher> returnList = new ArrayList<ClassToTeacher>();
+		List<ClassToTeacher> list = null;
+		List<Integer> techIds = new ArrayList<Integer>();//教师id集合
+		if (isAll == 1) {//判断 是否选择全部分页数据  1：是   其他：否
+			list = classService.getClassList(orgId, termId, clasType, categoryId, subjectId, camId, classWeek, techNames);
+			if (null != list || list.size() > 0) {
+				for (ClassToTeacher ct : list) {
+					String tids = ct.getTech_id();
+					if (null != tids) {
+						String[] arrTids = tids.split(",");
+						for (int i = 0; i < arrTids.length; i++) {
+							techIds.add(Integer.parseInt(arrTids[i]));
+						}
+					}
+				}
+			}
+		} else {
+			//教师ids
+			String[] strArray = null; 
+			if (ids != null) {
+				strArray = ids.split(",");
+				for (int i = 0; i < strArray.length; i++) {
+					techIds.add(Integer.parseInt(strArray[i]));
+				}
+			}
+		}
+		//去重复的教师id
+		techIds = new ArrayList<Integer>(new LinkedHashSet<>(techIds));
+		if (null != techIds || techIds.size() > 0) {
+			for (Integer tid : techIds) {//循环教师
+				List<ClassToTeacher> listct = classService.getTechClassInfoList(orgId, tid);
+				if (null != listct || listct.size() > 0) {//查看职教老师所教的班级
+					ClassToTeacher techer = new ClassToTeacher();
+					Integer stuNum = 0;//班级人数
+					BigDecimal zsjs = new BigDecimal(0);
+					for (ClassToTeacher tech : listct) {
+						//写入excel 上课时间 都取不固定时间
+						String unset = tech.getClass_unset_time();
+						if (null != unset) {
+							//tech.setClass_unset_time(unset);
+						} else {
+							//returnCt.setClass_week_name(Consts.WEEK_MAP.get(ct.getClass_week()));
+							//returnCt.setClass_begin_time(ct.getClass_begin_time());
+							//returnCt.setClass_over_time(ct.getClass_over_time());
+							tech.setClass_unset_time(Consts.WEEK_MAP.get(tech.getClass_week()) + "(" + tech.getClass_begin_time() + "-" + tech.getClass_over_time() + ")");
+						}
+						String ssMoney = tech.getSs_money();
+						BigDecimal ss = new BigDecimal(ssMoney);
+						String stMoney = tech.getSt_money();
+						BigDecimal st = new BigDecimal(stMoney);
+						BigDecimal sjs = ss.subtract(st);
+						tech.setSs_tuition(sjs.toString());
+						stuNum = stuNum.intValue()+tech.getNum().intValue();
+						zsjs =  sjs.add(zsjs); 
+						returnList.add(tech);
+						
+					}
+					//统计某位老师所职教的 教师名称，班级名称（所有职教的班级数） ，学员人数（所有职教班级的总学员数），上课时间，学费总数（所有职教班级的学费总数） 
+					techer.setTech_name(listct.get(0).getTech_name() + "总计");//教师名称
+					techer.setClas_name(String.valueOf(listct.size()));//班级名称（所有职教的班级数）
+					techer.setNum(new BigInteger(stuNum.toString()));//学员人数（所有职教班级的总学员数）
+					techer.setClass_unset_time("");
+					techer.setSs_tuition(zsjs.toString());//学费总数（所有职教班级的学费总数） 
+					returnList.add(techer);
+				}
+			}
+		}
+		//下载统计
+		if (null != returnList) {
+			try {
+				classService.downloadStatistics(request, response, returnList);
+			} catch (Exception e) {
+				log.info("downloadStatistics Ex :" + e);
+				e.printStackTrace();
+				return ReturnResult.error(-1, "开课统计信息下载异常");
+			}
+		} else {
+			return ReturnResult.error(-1, "没有职教老师的相关信息");
+		}
+		return ReturnResult.success();
+	}
+	/***
+	 * 
+	 *  @Description: 学员缴费记录
+	 *  @param request
+	 *  @param response
+	 *  @param orgId
+	 *  @param termId
+	 *  @param clasType
+	 *  @param categoryId
+	 *  @param subjectId
+	 *  @param camId
+	 *  @param classWeek
+	 *  @param techNames
+	 *  @param isAll
+	 *  @param ids 班级id
+	 *  @return
+	 */
+	@RequestMapping(value = "download/paymentRecords.htm")
+	@ResponseBody
+	public ReturnResult downloadPaymentRecords(HttpServletRequest request, HttpServletResponse response,
+			Integer orgId, Integer termId, Integer clasType, Integer categoryId,
+			Integer subjectId, Integer camId, Integer classWeek, String techNames, Integer isAll, String ids) {
+		SessionInfo sessionInfo=this.getSessionInfo(request);
+		if (null == orgId) {
+			orgId = sessionInfo.getOrgId();
+		}
+		try {
+			classService.downloadPaymentRecords(request, response, orgId, termId, clasType, categoryId, subjectId, camId, classWeek, techNames, isAll, ids);
+		} catch (Exception e) {
+			log.info("downloadPaymentRecords Ex :" + e);
+			e.printStackTrace();
+			ReturnResult.error(-1,"下载学员缴费记录异常");
+		}
+		return ReturnResult.success();
+	}
+	/***
+	 * 
+	 *  @Description: 学员考勤表
+	 *  @param request
+	 *  @param response
+	 *  @param orgId
+	 *  @param termId
+	 *  @param clasType
+	 *  @param categoryId
+	 *  @param subjectId
+	 *  @param camId
+	 *  @param classWeek
+	 *  @param techNames
+	 *  @param isAll
+	 *  @param ids  班级id
+	 *  @return
+	 */
+	@RequestMapping(value = "download/attendance.htm")
+	@ResponseBody
+	public ReturnResult downloadStudentsAttendance(HttpServletRequest request, HttpServletResponse response,
+			Integer orgId, Integer termId, Integer clasType, Integer categoryId,
+			Integer subjectId, Integer camId, Integer classWeek, String techNames, Integer isAll, String ids) {
+		try {
+			classService.downloadStudentsAttendance(request, response, orgId, termId, clasType, categoryId, subjectId, camId, classWeek, techNames, isAll, ids);
+		} catch (Exception e) {
+			log.info("downloadStudentsAttendance Ex : " + e);
+			e.printStackTrace();
+			return ReturnResult.error(-1, "下载学员考勤表异常");
+		}
+		return ReturnResult.success();
+	}
+	/***
+	 * 
+	 *  @Description: 下载学员花名册
+	 *  @param request
+	 *  @param response
+	 *  @param orgId
+	 *  @param termId
+	 *  @param clasType
+	 *  @param categoryId
+	 *  @param subjectId
+	 *  @param camId
+	 *  @param classWeek
+	 *  @param techNames
+	 *  @param isAll
+	 *  @param ids 班级id
+	 *  @return
+	 */
+	@RequestMapping(value = "download/studentRoster.htm")
+	@ResponseBody
+	public ReturnResult downloadStudentRoster(HttpServletRequest request, HttpServletResponse response,
+			Integer orgId, Integer termId, Integer clasType, Integer categoryId,
+			Integer subjectId, Integer camId, Integer classWeek, String techNames, Integer isAll, String ids) {
+		SessionInfo sessionInfo=this.getSessionInfo(request);
+		if (null == orgId) {
+			orgId = sessionInfo.getOrgId();
+		}
+		try {
+			classService.downloadStudentRoster(request, response, orgId, termId, clasType, categoryId, subjectId, camId, classWeek, techNames, isAll, ids);
+		} catch (Exception e) {
+			log.info("downloadStudentRoster Ex : " + e);
+			e.printStackTrace();
+			return ReturnResult.error(-1, "下载学员花名册异常");
+		}
+		return ReturnResult.success();
+	}
+	
+}

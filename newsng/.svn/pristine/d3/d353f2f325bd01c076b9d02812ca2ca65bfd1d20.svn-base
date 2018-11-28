@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>信息收集</title>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+    <link rel="shortcut icon" href="../../favicon.ico">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <!--ui包-->
+    <link rel="stylesheet" href="../../../css/sm.css">
+    <link rel="stylesheet" href="../../../css/layout.css">
+    <style>
+        .list-block{margin:0;line-height:1rem;font-size:0.8rem}
+        .cont-title{text-indent: 0;margin-bottom: 1rem}
+        .cont-box{background-color:#fff;margin-bottom:1rem;padding:0.4rem}
+        .cont-box img{width:30%;margin:0.1rem}
+        
+        
+    </style>
+</head>
+
+<body>
+    <div class="page-group">
+        <div class="page page-current" id="mainPage">
+            <div class="content native-scroll" id="">
+                <div class="list-block">
+                    <ul>
+                        <li class="cont-box" data-id="" data-type="pic">
+                            <p class="cont-title">1.图片收集：请提交开学第一课照片</p>
+                            <img src="../../../images/defaultHead.jpg" alt="">
+                            <img src="../../../images/defaultHead.jpg" alt="">
+                        </li>
+                        <li class="cont-box" data-id="" data-type="txt">
+                            <p class="cont-title">2.文字收集：请输入开学第一课感想</p>
+                            <p>都是广告都是广告都是广告都是广告都是广告都是广告都是广告都是广告都是广告都是广告都是广告都是广告都是广告都是广告都是广告都是广告都是广告都是广告都是广告都是广告都是广告都是广告都是广告都是广告都是广告都是广告都是广告都是广告都是广告都是广告都是广告都是广告</p>
+                        </li>
+                        <li class="cont-box" data-id="" data-type="pic">
+                            <p class="cont-title">3.图片收集：请提交开学第二课照片</p>
+                            <img src="../../../images/defaultHead.jpg" alt="">
+                            <img src="../../../images/defaultHead.jpg" alt="">
+                            <img src="../../../images/defaultHead.jpg" alt="">
+                            <img src="../../../images/defaultHead.jpg" alt="">
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        
+    </div>
+</body>
+
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script src="../../../js/question/question.js"></script>
+<script>
+   
+    $(function(){
+
+        // imgHtml +='<figure itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject">'+
+        //                     '<a href="'+res.pics[i]+'" itemprop="contentUrl" data-size="1640x1136">' +
+        //                     '<img src="'+res.pics[i]+'" onload="getWH(this)" itemprop="thumbnail" width="100%" alt="" style="display: none" />' +
+        //                     '<div class="imgLoading"><span class="iconloadingtip"></span></div>' +
+        //                     '</a>'+
+        //                     '</figure>';
+
+        $("body").on("click","#send_number",function(){
+            location.href = "member_list.html"
+        })
+
+         //图片预览
+         initPhotoSwipeFromDOM('.my-gallery');
+
+         $("#countReader").click(function(){
+            window.location="readCount.html?nid="+noticeID;
+         });
+
+         //图片报错处理
+         $('img').error(function(){
+             $(this).next().hide();
+             $(this).attr('src',domainName+"/shijiwxy/weixin/images/error.gif");
+         });
+
+         //要求回执的通知
+         $("#receiptBtn").click(function(){
+
+             var $this=$(this);
+             if($this.hasClass("button-light")){
+                 return false
+             };
+
+             var receiptPorts=domainName+"/eduWeixin/notice/setreceipt";
+             var parameter={
+                 nu_id:nowNu_id
+             };
+
+             getData(receiptPorts,parameter,function(result){
+                 if(result.code==200 && result.success==true){
+                     $.alert("提交成功！");
+                     $this.addClass("button-light").removeClass("button-fill").text("已读");
+                     var allNotices=JSON.parse(sessionStorage.tRNotices);
+                     var noticeID=GetUrlParam("noticeID");
+
+                     for(var i=allNotices.length-1;i>=0;i--){
+                         var res=allNotices[i];
+                         if(allNotices[i].nid==noticeID){
+                             allNotices[i].noticeUser.receipted=1;
+                             break;
+                         }
+                     }
+                     sessionStorage.tRNotices=JSON.stringify(allNotices);
+                 }else{
+                     $.alert(result.msg);
+                 }
+             });
+         });
+	 });
+
+    
+
+    
+</script>

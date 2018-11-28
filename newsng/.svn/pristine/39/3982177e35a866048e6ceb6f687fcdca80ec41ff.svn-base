@@ -1,0 +1,156 @@
+package sng.entity;
+
+import java.io.Serializable;
+import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name = "student_class")
+public class StudentClass implements Serializable {
+	@Id
+	@Column(name="stu_class_id")
+    private Integer stuClassId;
+
+	@Column(name="stu_id")
+    private Integer studId;
+
+	@Column(name="clas_id")
+    private Integer clasId;
+
+	@Column(name="cam_id")
+    private Integer camId;
+
+	@Column(name="stu_status")
+    private Integer stuStatus;
+
+	@Column(name="pay_expired_time")
+    private Date payExpiredTime;
+
+	@Column(name="is_print")
+    private Integer isPrint;
+
+	@Column(name="voucher_no")
+    private String voucherNo;
+
+	@Column(name="is_del")
+    private Integer isDel;
+
+	@Column(name="insert_time")
+    private Date insertTime;
+
+	@Column(name="update_time")
+    private Date updateTime;
+
+	@Column(name="del_time")
+    private Date delTime;
+
+    private String creater;
+
+    public Integer getStuClassId() {
+        return stuClassId;
+    }
+
+    public void setStuClassId(Integer stuClassId) {
+        this.stuClassId = stuClassId;
+    }
+
+    public Integer getStudId() {
+        return studId;
+    }
+
+    public void setStudId(Integer studId) {
+        this.studId = studId;
+    }
+
+    public Integer getClasId() {
+        return clasId;
+    }
+
+    public void setClasId(Integer clasId) {
+        this.clasId = clasId;
+    }
+
+    public Integer getCamId() {
+        return camId;
+    }
+
+    public void setCamId(Integer camId) {
+        this.camId = camId;
+    }
+
+    public Integer getStuStatus() {
+        return stuStatus;
+    }
+
+    public void setStuStatus(Integer stuStatus) {
+        this.stuStatus = stuStatus;
+    }
+
+    public Date getPayExpiredTime() {
+        return payExpiredTime;
+    }
+
+    public void setPayExpiredTime(Date payExpiredTime) {
+        this.payExpiredTime = payExpiredTime;
+    }
+
+    public Integer getIsPrint() {
+        return isPrint;
+    }
+
+    public void setIsPrint(Integer isPrint) {
+        this.isPrint = isPrint;
+    }
+
+    public String getVoucherNo() {
+        return voucherNo;
+    }
+
+    public void setVoucherNo(String voucherNo) {
+        this.voucherNo = voucherNo == null ? null : voucherNo.trim();
+    }
+
+    public Integer getIsDel() {
+        return isDel;
+    }
+
+    public void setIsDel(Integer isDel) {
+        this.isDel = isDel;
+    }
+
+    public Date getInsertTime() {
+        return insertTime;
+    }
+
+    public void setInsertTime(Date insertTime) {
+        this.insertTime = insertTime;
+    }
+
+    public Date getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
+    }
+
+    public Date getDelTime() {
+        return delTime;
+    }
+
+    public void setDelTime(Date delTime) {
+        this.delTime = delTime;
+    }
+
+    public String getCreater() {
+        return creater;
+    }
+
+    public void setCreater(String creater) {
+        this.creater = creater == null ? null : creater.trim();
+    }
+}

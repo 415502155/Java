@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>问卷详情</title>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+    <link rel="shortcut icon" href="../../favicon.ico">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <!--ui包-->
+    <link rel="stylesheet" href="../../../css/sm.css">
+    <link rel="stylesheet" href="../../../css/layout.css">
+    <style>
+        .list-block .item-divider, .list-block .list-group-title{background-color: #fff}
+        .list-block .item-divider, .list-block .list-group-title .chooseText{font-weight: normal}
+        .num-tips{color:#999;font-size:0.7rem}
+    </style>
+</head>
+
+<body>
+    <div class="page-group">
+        <div class="page page-current" id="mainPage">
+            <div class="content native-scroll" id="">
+                <div class="content-block-title">调研名单</div>
+                <div class="list-block">
+                    <!-- <div class="list-group" id="">
+                        <ul>
+                            <li class="list-group-title off">
+                                <div class="item-media">
+                                    <span class="chooseText">全体教师 <span class="num-tips"> (调研人数/提交人数：75/15)</span></span>
+                                    <span class="icon icon-down toTop"></span>
+                                </div>
+                            </li>
+                            <li id="" class="classLabel" data-grade="" style="display: none;">
+                                <div class="item-content">
+                                    <div class="item-inner">
+                                        <div class="item-title class_name">刘旭</div>
+                                        <div class="item-after">未提交</div>
+                                    </div>
+                                </div>
+                                <div class="studentDetail"></div>
+                            </li>
+                            <li id="" class="classLabel" data-grade="" style="display: none;">
+                                <div class="item-content">
+                                    <div class="item-inner">
+                                        <div class="item-title class_name">黄彩飞</div>
+                                        <div class="item-after">未提交</div>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="list-group" id="">
+                        <ul>
+                            <li class="list-group-title off">
+                                <div class="item-media">
+                                    <span class="chooseText">17级01班 <span class="num-tips"> (调研人数/提交人数：75/15)</span></span>
+                                    <span class="icon icon-down toTop"></span>
+                                </div>
+                            </li>
+                            <li id="" class="classLabel" data-grade="" style="display: none;">
+                                <div class="item-content">
+                                    <div class="item-inner">
+                                        <div class="item-title class_name">陈琪</div>
+                                        <div class="item-after">未提交</div>
+                                    </div>
+                                </div>
+                                <div class="studentDetail"></div>
+                            </li>
+                            <li id="" class="classLabel" data-grade="" style="display: none;">
+                                <div class="item-content">
+                                    <div class="item-inner">
+                                        <div class="item-title class_name">周宝莹</div>
+                                        <div class="item-after">未提交</div>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div> -->
+
+
+                </div>  
+            </div>
+        </div>
+        
+        
+    </div>
+</body>
+
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script src="../../../js/question/question.js"></script>
+<script>
+    //设置返回首页标识
+    sessionStorage.echart = 1;
+
+    //后退刷新
+    window.addEventListener('pageshow', function (event) {
+        if (sessionStorage.echartBlog == 1) {
+            sessionStorage.removeItem("echartBlog");
+            window.location.reload();
+        }
+    });
+
+    var data = JSON.parse(sessionStorage.submitDetail);
+    var s = data.studAnswer,
+        t = data.techAnswer;
+    function tranformObj(obj) {
+        var tempArr = [],
+            resObj = {};
+        for (var i = 0; i < obj.length; i++) {
+            var cid;
+            typeof obj[i].classId !== "undefined"?cid = obj[i].classId : cid = obj[i].depId;
+            if (tempArr.indexOf(cid) === -1) {
+                tempArr.push(cid);
+            }
+        }
+        for (var _i = 0; _i < tempArr.length; _i++) {
+            var tempData = [];
+            for (var j = 0; j < obj.length; j++) {
+                var _cid;
+                typeof obj[j].classId !== "undefined"?_cid = obj[j].classId : _cid = obj[j].depId;
+                if (tempArr[_i] === _cid) {
+                    tempData.push(obj[j]);
+                }
+            }
+            resObj["" + tempArr[_i]] = tempData;
+        }
+        return resObj;
+    }
+    var s_data = tranformObj(s),t_data = tranformObj(t);
+   
+    var appDom = function (data){
+    var html = '';
+        for (var key in data) {
+            
+            var mhtml = '',subNum=0;
+            for (var i = 0; i < data[key].length; i++) {
+                if(data[key][i].submitStatus !== 0){
+                    subNum += 1;
+                }
+                mhtml += ("<li id=\"\" class=\"classLabel\" data-grade=\"\" style=\"display: none;\">\n                                    <div class=\"item-content\">\n                                        <div class=\"item-inner\">\n                                            <div class=\"item-title class_name\">" + data[key][i].userName + "</div>\n                                            <div class=\"item-after\">" + (data[key][i].submitStatus !== 0 ? "已提交" : "未提交") + "</div>\n                                        </div>\n                                    </div>\n                                </li>");
+                // mhtml += `<li id="" class="classLabel" data-grade="" style="display: none;">
+                //                     <div class="item-content">
+                //                         <div class="item-inner">
+                //                             <div class="item-title class_name">${data[key][i].userName}</div>
+                //                             <div class="item-after">${data[key][i].submitStatus !== 0 ? "已提交" : "未提交"}</div>
+                //                         </div>
+                //                     </div>
+                //                 </li>`
+            }
+            html += ("<div class=\"list-group\" id=\"\">\n                        <ul>\n                            <li class=\"list-group-title off\">\n                                <div class=\"item-media\">\n                                    <span class=\"chooseText\">" + (typeof data[key][0].className !== "undefined" ? data[key][0].className : data[key][0].depName) + " <span class=\"num-tips\"> (调研人数/提交人数：" + data[key].length + "/" + subNum + ")</span></span>\n                                    <span class=\"icon icon-down toTop\"></span>\n                                </div>\n                            </li>");
+            // html += `<div class="list-group" id="">
+            //             <ul>
+            //                 <li class="list-group-title off">
+            //                     <div class="item-media">
+            //                         <span class="chooseText">${typeof data[key][0].className !== "undefined"?data[key][0].className : data[key][0].depName} <span class="num-tips"> (调研人数/提交人数：${data[key].length}/${subNum})</span></span>
+            //                         <span class="icon icon-down toTop"></span>
+            //                     </div>
+            //                 </li>`
+
+                
+            html += mhtml+'</ul></div>'
+        }
+        return html;
+    }
+    $("#mainPage .list-block").append(appDom(s_data)).append(appDom(t_data));
+    $(".item-after").each(function (){$(this).text() === "未提交"?$(this).css("color","red"):null;})
+    //折叠班级
+    $('body').on('click',".list-group-title", function(event){
+        
+        if($(this).hasClass("off")){
+            $(this).nextAll().show();
+            $(this).removeClass("off");
+            $(this).find(".icon-down").removeClass("toTop").addClass("todown");
+        }else{
+            $(this).nextAll().hide();
+            $(this).addClass("off");
+            $(this).find(".icon-down").addClass("toTop").removeClass("todown");
+        }
+        
+    });
+</script>

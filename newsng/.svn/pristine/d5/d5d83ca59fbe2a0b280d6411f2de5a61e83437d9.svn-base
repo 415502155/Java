@@ -1,0 +1,13 @@
+package sng.dao.impl;
+
+import org.springframework.stereotype.Repository;
+
+import sng.dao.BaseDao;
+import sng.dao.StudentDao;
+import sng.pojo.base.Student;
+
+@Repository
+public class StudentDaoImpl extends BaseDaoImpl<Student> implements StudentDao{
+	
+
+}

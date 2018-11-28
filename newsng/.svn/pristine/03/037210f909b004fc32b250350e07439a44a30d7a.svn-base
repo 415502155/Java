@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<!--<link rel="shortcut icon" href="/favicon.ico">-->
+	<meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <title>学生信息</title>
+	<!--ui包-->
+	<link rel="stylesheet" href="../../../css/sm.css">
+	<link rel="stylesheet" href="../../../css/layout.css">
+	<style>
+		#nowsSex{
+			color:#3d4145
+		}
+	</style>
+</head>
+<body>
+    <!--修改与孩子关系-->
+	<div class="page" id='studentDetail'>
+		<div class="content">
+			<div class="content-block-title">学生信息</div>
+			<div class="list-block">
+				<ul>
+					<li>
+						<div class="item-content">
+							<div class="item-inner">
+								<div class="item-title label">头像</div>
+								<div class=" ">
+									 <img src="../../../images/defaultHead.jpg"  height="60" mediaId id="nowsHead">
+								</div>
+							</div>
+						</div>
+					</li>
+					<li>
+						<div class="item-content">
+							<div class="item-inner">
+								<div class="item-title label">姓名</div>
+								<div class="item-after" id="nowsName">
+
+								</div>
+							</div>
+						</div>
+					</li>
+					<li>
+						<div class="item-content">
+							<div class="item-inner">
+								<div class="item-title label">ID</div>
+								<div class="item-after" id="nowsId">
+								</div>
+							</div>
+						</div>
+					</li>
+					<li>
+						<div class="item-content item-link" style="overflow: hidden">
+							<div class="item-inner change-sex">
+								<div class="item-title label">性别</div>
+								<div class="item-after " sex  id="nowsSex">
+								</div>
+							</div>
+						</div>
+					</li>
+
+					<li>
+						<div class="item-content" style="background: #fff;">
+							<div class="item-inner">
+								<div class="item-title label">班级</div>
+								<div class="item-after" id="nowsClass">
+
+								</div>
+							</div>
+						</div>
+					</li>
+					<li>
+						<div class="item-content  item-link" style="overflow: hidden">
+							<div class="item-inner">
+								<div class="item-title label">亲子关系</div>
+								<div class="item-input  item-after" id="nowsRelation">
+									<input type="text" placeholder="选择亲子关系" id="picker" readonly="" relation value="" style="text-align:right;width: 70%;
+    margin-top: -.46rem;">
+								</div>
+							</div>
+						</div>
+					</li>
+
+
+
+				</ul>
+			</div>
+			<div class="content-block">
+				<a href="javascript:void(0)" class="button button-fill external" id="editSinfo">保存</a>
+				<!-- <a class="button close-popup back"  style="margin-top:1rem">返回</a> -->
+			</div>
+		</div>
+	</div>
+    <!-- 修改与孩子关系 End-->
+    <script src='../../../js/zepto.min.js'></script>
+    <script src='../../../js/sm.min.js'></script>
+    <script src='../../../js/config.js'></script>
+    <script src='https://res.wx.qq.com/open/js/jweixin-1.2.0.js'></script>
+    <script>
+        //设置返回首页标识
+        sessionStorage.home = 1;
+
+        var baseP = getJPermissions(JSON.parse(sessionStorage.baseUser).orguser.org_id);
+        wx.config({
+            debug: false,
+            appId: baseP.appId,
+            timestamp: baseP.timestamp,
+            nonceStr: baseP.nonceStr,
+            signature: baseP.signature,
+            jsApiList: [
+                'chooseImage',
+                'previewImage',
+                'uploadImage',
+                'downloadImage',
+            ]
+        });
+
+    </script>
+    <script>
+        //利用微信接口上传头像
+        var ioslocId = [];//用于兼容ios的本地id列表 图片是base64格式的
+		wx.ready(function () {
+			//隐藏非基础类菜单
+			wx.hideAllNonBaseMenuItem();
+			//本地存储
+			var images = {
+				localId: [],
+				serverId: []
+			};
+			$('#nowsHead').on('click',function(){
+				wx.chooseImage({
+					count: 1,
+					needResult: 1,
+					sizeType: ['original', 'compressed'], // 可以指定是原图还是压缩图，默认二者都有
+					sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有
+					success: function (data) {
+						images.localId = [];
+						images.localId = images.localId.concat(data.localIds); // 返回选定照片的本地ID列表，localId可以作为img标签的src属性显示图片
+						wx.uploadImage({
+							localId: images.localId[0], // 需要上传的图片的本地ID，由chooseImage接口获得
+							isShowProgressTips: 1, // 默认为1，显示进度提示
+							success: function (res) {
+								$('#nowsHead').attr('mediaId',res.serverId);// 返回图片的服务器端ID
+							}
+						});
+						if (window.__wxjs_is_wkwebview) {
+							wx.getLocalImgData({
+								localId: images.localId[0], // 图片的localID
+								success: function (res) {
+									var localData = res.localData; // localData是图片的base64数据，可以用img标签显示
+									localData = localData.replace('jpg', 'jpeg');//iOS 系统里面得到的数据，类型为 image/jgp,因此需要替换一下
+									ioslocId.push(localData);  //把base64格式的图片添加到ioslocId数组里 这样该数组里的元素都是base64格式的
+									$('#nowsHead').attr('src',localData);
+								}
+							});
+						}else{
+							$('#nowsHead').attr('src',images.localId[0]);
+                        }
+
+					},
+					fail: function (res) {
+						$.alert(JSON.stringify(res));
+					}
+				});
+			})
+		});
+
+        var stud_id = GetUrlParam('stud_id');
+        var studentObj = JSON.parse(sessionStorage.baseUser).orguser.childrens
+        for(var i=0;i<studentObj.length;i++){
+            if(studentObj[i].stud_id == stud_id){
+                //加载头像
+                getNewHead(stud_id)
+
+                if(studentObj[i].headurl == null || studentObj[i].headurl == ''){
+                    $("#nowsHead").attr("src","../../../images/defaultHead.jpg");
+                }else{
+                    $("#nowsHead").attr("src",studentObj[i].headurl);
+                }
+                //显示学生id
+                $("#nowsId").html(studentObj[i].stud_id);
+
+                $("#nowsName").html(studentObj[i].stud_name);
+                $("#nowsClass").html(studentObj[i].classList[0].clas_name);
+                if(studentObj[i].sex!='0'){
+                    $("#nowsSex").text('女生');
+                    $("#nowsSex").attr('sex','1');
+                }else{
+                    $("#nowsSex").text('男生');
+                    $("#nowsSex").attr('sex','0');
+                }
+                $("#picker").attr("relation",studentObj[i].relation);
+                switch(studentObj[i].relation){
+                    case 0 : $('#picker').val('父亲'); break;
+                    case 1 : $('#picker').val('母亲'); break;
+                    case 2 : $('#picker').val('爷爷'); break;
+                    case 3 : $('#picker').val('奶奶'); break;
+                    case 4 : $('#picker').val('外公'); break;
+                    case 5 : $('#picker').val('外婆'); break;
+                    case 6 : $('#picker').val('其他'); break;
+                }
+
+            }
+        }
+
+        //更改性别
+		 $(document).on('click','.change-sex', function () {
+			var buttons1 = [
+				{
+					text: '请选择性别',
+					label: true
+				},
+				{
+					text: '男生',
+					onClick: function () {
+						$('#nowsSex').text('男生');
+						$('#nowsSex').attr('sex','0')
+					}
+				},
+				{
+					text: '女生',
+					onClick: function () {
+						$('#nowsSex').text('女生');
+						$('#nowsSex').attr('sex','1')
+					}
+				}
+			];
+			var buttons2 = [
+				{
+					text: '取消',
+					bg: 'danger'
+				}
+			];
+			var groups = [buttons1, buttons2];
+			$.actions(groups);
+		 })
+		//选择亲子关系
+		$("#picker").picker({
+			toolbarTemplate: '<header class="bar bar-nav">\
+			<button class="button button-link pull-right close-picker">确定</button>\
+			<h1 class="title">请选择亲子关系</h1>\
+			</header>',
+			cols: [
+				{
+					textAlign: 'center',
+					values: ['父亲', '母亲', '爷爷', '奶奶', '外公', '外婆', '其他']
+				}
+			],
+			onClose: function () {
+				//alert(1);
+				switch($('#picker').val()){
+					case '父亲' : $('#picker').attr('relation','0'); break;
+					case '母亲' : $('#picker').attr('relation','1'); break;
+					case '爷爷' : $('#picker').attr('relation','2'); break;
+					case '奶奶' : $('#picker').attr('relation','3'); break;
+					case '外公' : $('#picker').attr('relation','4'); break;
+					case '外婆' : $('#picker').attr('relation','5'); break;
+					case '其他' : $('#picker').attr('relation','6'); break;
+				}
+			}
+        });
+        //修改孩子信息
+		$("#editSinfo").on('click',function(){
+			var parameter={
+				token:JSON.parse(sessionStorage.baseUser).token,
+				udid:JSON.parse(sessionStorage.baseUser).udid,
+				version:3,
+				stud_id: stud_id,
+				mediaId: $('#nowsHead').attr('mediaId'),
+				gender: +$('#nowsSex').attr('sex'),
+				parent_id: JSON.parse(sessionStorage.baseUser).orguser.parent.parent_id,
+				relation: +$('#picker').attr('relation'),
+
+            };
+
+			var temp_info = {
+                stud_id: stud_id,
+                relation: +$('#picker').attr('relation'),
+                sex: +$('#nowsSex').attr('sex')
+            };
+
+            var new_info = JSON.parse(sessionStorage.baseUser)
+
+			console.log(parameter)
+			getData(domainName + '/shijiwxy/wechat/portal/student/updateStudent.htm',parameter,function (res){
+                $.toast(res.message);
+                for(var i=0;i<new_info.orguser.childrens.length;i++){
+                    if(new_info.orguser.childrens[i].stud_id == stud_id){
+                        new_info.orguser.childrens[i].relation = temp_info.relation;
+                        new_info.orguser.childrens[i].sex = temp_info.sex;
+                        break;
+                    }
+                }
+                sessionStorage.baseUser = JSON.stringify(new_info);
+                setTimeout(function(){
+					sessionStorage.setHome = 1;
+					$.router.back();
+
+				},1500)
+
+			})
+        });
+
+        //实时更新头像
+		function getNewHead(id) {
+			var params = {
+				token: JSON.parse(sessionStorage.baseUser).token,
+				udid: JSON.parse(sessionStorage.baseUser).udid,
+				version: 3,
+				stud_id: id
+			}
+			getData(domainName + '/esb/api/student/getStudent', params, function (res) {
+				if(res.message == '请登陆后再操作'){
+					$.hidePreloader();
+					$.alert('请登录后再操作','',function(){
+						window.location.href = domainName + '/shijiwxy/weixin/html/parent/login/login_byPSW.html';
+					})
+				}
+				if (res.data.headurl !== null && res.data.headurl !== "") {
+					$("#nowsHead").attr("src", res.data.headurl);
+				} else {
+					$("#nowsHead").attr("src", domainName + "/shijiwxy/weixin/images/defaultHead.jpg");
+				}
+			});
+        }
+
+    </script>
+</body>
+</html>

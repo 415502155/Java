@@ -1,0 +1,221 @@
+package sng.entity;
+
+import java.io.Serializable;
+import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+/**
+ * 操作日志 
+ * Title: OperationLog 
+ * Description:记录系统操作动作的过程
+ * Company: 世纪伟业
+ * @author 马国庆
+ * @date 2018年10月23日上午10:51
+ */
+@Entity
+@Table(name = "operation_log")
+public class OperationLog implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3497685449958393467L;
+
+	public OperationLog() {
+		super();
+	}
+
+	public OperationLog(Integer operationId, Integer orgId, Integer camId, Integer targetId, String targetName,
+			String targetType, Integer action, String content, Integer userTypeId, String userTypeName,
+			Date operationTime, Integer isDel, Date insertTime, Date updateTime, Date delTime) {
+		super();
+		this.operationId = operationId;
+		this.orgId = orgId;
+		this.camId = camId;
+		this.targetId = targetId;
+		this.targetName = targetName;
+		this.targetType = targetType;
+		this.action = action;
+		this.content = content;
+		this.userTypeId = userTypeId;
+		this.userTypeName = userTypeName;
+		this.operationTime = operationTime;
+		this.isDel = isDel;
+		this.insertTime = insertTime;
+		this.updateTime = updateTime;
+		this.delTime = delTime;
+	}
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	@Column(name = "operation_id")
+	private Integer operationId;// 操作日志主键不能重复
+
+	@Column(name = "org_id")
+	private Integer orgId; // 机构ID
+
+	@Column(name = "cam_id")
+	private Integer camId; // 校区ID
+
+	@Column(name = "target_id")
+	private Integer targetId;// 操作对象ID
+
+	@Column(name = "target_name")
+	private String targetName;// 操作对象名称
+
+	@Column(name = "target_type")
+	private String targetType;// 操作对象类型（班级、学员）
+
+	@Column(name = "action")
+	private Integer action;// 操作动作
+
+	@Column(name = "content")
+	private String content;// 操作内容
+
+	@Column(name = "user_type_id")
+	private Integer userTypeId;// 用户类型ID
+
+	@Column(name = "user_type_name")
+	private String userTypeName;// 用户类型名称
+
+	@Column(name = "operation_time")
+	private Date operationTime; // 操作时间
+
+	@Column(name = "is_del")
+	private Integer isDel; // 删除标记 是否删除(0:否；1：是)
+
+	@Column(name = "insert_time")
+	private Date insertTime;// 插入时间
+
+	@Column(name = "update_time")
+	private Date updateTime;// 更新时间
+
+	@Column(name = "del_time")
+	private Date delTime;// 删除时间
+
+	public Integer getOperationId() {
+		return operationId;
+	}
+
+	public void setOperationId(Integer operationId) {
+		this.operationId = operationId;
+	}
+
+	public Integer getOrgId() {
+		return orgId;
+	}
+
+	public void setOrgId(Integer orgId) {
+		this.orgId = orgId;
+	}
+
+	public Integer getCamId() {
+		return camId;
+	}
+
+	public void setCamId(Integer camId) {
+		this.camId = camId;
+	}
+
+	public Integer getTargetId() {
+		return targetId;
+	}
+
+	public void setTargetId(Integer targetId) {
+		this.targetId = targetId;
+	}
+
+	public String getTargetName() {
+		return targetName;
+	}
+
+	public void setTargetName(String targetName) {
+		this.targetName = targetName;
+	}
+
+	public String getTargetType() {
+		return targetType;
+	}
+
+	public void setTargetType(String targetType) {
+		this.targetType = targetType;
+	}
+
+	public Integer getAction() {
+		return action;
+	}
+
+	public void setAction(Integer action) {
+		this.action = action;
+	}
+
+	public String getContent() {
+		return content;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+	public Integer getUserTypeId() {
+		return userTypeId;
+	}
+
+	public void setUserTypeId(Integer userTypeId) {
+		this.userTypeId = userTypeId;
+	}
+
+	public String getUserTypeName() {
+		return userTypeName;
+	}
+
+	public void setUserTypeName(String userTypeName) {
+		this.userTypeName = userTypeName;
+	}
+
+	public Date getOperationTime() {
+		return operationTime;
+	}
+
+	public void setOperationTime(Date operationTime) {
+		this.operationTime = operationTime;
+	}
+
+	public Integer getIsDel() {
+		return isDel;
+	}
+
+	public void setIsDel(Integer isDel) {
+		this.isDel = isDel;
+	}
+
+	public Date getInsertTime() {
+		return insertTime;
+	}
+
+	public void setInsertTime(Date insertTime) {
+		this.insertTime = insertTime;
+	}
+
+	public Date getUpdateTime() {
+		return updateTime;
+	}
+
+	public void setUpdateTime(Date updateTime) {
+		this.updateTime = updateTime;
+	}
+
+	public Date getDelTime() {
+		return delTime;
+	}
+
+	public void setDelTime(Date delTime) {
+		this.delTime = delTime;
+	}
+
+}

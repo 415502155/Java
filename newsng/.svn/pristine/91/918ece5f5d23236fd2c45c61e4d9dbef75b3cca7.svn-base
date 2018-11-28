@@ -1,0 +1,211 @@
+package sng.service.impl;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import sng.constant.Consts;
+import sng.dao.AppTeacherDao;
+import sng.pojo.ClassToTeacher;
+import sng.pojo.ParamObj;
+import sng.pojo.Result;
+import sng.service.AppTeacherService;
+import sng.service.ClassService;
+import sng.util.Paging;
+
+/**
+ * @author magq
+ * @version 1.0
+ * @desc 移动端---教师service
+ * @data 2018-11-1
+ */
+@Component
+@Transactional("transactionManager")
+public class AppTeacherServiceImpl implements AppTeacherService {
+
+	private Logger log = LoggerFactory.getLogger(getClass());
+
+	@Autowired
+	private AppTeacherDao appTeacherDao;
+
+	@Autowired
+	private ClassService classService;
+
+	/*
+	 * 获取职教班级(non-Javadoc)
+	 *
+	 * @see sng.service.AppTeacherService#queryClassByTeacher(sng.pojo.ParamObj)
+	 */
+	@Override
+	public Result queryClassByTeacher(ParamObj paramObj) {
+		Result result = new Result();
+		if (paramObj.getOrg_id() == null || paramObj.getUser_id() == null) {
+			result.setMessage("获取职教班级参数有误");
+			result.setSuccess(false);
+			return result;
+		}
+
+		/***
+		 *
+		 * @Description: 根据条件查询班级列表
+		 * @param orgId      机构ID
+		 * @param termId     学期id
+		 * @param clasType   班级类型 老生 新生
+		 * @param categoryId 类目
+		 * @param subjectId  科目
+		 * @param camId      校区
+		 * @param classWeek
+		 * @param tech_names 老师名称
+		 * @return
+		 */
+		Paging<ClassToTeacher> page = new Paging<ClassToTeacher>();
+		page.setLimit(paramObj.getLimit());
+		page.setPage(paramObj.getPage());
+		Paging<ClassToTeacher> paging = classService.getClassList(paramObj.getOrg_id(), paramObj.getTerm_id(), null,
+				null, null, null, null, null, page);
+		
+		
+
+		List<ClassToTeacher> temp = null;
+		if (paging != null && paging.getData() != null && !paging.getData().isEmpty()) {
+			if(log.isInfoEnabled()) {
+				log.info("AppTeacherServiceImpl queryClassByTeacher paging is not null");
+			}
+			temp = new ArrayList<ClassToTeacher>();
+			String user_id = String.valueOf(paramObj.getUser_id());
+			List<ClassToTeacher> list = paging.getData();
+			for (ClassToTeacher ctt : list) {
+				String userId = ctt.getUser_id();
+				if (StringUtils.isNotBlank(userId)) {
+					String[] user_ids = userId.split(",");
+					boolean flag = false;
+					if (user_ids != null) {
+						for (int i = 0; i < user_ids.length; i++) {
+							if (!user_id.equals(user_ids[i])) {
+								continue;
+							}
+							flag = true;
+						}
+					}
+					if (flag) {
+						temp.add(ctt);
+					}
+				}
+
+			}
+		}
+		result.setData(temp);
+		result.setMessage("调用班级接口成功");
+		result.setSuccess(true);
+		return result;
+	}
+
+	/*
+	 * 按班级查询学员列表(non-Javadoc)
+	 *
+	 * @see sng.service.AppTeacherService#queryStudentByClass(sng.pojo.ParamObj)
+	 */
+	@Override
+	public Result queryStudentByClass(ParamObj paramObj) {
+		Result result = new Result();
+		if (paramObj.getOrg_id() == null || paramObj.getClas_id() == null) {
+			result.setMessage("按班级查询学员列表参数有误");
+			result.setSuccess(false);
+			return result;
+		}
+
+		// map:key c.clas_name, s.stud_name, s.stud_card, sc.stu_status
+		List<Map<String, Object>> list = classService.getStudentList(paramObj.getOrg_id(), paramObj.getClas_id() + "",
+				null);
+		HashMap<String, ParamObj> orderMap = null;
+		List list_ = null;
+		if (list != null && !list.isEmpty()) {
+			HashMap<String, List<Map<String, Object>>> map = new HashMap<>();
+			for (int i = 0; i < list.size(); i++) {
+				String status = String.valueOf(list.get(i).get("stu_status"));
+				if (!map.containsKey(status)) {
+					List<Map<String, Object>> temp = new ArrayList<>();
+					temp.add(list.get(i));
+					map.put(status, temp);
+				} else {
+					map.get(status).add(list.get(i));
+				}
+			}
+			orderMap = new HashMap<>();
+			// 排序
+			list_ = new ArrayList();
+			for (Iterator iterator = Consts.STUD_PAY_STATUS_MAP.entrySet().iterator(); iterator.hasNext();) {
+				Map.Entry<String, String> entry = (Entry<String, String>) iterator.next();
+				String key = entry.getKey();
+				String val = entry.getValue();
+				for (Iterator iterator1 = map.entrySet().iterator(); iterator1.hasNext();) {
+					Map.Entry<String, List<Map<String, Object>>> entry2 = (Entry<String, List<Map<String, Object>>>) iterator1
+							.next();
+					String key_ = entry2.getKey();
+					List<Map<String, Object>> val_ = entry2.getValue();
+					if (!key.equals(key_)) {
+						continue;
+					}
+
+					if (!orderMap.containsKey(key)) {
+						ParamObj obj = new ParamObj();
+						obj.setKey(key);
+						obj.setVal(val);
+						obj.setList(val_);
+						obj.setLimit(null);
+						obj.setPage(null);
+						obj.setStart(null);
+						orderMap.put(key, obj);
+					} else {
+						ParamObj obj = orderMap.get(key);
+						obj.setList(val_);
+					}
+				}
+			}
+			if (orderMap != null && !orderMap.isEmpty()) {
+				for (Iterator iterator = orderMap.entrySet().iterator(); iterator.hasNext();) {
+					Map.Entry<String, ParamObj> entry = (Entry<String, ParamObj>) iterator.next();
+					ParamObj val = entry.getValue();
+					val.setSize(val.getList().size());
+					list_.add(val);
+
+				}
+			}
+		}
+		result.setMessage("按班级查询学员列表成功");
+		result.setSuccess(true);
+		result.setData(list_);
+		return result;
+	}
+
+	/*
+	 * 根据学生获取家长信息(non-Javadoc)
+	 *
+	 * @see sng.service.AppTeacherService#queryParentInfoByStu(sng.pojo.ParamObj)
+	 */
+	@Override
+	public Result queryParentInfoByStu(ParamObj paramObj) {
+
+		Result result = new Result();
+		if (paramObj.getOrg_id() == null || StringUtils.isBlank(paramObj.getStud_id())) {
+			result.setMessage("获取家长手机号请求参数有误");
+			result.setSuccess(false);
+			return result;
+		}
+		List list = appTeacherDao.queryParentInfoByStu(paramObj);
+		result.setData(list);
+		result.setSuccess(true);
+		return result;
+	}
+
+}

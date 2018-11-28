@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>问卷详情</title>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+    <link rel="shortcut icon" href="../../favicon.ico">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <!--ui包-->
+    <link rel="stylesheet" href="../../../css/sm.css">
+    <link rel="stylesheet" href="../../../css/layout.css">
+    <link rel='stylesheet prefetch' href='../../../js/photoSwipe/photoswipe.css'>
+    <link rel='stylesheet prefetch' href='../../../js/photoSwipe/default-skin/default-skin.css'>
+    <style>
+        body{
+            background-color:#F4F5F7;
+            overflow-y:scroll;
+            -webkit-overflow-scrolling: touch
+        }
+        .content-padded{
+            font-size:0.7rem
+        }
+        .q-title{
+            word-break: break-all
+        }
+        .q-info{
+            margin:0.4rem 0;
+        }
+        .q-info p{
+            text-indent:0;
+            color:#999
+        }
+        .q-introduce{
+            line-height:1.1rem
+        }
+        .q-introduce img{
+            width:100%;
+            margin-top:0.4rem
+        }
+        .q-option{
+            border-radius: 0.5rem;
+            background-color:#fff;
+            padding:0.8rem;
+            margin:1rem 0;
+            word-break: break-all
+        }
+        .q-option img{
+            width:100%;
+            display: block
+        }
+        .option-select{
+            position: relative
+        }
+        .option-select input{
+            visibility: hidden;
+            margin-left: 0.5rem
+            /*; background: url('../../../images/radio.jpg') no-repeat;background-position: -31px -3px; */
+        }
+        .option-select img{
+            margin-left: 1.4rem
+        }
+        [q-type] .option-select .select-img{
+            width: 0.8rem;
+            height: 0.8rem;
+            display: inline-block;            
+            position: absolute;
+            top: 0.6rem;
+            left: 0
+        }
+        [q-type="1"] .option-select .select-img{
+            background: url(../../../images/radio-checkbox.jpg) no-repeat;
+            background-size: 2.4rem 0.8rem;
+            background-position-x:-0.8rem 
+        }
+        [q-type="1"] .option-select input:checked+.select-img{
+            background: url(../../../images/radio-checkbox.jpg) no-repeat;
+            background-size: 2.4rem 0.8rem;
+            background-position-x:-1.6rem
+        }
+        [q-type="2"] .option-select .select-img{
+            background: url(../../../images/radio-checkbox.jpg) no-repeat;
+            background-size: 2.4rem 0.8rem;
+            background-position-x:-0.8rem 
+        }
+        [q-type="2"] .option-select input:checked+.select-img{
+            background: url(../../../images/radio-checkbox.jpg) no-repeat;
+            background-size: 2.4rem 0.8rem;
+            background-position-x:0rem 
+        }
+        .option-title{
+            font-weight: 600
+        }
+        .option-title img{
+            width:100%
+        }
+        .option-required{
+            color:red
+        }
+        .option-select{
+            line-height:2rem;
+            display: block
+        }
+        .option-type{
+            text-indent: 0;
+            /* color:#009DD9 */
+            font-weight: normal
+        }
+        .text-answer{
+            border-radius:0.2rem;
+            border-color:#ebebeb;
+            margin:1rem 0;
+            -webkit-appearance: none;
+            appearance: none
+        }
+        #q_submit{
+            display: block;
+            margin: 1rem auto;
+            color:#fff;
+            padding:0 5rem
+        }
+        .my-gallery {
+            padding:0
+        }
+        .option-select .my-gallery{
+            width:50%
+        }
+        .my-gallery figure{
+            margin-bottom:0
+        }
+        .checkbox-check{
+            position:fixed
+        }
+        .modal{
+            position:fixed
+        }
+        .modal-overlay{
+            position:fixed
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="page-group">
+        <div class="page-current" id="noticeD" >
+            <div class="content native-scroll" style="background:#fff">
+                <div class="content-padded">
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!--图片查看器-->
+    <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="pswp__bg"></div>
+        <div class="pswp__scroll-wrap">
+            <div class="pswp__container">
+                <div class="pswp__item"></div>
+                <div class="pswp__item"></div>
+                <div class="pswp__item"></div>
+            </div>
+            <div class="pswp__ui pswp__ui--hidden">
+                <div class="pswp__top-bar">
+                    <div class="pswp__counter"></div>
+                    <button class="pswp__button pswp__button--close" title="关闭"></button>
+                    <!--<button class="pswp__button pswp__button&#45;&#45;share" title="Share"></button>-->
+                    <div class="pswp__preloader">
+                        <div class="pswp__preloader__icn">
+                            <div class="pswp__preloader__cut">
+                                <div class="pswp__preloader__donut"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                    <div class="pswp__share-tooltip"></div>
+                </div>
+                <div class="pswp__caption">
+                    <div class="pswp__caption__center"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--图片查看器 END-->
+</body>
+
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script src='../../../js/photoSwipe/photoswipe.js'></script>
+<script src='../../../js/photoSwipe/photoswipe-ui-default.js'></script>
+<script src="../../../js/question/question.js"></script>
+<script>
+    //设置返回首页标识
+    sessionStorage.echart = 1;
+    //后退刷新
+    window.addEventListener('pageshow', function (event) {
+        if (sessionStorage.echartBlog == 1) {
+            sessionStorage.removeItem("echartBlog");
+            window.location.reload();
+        }
+    });
+    $(function(){
+        var baseUser, surveyId, identity, openid, answerId, is_show = 0,qType = 0,answered = 0;
+        if (typeof sessionStorage.baseUser !== "undefined") {
+            baseUser = JSON.parse(sessionStorage.baseUser);
+            surveyId = GetUrlParam("surveyId");
+            answerId = GetUrlParam("answerId") || "";
+            answered = GetUrlParam("answered");
+            is_show = 0;
+            qType = 0;
+        } else { //如果从微信模板登录
+            org_id = GetUrlParam("org_id");
+            identity = GetUrlParam("identity");
+            openid = GetUrlParam("openid");
+            surveyId = GetUrlParam("surveyId");
+            answerId = GetUrlParam("answerId");
+            $.ajax({
+                url: domainName + "/esb/api/wxredirect",
+                data: {
+                    openid: openid,
+                    identity: identity,
+                    org_id: org_id,
+                    version: 3
+                },
+                success: function (res) {
+                    if (res.code == 200 && res.success == true) {
+                        sessionStorage.baseUser = JSON.stringify(res.data);
+                        baseUser = JSON.parse(sessionStorage.baseUser);
+                        sessionStorage.fromWeixin = 1;//从微信登录的标识
+                    } else {
+                        $.alert(res.message);
+                    }
+                },
+                async: false
+                
+            });
+            $.ajax({
+                url: domainName + "/shijiwxy/survey/getSurveyAnswerInStatus.htm",
+                data: {
+                    token:baseUser.token,
+                    udid:baseUser.udid,
+                    version:3,
+                    surveyAnswerInId:answerId
+                },
+                success: function (res) {
+                    res = JSON.parse(res);
+                    if (res.code == 200 && res.success == true) {
+                        answered = res.message;
+                    } else {
+                        $.alert(res.message);
+                    }
+                },
+                async: false,
+                type: "POST"
+            })
+        }
+
+        getData(domainName + "/shijiwxy/survey/getSurveyEmpty.htm",{
+            token:baseUser.token,
+            udid:baseUser.udid,
+            version:3,
+            surveyId:surveyId,
+            answerId:answerId
+        },function (res){
+            if(res.code !== 200 && res.success !== true){
+                $.hidePreloader();
+                $.alert(res.message);
+                if(res.message === "closed"){
+                    sessionStorage.closed = 1;
+                    location.href = "question_closed.html";
+                }else if(res.message === "deleted"){
+                    sessionStorage.deleted = 1;
+                    location.href = "question_deleted.html";
+                }
+                throw new Error(res.message);
+            }
+            console.log(res);
+            var survey = res.data.survey,html = '',titimg = '';
+            var stem = JSON.parse(survey.stem);sessionStorage.a = JSON.stringify(stem)
+            is_show = survey.is_show;
+            qType = survey.type;
+            if(answered != 0){//判断已答过题目跳转
+                location.href = "sub_question.html?surveyId="+surveyId+"&answerId="+ answerId +"&isShow="+is_show;
+                return false;
+            }
+            if(new Date(transformTime(survey.end_time)).getTime() < new Date().getTime()){//判断问卷是否已关闭
+                sessionStorage.closed = 1;
+                location.href = "question_closed.html";
+            }
+            if(survey.img!==""){
+                try {
+                    var imgs = survey.img.split(",");
+                    titimg += '<div class="my-gallery" id="" data-pswp-uid="1">'
+                    for(var i=0;i<imgs.length;i++){
+                        titimg += ("<figure itemprop=\"associatedMedia\" itemscope=\"\" itemtype=\"http://schema.org/ImageObject\">\n                                        <a href=\"" + changeImgUrl(imgs[i]) + "\" itemprop=\"contentUrl\" class=\"external\" data-size=\"750x740\"><img src=\"" + changeImgUrl(imgs[i]) + "\" onload=\"getWH(this)\" itemprop=\"thumbnail\" alt=\"\" ></a>\n                                    </figure>");
+                        // titimg += `<figure itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject">
+                        //                 <a href="${changeImgUrl(imgs[i])}" itemprop="contentUrl" class="external" data-size="750x740"><img src="${changeImgUrl(imgs[i])}" onload="getWH(this)" itemprop="thumbnail" alt="" ></a>
+                        //             </figure>`
+                    }
+                    titimg += '</div>'
+                } catch (error) {
+                    $.alert(error);
+                }
+            }
+            html += ("<div id=\"" + survey.id + "\" class=\"q-header\">\n                        <h3 class=\"q-title\">" + survey.title + "</h3>\n                        <div class=\"q-info\">\n                            <p class=\"q-anthor\">发布教师:" + survey.create_name + "</p>\n                            <p class=\"q-end-time\">截止时间:" + survey.end_time + "</p>\n                        </div>\n                        <div class=\"q-introduce\">\n                            " + survey.info + "\n                            " + titimg + "\n                        </div>\n                    </div>");
+            // html += `<div id="${survey.id}" class="q-header">
+            //             <h3 class="q-title">${survey.title}</h3>
+            //             <div class="q-info">
+            //                 <p class="q-anthor">发布教师:${survey.create_name}</p>
+            //                 <p class="q-end-time">截止时间:${survey.end_time}</p>
+            //             </div>
+            //             <div class="q-introduce">
+            //                 ${survey.info}
+            //                 ${titimg}
+            //             </div>
+            //         </div>`
+            html += '<div class="q-content">';
+            for(var i in stem){
+                var titleimg = '';
+                if (stem[i].img.length > 0) {
+                    titleimg += '<div class="my-gallery" id="" data-pswp-uid="a'+i+'">'+
+                                    '<figure itemprop="associatedMedia" itemscope="" itemtype="httschema.org/ImageObject" >'+
+                                        '<a id="" href="'+changeImgUrl(stem[i].img[0].url)+'" itemprop="contentUrl" class="external" data-size="750x740"><img src="'+changeImgUrl(stem[i].img[0].url)+'" onload="getWH(this)" itemprop="thumbnail" alt="" ></a>'+
+                                    '</figure>'+
+                                '</div>'
+                }
+                html += ("<div class=\"q-option\" q-type=\"" + stem[i].type + "\" question-id=\"" + i + "\">\n                        <div class=\"option-title\">\n                            <p class=\"option-type\">" + (stem[i].type === '2' ? "[多选题]" : "") + "</p>\n                            " + i + "." + stem[i].title + (stem[i].is_require !== 1 ? "" : '<span class="option-required">*</span>') + "\n                            " + titleimg + "\n                        </div>");
+                // html += `<div class="q-option" q-type="${stem[i].type}" question-id="${i}">
+                //         <div class="option-title">
+                //             <p class="option-type">${stem[i].type === '2'? "[多选题]":""}</p>
+                //             ${i}.${stem[i].title}${stem[i].is_require !== 1? "" : '<span class="option-required">*</span>'}
+                //             ${titleimg}
+                //         </div>`
+                if(stem[i].type !== "3"){
+                    for(var j in stem[i].options){
+                        var optionImg = '',optionImgs = stem[i].options[j].img;
+                        if(stem[i].options[j].img.length>0){
+                            optionImg += ("<div class=\"my-gallery\" id=\"\" data-pswp-uid=\"a" + i + "\">\n                                            <figure itemprop=\"associatedMedia\" itemscope=\"\" itemtype=\"http://schema.org/ImageObject\" >\n                                                <a id=\"ttt\" href=\"" + changeImgUrl(optionImgs[0].url) + "\" itemprop=\"contentUrl\" class=\"external\" data-size=\"750x740\"><img src=\"" + changeImgUrl(optionImgs[0].url) + "\" onload=\"getWH(this)\" itemprop=\"thumbnail\" alt=\"\" ></a>\n                                            </figure>\n                                        </div>");
+                            // optionImg += `<div class="my-gallery" id="" data-pswp-uid="a${i}">
+                            //                 <figure itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject" >
+                            //                     <a id="ttt" href="${changeImgUrl(optionImgs[0].url)}" itemprop="contentUrl" class="external" data-size="750x740"><img src="${changeImgUrl(optionImgs[0].url)}" onload="getWH(this)" itemprop="thumbnail" alt="" ></a>
+                            //                 </figure>
+                            //             </div>`
+                        }
+                        html += ("<label class=\"option-select\" max=\"" + stem[i].max_choose + "\">\n                                    <input class=\"option-answer\" title=\"" + j + "\" type=\"" + (stem[i].type === '2' ? 'checkbox' : 'radio') + "\" name=\"q" + i + "\">\n                                    <i class=\"select-img\"></i>\n                                    <span class=\"option-text\">" + j + "." + stem[i].options[j].title + "</span>\n                                    " + optionImg + "\n                                </label>");
+                        // html += `<label class="option-select" max="${stem[i].max_choose}">
+                        //             <input class="option-answer" title="${j}" type="${stem[i].type === '2'?'checkbox':'radio'}" name="q${i}">
+                        //             <i class="select-img"></i>
+                        //             <span class="option-text">${j}.${stem[i].options[j].title}</span>
+                        //             ${optionImg}
+                        //         </label>`
+                    }
+                    html += '</div>'
+                }else{
+                    html += '<textarea name="" id="" class="text-answer" style="width:100%" cols="" rows="6" maxlength="1000"></textarea></div>';
+                }
+            }
+            html += '</div>'+
+                    '<div class="q-submit">'+
+                        '<button class="button button-fill" id="q_submit" >提交</button>'+
+                    '</div>';
+            $(".content-padded").append(html);
+             //设置图片放大
+            initPhotoSwipeFromDOM(".my-gallery");
+        })
+
+        //判断多选题选项个数
+        $("body").on("click",".option-select",function (e){
+            var $this = $(this);
+            var max = +$this.attr("max");
+            if(max != 0){
+                if($this.parents("[q-type]").attr("q-type") === "2"){//判断是否是多选题
+                    $.closeModal();
+                    if(e.target.classList[0] === "option-answer"){ //判断点击的是label还是子元素
+                        if($this.parents("[q-type]").find("input:checked").length > max){
+                            $.toast("最多选择"+ max +"个选项",2000,"checkbox-check");
+                            return false;
+                        }
+                    }else{
+                        if($this.parents("[q-type]").find("input:checked").length + 1 > max){
+                            if($this.find("input").prop("checked")==true){
+                                $this.find("input").trigger("click");
+                                return false;
+                            }
+                            $.toast("最多选择"+ max +"个选项",2000,"checkbox-check");
+                            return false;
+                        }
+                    }
+                }
+
+            }
+        })
+        //提交问卷
+        var subing = 0;
+        $("body").on("click","#q_submit",function (){
+            if(subing !== 0){
+                return false;
+            }
+            if(!checkQuestion()){
+                subing = 0;
+                throw new Error("请完善问卷!");
+            }
+            subing = 1;
+            getData(domainName + "/shijiwxy/survey/updateSurveyAnswerIn.htm",{
+                token:baseUser.token,
+                udid:baseUser.udid,
+                version:3,
+                surveyId:surveyId,
+                surveyAnswerInId:answerId,
+                answer:JSON.stringify(checkQuestion())
+            },function (res){
+                subing = 0;
+                if(res.code == 200 && res.success == true){
+                    $.toast("提交成功!",2000,"checkbox-check");
+                    setTimeout(function (){
+                        window.location.href = "sub_question.html?isShow=" + is_show + "&type=" + qType + "&surveyId=" + surveyId;
+                    },2000)
+                }else{
+                    
+                    if (res.message === "closed") {
+                        $.toast("问卷已关闭", 2000, "checkbox-check");
+                        setTimeout(function () {
+                            location.href = "question_closed.html";
+                        }, 2000)
+                    } else if (res.message === "deleted") {
+                        $.toast("该问卷已经被删除", 2000, "checkbox-check");
+                        setTimeout(function () {
+                            location.href = "question_deleted.html";
+                        }, 2000)
+                    } else {
+                        $.toast(res.message, 2000, "checkbox-check");
+                        setTimeout(function () {
+                            history.back();
+                        }, 2000)
+                    }
+                }
+            },"POST")
+        })
+    })
+
+    function checkQuestion(){
+        var datas = {};
+        $(".q-option").each(function(i){
+            var $this = $(this);
+            if($this.find(".option-required").length>0){
+                if($this.attr("q-type")!="3"){
+                    if(!$this.find("input:checked").length>0){
+                        $.toast("请完善调查问卷!",2000,"checkbox-check");
+                        throw new Error("请完善问卷!");
+                    }
+                }else{
+                    if($this.find("textarea").val() === ""){
+                        $.toast("请完善调查问卷!",2000,"checkbox-check");
+                        throw new Error("请完善问卷!");
+                    }
+                }
+            }
+
+            //获取正确格式答案
+            switch ($this.attr("q-type")) {
+                case "1":
+                    datas[$this.attr("question-id")] = $this.find("input:checked").attr("title");
+                    break;
+                case "2":
+                    $this.find("input:checked").each(function (i) {
+                        if (i > 0) {
+                            datas[$this.attr("question-id")] += "," + $(this).attr("title");
+                        } else {
+                            datas[$this.attr("question-id")] = $(this).attr("title");
+                        }
+                        
+                    })
+                    break;
+                case "3":
+                    datas[$this.attr("question-id")] = $this.find("textarea").val();
+                default:
+                    break;
+            }
+        })
+        return datas;
+    }
+</script>

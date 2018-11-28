@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>请假记录</title>
+	<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+	<!--<link rel="shortcut icon" href="/favicon.ico">-->
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<!--ui包-->
+	<link rel="stylesheet" href="../../../css/sm.css">
+	<link rel="stylesheet" href="../../../css/layout.css">
+	<link rel="stylesheet" href="../../../css/teacher.css">
+	<script src='../../../js/zepto.min.js'></script>
+	<script src='../../../js/sm.min.js'></script>
+	<script src='../../../js/config.js'></script>
+    <style>
+		.childName { padding-right: 10px;}
+		.item-title-row { padding: 5px 0}
+		.item-subtitle { padding: 10px 0; }
+		.list-block.media-list .item-media img {
+			border-radius: 1%;
+			-webkit-filter: grayscale(100%);
+			-moz-filter: grayscale(100%);
+			-ms-filter: grayscale(100%);
+			-o-filter: grayscale(100%);
+			filter: grayscale(100%);
+			filter: gray;
+		}
+		.list-block.media-list .item-inner, .list-block li.media-item .item-inner {
+			padding-top: 1rem;
+			padding-bottom: .9rem;
+		}
+		.list-block.media-list .item-inner {
+			padding-top: .5rem;
+			padding-bottom: .8rem;
+		}
+		.lastData {
+			margin-bottom: 1rem;
+		}
+		.noData_line .noData__tips {
+			background-color: #ffffff;
+		}
+		html:not(.watch-active-state) label.label-checkbox:active, label.label-checkbox.active-state {
+			background: #fff;
+		}
+	</style>
+</head>
+<body>
+	<div class="page-group">
+		<div class="page page-current" >
+			<!--<header class="bar bar-nav">
+				<a class="button button-link button-nav pull-left back" href="/demos/bar">
+					<span class="icon icon-left"></span>
+				</a>
+				<a class="button button-link button-nav pull-right">
+					<span class="icon icon-right"></span>
+				</a>
+				<h1 class="title">2018-04-20</h1>
+			</header>-->
+			<div class="content native-scroll" id="list">
+
+				<!--<div class="list-block media-list">
+					<ul>
+						<li>
+							<label class="label-checkbox item-content">
+								<div class="item-inner">
+									<div class="item-title-row">
+										<div class="item-title">金杨茗多  事假</div>
+										<div class="item-after">2018-04-20 17:12</div>
+									</div>
+									<div class="item-subtitle">请假时间：2018-02-20 ~ 2018-02-21</div>
+									<div class="item-text">请假原因：家中有事，请假2天</div>
+								</div>
+							</label>
+							<div class="card-footer" style="background: #fff; font-size: .72rem">
+								<span>申请时间：2015/01/15</span>
+								<a><span class="icon icon-phone" style="margin-right: 10px;"></span>联系家长</a>
+							</div>
+						</li>
+
+					</ul>
+				</div>
+				<div class="list-block media-list">
+					<ul>
+						<li>
+							<label class="label-checkbox item-content">
+								<div class="item-inner">
+									<div class="item-title-row">
+										<div class="item-title">金杨茗多  事假</div>
+										<div class="item-after">2018-04-20  08:12</div>
+									</div>
+									<div class="item-subtitle">请假时间：2018-02-20 ~ 2018-02-21</div>
+									<div class="item-text">请假原因：家中有事，请假2天</div>
+								</div>
+							</label>
+							<div class="card-footer" style="background: #fff; font-size: .72rem">
+								<span>申请时间：2015/01/15</span>
+								<a><span class="icon icon-phone" style="margin-right: 10px;"></span>联系家长</a>
+							</div>
+						</li>
+
+					</ul>
+				</div>-->
+
+				<!--<div class="content-block">
+					<a href="javascript:void(0)" class="button button-fill external" id="quit">请假</a>
+				</div>-->
+			</div>
+		</div>
+	</div>
+</body>
+</html>
+
+<script>
+$(function () {
+    leaveData();
+    sessionStorage.tsDate=GetUrlParam("attnDate");
+});
+
+//获取请假记录
+function leaveData(attnDate) {
+
+    var date=attnDate==undefined?GetUrlParam("attnDate"):attnDate;
+
+    $("title").text(date+"请假记录")
+    //获取请假记录参数
+    var parameter={
+        token:JSON.parse(sessionStorage.baseUser).token,
+        udid:JSON.parse(sessionStorage.baseUser).udid,
+        version:3,
+        org_id:JSON.parse(sessionStorage.baseUser).orguser.org_id,
+        gradeId:GetUrlParam("grade_id"),
+        classId:GetUrlParam("clas_id"),
+        attnDate:date//"2018-05-24"
+    }
+
+    //获取某天请假信息
+    getData(domainName+"/shijiwxy/wechat/portal/studentAttendance/getLeaveRecordsList4Class.htm", parameter,function(res){
+        if(res.code==200 && res.success==true){
+            var html='<div class="content-block-title">请假记录</div>';
+            var obj=res.data;
+
+            if(obj.length>0){
+
+                for(var m=obj.length-1;m>=0;m--){
+                    var stuobj=obj[m];
+                    var typeHmtl=stuobj.type==1?"事假":"病假"//0：病假；1：事假）;
+					html+='<div class="list-block media-list">' +
+                        '<ul>' +
+                        '<li id="'+stuobj.student_id+'" >' +
+                        '<label class="label-checkbox item-content">' +
+                        '<div class="item-inner">' +
+                        '<div class="item-title-row">' +
+                        '<div class="item-title">'+stuobj.student_name+' '+typeHmtl+'</div>' +
+                        /*'<div class="item-after">'+stuobj.insert_time+'</div>' +*/
+                        '</div>' +
+                        '<div class="item-subtitle">请假时间：'+stuobj.begin_date+' ~ '+stuobj.end_date+'</div>' +
+                        '<div class="item-text" style="-webkit-line-clamp: initial">请假原因：'+stuobj.reason+'</div>' +
+                        '</div>'+
+                        '</label>' +
+                        '<div class="card-footer" style="background: #fff; font-size: .72rem">' +
+                        '<span>申请时间：'+stuobj.insert_time+'</span>' +
+                        '<a id="'+stuobj.student_id+'" data-name="'+stuobj.student_name+'"><span class="icon icon-phone" style="margin-right: 10px;"></span>联系家长</a>' +
+                        '</div>' +
+                        '</li>' +
+                        '</ul>' +
+                        '</div>';
+                }
+            }else{
+                html='<li  class="noData noData_line lastData" ><span class="noData__tips">暂无请假记录</span></li>'
+			}
+
+            $("#list").append(html);
+
+        }else{
+            $.alert(res.message);
+        }
+    },"GET");
+}
+
+//获取家长电话
+$('#list').on('click',".card-footer a", function(event){
+
+    var studentName=$(this).attr("data-name");
+
+    var sid=$(this).attr("id");
+    var parameter = {
+        token:JSON.parse(sessionStorage.baseUser).token,
+        udid:JSON.parse(sessionStorage.baseUser).udid,
+        version:3,
+        org_id:JSON.parse(sessionStorage.baseUser).orguser.org_id,
+        org_id:JSON.parse(sessionStorage.baseUser).orguser.org_id,
+        studentId:sid
+    };
+
+    //获取家长联系信息
+    getData(domainName+"/shijiwxy/wechat/portal/studentAttendance/getParentInfo.htm", parameter,function(res){
+        if(res.code==200 && res.success==true){
+            var parentinfo="{text: '请选择',label:true},";
+            //家长信息
+            var tels=res.data
+            setTimeout(function () {
+                //联系人信息
+                if(tels.length>0){
+                    for( var i=tels.length-1; i>=0; i--){
+                        var name=allRelation[tels[i].relation];
+                        //var relation=allRelation[tels[i].relation];
+                        var mob=tels[i].mobile;
+                        parentinfo +='{text:"拨打-'+studentName+'-'+name+'-电话",onClick: function() { window.location.href="tel:'+mob+'";}},';
+                    }
+                }
+
+                var str=parentinfo;
+                var substr=str.substring(0,str.length-1);
+                var subtext= "["+substr+"]";
+
+                var jsonTem=eval(subtext);//转成json对象
+
+                var parentTel = jsonTem;
+                var cancel = [
+                    {
+                        text: '取消',
+                        bg: 'danger'
+                    }
+                ];
+                var groups = [parentTel, cancel];
+                $.actions(groups);
+
+            },10)
+
+        }else{
+            $.alert(res.message);
+        }
+    },"POST");
+
+});
+</script>

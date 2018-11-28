@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title>通讯录</title>
+		<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+		<link rel="shortcut icon" href="/favicon.ico">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<meta http-equiv="Access-Control-Allow-Origin" content="*">
+		<!--ui包-->
+		<link rel="stylesheet" href="../../../css/sm.css">
+		<link rel="stylesheet" href="../../../css/layout.css">
+		<style type="text/css">
+		   .number{
+		    position: absolute;
+		    right: 1.5rem;
+		    top: 1.06rem;
+		   }
+		</style>
+	</head>
+	<body>
+		<div class="page-group">
+			<div class="page page-current">
+	 		<div class="content native-scroll">
+				 <div id="allClass">
+					 <!--//教师-->
+					 <div class="content-block-title">学校组</div>
+					 <div class="list-block" id="allTeacher">
+						 <ul>
+							 <li class="item-link item-content" id="toTeacherG">
+								 <div class="item-inner">
+									 <div class="item-title">本校教职工</div>
+								 </div>
+						     </li>
+						 </ul>
+					 </div>
+
+				 </div>
+			</div>
+		</div>
+ </div>
+	</body>
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script src='https://res.wx.qq.com/open/js/jweixin-1.2.0.js'></script>
+<script type="text/javascript">
+//设置返回首页标识
+sessionStorage.home =1;
+
+var baseP=getJPermissions(JSON.parse(sessionStorage.baseUser).orguser.org_id);
+wx.config({
+    debug: false,
+    appId: baseP.appId,
+    timestamp: baseP.timestamp,
+    nonceStr: baseP.nonceStr,
+    signature: baseP.signature,
+    jsApiList: [
+    ]
+});
+wx.ready(function (){
+    //隐藏非基础类菜单
+    wx.hideAllNonBaseMenuItem();
+})
+</script>
+<script>
+	 $(function(){
+
+	     //获取本地数字
+         if(sessionStorage.allClass!==undefined){
+             var localClassJson=JSON.parse(sessionStorage.allClass);
+         }else {
+             var localClassJson={};
+         }
+
+         //显示执教班级
+         if(getJsonLength(localClassJson)==0){
+             //$("#allGrade ").remove();
+             //$("#allClass ").append('<div id="none" class="noData noData_line lastData" ><span class="noData__tips">暂无执教班级</span></div>');
+
+         }else{
+             var classHmtl="";
+
+             for(var i in localClassJson){
+                 classHmtl +='<div class="content-block-title">'+localClassJson[i].grade_name+'</div><div class="list-block" id="'+i+'"><ul>';
+
+                 if(getJsonLength(localClassJson[i].classList)==0){
+                     classHmtl +='<li   class="item-link item-content class-name noClass" style="color:#ccc;" >' +
+                         '<div class="item-inner">' +
+                         '<div class="item-title">该年级下暂无班级</div>' +
+                         '</div>' +
+                         '</li>'
+
+				 }else{
+                     for(var m in localClassJson[i].classList){
+                         classHmtl +='<li id="'+m+'" class="item-link item-content class-name" >' +
+                             '<div class="item-inner">' +
+                             '<div class="item-title">'+localClassJson[i].classList[m].className+'</div>' +
+                             '</div>' +
+                             '</li>'
+                     }
+				 }
+
+                 classHmtl +='</ul></div>';
+             }
+         $("#allClass").append(classHmtl);
+       }
+
+		 //点击进入班级铜须录
+		 $("body").on("click",".class-name", function(){
+		     if($(this).hasClass("noClass")){
+		         $.alert("该年级下暂无班级！");
+		         return false
+			 }else {
+                 var clas_id=$(this).attr("id");
+                 window.location="classIndex.html?clas_id="+clas_id;
+			 }
+		 });
+         //去教师通讯录
+         $("#toTeacherG").click(function(){
+			 window.location="teacherIndex.html";
+         });
+
+	 });
+</script>

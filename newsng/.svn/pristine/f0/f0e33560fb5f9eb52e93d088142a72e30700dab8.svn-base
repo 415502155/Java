@@ -1,0 +1,197 @@
+package sng.controller.web;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import com.alibaba.fastjson.JSONObject;
+
+import sng.controller.common.BaseAction;
+import sng.entity.Campus;
+import sng.entity.Category;
+import sng.entity.Term;
+import sng.pojo.ParamObj;
+import sng.pojo.Result;
+import sng.service.BaseSetService;
+import sng.util.Paging;
+
+/**
+ * @desc 基础设置模块(校区管理、学期管理、科目管理、教师管理、合作机构、规则设置)
+ * @author magq
+ * @data 2018-10-26
+ * @version 1.0
+ */
+@Controller
+@RequestMapping("/baseSet")
+public class BaseSetWebController extends BaseAction {
+
+	@Autowired
+	private BaseSetService baseSetService;
+
+	/**
+	 * 创建/编辑校区
+	 * 
+	 * @param request
+	 * @param response
+	 * @param campus
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/campusManage/createAndUpdateCampus.json", method = RequestMethod.POST, produces = "application/*")
+	public void createAndUpdateCampus(HttpServletRequest request, HttpServletResponse response, Campus campus)
+			throws Exception {
+		Result result = baseSetService.createAndUpdateCampus(campus);
+		response.getWriter().println(JSONObject.toJSON(result));
+	}
+
+	/**
+	 * 校区管理列表
+	 * 
+	 * @param request
+	 * @param response
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/campusManage/queryCampusListInfo.json", method = RequestMethod.POST, produces = "application/*")
+	public void queryCampusListInfo(HttpServletRequest request, HttpServletResponse response, ParamObj paramObj)
+			throws Exception {
+		Result result = baseSetService.queryCampusListInfo(paramObj);
+		response.getWriter().println(JSONObject.toJSON(result));
+	}
+
+	/**
+	 * 删除校区信息
+	 * 
+	 * @param request
+	 * @param response
+	 * @param campus
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/campusManage/deleteCampus.json", method = RequestMethod.POST, produces = "application/*")
+	public void deleteCampus(HttpServletRequest request, HttpServletResponse response, ParamObj paramObj)
+			throws Exception {
+		Result result = baseSetService.deleteCampus(paramObj);
+		response.getWriter().println(JSONObject.toJSON(result));
+	}
+
+	/**
+	 * 创建学期
+	 * 
+	 * @param request
+	 * @param response
+	 * @param term
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/termManage/createAndUpdateTerm.json", method = RequestMethod.POST, produces = "application/*")
+	public void createAndUpdateTerm(HttpServletRequest request, HttpServletResponse response, Term term)
+			throws Exception {
+		Result result = baseSetService.createAndUpdateTerm(term);
+		response.getWriter().println(JSONObject.toJSON(result));
+	}
+
+	/**
+	 * 学期列表
+	 * 
+	 * @param request
+	 * @param response
+	 * @param paramObj
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/termManage/queryTermListInfo.json", method = RequestMethod.POST, produces = "application/*")
+	public void queryTermListInfo(HttpServletRequest request, HttpServletResponse response, ParamObj paramObj)
+			throws Exception {
+		Result result = baseSetService.queryTermListInfo(paramObj);
+		response.getWriter().println(JSONObject.toJSON(result));
+	}
+
+	/**
+	 * 删除学期
+	 * 
+	 * @param request
+	 * @param response
+	 * @param paramObj
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/termManage/deleteTermByTerm.json", method = RequestMethod.POST, produces = "application/*")
+	public void deleteTermByTerm(HttpServletRequest request, HttpServletResponse response, ParamObj paramObj)
+			throws Exception {
+		Result result = baseSetService.deleteTermByTerm(paramObj);
+		response.getWriter().println(JSONObject.toJSON(result));
+	}
+
+	/**
+	 * 创建/编辑类目
+	 * 
+	 * @param request
+	 * @param response
+	 * @param paramObj
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/categoryManage/createAndUpdateCategoryInfo.json", method = RequestMethod.POST, produces = "application/*")
+	public void createAndUpdateCategoryInfo(HttpServletRequest request, HttpServletResponse response,Category category)
+			throws Exception {
+
+	}
+
+	/**
+	 * 获取类目信息
+	 * 
+	 * @param request
+	 * @param response
+	 * @param paramObj
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/categoryManage/queryCategoryListInfo.json", method = RequestMethod.POST, produces = "application/*")
+	public void queryCategoryListInfo(HttpServletRequest request, HttpServletResponse response, ParamObj paramObj)
+			throws Exception {
+
+	}
+
+	/**
+	 * 创建/编辑科目
+	 * 
+	 * @param request
+	 * @param response
+	 * @param paramObj
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/categoryManage/createAndUpdateSubjectInfo.json", method = RequestMethod.POST, produces = "application/*")
+	public void createAndUpdateSubjectInfo(HttpServletRequest request, HttpServletResponse response, ParamObj paramObj)
+			throws Exception {
+
+	}
+
+	/**
+	 * 删除科目
+	 * 
+	 * @param request
+	 * @param response
+	 * @param paramObj
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/categoryManage/deleteSubjectInfo.json", method = RequestMethod.POST, produces = "application/*")
+	public void deleteSubjectInfo(HttpServletRequest request, HttpServletResponse response, ParamObj paramObj)
+			throws Exception {
+
+	}
+
+	/**
+	 * 科目管理列表
+	 * 
+	 * @param request
+	 * @param response
+	 * @param paramObj
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/categoryManage/querySubjectListInfo.json", method = RequestMethod.POST, produces = "application/*")
+	public void querySubjectListInfo(HttpServletRequest request, HttpServletResponse response, ParamObj paramObj)
+			throws Exception {
+
+	}
+
+}

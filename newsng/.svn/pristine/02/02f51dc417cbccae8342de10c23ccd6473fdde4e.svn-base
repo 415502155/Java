@@ -1,0 +1,190 @@
+package sng.service.impl;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import sng.dao.BaseSetCampusManageDao;
+import sng.dao.BaseSetCategoryManageDao;
+import sng.dao.BaseSetClassRoomManageDao;
+import sng.dao.BaseSetTermManageDao;
+import sng.entity.Campus;
+import sng.entity.Category;
+import sng.entity.Classroom;
+import sng.entity.Term;
+import sng.pojo.ParamObj;
+import sng.pojo.Result;
+import sng.pojo.TermInfoPojo;
+import sng.service.BaseSetService;
+import sng.util.Paging;
+
+/**
+ * @desc 基础设置模块Service层接口实现(校区管理、学期管理、科目管理、教师管理、合作机构、规则设置)
+ * @author magq
+ * @data 2018-10-26
+ * @version 1.0
+ */
+@Component
+@Transactional("transactionManager")
+public class BaseSetServiceImpl implements BaseSetService {
+
+	// 校区
+	@Autowired
+	private BaseSetCampusManageDao baseSetCampusManageDao;
+
+	// 教室
+	@Autowired
+	private BaseSetClassRoomManageDao baseSetClassRoomManageDao;
+
+	// 学期
+	@Autowired
+	private BaseSetTermManageDao baseSetServiceImpl;
+
+	// 类目科目
+	@Autowired
+	private BaseSetCategoryManageDao categoryManageDao;
+
+	@Override
+	public Result createAndUpdateCampus(Campus campus) {
+		Result result = new Result();
+		if (campus == null || campus.getOrg_id() == null) {
+			result.setSuccess(false);
+			return result;
+		}
+
+		Integer cam_id = campus.getCam_id();
+		if (cam_id == null) {
+			baseSetCampusManageDao.save(campus);
+		} else {
+			baseSetCampusManageDao.update(campus);
+		}
+		result.setSuccess(true);
+
+		return result;
+	}
+
+	/**
+	 * 校区管理列表
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public Result queryCampusListInfo(ParamObj paramObj) {
+		Result result = new Result();
+		if (paramObj == null || paramObj.getOrg_id() == null) {
+			result.setSuccess(false);
+			return result;
+		}
+		Paging<Campus> paging = baseSetCampusManageDao.queryCampusListInfo(paramObj);
+		result.setSuccess(true);
+		result.setData(paging);
+		return result;
+	}
+
+	/**
+	 * 删除校区
+	 */
+	@Override
+	public Result deleteCampus(ParamObj paramObj) {
+		// TODO Auto-generated method stub
+		Result result = new Result();
+		if (paramObj == null || paramObj.getCam_id() == null) {
+			result.setSuccess(false);
+			return result;
+		}
+
+		// 1:判断当前校区在其他的业务数据中是否使用如果使用了，则不能删除
+		List<Classroom> classRoomList = baseSetClassRoomManageDao.queryClassRommList(paramObj);
+		if (classRoomList != null && !classRoomList.isEmpty()) {
+			result.setSuccess(false);
+			return result;
+		}
+
+		// 如果在其他的业务中么有用到此校区id则可以删除
+		baseSetCampusManageDao.deleteCampus(paramObj);
+		result.setSuccess(true);
+		return result;
+	}
+
+	/**
+	 * 创建学期
+	 */
+	@Override
+	public Result createAndUpdateTerm(Term term) {
+		// TODO Auto-generated method stub
+		Result result = new Result();
+		if (term == null || term.getOrg_id() == null) {
+			result.setSuccess(false);
+			return result;
+		}
+		Integer term_id = term.getTerm_id();
+		if (term_id == null) {
+			baseSetServiceImpl.save(term);
+		} else {
+			baseSetServiceImpl.update(term);
+		}
+		result.setSuccess(true);
+		return result;
+	}
+
+	/**
+	 * 查询学期信息列表
+	 */
+	@Override
+	public Result queryTermListInfo(ParamObj paramObj) {
+		// TODO Auto-generated method stub
+		Result result = new Result();
+		if (paramObj == null || paramObj.getOrg_id() == null) {
+			result.setSuccess(false);
+			return result;
+		}
+		Paging<TermInfoPojo> paging = baseSetServiceImpl.queryTermListInfo(paramObj);
+		result.setData(paging);
+		result.setSuccess(true);
+		return result;
+	}
+
+	/**
+	 * 删除学期信息
+	 */
+	@Override
+	public Result deleteTermByTerm(ParamObj paramObj) {
+		// TODO Auto-generated method stub
+		Result result = new Result();
+		if (paramObj == null || paramObj.getOrg_id() == null || paramObj.getTerm_id() == null) {
+			result.setSuccess(false);
+			return result;
+		}
+		result.setSuccess(true);
+		return result;
+	}
+
+	/**
+	 * 创建/编辑类目
+	 */
+	@Override
+	public Result createAndUpdateCategoryInfo(Category category) {
+		// TODO Auto-generated method stub
+		Result result = new Result();
+		if (category == null) {
+			result.setSuccess(false);
+			return result;
+		}
+
+		List<Category> list = categoryManageDao.queryCategoryByCategoryName(category);
+		if (list != null && !list.isEmpty()) {
+			result.setSuccess(false);
+			return result;
+		}
+
+		if (category.getCategory_id() == null) {
+			categoryManageDao.save(category);
+		} else {
+			categoryManageDao.update(category);
+		}
+		result.setSuccess(true);
+		return result;
+	}
+
+}

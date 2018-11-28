@@ -1,0 +1,648 @@
+package sng.dao.impl;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.transform.Transformers;
+import org.springframework.stereotype.Repository;
+
+import sng.constant.Consts;
+import sng.dao.ClassDao;
+import sng.entity.ChargeDetail;
+import sng.entity.Classes;
+import sng.pojo.ClassToTeacher;
+import sng.util.CommonUtils;
+import sng.util.Paging;
+import sng.util.ValidateObject;
+
+/***
+ * 
+ *  @Company sjwy
+ *  @Title: ClassDaoImpl.java 
+ *  @Description: 班级管理 dao层实现
+ *	@author: shy
+ *  @date: 2018年10月29日 下午2:23:31
+ */
+@Repository
+public class ClassDaoImpl extends BaseDaoImpl<Classes> implements ClassDao{
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Classes> getList(Classes classes) {
+		Session session = this.factory.getCurrentSession();
+		String sql = " SELECT c.*,GROUP_CONCAT(t.tech_id) AS teacher_ids FROM classes c INNER JOIN teacher_class tc ON tc.clas_id=c.clas_id AND tc.is_del=0 INNER JOIN edugate_base.teacher t ON t.tech_id=tc.tech_id AND t.org_id=c.org_id AND t.is_del=0 WHERE c.is_del=0 ";
+		if(null!=classes.getClas_id()){
+			sql += " AND c.clas_id=:clas_id ";
+		}
+		if(null!=classes.getSubject_id()){
+			sql += " AND c.subject_id=:subject_id ";
+		}
+		if(null!=classes.getCategory_id()){
+			sql += " AND c.category_id=:category_id ";
+		}
+		if(StringUtils.isNotBlank(classes.getTuition_fees())){
+			sql += " AND c.tuition_fees=:tuition_fees ";
+		}
+		sql += " GROUP BY c.clas_id ";
+		Query query = session.createSQLQuery(sql);
+		query.setResultTransformer(Transformers.aliasToBean(ChargeDetail.class));
+		if(null!=classes.getClas_id()){
+			query.setInteger("clas_id", classes.getClas_id());
+		}
+		if(null!=classes.getSubject_id()){
+			query.setInteger("subject_id", classes.getSubject_id());
+		}
+		if(null!=classes.getCategory_id()){
+			query.setInteger("category_id", classes.getCategory_id());
+		}
+		if(StringUtils.isNotBlank(classes.getTuition_fees())){
+			query.setString("tuition_fees", classes.getTuition_fees());
+		}
+		return query.list();
+	}
+
+	/***
+	 * 班级列表
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public Paging<ClassToTeacher> getClassList(Integer orgId, Integer termId, Integer clasType, Integer categoryId,
+			Integer subjectId, Integer camId, Integer classWeek, String techNames, Paging<ClassToTeacher> page) {
+		Session session = this.factory.getCurrentSession();
+		List<Object> params = new ArrayList<>();
+		StringBuffer sql = new StringBuffer(" SELECT c.clas_id, c.plan_id, c.clas_name,c.clas_type,cam.cam_name, c.age_range, p.plan_switch, \r\n" + 
+				"c.class_start_date, c.tuition_fees, IFNULL(c.size, 0) size, IFNULL(c.ss_num, 0) ss_num,\r\n" + 
+				"cate.category_name, sub.subject_name ,cr.classroom_id, cr.building, cr.floor, cr.classroom_name, c.start_birthday,\r\n" + 
+				"c.end_birthday, IFNULL(c.total_hours, 0) total_hours, c.class_week, DATE_FORMAT(c.class_begin_time,'%H:%i') class_begin_time,\r\n" + 
+				"DATE_FORMAT(c.class_over_time,'%H:%i') class_over_time, c.class_unset_time, c.cooperation_id, co.name,\r\n" + 
+				"GROUP_CONCAT(CONCAT(t.tech_name, '_',u.user_mobile)) tech_names,\r\n" + 
+				"GROUP_CONCAT(t.tech_name) tech_name,\r\n" + 
+				"GROUP_CONCAT(t.tech_id) tech_id,\r\n" + 
+				"GROUP_CONCAT(t.user_id) user_id, \r\n" +
+				"(IFNULL(c.ss_num, 0) - IFNULL(c.st_num, 0)) num,\r\n" + 
+				"IFNULL(c.ss_money, 0) ss_money, IFNULL(c.st_money, 0) st_money,\r\n" + 
+				"\r\n" + 
+				"CONCAT((IFNULL(c.ss_num, 0) - IFNULL(c.st_num, 0)) , '/', c.size) divide \r\n" + 
+				"FROM newsng.classes c \r\n" + 
+				"LEFT JOIN newsng.teacher_class tc ON  c.clas_id = tc.clas_id AND tc.is_del = 0 \r\n" + 
+				"LEFT JOIN edugate_base.teacher t ON tc.tech_id = t.tech_id AND t.is_del = 0 \r\n" + 
+				"LEFT JOIN edugate_base.org_user u ON t.user_id = u.user_id AND u.is_del = 0 \r\n" + 
+				"LEFT JOIN newsng.term tm ON c.term_id = tm.term_id AND tm.is_del = 0\r\n" + 
+				"LEFT JOIN newsng.category cate ON c.category_id = cate.category_id AND cate.is_del = 0\r\n" + 
+				"LEFT JOIN newsng.subject sub ON c.subject_id = sub.subject_id AND sub.is_del = 0\r\n" + 
+				"LEFT JOIN newsng.campus cam ON c.cam_id = cam.cam_id AND cam.is_del = 0\r\n" + 
+				"LEFT JOIN newsng.classroom cr ON c.classroom_id = cr.classroom_id AND cr.is_del = 0\r\n" + 
+				"LEFT JOIN newsng.cooperative co ON c.cooperation_id = co.cooperative_id AND co.is_del = 0\r\n" + 
+				//"LEFT JOIN newsng.charge ch ON ch.clas_id = c.clas_id AND ch.is_del = 0\r\n" + 
+				"LEFT JOIN newsng.plan p ON p.plan_id = c.plan_id AND p.is_del = 0\r\n" + 
+				"WHERE\r\n" + 
+				"c.is_del = 0  \r\n");
+				//"AND c.org_id = ?  ");
+		if (orgId != null) {
+			sql.append(" AND c.org_id = ? ");
+			params.add(orgId);
+		}
+		if(null != termId ) {
+			sql.append(" AND c.term_id = ? ");
+			params.add(termId);
+		} else {
+			//默认查询最晚的学期 
+			//SELECT 	MAX(TERM_ID) FROM term WHERE NOW() > start_time 
+			sql.append(" AND c.term_id = (SELECT MAX(TERM_ID) FROM term WHERE NOW() > start_time) ");			
+		}
+		if(null != clasType ) {
+			sql.append(" AND c.clas_type = ? ");
+			params.add(clasType);
+		}
+		if(null != categoryId ) {
+			sql.append(" c.category_id = ? ");
+			params.add(categoryId);
+		}
+		if(null != subjectId ) {
+			sql.append(" AND c.subject_id = ? ");
+			params.add(subjectId);
+		}
+		if(null != camId ) {
+			sql.append(" AND c.cam_id = ? ");
+			params.add(camId);
+		}
+		if(null != classWeek ) {
+			sql.append(" AND c.class_week = ? ");
+			params.add(classWeek);
+		}
+		String group = " GROUP BY c.clas_id ";
+		String order1 = "ORDER BY cam.cam_name , c.clas_name, cr.classroom_name ASC";
+		sql.append(group);
+		sql.append(order1);
+		String finalSql = "";
+		String limit = "";
+		String order2 = " ORDER BY tt.cam_name , tt.clas_name, tt.classroom_name ASC ";
+		StringBuffer countSql = new StringBuffer();
+		if (StringUtils.isNotBlank(techNames)) {//模糊查询
+			StringBuffer like1 = new StringBuffer(" SELECT tt.* FROM ( ");
+			StringBuffer like2 = new StringBuffer(" ) tt\r\n" + 
+					"where  LOCATE(? , tt.tech_names )>0 OR LOCATE(? , tt.clas_name )>0 ");
+			params.add(techNames);
+			params.add(techNames);
+			finalSql = like1.append(sql).append(like2).append(order2).toString();
+			countSql.append("select count(*) from (" + finalSql + ") ts");
+			int limitFrom = (page.getPage() - 1) * page.getLimit();
+			limit = " limit " + limitFrom + "," + page.getLimit();
+			finalSql = finalSql + limit;
+		} else {
+			finalSql = sql.toString();
+			countSql.append("select count(*) from (" + finalSql + ") ts");
+			int limitFrom = (page.getPage() - 1) * page.getLimit();
+			limit = " limit " + limitFrom + "," + page.getLimit();
+			finalSql = finalSql + limit;
+		}
+		Query query = session.createSQLQuery(finalSql);
+		Query countQuery = session.createSQLQuery(countSql.toString());
+		for (int i = 0; i < params.size(); i++) {
+			query.setParameter(i, params.get(i));
+			countQuery.setParameter(i, params.get(i));
+		}
+		BigInteger pageTotal = (BigInteger) countQuery.uniqueResult();
+		query.setResultTransformer(Transformers.aliasToBean(ClassToTeacher.class));
+		List<ClassToTeacher> list = query.list();
+		//班级列表  实收金额
+		for (ClassToTeacher ct : list) {
+			//根据班级id(clas_id) 查询支付项目表，获取实缴金额
+			String ssMoney = ct.getSs_money();
+			String stMoney = ct.getSt_money();
+			BigDecimal ss = new BigDecimal(ssMoney);
+		    BigDecimal st = new BigDecimal(stMoney);
+			String sjsMoney = ss.subtract(st).toString();
+			ct.setSs_tuition(sjsMoney);
+			
+			//将 开始生日、结束生日和开课日期  Timestamp格式转换 为yyyy-MM-dd HH:mm:ss
+			String startDate = null;
+			String startBirthday = null;
+			String endBirthday = null;
+			startDate = CommonUtils.dateFormat(ct.getClass_start_date(), "yyyy-MM-dd");
+			ct.setClass_start_date_str(startDate);
+			startBirthday = CommonUtils.dateFormat(ct.getStart_birthday(), "yyyy-MM-dd");
+			endBirthday = CommonUtils.dateFormat(ct.getEnd_birthday(), "yyyy-MM-dd");
+			ct.setStart_birthday_str(startBirthday);
+			ct.setEnd_birthday_str(endBirthday);
+		}
+		page.setTotal(pageTotal.intValue());
+		page.setSize(page.getTotal()%page.getLimit()==0 ? (page.getTotal()/page.getLimit()) : (page.getTotal()/page.getLimit()+1));
+		page.setData(list);
+		page.setSuccess(true);
+		return page;
+	}
+
+	@Override
+	public List<ClassToTeacher> getClassList(Integer orgId, Integer termId, Integer clasType, Integer categoryId,
+			Integer subjectId, Integer camId, Integer classWeek, String techNames) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
+	public Map getStatisticsInfo(List<Integer> ids) {
+		StringBuffer sql = new StringBuffer(" SELECT IFNULL(SUM(IFNULL(cla.ss_num, 0) - IFNULL(cla.st_num, 0)), 0) ss_num, " + 
+				"IFNULL(SUM(IFNULL(cla.ss_money, 0)), 0) ss_money, IFNULL(SUM(IFNULL(cla.st_money, 0)), 0) st_money, " + 
+				"GROUP_CONCAT(cla.clas_id) clas_id,COUNT(0) num, \r\n" + 
+				"IFNULL(( SUM(IFNULL(cla.ss_money, 0)) - SUM(IFNULL(cla.st_money, 0)) ), 0) sjs_money FROM newsng.classes cla\r\n" + 
+				//"INNER JOIN newsng.charge cha ON cha.clas_id = cla.clas_id AND cha.is_del = 0\r\n" + 
+				"WHERE cla.is_del = 0 ");
+		if (ids != null) {
+			sql.append("AND cla.clas_id IN ( ");
+			for (int i = 0; i < ids.size(); i++) {
+				System.out.println(ids.size());
+				if(i == ids.size()-1)
+				{
+					sql.append(ids.get(i));
+				} else {
+					sql.append(ids.get(i));
+					sql.append(",");
+				}
+			}
+			sql.append(" )");
+		}
+		Session session = this.factory.getCurrentSession();
+		Query query = session.createSQLQuery(sql.toString());
+		query.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+		List<Map> statisticsMap = query.list();
+		Map map = new HashMap<>();
+		if (null != statisticsMap && statisticsMap.size() > 0) {
+			map = statisticsMap.get(0);
+		}
+		return map;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Map<String, Object>> getStudentList(Integer orgId, String cidList, String status) {
+		String sql = " SELECT c.clas_name, s.stud_name, s.stud_card, sc.stu_status, sc.stud_id FROM newsng.classes c  \r\n" + 
+				"INNER JOIN newsng.student_class sc ON c.clas_id = sc.clas_id AND sc.is_del = 0  \r\n" + 
+				"LEFT JOIN edugate_base.student s  ON sc.stud_id = s.stud_id  AND s.is_del = 0  \r\n" + 
+				"WHERE\r\n" + 
+				"c.is_del = 0  \r\n";  
+		List<Object> params = new ArrayList<Object>();
+		if (orgId != null) {
+			sql += " AND c.org_id = ? ";
+			params.add(orgId);
+		}
+		StringBuffer clas =  new StringBuffer("");
+		if (cidList != null && cidList.length() > 0) {
+			clas.append(" AND c.clas_id in ( ");
+			String[] idArr = null;
+			idArr = cidList.split(",");
+			for (int i = 0; i < idArr.length; i++) {
+				if(i == idArr.length-1)
+				{
+					clas.append(idArr[i]);
+				} else {
+					clas.append(idArr[i]);
+					clas.append(",");
+				}
+			}
+			clas.append(" )");
+			sql += clas;
+		}
+		StringBuffer stu =  new StringBuffer("");
+		if (status != null && status.length() > 0) {
+			String[] statusArr = null;
+			stu.append(" AND sc.stu_status in ( ");
+			statusArr = status.split(",");
+			for (int i = 0; i < statusArr.length; i++) {
+				
+				if(i == statusArr.length-1)//当循环到最后一个的时候 就不添加逗号,
+				{
+					stu.append(statusArr[i]);
+				} else {
+					stu.append(statusArr[i]);
+					stu.append(",");
+				}
+			}
+			stu.append(" )");
+			sql = sql + stu;
+		}
+		Session session = this.factory.getCurrentSession();
+		Query query = session.createSQLQuery(sql);
+		for (int i = 0; i < params.size(); i++) {
+			query.setParameter(i, params.get(i));
+		}
+		query.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+		List<Map<String, Object>> list = query.list();
+		return list;
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Override
+	public Map getClasInfoById(Integer orgId, Integer clasId) {
+		StringBuffer sql = new StringBuffer("");
+		String ssql = " SELECT c.clas_id, c.org_id, c.term_id, c.plan_id, c.clas_name, c.category_id, c.subject_id, c.clas_type,\r\n" + 
+				"c.cam_id, c.classroom_id, c.size, c.age_range, c.start_birthday, c.end_birthday,\r\n" + 
+				"c.total_hours, c.class_start_date, c.class_week, DATE_FORMAT(c.class_begin_time,'%H:%i') class_begin_time,\r\n" + 
+				"DATE_FORMAT(c.class_over_time,'%H:%i') class_over_time, c.class_unset_time,c.tuition_fees, c.ys_num, \r\n" + 
+				"c.ss_num, c.st_num, c.st_money, c.ss_money, c.ys_money, c.usable_num, c.is_del, c.insert_time, c.update_time, c.del_time, \r\n" + 
+				"GROUP_CONCAT(t.tech_name) tech_names,\r\n" + 
+				"GROUP_CONCAT(t.tech_id) tech_ids,\r\n" + 
+				"c.cooperation_id\r\n" + 
+				"FROM newsng.classes c \r\n" + 
+				"LEFT JOIN newsng.teacher_class tc ON  c.clas_id = tc.clas_id AND tc.is_del = 0\r\n" + 
+				"LEFT JOIN edugate_base.teacher t ON tc.tech_id = t.tech_id AND t.is_del = 0\r\n" + 
+				"WHERE\r\n" + 
+				"c.is_del = 0\r\n";
+				//"AND c.org_id = ?\r\n" + 
+				//"AND c.clas_id = ?\r\n" + 
+				//"GROUP BY c.clas_id ";
+		sql.append(ssql);
+		List<Object> params = new ArrayList<Object>();
+		if (orgId != null) {
+			sql.append(" AND c.org_id = ? ");
+			params.add(orgId);
+		}
+		if (clasId != null) {
+			sql.append(" AND c.clas_id = ? ");
+			params.add(clasId);
+		}
+		sql.append(" GROUP BY c.clas_id ");
+		Session session = this.factory.getCurrentSession();
+		Query query = session.createSQLQuery(sql.toString());
+		for (int i = 0; i < params.size(); i++) {
+			query.setParameter(i, params.get(i));
+		}
+		query.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+		List<Map<String, Object>> clasList = query.list();
+		Map map = new HashMap();
+		if (clasList != null && clasList.size() > 0) {
+			Map<String, Object> clas = clasList.get(0);
+			//将 开始生日、结束生日和开课日期  Timestamp格式转换 为yyyy-MM-dd 
+			Timestamp startDate =(Timestamp) clas.get("class_start_date");
+			Timestamp startBirthday = (Timestamp) clas.get("start_birthday");
+			Timestamp endBirthday = (Timestamp) clas.get("end_birthday");
+			clas.put("class_start_date", CommonUtils.dateFormat(startDate, "yyyy-MM-dd"));
+			clas.put("start_birthday", CommonUtils.dateFormat(startBirthday, "yyyy-MM-dd"));
+			clas.put("end_birthday", CommonUtils.dateFormat(endBirthday, "yyyy-MM-dd"));
+			map = clasList.get(0);
+		}
+		return map;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Classes getClassInfo(Integer orgId, Integer clasId) {
+		StringBuffer sql = new StringBuffer(" SELECT c.* FROM newsng.classes c  WHERE c.is_del = 0 ");
+		List<Object> params = new ArrayList<Object>();
+		if (orgId != null) {
+			sql.append(" AND c.org_id = ? ");
+			params.add(orgId);
+		}
+		if (clasId != null) {
+			sql.append("  AND c.clas_id = ?  ");
+			params.add(clasId);
+		}
+		Session session = this.factory.getCurrentSession();
+		Query query = session.createSQLQuery(sql.toString());
+		for (int i = 0; i < params.size(); i++) {
+			query.setParameter(i, params.get(i));
+		}
+		query.setResultTransformer(Transformers.aliasToBean(Classes.class));
+		List<Classes> list = query.list();
+		Classes classes = new Classes();
+		if (list != null && list.size() > 0) {
+			classes = list.get(0);
+		}
+		return classes;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Map<String, Object>> getTecherIds(Integer orgId, Integer clasId) {
+		StringBuffer sql = new StringBuffer();
+		String ssql = " SELECT t.tech_name, t.tech_id FROM  newsng.classes c\r\n" + 
+				"INNER JOIN newsng.teacher_class tc ON tc.clas_id = c.clas_id AND tc.is_del = 0\r\n" + 
+				"INNER JOIN edugate_base.teacher t ON tc.tech_id = t.tech_id AND t.is_del = 0\r\n" + 
+				"WHERE \r\n" + 
+				"c.is_del = 0\r\n";
+				//"AND c.org_id = ?\r\n" + 
+				//"AND c.clas_id = ? ";
+		sql.append(ssql);
+		List<Object> params = new ArrayList<Object>();
+		if (orgId != null) {
+			sql.append(" AND c.org_id = ? ");
+			params.add(orgId);
+		}
+		if (clasId != null) {
+			sql.append("  AND c.clas_id = ?  ");
+			params.add(clasId);
+		}
+		Session session = this.factory.getCurrentSession();
+		Query query = session.createSQLQuery(sql.toString());
+		for (int i = 0; i < params.size(); i++) {
+			query.setParameter(i, params.get(i));
+		}
+		query.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+		List<Map<String, Object>> list = query.list();
+		return list;
+	}
+
+	@Override
+	public Integer getClassNum(Integer orgId, Integer clasId) {
+		StringBuffer sql = new StringBuffer();
+		String ssql = " SELECT COUNT(1) FROM newsng.classes c\r\n" + 
+				"INNER JOIN newsng.student_class sc ON c.clas_id = sc.clas_id\r\n" + 
+				"INNER JOIN edugate_base.student s  ON s.stud_id = sc.stud_id \r\n" + 
+				"WHERE \r\n" + 
+				"c.is_del = 0\r\n" + 
+				"AND sc.is_del = 0\r\n" + 
+				"AND s.is_del = 0\r\n" + 
+				"AND sc.stu_status NOT IN (4,8)\r\n"; 
+		sql.append(ssql);
+		List<Object> params = new ArrayList<Object>();
+		if (orgId != null) {
+			sql.append(" AND c.org_id = ? ");
+			params.add(orgId);
+		}
+		if (clasId != null) {
+			sql.append("  AND c.clas_id = ?  ");
+			params.add(clasId);
+		}
+		Session session = this.factory.getCurrentSession();
+		Query query = session.createSQLQuery(sql.toString());
+		for (int i = 0; i < params.size(); i++) {
+			query.setParameter(i, params.get(i));
+		}
+		//query.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+		BigInteger stuNum = (BigInteger) query.uniqueResult();
+		return stuNum.intValue();
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public BigDecimal getClassFees(Integer orgId, Integer clasId) {
+		StringBuffer sql = new StringBuffer();
+		String ssql = " SELECT c.clas_id, c.clas_name, c.clas_type, c.ss_money, c.st_money,\r\n" + 
+				"c.ss_num, c.st_num\r\n" + 
+				"FROM newsng.classes c\r\n" + 
+				//"INNER JOIN newsng.charge ch ON c.clas_id = ch.clas_id\r\n" + 
+				"WHERE \r\n" + 
+				"c.is_del = 0 \r\n"; 
+				//"AND ch.is_del = 0\r\n"; 
+		sql.append(ssql);
+		List<Object> params = new ArrayList<Object>();
+		if (orgId != null) {
+			sql.append(" AND c.org_id = ? ");
+			params.add(orgId);
+		}
+		if (clasId != null) {
+			sql.append("  AND c.clas_id = ?  ");
+			params.add(clasId);
+		}
+		Session session = this.factory.getCurrentSession();
+		Query query = session.createSQLQuery(sql.toString());
+		for (int i = 0; i < params.size(); i++) {
+			query.setParameter(i, params.get(i));
+		}
+		query.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+		List<Map> list = query.list();
+		BigDecimal balance = null;
+		if (null != list && list.size() > 0) {
+			Map feesMap = list.get(0);
+			BigDecimal ssMoney = feesMap.get("ss_money") ==  null ? new BigDecimal(0) : (BigDecimal) feesMap.get("ss_money");
+			BigDecimal stMoney = feesMap.get("st_money") == null ? new BigDecimal(0) : (BigDecimal) feesMap.get("st_money");
+			balance = ssMoney.subtract(stMoney);  
+		} else {
+			balance = new BigDecimal("0");
+		}
+		return balance;
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Override
+	public Map getClassListByTerm(Integer orgId, Integer termId, Integer clasType) {
+		StringBuffer sql = new StringBuffer();
+		String ssql = " SELECT c.clas_id, c.clas_name FROM newsng.classes c WHERE\r\n" + 
+				" c.is_del = 0 ";
+		sql.append(ssql);
+		List<Object> params = new ArrayList<Object>();
+		if (orgId != null) {
+			sql.append(" AND c.org_id = ? ");
+			params.add(orgId);
+		}
+		if (termId != null) {
+			sql.append(" AND c.term_id = ? ");
+			params.add(termId);
+		}
+		if (clasType != null) {
+			sql.append(" AND c.clas_type = ? ");
+			params.add(clasType);
+		}
+		Session session = this.factory.getCurrentSession();
+		Query query = session.createSQLQuery(sql.toString());
+		for (int i = 0; i < params.size(); i++) {
+			query.setParameter(i, params.get(i));
+		}
+		query.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+		List<Map<String, Object>> clasList = query.list();
+		Map clasMap = new HashMap();
+		if (null != clasList) {
+			for (Map clas : clasList) {
+				clasMap.put(clas.get("clas_name"), clas.get("clas_id"));
+			}
+		}
+		return clasMap;
+	}
+
+	@SuppressWarnings("rawtypes")
+	@Override
+	public Map getClassromm(Integer camId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@SuppressWarnings("rawtypes")
+	@Override
+	public Map getCategory(Integer orgId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@SuppressWarnings("rawtypes")
+	@Override
+	public Map getSubject(Integer orgId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
+	public Map getTeacher(Integer orgId) {
+		StringBuffer sql = new StringBuffer();
+		String ssql = " SELECT t.tech_id, t.tech_name, u.user_mobile FROM edugate_base.teacher t\r\n" + 
+				"INNER JOIN edugate_base.org_user u ON t.user_id = u.user_id AND u.is_del = 0\r\n" + 
+				"WHERE t.is_del = 0\r\n";
+				//"AND t.org_id = ? ";
+		sql.append(ssql);
+		List<Object> params = new ArrayList<Object>();
+		if (orgId != null) {
+			sql.append(" AND t.org_id = ? ");
+			params.add(orgId);
+		}
+		Session session = this.factory.getCurrentSession();
+		Query query = session.createSQLQuery(sql.toString());
+		for (int i = 0; i < params.size(); i++) {
+			query.setParameter(i, params.get(i));
+		}
+		query.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+		List<Map> list = query.list();
+		Map techMap = new HashMap();
+		if (null != list) {
+			for (Map tech : list) {
+				Integer techId = (Integer) tech.get("tech_id");
+				String techName = (String) tech.get("tech_name");
+				String mobile = (String) tech.get("user_mobile");
+				String valueStr = techName + "_" + mobile; 
+				techMap.put(valueStr, techId);
+			}
+		}
+		return techMap;
+	}
+
+	@SuppressWarnings("rawtypes")
+	@Override
+	public Map getCampus(Integer orgId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Map<String, Object> getTechListByClasId(Integer clasId) {
+		StringBuffer sql = new StringBuffer(" SELECT c.clas_name, sub.subject_name, cate.category_name, c.class_week, c.class_unset_time,\r\n" + 
+				"DATE_FORMAT(c.class_begin_time,'%H:%i') class_begin_time, DATE_FORMAT(c.class_over_time,'%H:%i') class_over_time,\r\n" + 
+				"GROUP_CONCAT(t.tech_name) tech_names, GROUP_CONCAT(t.tech_id) tech_ids\r\n" + 
+				"FROM classes c \r\n" + 
+				"LEFT JOIN newsng.teacher_class tc ON  tc.clas_id = c.clas_id AND tc.is_del = 0 \r\n" + 
+				"LEFT JOIN edugate_base.teacher t ON t.tech_id = tc.tech_id AND t.is_del = 0 \r\n" + 
+				"INNER JOIN newsng.category cate ON cate.category_id = c.category_id AND cate.is_del = 0 \r\n" + 
+				"INNER JOIN newsng.subject sub ON sub.subject_id = c.subject_id AND sub.is_del = 0 \r\n" + 
+				"WHERE c.is_del = 0\r\n" + 
+				//"AND c.clas_id = ?\r\n" + 
+				"GROUP BY c.clas_id  ");
+		List<Object> params = new ArrayList<Object>();
+		if (clasId != null) {
+			sql.append(" AND c.clas_id = ? ");
+			params.add(clasId);
+		}
+		Session session = this.factory.getCurrentSession();
+		Query query = session.createSQLQuery(sql.toString());
+		for (int i = 0; i < params.size(); i++) {
+			query.setParameter(i, params.get(i));
+		}
+		query.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+		List<Map<String, Object>> list = query.list();
+		Map<String, Object> map = new HashMap<>();
+		if (null != list && list.size() > 0) {
+			map = list.get(0);
+			if (null != map.get("class_unset_time")) {//不固定时间 不为空
+
+			} else {//不固定时间 为空
+				String classBeginTime = (String) map.get("class_begin_time");//ct.getClass_begin_time();
+				String classOverTime = (String) map.get("class_over_time");
+				String classWeek = Consts.WEEK_MAP.get(String.valueOf((Integer) map.get("class_week")));
+				map.put("class_unset_time", classWeek + " " + classBeginTime + "-" + classOverTime);
+			}
+		}
+		return map;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public String getWXOpenId(Integer techId) {
+		String openId = "";
+		StringBuffer sql = new StringBuffer(" SELECT t.user_id, u.openid FROM edugate_base.teacher t\r\n" + 
+				"INNER JOIN edugate_base.org_user u ON u.user_id = t.user_id AND u.is_del = 0\r\n" + 
+				"WHERE t.is_del = 0 \r\n"); 
+				//"AND t.tech_id = ? ");
+		List<Object> params = new ArrayList<Object>();
+		if (techId != null) {
+			sql.append(" AND t.tech_id = ?  ");
+			params.add(techId);
+		}
+		Session session = this.factory.getCurrentSession();
+		Query query = session.createSQLQuery(sql.toString());
+		for (int i = 0; i < params.size(); i++) {
+			query.setParameter(i, params.get(i));
+		}
+		Map<String, Object> map = (Map<String, Object>) query.uniqueResult();
+		openId = (String) map.get("openid");
+		return openId;
+	}
+
+}

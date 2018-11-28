@@ -1,0 +1,252 @@
+package sng.controller.web;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang3.math.NumberUtils;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import sng.pojo.Result;
+import sng.pojo.StudentPojo;
+import sng.pojo.base.Teacher;
+import sng.service.ChargeDetailService;
+import sng.service.ChargeRecordService;
+import sng.service.ChargeService;
+import sng.service.StudentClassService;
+import sng.service.StudentService;
+import sng.util.Constant;
+import sng.util.ESBPropertyReader;
+import sng.util.MoneyUtil;
+import sng.util.Paging;
+import sng.constant.Consts;
+import sng.controller.common.BaseAction;
+import sng.entity.Charge;
+import sng.entity.ChargeDetail;
+import sng.entity.ChargeRecord;
+import sng.entity.StudentClass;
+
+@Controller
+@RequestMapping("/student")
+public class StudentController extends BaseAction{
+	
+	
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	
+	private static String ESB_REQUEST_URL = ESBPropertyReader.getProperty("esbRequestUrl");
+	private static String ESB_API_REQUEST_URL = ESBPropertyReader.getProperty("esbApiRequestUrl");
+	private static String UNION_PAY_RESULT = ESBPropertyReader.getProperty("unionPay");
+	
+	@Autowired
+	private ChargeService chargeService;
+	@Autowired
+	private ChargeDetailService chargeDetailService;
+	@Autowired
+	private ChargeRecordService chargeRecordService;
+	@Autowired
+	private StudentService studentService;
+	@Autowired
+	private StudentClassService studentClassService;
+	@Autowired
+	private RabbitTemplate rabbitTemplate;
+	
+	/**
+	 * @Title : getSutdentList 
+	 * @功能描述:查询学员列表 
+	 * @返回类型：Result<Paging<StudentPojo>> 
+	 * @throws ：
+	 */
+	@RequestMapping(value = "/getSutdentList.json")
+	@ResponseBody
+	public Result<Paging<StudentPojo>> getSutdentList(HttpServletRequest request,
+			@RequestParam(name = "currentPageNum", defaultValue="1") Integer currentPageNum,
+			@RequestParam(name = "pageSize", defaultValue=Constant.NUM_PER_PCPAGE_STRING) Integer pageSize,
+			@RequestParam(name = "term_id",defaultValue="") String term_id,
+			@RequestParam(name = "category_id",defaultValue="") String category_id,
+			@RequestParam(name = "subject_id",defaultValue="") String subject_id,
+			@RequestParam(name = "clas_type",defaultValue="") String clas_type,
+			@RequestParam(name = "cam_id",defaultValue="") String cam_id,
+			@RequestParam(name = "stu_status",defaultValue="") String stu_status,
+			@RequestParam(name = "pay_method",defaultValue="") String pay_method,
+			@RequestParam(name = "is_print",defaultValue="") String is_print,
+			@RequestParam(name = "keyword",defaultValue="") String keyword,
+			HttpServletResponse response, HttpSession session) throws Exception {
+		Result<Paging<StudentPojo>> result = new Result<Paging<StudentPojo>>();
+		Paging<StudentPojo> page = new Paging<StudentPojo>();
+		page.setPage(currentPageNum);
+		page.setLimit(pageSize);
+		page = studentService.queryList(term_id,category_id,subject_id,clas_type,cam_id,stu_status,pay_method,is_print,keyword,page);
+		result.setData(page);
+		result.setSuccess(true);
+		return result;
+	}
+	
+	/**
+	 * @Title : orderPay 
+	 * @功能描述:预约缴费 
+	 * @返回类型：Result<String> 
+	 * @throws ：
+	 */
+	@RequestMapping(value = "/orderPay.json")
+	@ResponseBody
+	public Result<String> orderPay(HttpServletRequest request,
+			@RequestParam(name = "stu_clas_id") Integer stu_clas_id,
+			HttpServletResponse response, HttpSession session) throws Exception {
+		Result<String> result = new Result<String>();
+		StudentClass sc = studentClassService.getById(stu_clas_id);
+		if(sc.getStuStatus().equals(Consts.STUD_STATUS_3SIGNUP_TO_PAY)){
+			sc.setStuStatus(Consts.STUD_STATUS_2QUOTA_RESERVED);
+			studentClassService.orderPay(sc);
+			result.setSuccess(true);
+		}else{
+			result.setMessage("学员状态不符合要求，预约失败！");
+			result.setSuccess(false);
+		}
+		return result;
+	}
+
+	/**
+	 * 申请代缴
+	 * 教师线下收费后确认已代收代缴
+	 * cd_id：家长分订单主键
+	 */
+	@RequestMapping(value = "/paid.json")
+	@ResponseBody
+	public Result<Map<String,Object>> paid(HttpServletRequest request, 
+			@RequestParam(name = "stu_class_id") Integer stu_class_id,
+			@RequestParam(name = "money") String money,
+			HttpServletResponse response, HttpSession session) throws Exception {
+		Result<Map<String,Object>> result = new Result<Map<String,Object>>();
+		Map<String,Object> map = new HashMap<String,Object>();
+		String teacherId = "";
+		String teacherName = "";
+		String orgUserId = "";
+		try {		
+			orgUserId = request.getParameter("user_id").toString();
+			Teacher teacher = this.getTechByUId(orgUserId);
+			teacherId = teacher.getTech_id().toString();
+			teacherName = teacher.getTech_name();
+		} catch (Exception e) {
+			result.setMessage("获取登录信息不完整！");
+			result.setSuccess(false);
+			return result;
+		}
+		if (!NumberUtils.isParsable(money)) {
+			result.setMessage("输入的缴费金额不是数字！");
+			result.setSuccess(false);
+		}else if(money.contains(".")&&money.split("\\.")[1].length()>2){
+			result.setMessage("输入的缴费金额只能精确到分！");
+			result.setSuccess(false);
+		}else if(new BigDecimal(MoneyUtil.fromYUANtoFEN(money)).compareTo(new BigDecimal(Constant.MAX_MONEY))>0){
+			result.setMessage("输入的缴费金额过大！");
+			result.setSuccess(false);
+		}else if(new BigDecimal(MoneyUtil.fromYUANtoFEN(money)).compareTo(new BigDecimal(Constant.MIN_MONEY))<0){
+			result.setMessage("输入的缴费金额错误！");
+			result.setSuccess(false);
+		}else{
+			StudentPojo sc = studentService.getStudentInfos(stu_class_id);
+			if(sc.getStu_status().equals(Consts.STUD_STATUS_1OLD_TO_PAY)
+				||sc.getStu_status().equals(Consts.STUD_STATUS_2QUOTA_RESERVED)
+				||sc.getStu_status().equals(Consts.STUD_STATUS_3SIGNUP_TO_PAY)){
+				ChargeDetail chargeDetail = chargeDetailService.getByStuClaId(stu_class_id);
+				if(new BigDecimal(money).compareTo(new BigDecimal(chargeDetail.getMoney()))>0){
+					result.setMessage("输入的缴费金额超过了应收金额！");
+					result.setSuccess(false);
+				}
+				if(chargeDetail.getStatus()==Constant.CHARGE_DETAIL_STATUS_NEVER){
+					//加乐观锁
+					Date lockDate = new Date();
+					try {
+						ChargeDetail temp = new ChargeDetail();
+						temp.setCd_id(chargeDetail.getCd_id());
+						Integer counter = chargeDetailService.lockChargeDetail(lockDate,temp);
+						if(counter==1){
+							ChargeDetail cd = chargeDetailService.getById(chargeDetail.getCd_id());
+							if(cd.getOffline_pay().equals(Constant.CHARGE_DETAIL_STATUS_NEVER)
+									&&cd.getOnline_pay().equals(Constant.CHARGE_DETAIL_STATUS_NEVER)
+									&&cd.getStatus().equals(Constant.CHARGE_DETAIL_STATUS_NEVER)){
+								//开始支付
+								cd.setOffline_pay(Constant.CHARGE_DETAIL_STATUS_OK);
+								cd.setStatus(Constant.CHARGE_DETAIL_STATUS_OK);
+								cd.setTxnAmt(MoneyUtil.fromYUANtoFEN(cd.getMoney()));
+								cd.setTxnTime(new Date());
+								Date payDate = new Date();
+								cd.setModify_time(payDate);
+								Integer pay = chargeDetailService.updateWithLock(cd,lockDate);
+								//创建支付记录
+								if(pay==1){
+									//添加支付记录
+									ChargeRecord cr = new ChargeRecord();
+									cr.setTxnType(Constant.TXNTYPE_SJWY_OFFLINE_PAY);
+									cr.setCid(cd.getCid());
+									cr.setCd_id(cd.getCd_id());
+									cr.setTxnAmt(cd.getTxnAmt());
+									cr.setTxnTime(payDate);
+									cr.setInsert_time(new Date());
+									cr.setOrg_user_id(Integer.parseInt(orgUserId));
+									cr.setUser_identify(Constant.IDENTITY_TEACHER);
+									cr.setUser_type_id(Integer.parseInt(teacherId));
+									cr.setUser_type_name(teacherName);
+									chargeRecordService.save(cr);
+									//更新支付总表
+									ChargeRecord query = new ChargeRecord();
+									query.setCid(cd.getCid());
+									List<ChargeRecord> list = chargeRecordService.getList(query);
+									Integer no_pay_num = chargeDetailService.countNoPay(cd.getCid());
+									Charge charge = chargeService.getById(cd.getCid());
+									charge.setNopay_num(no_pay_num);
+									charge = chargeService.updateStatus(list,charge);
+									try {
+										map.put("money", MoneyUtil.fromFENtoYUAN(new BigDecimal(charge.getSs_money()).subtract(new BigDecimal(charge.getSt_money())).toString()));
+									} catch (Exception e) {
+										map.put("money", "核算中");
+									}
+									result.setData(map);
+									result.setMessage("缴费成功！");
+									result.setSuccess(true);
+									logger.info("【线下支付成功】支付ChargeDetail主键:"+cd.getCd_id());
+								}else{
+									logger.error("【线下支付失败】校验账单乐观锁时失败。ChargeDetail主键:"+chargeDetail.getCd_id());
+									result.setSuccess(false);
+									result.setMessage("请求失败！原因：账单状态变动，请确认后重试！");
+								}
+							}else{
+								result.setMessage("请求失败！原因：账单状态变动，请确认后重试！");
+								result.setSuccess(false);
+							}
+						}else{
+							logger.error("【线下支付错误】为支付订单设置乐观锁时失败。ChargeDetail主键:"+chargeDetail.getCd_id());
+							result.setSuccess(false);
+							result.setMessage("请求失败！原因：数据库异常，请稍候重试！");
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+						logger.error("【线下支付错误】支付订单时发生错误。ChargeDetail主键:"+chargeDetail.getCd_id());
+						result.setSuccess(false);
+						result.setMessage("请求失败！原因：数据库异常，请稍候重试！");
+					}
+					return result;
+				}else{
+					result.setMessage("学员状态不符合要求，缴费失败！");
+					result.setSuccess(false);
+				}
+			}
+		}
+		return result;
+	}
+	
+
+}

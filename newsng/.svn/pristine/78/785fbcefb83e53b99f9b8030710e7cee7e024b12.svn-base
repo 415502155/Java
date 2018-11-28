@@ -1,0 +1,207 @@
+<!--发布通知-->
+
+
+<div class="content-wrap" id="sub_loadBox"  >
+    <div class="search">
+        <select class="gui-input" style="width: 100px">
+            <option value="100">学期</option>
+            <option value="1">2018年第一学期</option>
+            <option value="2">2018年暑期期</option>
+            <option value="3">2018年第二学期</option>
+            <option value="4">2018年寒假</option>
+        </select>
+        <select class="gui-input" style="width: 100px">
+            <option value="100">班级类型</option>
+            <option value="1">新生班</option>
+            <option value="0">老生班</option>
+        </select>
+        <select class="gui-input" style="width: 100px">
+            <option value="100">选择类目</option>
+            <option value="1">舞蹈类</option>
+            <option value="0">音乐类</option>
+        </select>
+        <select class="gui-input" style="width: 100px">
+            <option value="100">选择科目</option>
+            <option value="1">芭蕾舞</option>
+            <option value="0">现代舞</option>
+        </select>
+        <select class="gui-input" style="width: 100px">
+            <option value="100">选择校区</option>
+            <option value="1">东马路</option>
+            <option value="0">炫连</option>
+        </select>
+        <select class="gui-input" style="width: 100px">
+            <option value="100">上课时间</option>
+            <option value="1">周一</option>
+            <option value="2">周二</option>
+            <option value="3">周三</option>
+            <option value="4">周四</option>
+            <option value="5">周五</option>
+            <option value="6">周六</option>
+            <option value="7">周七</option>
+            <option value="8">其他</option>
+        </select>
+        <!-- &lt;!&ndash;开始时间&ndash;&gt;
+         <input type="text" class="gui-input" data-date="YYYY-MM-DD" placeholder="请选择开始时间" id="startDate" readonly style="width: 120px" >
+         &lt;!&ndash;结束时间&ndash;&gt;
+         <input type="text" class="gui-input" data-date="YYYY-MM-DD" placeholder="请选择结束时间" id="endDate" readonly  style="width: 120px" >-->
+
+        <input type="text" class="gui-input" id="content" placeholder="请输入学员姓名、证件号或家长手机号" style="width: 240px" />
+        <button class="gui-btn  gui-btn-normal" id="sentSearch"><i class="fa fa-search"></i>搜索</button>
+        <button class="gui-btn gui-btn-warm" id="sentEmpty"><i class="fa fa-trash-o"></i>清空</button>
+        <!--<input type="text" id="sendInp" class="gui-input" placeholder="请输入收费主题关键字搜索"/>-->
+    </div>
+    <div class="bod-con-fer-form">
+        <table align="center" class="tab tablesorter-blue">
+            <thead>
+            <tr>
+                <th><input type="checkbox" name="allClass" onclick="all_click(this,'class')"></th>
+                <th>序号</th>
+                <th>班级名称</th>
+                <th>类型</th>
+                <th>校区</th>
+                <th>教室</th>
+                <th>开课日期</th>
+                <th>上课时间</th>
+                <th>教师</th>
+                <th>学费</th>
+                <th>人数</th>
+            </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><input type="checkbox" name="class"></td>
+                    <td>1</td>
+                    <td>儿童画（儿162-1-2B）</td>
+                    <td>老生班</td>
+                    <td>东马路</td>
+                    <td>主教学406室</td>
+                    <td>18-12-03</td>
+                    <td>周日 9:00-10：00</td>
+                    <td>刘丽</td>
+                    <td>750</td>
+                    <td>20/20</td>
+                </tr>
+                <tr>
+                    <td><input type="checkbox" name="class"></td>
+                    <td>2</td>
+                    <td>舞蹈（儿162-1-2B）</td>
+                    <td>新生班</td>
+                    <td>东马路</td>
+                    <td>主教学306室</td>
+                    <td>18-12-03</td>
+                    <td>周日 9:00-10：00</td>
+                    <td>刘丽</td>
+                    <td>750</td>
+                    <td>20/20</td>
+                </tr>
+                <tr>
+                    <td><input type="checkbox" name="class"></td>
+                    <td>3</td>
+                    <td>钢琴（儿162-1-2B）</td>
+                    <td>老生班</td>
+                    <td>炫连</td>
+                    <td>主教学206室</td>
+                    <td>18-12-03</td>
+                    <td>周日 9:00-10：00</td>
+                    <td>张海洋</td>
+                    <td>750</td>
+                    <td>20/20</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <!-- 分页 -->
+    <div class="gui-page-wapper" style="margin:20px 0;line-height: 28px; padding-left: 10px;">
+        <ul class="gui-page" id="limitUi">
+            <span class="gui-page-total">共<span class="numberShow" id="allpage">151</span>页 <span class="numberShow" id="allData">15065</span>数据</span>
+            <!---->
+            <li title="上一页" class="gui-page-prev gui-page-disabled">
+                <a><i class="fa fa-angle-left"></i></a>
+            </li>
+            <li title="1" class="gui-page-item gui-page-item-active">
+                <a>1</a>
+            </li>
+            <li title="2" class="gui-page-item">
+                <a>2</a>
+            </li>
+            <li title="3" class="gui-page-item">
+                <a>3</a>
+            </li>
+            <li title="向后 5 页" class="gui-page-item-jump-next">
+                <a><i class="fa fa-ellipsis-h"></i></a>
+            </li>
+            <li title="10" class="gui-page-item">
+                <a>10</a>
+            </li>
+            <li title="下一页" class="gui-page-next">
+                <a>
+                </a><a><i class="fa fa-angle-right"></i></a>
+            </li>
+        </ul>
+
+        <span class="gui-page-options-elevator" style="padding-left: 10px;">
+                每页条数：
+                <select id="limit" class="">
+                     <option value="20">20</option>
+                     <option value="50">50</option>
+                     <option value="100">100</option>
+                </select>
+            </span>
+
+        <span class="gui-page-options">
+            <span class="gui-page-options-elevator">跳至第
+            <input id="page" class="gui-input">
+             页</span>
+           </span>
+    </div>
+    <!--分页END-->
+
+    <div class="dataStatistics">
+        <i class="fa fa-bar-chart"></i>:   已认证：<span class="numberShow" id="sum_Certificationed"><i class="fa fa-circle-o-notch fa-spin" ></i></span> 未认证：<span  class="numberShow" id="sum_unCertificationed" ><i class="fa fa-circle-o-notch fa-spin" ></i></span>
+    </div>
+
+  <!-- //数据操作-->
+    <div class="dataTool" style="">
+        <div class="pull-left">
+            <label for="isAll">
+                <input type="checkbox" id="isAll" name="allClass" onclick="toAll()">选择全部分页数据
+            </label>
+        </div>
+        <div class="pull-right">
+            <select class="gui-input" style="width: 100px" id="stu_status">
+                <option value="100">学员状态</option>
+            </select>
+            <button class="gui-btn  gui-btn-normal" id="sentSearch"><i class="fa fa-search"></i>发布通知</button>
+        </div>
+    </div>
+
+
+</div>
+<script src="js/countUp.js"></script>
+<script>
+    $(function () {
+
+        //查看详情
+        $(".toDetail").click(function () {
+            window.location.href="#12?id=12"
+        });
+
+        //目前是演示，实际是ajax回调
+        setTimeout(function () {
+            countup("sum_Certificationed",4000);
+            countup("sum_unCertificationed",50);
+        },2000)
+
+        //
+        var stuSelecthtml="";
+
+        for(var i in stu_status){
+            stuSelecthtml+="<option value='"+i+"'>"+stu_status[i]+"</option>";
+        }
+
+        $("#stu_status").append(stuSelecthtml);
+    })
+</script>
+
+

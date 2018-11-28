@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>个人设置</title>
+	<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+	<!--<link rel="shortcut icon" href="/favicon.ico">-->
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<!--ui包-->
+	<link rel="stylesheet" href="../../../css/sm.css">
+	<link rel="stylesheet" href="../../../css/layout.css">
+	<link rel="stylesheet" href="../../../css/teacher.css">
+	<style>
+    .list-block .item-media+.item-inner {
+		margin-left:0;
+	}
+    #userTsubject{
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        overflow: hidden;
+    }
+    </style>
+</head>
+<body>
+	<div class="page-group">
+		<div class="page page-current" id="set">
+
+			<div class="content native-scroll">
+				<div class="content-block-title">教师信息</div>
+				<div class="list-block">
+					<ul>
+						<li class="item-content" id="toEditName">
+							<div class="item-inner">
+								<div class="item-title">用户姓名</div>
+								<div class="item-after" id="userName"></div>
+							</div>
+						</li>
+						<li class="item-content " >
+							<div class="item-inner" >
+								<div class="item-title">手机号</div>
+								<div class="item-after" id="userMob"></div>
+							</div>
+						</li>
+						<li class="item-content item-link" id="touserTsubject">
+							<div class="item-inner" >
+								<div class="item-title">执教课程</div>
+								<div class="item-after" id="userTsubject"></div>
+							</div>
+						</li>
+						<li class="item-content item-link" id="towTclass">
+							<div class="item-inner" >
+								<div class="item-title">执教班级</div>
+								<div class="item-after" id="toTclass"></div>
+							</div>
+						</li>
+						<li class="item-content item-link" id="touserAlla">
+							<div class="item-inner" >
+								<div class="item-title">管理权限</div>
+								<div class="item-after" id="userAlla"></div>
+							</div>
+						</li>
+					</ul>
+				</div>
+				<div class="content-block-title">其他操作</div>
+				<div class="list-block">
+					<ul>
+						<li class="item-content item-link" id="resetPSW">
+							<div class="item-inner">
+								<div class="item-title">设置密码</div>
+								<div class="item-after" ></div>
+							</div>
+						</li>
+						<li class="item-content item-link" id="toFreeback">
+							<div class="item-inner">
+								<div class="item-title">意见反馈<span class="badge" style="margin-left: .3rem;padding:0 .3rem;">new</span></div>
+								<div class="item-after"></div>
+							</div>
+						</li>
+					</ul>
+				</div>
+				<div class="content-block-title" style="padding:1rem .75rem;text-align:center;text-overflow:initial;">为保证正常接收通知，请务必填写真实资料。</div>
+				<div class="content-block">
+					<a href="tel:4006610016" class="button button-fill external" id="quit"><span class="icon icon-phone" style="margin-right: .5rem"></span>联系客服</a>
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+	<!--修改家执教科目-->
+	<div class="page" id='editSubject'>
+		<div class="content">
+			<div class="content-block-title">编辑执教科目</div>
+			<div class="list-block media-list">
+				<ul id="allSub"></ul>
+			</div>
+			<div class="content-block">
+				<a href="javascript:void(0)" class="button button-fill external" id="saveSubject">保存修改</a>
+				<a class="button close-popup back"  style="margin-top:1rem">返回</a>
+			</div>
+		</div>
+	</div>
+	<!-- 修改家长姓名 End-->
+
+	<!--查看执教班级-->
+	<div class="page" id='teachPage'>
+		<div class="content">
+			<div class="content-block-title">执教班级</div>
+			<div class="list-block" id="techAllClass">
+				<ul></ul>
+			</div>
+		</div>
+	</div>
+	<!-- 修改与孩子关系 End-->
+
+    <!--查看执教班级-->
+    <div class="page" id='authorityPage'>
+        <div class="content" id="allAuthority">
+            <div class="content-block-title">年级组长权限</div>
+            <div class="list-block" id="gradeAuthority">
+                <ul></ul>
+            </div>
+			<div class="content-block-title">班主任权限</div>
+			<div class="list-block" id="headAuthority">
+				<ul></ul>
+			</div>
+        </div>
+    </div>
+    <!-- 查看执教班级 End-->
+
+</body>
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script>
+    //后退刷新
+    window.addEventListener('pagehide', function(event) {
+        sessionStorage.home=1;
+    });
+
+$(function () {
+
+    $("#resetPSW").click(function(){
+        window.location="forgotPSW.html"
+    });
+
+    $("#toFreeback").click(function () {
+        window.location="../feedback/index.html"
+    })
+
+
+    //教师信息展示
+	var teacherinfo=JSON.parse(sessionStorage.baseUser);
+    var obj=JSON.parse(sessionStorage.baseUser).orguser;
+
+    //执教科目
+    var teacherSub=obj.identityDatas[0].mapKC;
+    if(teacherSub.length==0){
+        $("#userTsubject").html("未设置");
+	}else{
+        var subName=[];
+        for(var m=teacherSub.length-1;m>=0;m--){
+            subName.push(teacherSub[m].course_name);
+        }
+        $("#userTsubject").html(subName.join("."));
+	}
+
+    //执教班级
+    var teachClass=obj.identityDatas[0].mapRK;
+    $("#toTclass").html(teachClass.length+"个班级");
+
+    //管理权限
+    var teachHead=obj.identityDatas[0].mapBZR;
+    var teachAuthority=obj.identityDatas[0].mapNJ;
+
+    var nowAuthority={};//当前拥有权限
+	for(var i=teachAuthority.length-1; i>=0;i--){
+	   var nowObj=teachAuthority[i].rl_id;
+        nowAuthority[nowObj]=1;
+	}
+
+
+      var nowAuthorityHtml="";
+	  for( var i in nowAuthority){
+          nowAuthorityHtml += authorityJson[i];
+	  }
+    $("#userName").text(obj.teacher.tech_name);
+    $("#userMob").text(obj.user_mobile);
+    $("#userAlla").text(nowAuthorityHtml);
+
+    //执教班级
+    var teacherClass=obj.identityDatas[0].mapRK;
+
+    var tClassHtml="";
+    if(teacherClass.length>0){
+
+        for(var i=teacherClass.length-1; i>=0;i--){
+            tClassHtml +='<li>' +
+                '<div class="item-content">' +
+                '<div class="item-inner">' +
+                '<div class="item-after">'+teacherClass[i].clas_name+'</div>' +
+                '</div>' +
+                '</li>'
+        }
+        $("#techAllClass ul").append(tClassHtml);
+	}else{
+        tClassHtml+="<div class=\"noData noData_line\"><span class=\"noData__tips\">暂无执教班级</span></div>";
+        $("#teachPage .content").html(tClassHtml);
+	}
+
+    //执教科目--获取所有科目
+    var parameter={
+        token:JSON.parse(sessionStorage.baseUser).token,
+        udid:JSON.parse(sessionStorage.baseUser).udid, //最后从cookie里去
+        version:"3",  //终端
+        group_type:2,
+        identity:1,
+        org_id:baseParameter.org_id,
+        openid:baseParameter.openid,
+        version:baseParameter.version
+    }
+
+    var allSubject="";
+	getData(domainName+"/esb/api/org/getCoursByOrgId", parameter,function(res){
+		if(res.code==200 && res.success==true){
+		     var allSubject=res.data;
+			 var subjectHtml="";
+
+			 for(var i=allSubject.length-1;i>=0;i--){
+			     //执教科目
+                 for(var m=teacherSub.length-1;m>=0;m--){
+                     if(allSubject[i].cour_id==teacherSub[m].cour_id){
+                         allSubject[i].isTeached=1;
+					 }
+                 }
+                 if(allSubject[i].isTeached==1){
+                    var checkHtml="checked='checked'";
+				 }else{
+                    var checkHtml="";
+				 }
+                 subjectHtml +='<li>' +
+                     '<label class="label-checkbox item-content">' +
+                     '<input type="checkbox" name="subject" '+checkHtml+' id="'+allSubject[i].cour_id+'">' +
+                     '<div class="item-media" style="padding-right: .75rem"><i class="icon icon-form-checkbox"></i></div>' +
+                     '<div class="item-inner">' +
+                     '<div class="item-title label">'+allSubject[i].cour_name+'</div>' +
+                     '</div>' +
+                     '</label>' +
+                     '</li>';
+
+                 $("#allSub").html(subjectHtml);
+			 }
+		}else{
+			$.alert(res.message);
+		}
+	},"POST");
+
+    //查看执教科目
+    $("#touserTsubject").click(function(){
+        if(JSON.parse(sessionStorage.baseUser).orguser.identityDatas[0].mapRK.length==0){
+            $.alert("没有执教班级不能设置科目！");
+            return false
+		}
+
+        $.router.loadPage("#editSubject");
+    });
+
+    //保存执教科目
+    $("#saveSubject").click(function(){
+
+        var nowchanged=[];
+        var n=[];
+        $("input[name=subject]:checked").each(function () {
+            var obj={course_name: $(this).closest("label").find(".item-title").text(), cour_id: $(this).attr("id")}
+             n.push($(this).attr("id"));
+             nowchanged.push(obj);
+        })
+
+		if(nowchanged.length==0){
+           $.alert("至少选择一个执教科目！");
+           return false
+		}
+
+        //保存修改的执教科目
+        var tparameter={
+            token:JSON.parse(sessionStorage.baseUser).token,
+            udid:JSON.parse(sessionStorage.baseUser).udid, //最后从cookie里去
+            version:baseParameter.version,
+            tech_id:JSON.parse(sessionStorage.baseUser).orguser.teacher.tech_id,
+            org_id:baseParameter.org_id,
+            cour_ids:n.join(",")
+        }
+
+		getData(domainName+"/esb/api/tech/updateTechCour", tparameter,function(res){
+                if(res.code==200 && res.success==true){
+               $.alert("保存成功",function () {
+                   //更新到本地数据库
+                   teacherinfo.orguser.identityDatas[0].mapKC=nowchanged;
+                   sessionStorage.baseUser=JSON.stringify(teacherinfo);
+
+                   var subName=[];
+                   for(var m=nowchanged.length-1;m>=0;m--){
+                       subName.push(nowchanged[m].course_name);
+                   }
+                    $("#userTsubject").html(subName.join("."));
+                   //修复科目过多显示问题,最多显示4个科目
+                    if($("#userTsubject").text().length>12){
+                        $("#userTsubject").html($("#userTsubject").text().substring(0,12)+'...')
+                    }
+
+                   $.router.back()
+
+               })
+
+				}else{
+                    $.alert(res.message);
+                }
+            },"POST");
+
+    });
+
+    //查看执教班级
+    $("#towTclass").click(function(){
+        $.router.loadPage("#teachPage");
+    });
+
+    //查看权限
+    var authority=obj.identityDatas[0].mapBZR;
+
+    var clas_nameHtml="";
+     if(authority.length>0){
+         for(var i=authority.length-1; i>=0;i--){
+             clas_nameHtml +='<li>' +
+                 '<div class="item-content">' +
+                 '<div class="item-inner">' +
+                 '<div class="item-after">'+authority[i].clas_name+'</div>' +
+                 '</div>' +
+                 '</li>'
+         }
+	 }else{
+         clas_nameHtml +='<li>' +
+             '<div class="item-content">' +
+             '<div class="item-inner">' +
+             '<div class="item-after">暂无班主任权限</div>' +
+             '</div>' +
+             '</li>'
+	 }
+
+
+    $("#headAuthority ul").append(clas_nameHtml);
+
+    var grade=obj.identityDatas[0].mapNJ;
+    var clas_nameHtml="";
+    if(grade.length>0){
+        for(var i=grade.length-1; i>=0;i--){
+            clas_nameHtml +='<li>' +
+                '<div class="item-content">' +
+                '<div class="item-inner">' +
+                '<div class="item-after">'+grade[i].grade_name+'</div>' +
+                '</div>' +
+                '</li>'
+        }
+	}else{
+
+            clas_nameHtml +='<li>' +
+                '<div class="item-content">' +
+                '<div class="item-inner">' +
+                '<div class="item-after">暂无年级组长权限</div>' +
+                '</div>' +
+                '</li>'
+
+	}
+
+
+    $("#gradeAuthority ul").append(clas_nameHtml);
+
+
+    //查看年级权限
+    $("#touserAlla").click(function(){
+        $.router.loadPage("#authorityPage");
+    });
+
+    $(".back").click(function(){
+        $.router.back()
+    });
+    //修复科目过多显示问题,最多显示4个科目
+    if($("#userTsubject").text().length>12){
+        $("#userTsubject").html($("#userTsubject").text().substring(0,12)+'...')
+    }
+
+})
+
+</script>

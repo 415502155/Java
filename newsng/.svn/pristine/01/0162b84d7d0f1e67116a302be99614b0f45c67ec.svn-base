@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>班级通讯录</title>
+	<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+	<link rel="shortcut icon" href="../../favicon.ico">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<!--ui包-->
+	<link rel="stylesheet" href="../../../css/sm.css">
+	<link rel="stylesheet" href="../../../css/layout.css">
+	<style>
+		span.icon{
+			background: #4792ed;
+			color: #fff;
+			padding: 5px;
+			border-radius: 50%;
+		}
+        .list-block .item-content { cursor: pointer}
+        #allClass .item-after{
+			   color:red;
+			   margin-right:1rem
+		   }
+	</style>
+</head>
+<body>
+<div class="page-group">
+	<div class="page page-current">
+		<header class="bar bar-nav">
+			<!--<span class="title pull-left" id="className"></h1>-->
+			<button class="button button-link button-nav pull-left" id="className" style='margin-left:0'></button>
+			<button class="button button-link button-nav pull-right">
+				共<span id="allStudentC"></span>人
+			</button>
+		</header>
+		<div class="content native-scroll " style="top:.96rem">
+			<div class="list-block ">
+				<div id="letter" ></div>
+				<ul class="sort_box" id="allClass">
+				</ul>
+				<!-- 首字母 -->
+				<div class="initials">
+					<ul></ul>
+				</div>
+				<!-- 首字母 End-->
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script src='../../../js/phonebook/jquery.charfirst.pinyin.js'></script>
+<script src='../../../js/phonebook/sort.js'></script>
+<!--<script type="text/javascript">
+var baseP=getJPermissions(JSON.parse(sessionStorage.baseUser).orguser.org_id);
+wx.config({
+    debug: false,
+    appId: baseP.appId,
+    timestamp: baseP.timestamp,
+    nonceStr: baseP.nonceStr,
+    signature: baseP.signature,
+    jsApiList: [
+    ]
+});
+wx.ready(function (){
+    //隐藏非基础类菜单
+    wx.hideAllNonBaseMenuItem();
+})
+</script>-->
+<script>
+	 $(function(){
+		 var ports=domainName+"/shijiwxy/wechat/portal/statistics/student/phoneBook.json";
+         var parameter={
+             token:JSON.parse(sessionStorage.baseUser).token,
+             udid:JSON.parse(sessionStorage.baseUser).udid, //最后从cookie里去
+             version:"3",  //终端
+             identity:1,
+             clas_id:GetUrlParam("clas_id")
+
+         }
+	     //显示学期
+	     //发送请求
+		  getData(ports, parameter,function(result){
+              if(result.code==200 && result.success==true){
+                        var res = result.data;
+                        var per_num = 0;
+                        console.log(res);
+						//sessionStorage.phonebook=JSON.stringify(res);
+
+						var html="";
+						if(JSON.stringify(res)!='{}'){
+							for(var k in res){
+                                for(var i=0;i<res[k].length;i++){
+                                    var obj = res[k][i];
+                                    var bindstr = '';
+                                    obj.isBind == '0'? bindstr = '未关注' : bindstr = '';
+                                    console.log(obj);
+                                    var parent_name,parent_mobile;
+                                    for(var m=0;m<obj.parents.length;m++){
+                                        parent_name = obj.parents[m].parent_name;
+                                        parent_mobile = obj.parents[m].mobile;
+                                    }
+                                    html +='<li class="item-content" data-name="'+ parent_name +'" data-mob="'+ parent_mobile +'"  >'+
+                                        '<div class="item-media"><span class="icon icon-phone"></span></div>'+
+                                        '<div class="item-inner">'+
+                                        '<div class="item-title">'+obj.stud_name+'</div>'+
+                                        '<div class="item-after">'+ bindstr +'</div>'+
+                                        //'<div class="item-after gray">'+gz+'</div>'+
+                                        '</div>'+
+                                        ' </li>';
+                                    per_num ++;
+                                }
+                                
+								// if(m==0){
+								// 	$("#className").html(res[m].clas_name);
+								// }
+							}
+						}
+						  $("#allStudentC").html(per_num);
+						  $("#allClass").html(html);
+                          $('#allClass .item-after').css('color','#f6383a');
+                  //渲染通讯录
+                  var Initials=$('.initials');
+                  var LetterBox=$('#letter');
+                  initials();
+
+                  var last=0;
+
+                  $(".initials ul li").click(function(){
+
+                      var _this=$(this);
+                      var LetterHtml=_this.html();
+                      LetterBox.html(LetterHtml).show();
+                      Initials.css('background','rgba(145,145,145,0.6)');
+                      setTimeout(function(){
+                          Initials.css('background','rgba(145,145,145,0)');
+                          LetterBox.hide();
+                      },1000);
+                      var container = $('.native-scroll');
+                      container.scrollTop(0);
+                      var scrollTo = $("#"+LetterHtml).offset().top;
+
+                      container.scrollTop(
+                          scrollTo-56
+                      );
+                  });
+
+				}else{
+					$.alert(result.msg);
+				}
+          });
+          
+          //拨打电话
+            $("#allClass").on('click','li', function(){
+
+                var mob=$(this).attr("data-mob");
+                
+                var name='家长:' + $(this).attr("data-name");
+                var buttons1 = [
+                    {
+                        text: '请选择',
+                        label: true
+                    },
+                    {
+                        text: '电话联系 - '+name,
+                        onClick: function() {
+                            console.info(mob);
+                            window.location.href="tel:"+mob;
+                        }
+                    },
+                    {
+                        text: '短信联系 - '+name,
+                        onClick: function() {
+                            window.location.href="SMS:"+mob;
+                        }
+                    }
+                ];
+                var buttons2 = [
+                    {
+                        text: '取消',
+                        bg: 'danger'
+                    }
+                ];
+                var groups = [buttons1, buttons2];
+                $.actions(groups);
+            });
+
+//联系家长
+         /*$('#allClass').on('click',".item-content", function(event){
+
+
+             var $this=$(this);
+             var id=$this.attr("id");
+             var studentName= $this.find(".item-title").text();
+
+
+             if($this.hasClass("clicked")){
+                 return false;
+             }
+
+             var ports=domainName+"/esb/api/student/getParentPhone.json";
+             var parameter={
+                 token:JSON.parse(sessionStorage.baseUser).token,
+                 // 登录获得token
+                 udid:JSON.parse(sessionStorage.baseUser).udid,
+                 // 登录获得udid
+                 version:3,
+                 stud_id:id
+             }
+
+             $this.addClass("clicked");
+
+             getDataNoLoading(ports,parameter,function(res){
+                 $this.removeClass("clicked");
+                 if(res.code==200 && res.success==true){
+
+                     var parentinfo="{text: '请选择',label:true},";
+
+
+                     //家长信息 注释部分是正式
+                     var tels=res.data;
+
+                     setTimeout(function () {
+                         //联系人信息
+                         if(tels.length>0){
+                             for( var i=tels.length-1; i>=0; i--){
+                                 var name=allRelation[tels[i].relation];
+                                 var relation=allRelation[tels[i].relation];
+                                 var mob=tels[i].mobile;
+                                 parentinfo +='{text:"拨打-'+studentName+'-'+name+'-电话",onClick: function() { window.location.href="tel:'+mob+'";}},';
+                             }
+                         }
+
+
+                         var str=parentinfo;
+                         var substr=str.substring(0,str.length-1);
+                         var subtext= "["+substr+"]";
+
+                         var jsonTem=eval(subtext);//转成json对象
+
+                         var parentTel = jsonTem;
+                         var cancel = [
+                             {
+                                 text: '取消',
+                                 bg: 'danger'
+                             }
+                         ];
+                         var groups = [parentTel, cancel];
+                         $.actions(groups);
+
+
+                     },10)
+
+
+                 }else{
+                     $.alert(res.message);
+                 }
+             },"POST");
+
+         });*/
+
+
+	 });
+</script>

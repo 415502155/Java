@@ -1,0 +1,244 @@
+<!--用户管理-->
+<style>
+    .tablesorter-blue tbody td.stu_status {color: #e89090;}
+</style>
+
+<div class="content-wrap" id="sub_loadBox"  >
+    <div class="search">
+
+        <!-- &lt;!&ndash;开始时间&ndash;&gt;
+         <input type="text" class="gui-input" data-date="YYYY-MM-DD" placeholder="请选择开始时间" id="startDate" readonly style="width: 120px" >
+         &lt;!&ndash;结束时间&ndash;&gt;
+         <input type="text" class="gui-input" data-date="YYYY-MM-DD" placeholder="请选择结束时间" id="endDate" readonly  style="width: 120px" >-->
+        <div class="gui-input-group">
+            <input type="text" class="gui-input" id="content" placeholder="请输入教师姓名" style="width: 120px" />
+            <button class="gui-btn  gui-btn-normal" id="sentSearch"><i class="fa fa-search"></i>搜索</button>
+        </div>
+        <!--<input type="text" id="sendInp" class="gui-input" placeholder="请输入收费主题关键字搜索"/>-->
+    </div>
+    <div class="bod-con-fer-form">
+        <table align="center" class="tab tablesorter-blue">
+            <thead>
+            <tr>
+                <th>序号</th>
+                <th>教师姓名</th>
+                <th>手机号</th>
+                <th>教师类型</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody id="teachersList">
+                <!--<tr>
+                    <td>1</td>
+                    <td>刘涛</td>
+                    <td class="stu_status">13812345678</td>
+                    <td>专职</td>
+                    <td class="operation">
+                        <span  class="toDetail">编辑<em></em></span>
+                        <span  class="toDetail">停用<em></em></span>
+                        <span  class="toDetail">删除<em></em></span>
+                    </td>
+                </tr>
+            -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 分页 -->
+    <div class="gui-page-wapper" style="margin:20px 0;line-height: 28px;" id="pageContent">
+        <ul class="gui-page" id="limitUi">
+            <span class="gui-page-total">共<span id="allPage">0</span>页 <span id="allTotal">000</span>数据</span>
+            <span id="creatPage">
+            </span>
+        </ul>
+        <span class="gui-page-options-elevator" style="padding-left: 10px;">
+                每页条数：
+                <select id="limit" class="">
+                     <option value="20">20</option>
+                     <option value="50">50</option>
+                     <option value="100">100</option>
+                </select>
+            </span>
+
+        <span class="gui-page-options">
+            <span class="gui-page-options-elevator">跳至第
+            <input id="page" class="gui-input">
+             页</span>
+           </span>
+    </div>
+    <!--分页END-->
+
+    <div class="dataStatistics">
+        <i class="fa fa-bar-chart"></i>教师数：<span class="numberShow" id="sum_teacher"><i class="fa fa-circle-o-notch fa-spin" ></i></span> </span>
+    </div>
+
+</div>
+<script src="js/countUp.js"></script>
+<script>
+    $(function () {
+
+    })
+</script>
+<script>
+    $(function () {
+        //默认
+        showHtml();
+
+        //查看教师详情
+        $(".teacherDetail").click(function () {
+            var tech_id=$(this).attr("data-id")
+            window.location.href="#d1?tech_id="+tech_id;
+        });
+
+        //删除教师
+        $(".delTeacher").click(function () {
+            var tech_id=$(this).attr("data-id");
+            var tech_name=$(this).closest("tr").find("td:eq(1)").text();
+
+            myConfirm("你确定要删除 ["+tech_name+"] 教师吗？",function () {
+
+                //删除操作
+                var delSubject = {
+                    parameter:{
+                        "tech_id":tech_id,
+                    },
+                    url:domain+"/baseSet/categoryManage/deleteSubjectInfo.json"
+                };
+
+                //保存或者更新类目
+                getData(delSubject.url,delSubject.parameter,function (data) {
+                    console.log(data)
+                    if(data.code==200 && data.success==true){
+                        myAlert("删除成功",1,data.code,function () {
+                            window.location.reload()
+                        });
+                    }else {
+                        myAlert(data.msg,2,data.code,null);
+                    }
+                },"POST",false)
+            },null,null,2)
+        });
+
+        //删除教师
+        $(".stopTeacher").click(function () {
+            var tech_id=$(this).attr("data-id");
+            var tech_name=$(this).closest("tr").find("td:eq(1)").text();
+
+            myConfirm("你确定要停用 ["+tech_name+"] 教师吗？",function () {
+
+                //删除操作
+                var delSubject = {
+                    parameter:{
+                        "tech_id":tech_id,
+                    },
+                    url:domain+"/protal/teacherManage/stopTeacherInfo.json"
+                };
+
+                //保存或者更新类目
+                getData(delSubject.url,delSubject.parameter,function (data) {
+                    console.log(data)
+                    if(data.code==200 && data.success==true){
+                        myAlert("["+tech_name+"]已停用!",1,data.code,function () {
+                            window.location.reload()
+                        });
+                    }else {
+                        myAlert(data.msg,2,data.code,null);
+                    }
+                },"POST",false)
+
+
+
+            },null,null,2)
+
+        });
+
+
+    })
+    //列表
+    function showHtml(limit,page) {
+
+        var cam_list={
+            "parameter":{
+                "org_id":option.org_id,
+
+                "teacher_name" :"教师名称",//查询关键字
+                "page":"1",
+                "limit":"20",
+                "orderType":"desc",//false
+                "orderContent":"teacher_name",//false
+
+                "limit":limit?limit:20,
+                "page":page?page:1
+            },
+            "url":domain+"/protal/teacherManage/queryTeacherListInfo.json"
+        };
+
+        getData(cam_list.url,cam_list.parameter,function (res) {
+            console.log(res)
+            if(res.code==200 && res.success==true){
+
+                var data=res.data,html="";
+
+                //如果当前页是第一页从新渲染
+                if(data.page==1){
+                    //生成页数(总条数，总页数，)
+                    $("#creatPage").createPage({
+                        pageCount:data.total,
+                        current:page,
+                        url:cam_list.url,
+                        backFn:function(page){
+                            var limit=$("#limit").val();
+                            showHtml(limit,page)
+                        }
+                    });
+                }
+
+                //总页数
+                $("#allPage").text(data.size);
+                //总条数
+                $("#allTotal").text(data.total);
+                 //统计教师数
+                countup("sum_teacher",data.total);
+
+                var localListTechers={};
+
+                if(data.data.length>0){
+
+                    for(var n=0,m=data.data.length;n<m;n++){
+                        var toShow=(parseInt(data.page)-1)*parseInt(data.limit);
+                        var obj=data.data[n];
+
+                        html += "<tr>" +
+                            "   <td>"+(n+toShow+1)+"</td>" +
+                            "   <td>"+obj.teacher_name+"</td>" +
+                            "   <td>"+obj.mobile+"</td>" +
+                            "   <td>"+option.teacherType[obj.type]+"</td>" +
+                            "   <td class=\"operation\" >" +
+                            "       <span  class=\"teacherDetail\" data-id=\""+obj.tech_id+"\" >编辑<em></em></span>" +
+                            "       <span  class=\"stopTeacher\" data-id=\""+obj.tech_id+"\" >停用<em></em></span>" +
+                            "       <span  class=\"delTeacher\" data-id=\""+obj.tech_id+"\" >删除<em></em></span>" +
+                            "   </td>" +
+                            "</tr>";
+                        localListTechers[obj.tech_id]={mob:obj.mobile,type:obj.type,name:obj.teacher_name,org:obj.org_id,note:obj.note};
+
+                        sessionStorage.localListTechers=JSON.stringify(localListTechers);
+                    }
+
+
+
+                }else {
+                    html += "<tr>" +
+                              "<td colspan='6' class='noData' title='没有找到数据'><i class=\"fa fa-warning\" aria-hidden=\"true\"></i>没有找到教师</td>" +
+                            "</tr>";
+                }
+
+
+
+                $("#teachersList").html(html)
+
+            }else {
+                myAlert(res.msg,2,res.code,null);
+            }
+        },"POST",false)
+    }
+</script>

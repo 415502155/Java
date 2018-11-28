@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>通知列表</title>
+	<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+	<!--<link rel="shortcut icon" href="/favicon.ico">-->
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<!--ui包-->
+	<link rel="stylesheet" href="../../../css/sm.css">
+	<link rel="stylesheet" href="../../../css/layout.css">
+	<style type="text/css">
+		.infinite-scroll-preloader {
+			margin-top: -16px;
+		}
+	</style>
+</head>
+<body>
+<div class="page-group">
+	<div id="page-infinite-scroll-bottom" class="page page-current">
+		<!-- 添加 class infinite-scroll 和 data-distance  向下无限滚动可不加infinite-scroll-bottom类，这里加上是为了和下面的向上无限滚动区分-->
+		<div class="content infinite-scroll infinite-scroll-bottom  pull-to-refresh-content" data-distance="100">
+			<!-- 默认的下拉刷新层 -->
+			<div class="pull-to-refresh-layer">
+				<div class="preloader"></div>
+				<div class="pull-to-refresh-arrow"></div>
+			</div>
+			<div class="list-block" style="margin-top: 0">
+				<ul class="list-container" style="border:none"  id="addData" >
+                    <li id="123" data-nid="123">
+                        <div class="content-block-title text-center">2018-11-22 08:00:00</div>
+                        <div class="card demo-card-header-pic">
+                            <div valign="bottom" class="card-header color-white ">
+                                柳爽 教师
+                            </div>
+                            <div class="card-content">
+                                <div class="card-content-inner">
+                                    cstr
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <span style="font-size:1rem;"><i class="icon icon-picture" style="padding-right: .5rem"></i></span>
+                                <a href="javascript:void(0);" class="link color external">正文<span class="icon icon-right"></span></a>
+                            </div>
+                        </div>
+                    </li>
+				</ul>
+			</div>
+			 <!-- 加载提示符 -->
+			<div class="infinite-scroll-preloader">
+				<div class="preloader"></div>
+			</div>
+
+		</div>
+
+
+	</div>
+</div>
+
+</div>
+</body>
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script>$.config = {router: false}</script>
+<script src='../../../js/sm.js'></script>
+<script src="../../../js/config.js"></script>
+<script src='https://res.wx.qq.com/open/js/jweixin-1.2.0.js'></script>
+<script>
+//设置返回首页标识
+sessionStorage.home =1
+
+    // var base=JSON.parse(sessionStorage.baseUser);
+    // var parameter={
+    //    token:base.token,
+    //     // 登录获得token
+    //     udid:base.udid,
+    //     // 登录获得udid
+    //     version:3,
+    //     // 默认0web 1ios 2android 3h5
+    //     max:"",
+    //     // 当前主键最大值(需要刷新时必须)
+    //     min:"",
+    //     //当前主键最小值(需要下拉时必须)
+    //     limit:5,
+    //     // 每次刷新时追加显示的条数
+    //     uid:base.orguser.user_id,//base.orguser.teacher.tech_id,
+    //     org_id:base.orguser.org_id,
+	// 	sid:sessionStorage.nowChild
+    // }
+
+    var loading = false;
+
+    $(function () {
+        /*
+        'use strict';
+        addItems();
+        //无限滚动
+        $(document).on("pageInit", "#page-infinite-scroll-bottom", function(e, id, page) {
+            $(page).on('infinite', function() {
+                // 如果正在加载，则退出
+                if (loading) return;
+                // 设置flag
+                loading = true;
+                addItems();
+            });
+        });
+
+        //初始化
+        $.init();
+
+        $("#addData").on("click", "li", function(e, id, page) {
+            var cid=$(this).attr("data-nid");
+            if(cid=="none"){
+            	return false
+            }
+            window.location="detail.html?noticeID="+cid;
+        });
+    });
+
+    sessionStorage.parentNotices=""
+
+    function addItems() {
+
+        parameter.max = "";
+        parameter.min=$("#addData li:last-child").attr("id");
+
+        if(parameter.min=="none"){
+            return false
+        }
+
+        getDataNoLoading(domainName+"/eduWeixin/notice/studentreceiverlist", parameter,function(res){
+
+            if(res.code==200 && res.success==true){
+                if(sessionStorage.parentNotices==""||sessionStorage.parentNotices==undefined){
+                    sessionStorage.parentNotices=JSON.stringify(res.data);
+                }else{
+                    sessionStorage.parentNotices=JSON.stringify(extend(JSON.parse(sessionStorage.parentNotices).concat(res.data)));
+                }
+                var html = '';
+                if(res.data.length>0){
+
+                    var listObj=res.data;
+                    // 生成新条目的HTML
+                    for (var m=0;m<listObj.length; m++) {
+
+                        if (listObj[m].pics !==""||listObj[m].pics !== null) {
+                            var imgsign='<i class="icon icon-picture" style="padding-right: .5rem"></i>';
+                        }else{
+                            var imgsign='';
+                        }
+
+                       if(listObj[m].media!==null){
+                            var imgsign='<i class="icon icon-picture" style="padding-right: .5rem"></i>';
+                        }else{
+                            var imgsign='';
+                        }
+
+                        if(listObj[m].content.length>60){
+                            var cstr=listObj[m].content.substring(0,60)+"..."
+                        }else{
+                            var cstr=listObj[m].content
+                        }
+
+                        if(listObj[m].is_receipt==1){
+                            if(listObj[m].noticeUser.receipted==0){
+
+                                var tipText="发送回执";
+                                var color="color-danger";
+
+							}else{
+                                var tipText="已发送回执";
+                                var color="color-gray"
+							}
+
+                        } else{
+                            var tipText="正文";
+                            var color="";
+                        }
+
+                        html +='<li id="'+listObj[m].noticeUser.nuid+'" data-nid="'+listObj[m].nid+'">'+
+                            '<div class="content-block-title text-center">'+listObj[m].created_Date+'</div>'+
+                            '<div class="card demo-card-header-pic">'+
+                            '<div valign="bottom" class="card-header color-white ">'+
+                            (listObj[m].name==null?"":listObj[m].name)+" 教师"+
+                            ' </div>'+
+                            ' <div class="card-content">'+
+                            ' <div class="card-content-inner">'+
+                            cstr+
+                            '  </div>'+
+                            ' </div>'+
+                            '<div class="card-footer">'+
+                            ' <span style="font-size:1rem;">'+imgsign+'</span>'+
+                            '<a href="javascript:void(0);" class="link '+color+' external">'+tipText+'<span class="icon icon-right"></span></a>'+
+                            ' </div>'+
+                            ' </div>'+
+                            ' </li>';
+
+                    }
+
+                    if(listObj.length<5){
+                        html += ' <li id="none" class="noData noData_line lastData" ><span class="noData__tips">我是有底线的</span></li>';
+                        parameter.min = "none";
+
+                        // 删除加载提示符
+                        $('.infinite-scroll-preloader').hide();
+                    }
+
+                }else{
+                	if($("#addData li").length==0){
+                		var text="暂无数据"
+                	}else{
+                		var text="我是有底线的"
+                	}
+                    html +=' <li id="none" class="noData noData_line lastData"><span class="noData__tips">'+text+'</span></li>';
+                    // 删除加载提示符
+                    $('.infinite-scroll-preloader').remove();
+
+                }
+                loading = false;
+                // 添加新条目
+                $('#addData').append(html);
+                $.refreshScroller();
+
+            }else{
+                $.alert(res.message);
+            }
+        },"GET");
+    }
+
+  //加载最新的数据
+    $(document).on('refresh', '.pull-to-refresh-content',function(e) {
+        parameter.min = "";
+        //parameter.max = maxId;
+        parameter.max=$("#addData li:first-child").attr("id");
+
+        getDataNoLoading(domainName + "/eduWeixin/notice/studentreceiverlist", parameter, function (res) {
+
+            if (res.code == 200 && res.success == true) {
+                if (sessionStorage.parentNotices == "") {
+                    sessionStorage.parentNotices = JSON.stringify(res.data);
+                } else {
+                    sessionStorage.parentNotices = JSON.stringify(extend(JSON.parse(sessionStorage.parentNotices).concat(res.data)));
+                }
+                var html = '';
+                if (res.data.length > 0) {
+
+                    var listObj = res.data;
+                    // 生成新条目的HTML
+                    for (var m = 0; m < listObj.length; m++) {
+
+                        if (listObj[m].pics !==""||listObj[m].pics !== null) {
+                            var imgsign = '<i class="icon icon-picture" style="padding-right: .5rem"></i>';
+                        } else {
+                            var imgsign = '';
+                        }
+                        if(listObj[m].content.length>60){
+                        	var cstr=listObj[m].content.substring(0,60)+"..."
+                        }else{
+                        	var cstr=listObj[m].content
+                        }
+
+                                html +='<li id="'+listObj[m].noticeUser.nuid+'" data-nid="'+listObj[m].nid+'">'+
+                                    '<div class="content-block-title text-center">'+listObj[m].created_Date+'</div>'+
+                                    '<div class="card demo-card-header-pic">'+
+                                    '<div valign="bottom" class="card-header color-white ">'+
+                                    (listObj[m].name==null?"":listObj[m].name)+" 教师"+
+                                    ' </div>'+
+                                    ' <div class="card-content">'+
+                                    ' <div class="card-content-inner">'+
+                                        cstr+
+                                    '  </div>'+
+                                    ' </div>'+
+                                    '<div class="card-footer">'+
+                                    ' <span style="font-size:1rem;  ">'+imgsign+'</span>'+
+                                    '<a href="javascript:void(0);" class="link external">正文<span class="icon icon-right"></span></a>'+
+                                    ' </div>'+
+                                    ' </div>'+
+                                    ' </li>';
+
+                    }
+                }
+                loading = false;
+                // 删除加载提示符
+                $('.infinite-scroll-preloader').remove();
+                // 添加新条目
+                $('#addData').prepend(html);
+                $.pullToRefreshDone('.pull-to-refresh-content');
+
+            } else {
+                $.alert(res.message);
+            }
+        }, "GET");*/
+        $('#addData').on('click','li',function(){
+            location.href = 'detail.html'
+        })
+    });
+</script>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title>天津市少年宫-通知详情</title>
+		<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+		<link rel="shortcut icon" href="/favicon.ico">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<!--ui包-->
+		<link rel="stylesheet" href="../../css/sm.css">
+		<link rel="stylesheet" href="../../css/layout.css">
+	</head>
+	<body>
+		<div class="page-group">
+			<div class="page page-current" id="noticeD">
+				<a class="bar bar-nav external" style="color: #fff;" id="toUnRead">
+				    <span class="button button-link button-nav pull-left back" style="padding-left: 0.75rem;" id="time"></span>
+				     <span class="button button-link button-nav pull-right">
+				    	<span id="unRead"></span>/<span id="allCount"></span>
+				      <span class="icon icon-right"></span>  
+				    </span>
+				</a>
+			    <div class="content native-scroll">
+					<div class="content-padded" id="message" style="min-height:15rem">
+					</div>
+					<div class="content-block">
+				    	<a href="#" class="button button-fill" id="toBack">撤回通知</a>
+				  	</div>
+			    </div>   
+			</div>
+		</div>
+	</body>
+</html>
+<script src='../../js/zepto.min.js'></script>
+<script src='../../js/sm.min.js'></script>
+<script src='../../js/config.js'></script>
+<script>
+	 $(function(){
+	 
+		 var ports="../../../api/message/getMsgInfo";
+		 var parameter={
+				 token:sessionStorage.token,
+	        	 userId:JSON.parse(sessionStorage.baseInfo).userId,
+				 id:GetUrlParam("id")
+		         } 
+		 //获取消息
+		 getData(ports, parameter,function(result){
+				if(result.success=="true"){
+					var res=result.data;
+					//判断是否能够撤回
+				    var sysTime=new Date(GetDateDiff(result.sysTime)).getTime();
+				    var publishTime=new Date(GetDateDiff(res.publishTime)).getTime();
+				    var countR=(sysTime-publishTime)/1000/60;
+				    
+				    if(countR>3){
+				    	$("#toBack").hide();
+				    }
+ 					$("#time").html(res.publishTime);
+					$("#message").html(res.messageContent);
+					$("#toUnRead").attr("href","unRead.html?id="+res.id);
+					 
+				}else{
+					$.alert(result.msg);
+				}
+			}); 
+		 
+		 //未读人数和总人数，后台传过来的参数有但都是null,所以从前台获取并赋值
+		 var unRead=GetUrlParam("noread"),allCount=GetUrlParam("allCount");
+		 $("#unRead").text(unRead);
+		 $("#allCount").text(allCount);
+		 
+		 //如果不超过3分钟--撤回通知
+		 $("#toBack").click(function(){
+			 var backPorts="../../../api/message/backMsg";
+			 getData(backPorts, parameter,function(result){
+					if(result.success=="true"){
+						$.alert("撤回成功！");
+					}else{
+						$.alert(result.msg);
+					}
+				});  
+		 });
+	 });
+</script>
+ 

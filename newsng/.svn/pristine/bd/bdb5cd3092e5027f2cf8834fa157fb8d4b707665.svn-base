@@ -1,0 +1,61 @@
+package sng.dao.impl;
+
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.transform.Transformers;
+import org.springframework.stereotype.Repository;
+
+import sng.dao.ClassDao;
+import sng.entity.ChargeDetail;
+import sng.entity.Classes;
+
+/***
+ * 
+ *  @Company sjwy
+ *  @Title: ClassDaoImpl.java 
+ *  @Description: 班级管理 dao层实现
+ *	@author: shy
+ *  @date: 2018年10月29日 下午2:23:31
+ */
+@Repository
+public class ClassDaoImpl extends BaseDaoImpl<Classes> implements ClassDao{
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Classes> getList(Classes classes) {
+		Session session = this.factory.getCurrentSession();
+		String sql = " SELECT c.*,GROUP_CONCAT(t.tech_id) AS teacher_ids FROM classes c INNER JOIN teacher_class tc ON tc.clas_id=c.clas_id AND tc.is_del=0 INNER JOIN edugate_base.teacher t ON t.tech_id=tc.tech_id AND t.org_id=c.org_id AND t.is_del=0 WHERE c.is_del=0 ";
+		if(null!=classes.getClas_id()){
+			sql += " AND c.clas_id=:clas_id ";
+		}
+		if(null!=classes.getSubject_id()){
+			sql += " AND c.subject_id=:subject_id ";
+		}
+		if(null!=classes.getCategory_id()){
+			sql += " AND c.category_id=:category_id ";
+		}
+		if(StringUtils.isNotBlank(classes.getTuition_fees())){
+			sql += " AND c.tuition_fees=:tuition_fees ";
+		}
+		sql += " GROUP BY c.clas_id ";
+		Query query = session.createSQLQuery(sql);
+		query.setResultTransformer(Transformers.aliasToBean(ChargeDetail.class));
+		if(null!=classes.getClas_id()){
+			query.setInteger("clas_id", classes.getClas_id());
+		}
+		if(null!=classes.getSubject_id()){
+			query.setInteger("subject_id", classes.getSubject_id());
+		}
+		if(null!=classes.getCategory_id()){
+			query.setInteger("category_id", classes.getCategory_id());
+		}
+		if(StringUtils.isNotBlank(classes.getTuition_fees())){
+			query.setString("tuition_fees", classes.getTuition_fees());
+		}
+		return query.list();
+	}
+
+}

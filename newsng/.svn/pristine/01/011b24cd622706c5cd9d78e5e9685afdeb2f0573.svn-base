@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>登录验证</title>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <!--ui包-->
+    <link rel="stylesheet" href="../css/sm.css">
+    <link rel="stylesheet" href="../css/layout.css">
+  </head>
+  <body>
+    <div class="page-group">
+        <div class="page page-current">
+        <!--图例说明rotate(-45deg);-->
+        	<div class="iconShow">
+        		<span><img class="card-cover" src="../images/sng.png"  alt=""></span>
+        	</div>
+        <!-- 表单 -->
+        <div class="list-block">
+			    <ul>
+			      <!-- Text inputs -->
+			      <li>
+			        <div class="item-content">
+			          <div class="item-inner">
+			            <div class="item-title label">手机号码</div>
+			            <div class="item-input">
+			              <input type="tel" placeholder="请输入手机号码" id="userMob" name="mobile">
+			            </div>
+			          </div>
+			        </div>
+			      </li>
+			      <li>
+			        <div class="item-content" style="background: #fff;">
+			          <div class="item-inner">
+			            <div class="item-title label">密码</div>
+			            <div class="item-input">
+			              <input type="password" placeholder="请输入密码" id="userPSW">
+			            </div>
+			          </div>
+			        </div>
+			      </li>
+			    </ul>
+        </div>
+        <!--协议-->
+       <!-- 提交操作-->
+       <div class="content-block">
+    		<a href="javascript:void(0)" class="button button-fill external" id="tologin">立即登录</a>
+    		<a href="register.html" class="button button-fill external" id="toregister" style="margin-top:1rem">注册新用户</a> 
+  	   </div>
+  	   <div class="loginLink">
+        <a href="forgotPSW.html">忘记密码</a>
+        <a href="login_byMob.html" id="loginByMob">手机登录</a>
+      </div>
+    </div>
+  </body>
+</html>
+<script src='../js/zepto.min.js'></script>
+<script type="text/javascript">
+$.config = {router: false}
+</script>
+<script src='../js/sm.min.js'></script>
+<script src='../js/config.js'></script>
+<script>
+function getId(id){
+	return id.replace("#","");
+}
+$(function(){
+	/*提交绑定     mobile, validateCode, weixinInfoId41*/
+	$("#tologin").click(function(){
+		var mob=$("#userMob").val(),psw=$("#userPSW").val();
+		if(mob==""){
+			$.alert("手机号不能为空！");
+			return false
+		}
+		if(!(/^1[34578]\d{9}$/.test(mob))){ 
+			$.alert("手机号码输入错误，请重填！");  
+	        return false; 
+	    } 
+		if(psw==""){
+			$.alert("密码不能为空！");
+			return false
+		}
+		var parameter={
+				mobile:mob,
+				password:psw,
+				weixinInfoId:sessionStorage.baseWeixinInfoId
+		}
+		//绑定微信接口
+	 	getData("../../api/loginAndBind4password", parameter,function(res){
+			if(res.code=="0"){
+				sessionStorage.baseUser=JSON.stringify(res.baseUser);
+				sessionStorage.baseInfo=JSON.stringify(res.baseWeixinInfo);
+				sessionStorage.token=res.token;
+				if(res.baseUser.type==1){
+					window.location="teacher/index.html";
+				}else{
+					window.location="student/parent.html";
+				}
+			}else{
+				$.alert(res.msg);
+			}
+		},"POST");  
+	});
+});
+</script>

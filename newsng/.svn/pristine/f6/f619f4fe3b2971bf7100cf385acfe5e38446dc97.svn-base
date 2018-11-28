@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>用餐统计</title>
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport" />
+    <link rel="shortcut icon" href="/favicon.ico">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <!--ui包-->
+    <link rel="stylesheet" href="../../../css/sm.css">
+    <link rel="stylesheet" href="../../../css/layout.css">
+    <link rel="stylesheet" href="../../../css/teacher.css">
+    <link rel="stylesheet" href="../../../css/school_statistics.css">
+    <style type="text/css">
+        body {font-size: 0.8rem}
+        a {color: #3d4145}
+
+        .content {background-color:#EFEFF4}
+        .list-block .item-divider, .list-block .list-group-title .chooseText{font-weight: normal}
+        .num-tips{color:#999;font-size:0.7rem}
+        .item-after span {color:#84CC00}
+        .meal-num{background-color:#fff;text-align: center;color:#fff; padding: 1.5rem;background: -webkit-linear-gradient(#4164E6, #4EC7F4);background: -o-linear-gradient(#4164E6, #4EC7F4);background: -moz-linear-gradient(#4164E6, #4EC7F4);background: linear-gradient(#4164E6, #4EC7F4)}
+        .meal-num p{text-indent: 0;margin-top: 1rem}
+        .data-date{text-align: center; padding: 1rem; background-color: transparent; color: #fff}
+        #date_bar .icon{font-weight: bold}
+        .list-block{margin-top:0}
+        .list-block .item-after{font-size:0.7rem}
+        .list-block ul{border-bottom:1px solid #eee}        
+        .list-block .item-divider, .list-block .list-group-title{background-color:#fff}
+        .total-num{color:#fff;font-size:48px}
+        .grade-num{color:#84cc00}
+        .not-attn{text-align: center;margin-top:15%}
+        .not-attn p{text-indent: 0;line-height: 1.5rem;font-size:0.8rem}
+        .meal-num{display: none}
+        #remindBtn{ margin-top: 1rem; background: #4792ED; color: #fff; border: 0; padding: 0.5rem 2rem; border-radius: 2rem}
+    </style>
+</head>
+
+<body>
+    <div class="page-group">
+        <div class="page page-current" id=" ">
+            <div class="content native-scroll">
+                <div class="meal-num ">
+                    <p class="" style="opacity: 0.8">今日用餐总人数(人)</p><p class="total-num"> 0 </p>
+                </div>
+                <div id="date_bar" class="data-date clearfix" style="position: relative">
+                    <span id="yesterday" class="icon icon-left fl" style="position: absolute;left:3rem;visibility: hidden"></span>
+                    <span id="data_date" class="select-date" type="button" data-toggle='date'></span>
+                    <span id="tomorrow" class="icon icon-right fr" style="position: absolute;right:3rem;visibility: hidden"></span>
+                </div>
+                <div class="list-block">
+                </div>
+            </div>
+        </div>
+        <a href="#pageTop" id="goBackToTop"></a>
+</body>
+
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script src='https://res.wx.qq.com/open/js/jweixin-1.2.0.js'></script>
+<script>
+    //设置返回首页标识
+    sessionStorage.home = 1;
+    var baseUser;
+    //如果从通过微信消息模板登录
+    if(sessionStorage.baseUser==undefined || sessionStorage.baseUser== null){
+        var nowOrg_id=GetUrlParam("org_id");
+        var nowIdentity=GetUrlParam("identity");
+        var nowOpenid=GetUrlParam("openid");
+        var dinnerDate=GetUrlParam("dinnerDate");
+        var parameter={
+            openid:nowOpenid,
+            identity:nowIdentity,
+            org_id:nowOrg_id,
+            version:3
+        }
+        
+        $.ajax({
+            url:domainName+"/esb/api/wxredirect",
+            data:parameter,
+            success:function (res){
+                if(res.code==200 && res.success==true){
+                    sessionStorage.baseUser=JSON.stringify(res.data);
+                    baseUser =JSON.parse(sessionStorage.baseUser);
+                }else{
+                    $.alert(res.message);
+                }
+            },
+            async:false
+        })
+    }else{
+        baseUser=JSON.parse(sessionStorage.baseUser);
+    }
+    var gradeId_classId={};//存储班级年级id信息
+
+    var localAllClass={},changedClass={},localAllGroup={},changedGroup={};
+    //存储变量
+    var allclass;
+    //获取班级信息
+    var studentid = [],classid = [],gradeid = [],groupid = [];//已选学生id,已选班级id,已选年级id,已选教师组id
+    //渲染展示用
+    //遍历班级
+    var changedShowHtml=[],classloadstu=[],grade=[],gradeNa=[],classNa=[],studenNa=[];//班级id集合,年级id集合,年级name集合,班级name集合,学生name集合
+    var changedData={
+        "s":[],
+        "c":[],
+        "g":[]
+    };
+    var allClassId = [],dataList = {};//全部年级时获取所有班级id,存储返回的数据
+    var gradeClassData = [];//gradeId_classId
+    var dateCurr = {};//存放时间标准
+
+    //放置一个等待框不让页面那么尴尬
+    $.showPreloader();
+    //获取年级班级信息
+    getDataNoLoading(domainName + "/esb/api/grade/getGradesAndClas",
+    {"token": baseUser.token,"udid": baseUser.udid,"version": 3,"org_id":baseUser.orguser.org_id},
+    function (d) {
+        if (d.code == 200 && d.success == true){
+            //console.log(d)
+            var data = d.data.depData;
+            for (var i = data.length - 1; i >= 0; i--) {
+                var res = data[i];
+                //var obj={id:res.id,classname:res.name,student:[]}
+                var obj = {grade_name: res.grade_name, class: {}, sum: res.grade_number};
+                for (var k = data[i].clasList.length - 1; k >= 0; k--) {
+                    var id = data[i].clasList[k].clas_id;
+                    obj2 = {
+                        classname: data[i].clasList[k].clas_name,
+                        student: {}
+                    }
+                    obj.class[id] = obj2;
+                }
+                localAllClass[res.grade_id] = obj;
+            };
+        }else {
+            var code = d.code;
+            $.alert(d.message,2,code);
+        };
+        //console.log(localAllClass)
+        for(var i in localAllClass){
+            for(var j in localAllClass[i].class){
+                gradeClassData.push(i+"_"+j);
+            }
+        }
+        gradeClassData = gradeClassData.join(";");
+        sessionStorage.gradeClassData = gradeClassData;
+        //console.log(gradeClassData)
+        
+        if(typeof dinnerDate !== "undefined"){
+            getMealData(gradeClassData,dinnerDate);
+        }else{
+            getMealData(gradeClassData);
+        }
+    }, "POST");
+
+    function getMealData(clas,date) {
+        $.closeModal();
+        var port = domainName + '/shijiwxy/portal/dinerStatistic/getDinerStatistic.htm',param = {
+            token:baseUser.token,
+            udid:baseUser.udid,
+            version:3,
+            org_id:baseUser.orguser.org_id,
+            gradeId_classId:clas,
+            //attnDate:date||""
+            attnDate:"2018-08-10"
+        }
+        getData(port,param,function (res){
+            //console.log(res);
+            if(res.code == 200 && res.success == true){
+                var html = '',recordList = res.data.gradeSubmitRecordList;
+                if(res.data.isLocked !== "0"){
+                    $(".meal-num").show();
+                    for (var i=0;i<recordList.length;i++){
+                        html += '<div class="list-group" id="'+recordList[i].gradeId+'">'+
+                                        '<ul>'+
+                                            '<li class="list-group-title off">'+
+                                                '<div class="item-media">'+
+                                                    '<span class="chooseText">'+recordList[i].gradeName+' <span class="num-tips"> (用餐人数：<span class="grade-num">'+recordList[i].totalDinerNum+'</span>人)</span></span>'+
+                                                    '<span class="icon icon-down toTop"></span>'+
+                                                '</div>'+
+                                            '</li>'
+                        var classList = recordList[i].classSubmitRecordList;
+                        for(var j=0;j<classList.length;j++){
+                            var subHtml = '';
+                            classList[j].submit_date !== null ? subHtml += '<div class="item-after">总人数 <span>'+classList[j].class_num+'</span> /用餐人数 <span>'+(+classList[j].normal_num + (+classList[j].late_num))+'</span></div>' : subHtml += '<div class="item-after" style="color:red">未提交</div>';
+                            html += '<li id="'+classList[j].class_id+'" class="classLabel" data-grade="" style="display: none;">'+
+                                        '<div class="item-content">'+
+                                            '<div class="item-inner">'+
+                                                '<div class="item-title class_name">'+classList[j].clas_name+'</div>'+ subHtml +
+                                            '</div>'+
+                                        '</div>'+
+                                        '<div class="studentDetail"></div>'+
+                                    '</li>'
+                        }
+                        html += '</ul></div>'
+                    }
+                    $(".data-date").css({
+                        "color":"#fff",
+                        "background":"#66D7F7"
+                    })
+                }else{
+                    html +='<div class="not-attn">'+
+                                '<img src="../../../images/uncheckedAttendance.png" style="width:40%">'+
+                                '<p style="color:#333">考勤管理员尚未结考勤</p>'+
+                                '<p style="color:#999">考勤管理员结考勤后即可查看用餐统计</p>'+
+                                '<button  id="remindBtn" class="" type="button" >提醒结考勤</button>'+
+                            '</div>';
+                    $(".meal-num").hide();
+                    $(".data-date").css({
+                        "color":"#666",
+                        "background":"#fff"
+                    })
+                }
+                // $(".total-num").text(res.data.totalDinerNum);
+                $(".list-block").empty();
+                $(".list-block").append(html);
+                $("#date_bar span").css("visibility","visible");
+                $("#data_date").text(res.data.attnDate);
+                $(".total-num").text(res.data.totalDinerNum);
+            }
+        },"POST");
+    }
+    
+
+    
+    $("#yesterday").on("click",function(){changeDate("left")});
+    $("#tomorrow").on("click",function(){changeDate("right")});
+
+    //切换时间
+    function changeDate(arrow) {
+        var formatDate = function (dateStr){
+            var tempArr = dateStr.split("/");
+            for (var i=0;i<tempArr.length;i++){
+                if(!(tempArr[i].length>1)){
+                    tempArr[i] = "0" + tempArr[i];
+                }
+            }
+            return tempArr.join("-");
+        }
+        var date = $("#data_date").text();
+        var tm = new Date(GetDateDiff(date)).getTime();
+        
+        if(arrow === "left"){
+            tm -= 86400000;
+            $("#data_date").text(formatDate(new Date(tm).toLocaleDateString()));
+            getMealData(gradeClassData,$("#data_date").text());
+        }else if(arrow === "right"){
+            tm += 86400000;
+            if(tm>new Date().getTime()){
+                $.toast("只能查看当天及以前的信息");
+                throw new Error("只能查看当天及以前的信息");
+            }
+            $("#data_date").text(formatDate(new Date(tm).toLocaleDateString()));
+            getMealData(gradeClassData,$("#data_date").text());
+        }
+    }
+
+    //折叠班级
+    $('body').on('click',".list-group-title", function(event){
+        if($(this).hasClass("off")){
+            $(this).nextAll().show();
+            $(this).removeClass("off");
+            $(this).find(".icon-down").removeClass("toTop").addClass("todown");
+        }else{
+            $(this).nextAll().hide();
+            $(this).addClass("off");
+            $(this).find(".icon-down").addClass("toTop").removeClass("todown");
+        }
+    });
+    
+    //提醒结考勤
+    $('body').on('click','#remindBtn',function (){
+        var info = [],phoneNumber = [];
+        getDataNoLoading(domainName + '/shijiwxy/portal/dinerStatistic/getAttnAdminInfo.htm',{
+            token:baseUser.token,
+            udid:baseUser.udid,
+            version:3,
+            org_id:baseUser.orguser.org_id
+        },function (res){
+            var list = res.data,admin="{text: '请选择',label:true},";
+            if(list.length==0){
+                $.alert("暂无考勤管理员","",null);
+                return false
+            }
+            if(list.length>0){
+                for(var i = 0; i<list.length; i++){
+                    var name = list[i].name,mob = list[i].mobile;
+                    admin +='{text:"拨打-'+list[i].name+'老师-电话",onClick: function() { window.location.href="tel:'+mob+'";}},';
+                }
+            }
+            var str=admin;
+            var substr=str.substring(0,str.length-1);
+            var subtext= "["+substr+"]";
+            var jsonTem=eval(subtext);//转成json对象
+            var adminTel = jsonTem;
+            var cancel = [
+                {
+                    text: '取消',
+                    bg: 'danger'
+                }
+            ];
+            var groups = [adminTel, cancel];
+            $.actions(groups);
+            //console.log(res);
+        })
+    })
+</script>

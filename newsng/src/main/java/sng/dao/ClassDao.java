@@ -1,0 +1,163 @@
+package sng.dao;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
+
+import sng.entity.Classes;
+import sng.pojo.ClassToTeacher;
+import sng.util.Paging;
+
+
+public interface ClassDao extends BaseDao<Classes>{
+
+	
+	/**
+	 * @Title : getList 
+	 * @功能描述:根据查询条件查询班级列表 
+	 * @返回类型：List<Classes> 
+	 * @throws ：
+	 */
+	List<Classes> getList(Classes classes);
+	
+	/***
+	 * 
+	 *  @Description: 根据条件查询班级列表
+	 *  @param orgId
+	 *  @param termId
+	 *  @param clasType
+	 *  @param categoryId
+	 *  @param subjectId
+	 *  @param camId
+	 *  @param classWeek
+	 *  @param tech_names
+	 *  @return
+	 */
+	Paging<ClassToTeacher> getClassList(Integer orgId, Integer termId, Integer clasType, Integer categoryId, Integer subjectId, Integer camId, Integer classWeek, String techNames, Paging<ClassToTeacher> page);
+	/***
+	 * 
+	 *  @Description: 根据条件查询班级列表(不分页)
+	 *  @param orgId
+	 *  @param termId
+	 *  @param clasType
+	 *  @param categoryId
+	 *  @param subjectId
+	 *  @param camId
+	 *  @param classWeek
+	 *  @param techNames
+	 *  @return
+	 */
+	List<ClassToTeacher> getClassList(Integer orgId, Integer termId, Integer clasType, Integer categoryId, Integer subjectId, Integer camId, Integer classWeek, String techNames);
+	/***
+	 * 
+	 *  @Description: 统计班级人数 学费数
+	 *  @param ids 班级id
+	 *  @return
+	 */
+	@SuppressWarnings("rawtypes")
+	Map getStatisticsInfo(List<Integer> ids);
+	/***
+	 * 
+	 *  @Description: 获取学员列表
+	 *  @param orgId
+	 *  @param cidList
+	 *  @param status
+	 *  @return
+	 */
+	List<Map<String, Object>> getStudentList(Integer orgId, String cidList, String status);
+	/***
+	 * 
+	 *  @Description: 获取班级的信息 教师信息 教室信息
+	 *  @param orgId
+	 *  @param clasId
+	 *  @return
+	 */
+	@SuppressWarnings("rawtypes")
+	Map getClasInfoById(Integer orgId, Integer clasId);
+	/***
+	 * 
+	 *  @Description: 获取班级信息
+	 *  @param orgId
+	 *  @param clasId
+	 *  @return
+	 */
+	Classes getClassInfo(Integer orgId, Integer clasId);
+	/***
+	 * 
+	 *  @Description: 获取当前班级下的所有老师
+	 *  @param orgId
+	 *  @param clasId
+	 *  @return
+	 */
+	List<Map<String, Object>> getTecherIds(Integer orgId, Integer clasId);
+	/***
+	 * 
+	 *  @Description: 查询班级的人数（除 报名已作废  退费已完成）
+	 *  @param orgId
+	 *  @param clasId
+	 *  @return
+	 */
+	Integer getClassNum(Integer orgId, Integer clasId);
+	/***
+	 * 
+	 *  @Description: 查询班级的实收学费
+	 *  @param orgId
+	 *  @param clasId
+	 *  @return
+	 */
+	BigDecimal getClassFees(Integer orgId, Integer clasId);
+	/***
+	 * 
+	 *  @Description: 获取当前机构下，某一学期，某种班级类型（新生班/老生班）的班级列表
+	 *  			  clasType 班级类型为null 查询全部的
+	 *  @param orgId
+	 *  @param termId
+	 *  @param clasType
+	 *  @return
+	 */
+	@SuppressWarnings("rawtypes")
+	Map getClassListByTerm(Integer orgId, Integer termId, Integer clasType);
+	/***
+	 * 
+	 *  @Description: 根据 校区获取所有教室信息
+	 *  @param camId
+	 *  @return
+	 */
+	@SuppressWarnings("rawtypes")
+	Map getClassromm(Integer camId);
+	/***
+	 * 
+	 *  @Description: 根据 机构获取所有类目信息
+	 *  @param orgId
+	 *  @return
+	 */
+	@SuppressWarnings("rawtypes")
+	Map getCategory(Integer orgId);
+	/***
+	 * 
+	 *  @Description: 根据 机构获取所有科目信息
+	 *  @param orgId
+	 *  @return
+	 */
+	@SuppressWarnings("rawtypes")
+	Map getSubject(Integer orgId);
+	/***
+	 *  @Description: 根据 机构获取所有教师信息
+	 *  @param orgId
+	 *  @return
+	 */
+	@SuppressWarnings("rawtypes")
+	Map getTeacher(Integer orgId);
+	/***
+	 * 
+	 *  @Description: 根据 机构获取所有校区信息
+	 *  @param orgId
+	 *  @return
+	 */
+	@SuppressWarnings("rawtypes")
+	Map getCampus(Integer orgId);
+	
+	Map<String, Object> getTechListByClasId(Integer clasId);
+	
+	String getWXOpenId(Integer techId);
+}

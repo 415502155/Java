@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>支付详情</title>
+	<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+	<link rel="shortcut icon" href="/favicon.ico">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<!--ui包-->
+	<link rel="stylesheet" href="../../../css/sm.css">
+	<link rel="stylesheet" href="../../../css/layout.css">
+	<style>
+		.list-block .list-group-title {
+			padding: .6rem .75rem .4rem;
+			border-bottom: 1px solid #e7e7e7;
+			cursor: pointer
+		}
+
+		.label-checkbox {
+			border-bottom: 1px solid #e7e7e7
+		}
+
+		.icon-down {
+			position: absolute;
+			right: .75rem
+		}
+		.item-title {
+			color:#999
+		}
+		.item-title-row {
+			line-height: 1.4rem
+		}
+		.item-inner .item-after{
+			color:#3d4145
+		}
+		.chooseText {
+			padding: 4px 40px 0;
+			font-size: .83rem;
+			position: absolute
+		}
+
+		.list-block.media-list .list-group-title .item-media {
+			padding: 0
+		}
+
+		.studentDetail {
+			width: 50%;
+			height: 100%;
+			position: absolute;
+			right: 0;
+			background: #0a8ddf18;
+			z-index: 9;
+			top: 0;
+			cursor: pointer
+		}
+
+		.list-block{
+			font-size: 0.7rem
+		}
+		.list-block .color-danger {
+			color: #ff4b4c
+		}
+
+		.order{
+			height:1.5rem;
+			min-height:1.5rem
+		}
+
+		.pay-list-id{
+			word-break: break-word;
+			text-align: right;
+			width: 80%
+		}
+	</style>
+</head>
+
+<body>
+	<div class="page-group">
+		<div class="page page-current" id="payD">
+			<!--内容显示区-->
+			<div class="content native-scroll">
+
+				<div class="payBanner">
+					<div class="payTitle" id="payTitle"></div>
+					<div class="payMoney" id="payMoney">￥
+						<span>000.00</span>元</div>
+					<div class="payTip" id="payTip">距离结束:
+						<span></span>
+					</div>
+
+				</div>
+				<div class="payInstructions" id="payInstructions">暂无收费说明</div>
+
+				<div class="content-block-title text-center" style="margin-top:1rem">支付详情</div>
+				<div class="list-block" id="payDetail">
+					<ul></ul>
+					<div class="list-block-label" id="timeendTip"></div>
+				</div>
+
+				<div class="content-block">
+					<a href="javascript:void(0);" class="button button-fill" id="payBtn">立即支付
+						<span></span>
+					</a>
+				</div>
+			</div>
+
+
+		</div>
+	</div>
+</body>
+
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script src='https://res.wx.qq.com/open/js/jweixin-1.2.0.js'></script>
+<script type="text/javascript">
+	var baseP = getJPermissions(JSON.parse(sessionStorage.baseUser).orguser.org_id);
+	wx.config({
+		debug: false,
+		appId: baseP.appId,
+		timestamp: baseP.timestamp,
+		nonceStr: baseP.nonceStr,
+		signature: baseP.signature,
+		jsApiList: []
+	});
+	wx.ready(function () {
+		//隐藏非基础类菜单
+		wx.hideAllNonBaseMenuItem();
+	})
+</script>
+<script>
+	$(function () {
+
+		var payDetail = JSON.parse(sessionStorage.payList);
+		var payId = GetUrlParam("cid"),
+			payType = GetUrlParam("type");
+
+		for (var i = payDetail.length - 1; i >= 0; i--) {
+			if (payId == payDetail[i].cd_id) {
+				 
+				$("#payTitle").text(payDetail[i].item);
+
+				$("#payMoney span").text(payDetail[i].money);
+
+				endTime = payDetail[i].end_time;
+				sysTime = GetUrlParam("time");
+
+				var times = new Date(GetDateDiff(endTime)).getTime() - sysTime;
+
+				if (times < 0) {
+					$("#payBtn").hide();
+                    $("#timeendTip").text("注：收费已结束，如需交费，请联系班主任");
+				}
+
+				//显示班级信息
+				$("#payTip").attr("data-countdown", times);
+				$("#payTip span").html(formatDuring(times));
+
+				$("#payInstructions").html(payDetail[i].content == null ? "暂无收费说明" : payDetail[i].content);
+
+				if (payDetail[i].status == 0) {
+					var textcolor = "color-danger";
+				} else {
+					var textcolor = "";
+					$("#payBtn").addClass("payed").addClass("button-light").removeClass("button-fill").text(state[payDetail[i].status]);
+				}
+
+				var classHmtl = '<li class="item-content">' +
+					'<div class="item-inner">' +
+					'<div class="item-title ">支付状态</div>' +
+					'<div class="item-after '+ textcolor +'">' + state[payDetail[i].status] + '</div>' +
+					'</div>'+
+					'</li>'
+
+				if (payDetail[i].status > 0) {
+					classHmtl += '<li class="item-content order">' +
+						// '<div class="item-inner" style="border-bottom:none">' +
+						'<div class="item-inner ">' +
+						'<div class="item-title ">订单号</div>' +
+						'<div class="pay-list-id">' + payDetail[i].order_id + '</div>' +
+						'</div>' +
+						'</li>'+
+						// '<li class="item-content order">' +
+						// '<div class="item-inner" style="margin-top:-0.5rem">' +
+						// '<div class="item-title " style="color:#999">' +  payDetail[i].order_id + '</div>' +
+						// '<div class="item-after"></div>' +
+						// '</div>'+
+						// '</li>'+
+						'<li class="item-content">' +
+						'<div class="item-inner">' +
+						'<div class="item-title ">支付时间</div>' +
+						'<div class="item-after">' + payDetail[i].txnTime + '</div>' +
+						'</div>'+
+						'</li>'
+					if (payDetail[i].online_pay > 0) {
+						classHmtl += '<li class="item-content">' +
+							'<div class="item-inner">' +
+							'<div class="item-title ">支付方式</div>' +
+							'<div class="item-after">线上支付</div>' +
+							'</div>'+
+							'</li>'
+					} else if (payDetail[i].offline_pay > 0) {
+						classHmtl += '<li class="item-content">' +
+							'<div class="item-inner">' +
+							'<div class="item-title ">付款方式</div>' +
+							'<div class="item-after">线下支付</div>' +
+							'</div>'+
+							'</li>'
+					}
+				}
+				$("#payDetail ul").html(classHmtl);
+
+			}
+		}
+
+		//倒计时
+		var queryR = setInterval(function () {
+			var timeM = parseInt($("#payTip").attr("data-countdown")) - 1000;
+			if (timeM > 0) {
+				$("#payTip").attr("data-countdown", timeM);
+
+				$("#payTip").find("span").html(formatDuring(timeM));
+			} else {
+				$("#payTip").html("收费结束");
+				$("#payBtn").parent().hide();
+				$("#timeendTip").text("注：收费已结束，如需交费，请联系班主任");
+				clearInterval(queryR);
+			}
+
+		}, 1000);
+
+		//支付
+		$("#payBtn").click(function () {
+			if ($(this).hasClass("payed")) {
+				return false
+			}
+			var url = window.location = domainName + "/shijiwxy/wechat/portal/charge/pay.htm?token=" + JSON.parse(
+					sessionStorage.baseUser).token + "&udid=" + JSON.parse(sessionStorage.baseUser).udid + "&version=3&cd_id=" +
+				payId;
+			window.location = url;
+			// window.location=domainName+"/shijiwxy/wechat/portal/charge/pay.htm?token="+JSON.parse(sessionStorage.baseUser).token+"&udid="+JSON.parse(sessionStorage.baseUser).udid+"&stud_id="+studentId+"&version=3&cd_id=3";//+payId
+		});
+		
+		
+		//查询支付机构状态-显示提示语
+		var parameter={
+				 token:JSON.parse(sessionStorage.baseUser).token,
+		         udid:JSON.parse(sessionStorage.baseUser).udid,
+		         version:3,
+				 cd_id:GetUrlParam("cid")
+		};
+		getDataNoLoading(domainName+"/shijiwxy/wechat/portal/charge/getPayType.json", parameter,function(res){
+			if(res.code==200 && res.success==true){
+		           if(res.data=="1"){
+		        	   $("#timeendTip").text("注：请使用储蓄卡(借记卡),不支持信用卡(贷记卡)付款");
+		           }else{
+		        	   $("#timeendTip").text(""); 
+		           }
+
+			}
+		},"POST");
+		
+	});
+</script>

@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>学生考勤</title>
+	<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+	<!--<link rel="shortcut icon" href="/favicon.ico">-->
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<!--ui包-->
+	<link rel="stylesheet" href="../../../css/sm.css">
+	<link rel="stylesheet" href="../../../css/layout.css">
+	<link rel='stylesheet prefetch' href='../../../js/photoSwipe/photoswipe.css'>
+	<link rel='stylesheet prefetch' href='../../../js/photoSwipe/default-skin/default-skin.css'>
+
+	<script src='../../../js/zepto.min.js'></script>
+	<script>$.config = {router: false}</script>
+	<script src='../../../js/sm.min.js'></script>
+	<script src='../../../js/photoSwipe/photoswipe.min.js'></script>
+	<script src='../../../js/photoSwipe/photoswipe-ui-default.js'></script>
+	<script src='../../../js/config.js'></script>
+    <style>
+		.childName { padding-right: 10px;}
+		.item-title-row { padding: 5px 0}
+		.item-subtitle { padding: 10px 0; }
+		.list-block.media-list .item-media img {
+			border-radius: 1%;
+		}
+		.list-block.media-list .item-inner, .list-block li.media-item .item-inner {
+			padding-top: 1rem;
+			padding-bottom: .9rem;
+		}
+		.list-block.media-list .item-inner {
+			padding-top: .5rem;
+			padding-bottom: .8rem;
+		}
+		.lastData {
+			margin-bottom: 1rem;
+		}
+		.noData_line .noData__tips {
+			background: #ffffff url("../../../images/empty.png") center top no-repeat;
+			padding: 110px 0 0 0;
+			width:120px;
+		}
+
+		.input_nostyle {
+			height: 44px;
+			background: none;
+			border: none;
+			text-align: center;
+		}
+		.noData_line {border:none}
+		/*考勤状态*/
+		.stateNormal {background: #67cf5d}
+		.stateAabnormal {background:#efa91e}
+		.stateAunnormal { background: #f6383a}
+		.stateDanger {background:#f6383a}
+		.clickWidth{ width: 40px;}
+		html:not(.watch-active-state) label.label-checkbox:active, label.label-checkbox.active-state {
+			background: #fff;
+		}
+		.tag  {
+			display: block;
+			position: absolute;
+			top: .5rem;
+			right: .75rem;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			overflow: hidden;
+			max-width: 50%;
+		}
+		.imgLoading { height: 72px}
+		.imgLoading .iconloadingtip {
+			margin: 1.3rem;}
+	</style>
+</head>
+<body>
+	<div class="page-group">
+		<div class="page page-current" id="set">
+			<header class="bar bar-nav">
+				<a class="button button-link button-nav pull-left clickWidth" href="javascript:void(0)" id="date_toPrev">
+					<span class="icon icon-left"></span>
+				</a>
+				<a class="button button-link button-nav pull-right clickWidth" id="date_toNext">
+					<span class="icon icon-right"></span>
+				</a>
+				<h1 class="title"><input type="text" data-toggle='date' value="" id="nowTime" class="input_nostyle" /></h1>
+			</header>
+			<div class="content native-scroll">
+				<div class="content-block-title"><span id="studentName"></span>  考勤状态 <a href="javascript:void(0)" class="pull-right external" id="recordList" style="display: none">查看打卡记录<i class="icon  icon-right"></i></a></div>
+
+				<div class="list-block media-list" style="background: #fff">
+					<ul id="typeData" style="display: none">
+						<li>
+							<div class="item-content">
+								<div class="item-media" id="amImg">
+
+									<!--<img src="../../../images/ts_defaultImg.png"  width="108" height="72">-->
+									<figure itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject" style="position: relative;width: 108px;height: 72px;">
+										<a href="../../../images/ts_defaultImg.png" itemprop="contentUrl" class="external" data-size="1920x1080"  >
+											<img src="../../../images/ts_defaultImg.png" width="108" height="72"  data-sid=""  itemprop="thumbnail" alt="" style="display: none;">
+										</a>
+										<div class="imgLoading"  style="background: #e4e4e4;line-height:100px;font-size:.72rem;color: #aaa7a7;"><span class="iconloadingtip"></span></div>
+									</figure>
+
+								</div>
+								<div class="item-inner">
+									<div class="item-title-row" >
+										<div class="item-title" style="width: 100%;line-height: 28px;">上午入校 <span class="badge stateNormal pull-right" id="showState"></span></div>
+									</div>
+									<div class="item-subtitle" id="firstTime"></div>
+								</div>
+							</div>
+						</li>
+						<li id="pmData">
+							<div class="item-content">
+								<div class="item-media" id="pmImg">
+
+									<!--<img src="../../../images/ts_defaultImg.png" width="108" height="72">-->
+									<figure itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject" style="position: relative;width: 108px;height: 72px;">
+										<a href="../../../images/ts_defaultImg.png" itemprop="contentUrl" class="external" data-size="1920x1080"  >
+											<img src="../../../images/ts_defaultImg.png" width="108" height="72"  data-sid=""  itemprop="thumbnail" alt="" style="display: none;">
+										</a>
+										<div class="imgLoading"  style="background: #e4e4e4;line-height:100px;font-size: .72rem;color: #aaa7a7;"><span class="iconloadingtip"></span></div>
+									</figure>
+
+								</div>
+								<div class="item-inner">
+									<div class="item-title-row">
+										<div class="item-title">下午离校</div>
+									</div>
+									<div class="item-subtitle" id="lastTime">未打卡</div>
+								</div>
+							</div>
+						</li>
+					</ul>
+					<ul id="Ts_noData" style="display: none">
+						<li class="noData noData_line lastData"><span class="noData__tips">暂无考勤记录</span></li>
+					</ul>
+				</div>
+
+				<div id="all_leaveRecord" style="display:none" >
+				<div class="content-block-title" id="stu_leaveRecord">请假记录</div>
+
+					<!--<ul>
+						<li>
+							<label class="label-checkbox item-content">
+								<div class="item-inner">
+									<div class="item-title-row">
+										<div class="item-title">金杨茗多  事假</div>
+										<div class="item-after">2018-04-20 17:12</div>
+									</div>
+									<div class="item-subtitle">请假时间：2018-02-20 ~ 2018-02-21</div>
+									<div class="item-text">请假原因：家中有事，请假2天</div>
+								</div>
+							</label>
+						</li>
+						<li>
+							<label class="label-checkbox item-content">
+								<div class="item-inner">
+									<div class="item-title-row">
+										<div class="item-title">金杨茗多  事假</div>
+										<div class="item-after">2018-04-20  08:12</div>
+									</div>
+									<div class="item-subtitle">请假时间：2018-02-20 ~ 2018-02-21</div>
+									<div class="item-text">请假原因：家中有事，请假2天</div>
+								</div>
+							</label>
+						</li>
+					</ul>-->
+				</div>
+
+				<div class="content-block ">
+					<a href="javascript:void(0)" class="button button-fill external" id="toLeava">请假</a>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!--图片查看器-->
+	<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="pswp__bg"></div>
+		<div class="pswp__scroll-wrap">
+			<div class="pswp__container">
+				<div class="pswp__item"></div>
+				<div class="pswp__item"></div>
+				<div class="pswp__item"></div>
+			</div>
+			<div class="pswp__ui pswp__ui--hidden">
+				<div class="pswp__top-bar">
+					<div class="pswp__counter"></div>
+					<button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+					<!--<button class="pswp__button pswp__button&#45;&#45;share" title="Share"></button>-->
+
+					<div class="pswp__preloader">
+						<div class="pswp__preloader__icn">
+							<div class="pswp__preloader__cut">
+								<div class="pswp__preloader__donut"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+					<div class="pswp__share-tooltip"></div>
+				</div>
+				<div class="pswp__caption">
+					<div class="pswp__caption__center"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!--图片查看器End-->
+</body>
+</html>
+<script>
+//设置返回首页标识
+sessionStorage.home = 1;
+var parameter=null
+$(function () {
+	$("#Ts_noData").hide();
+    //如果从通过微信消息模板登录
+    if(sessionStorage.baseUser==undefined || sessionStorage.baseUser== null){
+        var nowOrg_id=GetUrlParam("org_id");
+        var nowIdentity=GetUrlParam("identity");
+        var nowOpenid=GetUrlParam("openid");
+        var parameter={
+            openid:nowOpenid,
+            identity:nowIdentity,
+            org_id:nowOrg_id,
+            version:3
+        }
+        getData(domainName+"/esb/api/wxredirect ",parameter,function(res){
+            if(res.code==200 && res.success==true){
+                sessionStorage.baseUser=JSON.stringify(res.data);
+                $("#studentName").text(decodeURI(GetUrlParam("studentName")));
+                parameter = {
+        		        token:JSON.parse(sessionStorage.baseUser).token,
+        		        udid:JSON.parse(sessionStorage.baseUser).udid,
+        		        version:3,
+        		        org_id:GetUrlParam("org_id"),
+        		        gradeId:GetUrlParam("gradeId"),
+        		        classId:GetUrlParam("classId"),
+        		        studentId:GetUrlParam("studentId"),
+        		        studentUserId:GetUrlParam("studentUserId"),
+        		        studentName:GetUrlParam("studentName"),
+        		        attnDate:GetUrlParam("attnDate")
+        		    };
+                //获取当前孩子
+                var studentObj = JSON.parse(sessionStorage.baseUser).orguser.childrens;
+                for (var i = 0; i < studentObj.length; i++) {
+                    if (studentObj[i].stud_id == GetUrlParam("studentId")) {
+                        sessionStorage.nowChild = studentObj[i].stud_id;
+                        sessionStorage.nowStudent = JSON.stringify(studentObj[i]);
+                    }
+                }
+       		    //默认获取当天考勤信息
+       		    getStudentData(parameter);
+            }else{
+                $.alert(res.message);
+            }
+        });
+
+    }else{
+
+    	   if(sessionStorage.tsDate!==undefined){
+               var attndate=sessionStorage.tsDate;
+
+           }else{
+    	       if(GetUrlParam("attnDate")!==""){
+                   var attndate=GetUrlParam("attnDate");
+			   }else{
+                   var attndate="";
+			   }
+
+           }
+
+    	  parameter = {
+    		        token:JSON.parse(sessionStorage.baseUser).token,
+    		        udid:JSON.parse(sessionStorage.baseUser).udid,
+    		        version:3,
+    		        org_id:JSON.parse(sessionStorage.baseUser).orguser.org_id,
+    		        gradeId:JSON.parse(sessionStorage.nowStudent).classList[0].grade_id,
+    		        classId:JSON.parse(sessionStorage.nowStudent).classList[0].clas_id,
+    		        studentId:JSON.parse(sessionStorage.nowStudent).stud_id,
+    		        studentUserId:JSON.parse(sessionStorage.nowStudent).user_id,
+    		        studentName:JSON.parse(sessionStorage.nowStudent).stud_name,
+    		        attnDate:attndate
+    		    };
+   		    //默认获取当天考勤信息
+   		    getStudentData(parameter);
+   		 $("#studentName").text(JSON.parse(sessionStorage.nowStudent).stud_name);
+
+
+    }
+
+
+    //调用控件
+    $("#nowTime").calendar({inputReadOnly:true,dateFormat:'yyyy-mm-dd',onClose:function (p) {
+           //今天以后的日期
+           // if(AddDayCount==1){
+                var now=new Date($("#nowTime").attr("data-currentdate").replace(/\-/g,"/")).getTime();
+                var seeDate=new Date($("#nowTime").val()).getTime();
+                if(now<seeDate){
+                    $.alert("只能查看当天及以前的考勤");
+                    $("#nowTime").val($("#nowTime").attr("data-currentdate").substring(0, 10));
+                    return false
+                }
+            //}
+
+            var date = {
+                token:JSON.parse(sessionStorage.baseUser).token,
+                udid:JSON.parse(sessionStorage.baseUser).udid,
+                version:3,
+                org_id:JSON.parse(sessionStorage.baseUser).orguser.org_id,
+                gradeId:JSON.parse(sessionStorage.nowStudent).classList[0].grade_id,
+                classId:JSON.parse(sessionStorage.nowStudent).classList[0].clas_id,
+                studentId:JSON.parse(sessionStorage.nowStudent).stud_id,
+                studentUserId:JSON.parse(sessionStorage.nowStudent).user_id,
+                studentName:JSON.parse(sessionStorage.nowStudent).stud_name,
+                attnDate:$("#nowTime").val()
+            };
+
+            getStudentData(date);
+        }});
+
+    //去请假
+    $("#toLeava").click(function(){
+         var toDate=$(this).attr("data-seacheDate");
+         window.location="leave.html?date="+toDate;
+	});
+
+
+
+    //打卡记录
+    $("#recordList").click(function(){
+       window.location="cardRecord.html?date="+$(this).attr("data-seacheDate").replace(/\//g,"-");
+	});
+
+    //上一天
+    $("#date_toPrev").click(function(){
+        GetDateStr(-1);
+    });
+    //下一天
+    $("#date_toNext").click(function(){
+
+        var now=new Date($("#toLeava").attr("data-seacheDate")).getTime();
+        var seeDate=new Date($("#nowTime").val()).getTime();
+        if(now<=seeDate){
+            $.alert("只能查看当天及以前的考勤");
+            return false
+        }
+        GetDateStr(1);
+    });
+
+
+
+});
+
+//上一天下一天切换
+function GetDateStr(AddDayCount) {
+
+    var now=$("#nowTime").val().replace(/\-/g,"/");
+    var dd =now==""?new Date():new Date(now);
+    dd.setDate(dd.getDate()+AddDayCount);//获取AddDayCount天后的日期
+    var y = dd.getFullYear();
+    var m = dd.getMonth()+1; //获取当前月份的日期
+    var d = dd.getDate();
+    var date=y+"-"+(m<10?"0"+m:m)+"-"+(d<10?"0"+d:d);
+
+    //今天以后的日期
+    if(AddDayCount==1){
+		var now=new Date($("#nowTime").attr("data-currentdate").replace(/\-/g,"/")).getTime();
+		var seeDate=new Date(date.replace(/\-/g,"/")).getTime();
+		if(now<seeDate){
+			$.alert("只能查看当天及以前的考勤");
+			return false
+		}
+    }
+
+    $("#nowTime").text(date);
+
+    var date = {
+        token:JSON.parse(sessionStorage.baseUser).token,
+        udid:JSON.parse(sessionStorage.baseUser).udid,
+        version:3,
+        org_id:JSON.parse(sessionStorage.baseUser).orguser.org_id,
+        gradeId:JSON.parse(sessionStorage.nowStudent).classList[0].grade_id,
+        classId:JSON.parse(sessionStorage.nowStudent).classList[0].clas_id,
+        studentId:JSON.parse(sessionStorage.nowStudent).stud_id,
+        studentUserId:JSON.parse(sessionStorage.nowStudent).user_id,
+        studentName:JSON.parse(sessionStorage.nowStudent).stud_name,
+        attnDate:date
+    };
+    //发请求查询
+    getStudentData(date);
+}
+
+
+
+//查询某天的数据
+function getStudentData(parameter){
+
+	var toDate=parameter.attnDate.replace(/\//g,"-");
+	parameter.attnDate=toDate;
+    //刷新请求的时候隐藏
+    $("#Ts_noData").hide();
+    $("#typeData").hide();
+
+    $("#all_leaveRecord .media-list").remove();
+
+    parameter.time=new Date().getTime();
+
+    getData(domainName+"/shijiwxy/wechat/portal/studentAttendance/getStudentAttendanceDetail.htm", parameter,function(res){
+        if(res.code==200 && res.success==true){
+
+            sessionStorage.removeItem("tsDate");
+
+            var allinfo=res.data;
+            $("#stu_name").text(allinfo.studentName);
+            $("#stu_TSstate").text(allinfo.attnStatus4Display);
+
+
+            //赋值当前日期
+			if(parameter.attnDate==""){
+			    var changedDate=allinfo.currentTime.substr(0,10).replace(/\-/g,"/");
+            }else{
+                var changedDate=parameter.attnDate;
+			}
+			//去请假获取的是当前日期
+            $("#toLeava").attr("data-seacheDate",allinfo.currentTime.substr(0,10).replace(/\-/g,"/"));
+            //打卡记录日期
+            $("#recordList").attr("data-seacheDate",changedDate);
+            $("#nowTime").val(changedDate.replace(/\//g,"-"));
+            $("#nowTime").attr("data-currentdate",allinfo.currentTime.replace(/\-/g,"/"));
+
+
+            //判断考勤类型
+            if(allinfo.attnType=="01"){
+                var studentdsaveNum=0;
+                for(var m=allinfo.attnRecordHistory.length-1;m>=0;m--){
+
+                    if(allinfo.attnRecordHistory[m].card_id!==null){
+                        studentdsaveNum+=1;
+                    }
+                }
+
+                //时候能进入打卡记录
+                if(studentdsaveNum==0){
+                    $("#recordList").hide();
+                }else{
+                    $("#recordList").show();
+                }
+
+
+                //考勤记录
+                var attnR=allinfo.am_in_record;
+                var attnP=allinfo.pm_out_record;
+
+                var sysTime=new Date(allinfo.currentTime.replace(/\-/g,"/")).getTime();
+                var jsDate=allinfo.attnDate==""?allinfo.currentTime.substring(0,10):allinfo.attnDate.replace(/\-/g,"/");
+
+                if(attnR!==null){
+                    //获取记录id
+                    $("#changeState").attr("data-cid",attnR.card_id);
+
+                    var studentS=allinfo.am_in_record.status;
+                    var stateHtml="",classtype="";
+
+                    switch(studentS)
+                    {
+                        case 1:
+                            stateHtml+="迟到";
+                            classtype+="stateAabnormal";
+                            break;
+                        case 2:
+                            stateHtml+="缺勤";
+                            classtype+="stateDanger";
+                            break;
+                        default:
+                            stateHtml+="正常出勤";
+                            classtype+="stateNormal";
+                    }
+
+                    $("#showState").removeClass("stateNormal").removeClass("stateDanger").removeClass("stateAunnormal").removeClass("stateAabnormal");
+                    $("#showState").html(stateHtml).addClass(classtype);//removeClass("stateNormal stateDanger stateAabnormal")
+
+                    //图片
+                    $("#amImg img").attr("data-sid",allinfo.am_in_record.id_str);
+
+                    if(allinfo.pm_out_record!==null){
+                        $("#pmImg img").attr("data-sid",allinfo.pm_out_record.id_str);
+                    }
+
+
+                    //早上开始打卡
+                    var amBegin=new Date(jsDate.replace(/\-/g,"/")+" " + allinfo.am_in_scope_begin).getTime();
+                    var pmBegin=new Date(jsDate.replace(/\-/g,"/")+" " + allinfo.pm_out_scope_begin).getTime();
+
+
+                    if(sysTime>=amBegin||attnR!==null){
+
+                        if(attnR.card_id==null){
+                            $("#firstTime").text("未打卡").addClass("redFont");
+						}else{
+                            $("#firstTime").text(attnR.card_time.substr(11,8)).removeClass("redFont");
+						}
+
+                    }else{
+                        $("#firstTime").text("未打卡").addClass("redFont");
+                    }
+
+                    $("#typeData").show();
+                    $("#Ts_noData").hide();
+
+				}else{
+					 $("#firstTime").text("未打卡").addClass("redFont");
+					  if(allinfo.attnStatus4Display=="正常"){
+                      }else{
+                          $("#showState").text(allinfo.attnStatus4Display).addClass("stateAunnormal");
+                      }
+				}
+
+                    if(attnP==null && attnR==null){
+                        $("#Ts_noData").show();
+					}else{
+
+                        var pmBegin=new Date(jsDate.replace(/\-/g,"/")+" " + allinfo.pm_out_scope_begin).getTime();
+                        if(sysTime>=pmBegin){
+                            if(allinfo.pm_out_record==null){
+                                $("#lastTime").text("未打卡").addClass("redFont");
+                            }else{
+                                $("#lastTime").text(attnP.card_time.substr(11,8)).removeClass("redFont");
+                            }
+
+                        }else{
+                            $("#lastTime").text("未开始");
+                        }
+                        $("#typeData").show();
+                        $("#Ts_noData").hide();
+					}
+
+
+
+            }else{
+
+                $("#amImg").remove();
+                $("#pmData").remove();
+                //$("#recordList").remove();
+                if(allinfo.am_in_record!==null){
+                    var attnR=allinfo.am_in_record;
+                    //考勤状态（0：正常；1：迟到；2：缺勤）
+                    var studentS=allinfo.am_in_record.status;
+                    var stateHtml="",classtype="";
+                    switch(studentS)
+                    {
+                        case 1:
+                            stateHtml+="迟到";
+                            classtype+="stateAabnormal";
+                            break;
+                        case 2:
+                            stateHtml+="缺勤";
+                            classtype+="stateDanger";
+                            break;
+                        default:
+                            stateHtml+="正常出勤";
+                            classtype+="stateNormal";
+                    }
+
+                    $("#showState").removeClass("stateNormal").removeClass("stateDanger").removeClass("stateAunnormal").removeClass("stateAabnormal");
+                    $("#showState").html(stateHtml).addClass(classtype);
+
+
+					$("#firstTime").text("教师提交时间："+attnR.card_time);
+
+                    $("#Ts_noData").hide();
+                    $("#typeData").show();
+				}else {
+                    $("#Ts_noData").show();
+                }
+
+
+
+            }
+
+            //请假记录
+            var leaveR=allinfo.leaveRecordList;
+            var leaveRHtml="";
+
+            if(leaveR.length>0){
+                for(var m=0,n=leaveR.length;m<n;m++){
+                    var stuobj=leaveR[m];
+                    var typeHmtl=stuobj.type==1?"事假":"病假";//0：病假；1：事假）
+                    leaveRHtml+='<div class="list-block media-list">' +
+									'<ul>' +
+										'<li id="'+stuobj.student_id+'" >' +
+											'<label class="label-checkbox item-content">' +
+													'<div class="item-inner">' +
+														'<div class="item-title-row">' +
+														'<div class="item-title">'+stuobj.student_name+' '+typeHmtl+'</div>' +
+														/*'<div class="item-after">'+stuobj.insert_time+'</div>' +*/
+													'</div>' +
+													'<div class="item-subtitle">请假时间：'+stuobj.begin_date+' ~ '+stuobj.end_date+'</div>' +
+													'<div class="item-text" style="-webkit-line-clamp: initial">请假原因：'+stuobj.reason+'</div>' +
+												'</div>'+
+											'</label>' +
+											 '<div class="card-footer" style="background: #fff; font-size: .72rem">' +
+												'<span>申请时间：'+stuobj.insert_time+'</span>' +
+											'</div>' +
+										'</li>' +
+									'</ul>' +
+                        		'</div>';
+                }
+
+                $("#all_leaveRecord").show();
+                $("#stu_leaveRecord").show().after(leaveRHtml);
+
+
+            }else{
+                //$("#stu_leaveRecord").prev().remove();
+                $("#stu_leaveRecord").hide();
+            }
+
+            //加载图片
+            $("[data-sid]").each(function () {
+                var opObj=$(this);
+                if(opObj.attr("data-sid")==""){
+                    opObj.attr("src","../../../images/ts_defaultImg.png").attr("onload","showImg(this)").attr("onerror","nofind(this)");
+                    opObj.parent().attr("href","../../../images/ts_defaultImg.png").attr("data-size","108x72");
+                    opObj.show();
+                    if(opObj.parent().next().length>0){
+                        opObj.parent().next().hide();
+                    }
+                    return true;
+                }
+                var parameter={
+                    sid:opObj.attr("data-sid")
+                }
+                getDataNoLoading(domainName + "/eduWeixin/weixin/getsign", parameter,function(res){
+                    if(res.code==200 && res.success==true){
+                        var obj=res.data;
+                        opObj.attr("src",obj.pic).attr("onerror","nofind(this)").attr("onload","showImg(this)");//.attr("onload","getimg(this)")
+                        opObj.parent().attr("href",obj.pic);
+                    }else{
+                        opObj.attr("src","../../../images/ts_defaultImg.png").attr("onerror","nofind(this)").attr("onload","showImg(this)");
+                        opObj.parent().attr("href","../../../images/ts_defaultImg.png").attr("data-size","108x72");
+                    }
+                },"GET");
+            });
+
+
+
+            //图片预览
+            initPhotoSwipeFromDOM('.item-media');
+
+
+
+        }else{
+            $.alert(res.message);
+        }
+    },"GET");
+}
+
+function nofind(Domlement){
+    /*  Domlement.src="../../../images/ts_uping.jpg";
+     $(Domlement).parent().attr("href","../../../images/ts_uping.jpg"); */
+    Domlement.src="../../../images/ts_defaultImg.png";
+    $(Domlement).parent().attr("href","../../../images/ts_defaultImg.png").attr("data-size","108x72");
+    Domlement.onerror=null;
+    initPhotoSwipeFromDOM('.toDetail');
+    //$("#cerImg div").html("暂无图片");
+}
+
+function showImg(obj){
+    $(obj).show();
+    if($(obj).parent().next().length>0){
+        $(obj).parent().next().hide();
+    }
+}
+</script>

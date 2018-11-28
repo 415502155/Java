@@ -1,0 +1,19 @@
+package sng.dao;
+
+import java.util.List;
+
+import sng.entity.Classes;
+
+
+public interface ClassDao extends BaseDao<Classes>{
+
+	
+	/**
+	 * @Title : getList 
+	 * @功能描述:根据查询条件查询班级列表 
+	 * @返回类型：List<Classes> 
+	 * @throws ：
+	 */
+	List<Classes> getList(Classes classes);
+	
+}

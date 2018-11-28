@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>教师统计</title>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+    <!--ui包-->
+    <link rel="stylesheet" href="../../../css/sm.css">
+    <link rel="stylesheet" href="../../../css/layout.css">
+</head>
+
+<body>
+    <div class="page-group">
+        <div class="page page-current">
+            <div class="content native-scroll">
+                <div id="teac_data">
+                    <!-- 教师关注率 -->
+
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script src='https://res.wx.qq.com/open/js/jweixin-1.2.0.js'></script>
+<script>
+    //设置返回首页标识
+    sessionStorage.echart = 1;
+    $(function () {
+        //获取本地数字
+        if (sessionStorage.teachers !== undefined) {
+            var localClassJson = JSON.parse(sessionStorage.teachers);
+            //显示执教班级
+            if (getJsonLength(localClassJson) == 0) {
+                $('#teac_data').empty();
+                $('#teac_data').append('<div class="error-img"><p class="error-text">还没有什么内容哦~</p></div>');
+                noContentImg($('#teac_data .error-text'), 'images/empty.png');
+            } else {
+                var teacherHtml = "";
+                for (var k in localClassJson) {
+                    teacherHtml += '<div class="list-block" id="' + k + '"><ul>';
+                    if (getJsonLength(localClassJson[k]) == 0) {
+                        teacherHtml +=
+                            '<li   class="item-link item-content dep-name noClass" style="color:#ccc;" >' +
+                            '<div class="item-inner">' +
+                            '<div class="item-title">暂无教师详情</div>' +
+                            '</div>' +
+                            '</li>'
+                    } else {
+
+                        teacherHtml += '<li id="' + k + '" class="item-link item-content dep-name" >' +
+                            '<div class="item-inner">' +
+                            '<div class="item-title">' + localClassJson[k].dep_name + '</div>' +
+                            '<div class="item-after">关注率:' + localClassJson[k].rate + '</div>' +
+                            '</div>' +
+                            '</li>'
+
+                    }
+                    teacherHtml += '</ul></div>';
+                }
+                $("#teac_data ").append(teacherHtml);
+            }
+
+        } else {
+            var localClassJson = {};
+            $('#teac_data').empty();
+            $('#teac_data').append('<div class="error-img"><p class="error-text">网络不是很给力哦~</p><p>请检查网络设置</p><button type="button" id="reloadpage">刷新一下~</button></div>');
+            noContentImg($('#teac_data .error-text'), 'images/neterror.png');
+        }
+        //点击进入部门详情
+        $("body").on("click",".dep-name", function(){
+            if($(this).hasClass("noClass")){
+                $.alert("该部门暂无信息！");
+                return false
+            }else {
+                var dep_id=$(this).attr("id");
+                window.location="teacher_list.html?dep_id="+dep_id;
+            }
+        });
+        if ($('#reloadpage')) {
+            $('#reloadpage').on('click', function () {
+                window.location.reload();
+            })
+        }
+    });
+    console.log(JSON.parse(sessionStorage.teachers))
+</script>

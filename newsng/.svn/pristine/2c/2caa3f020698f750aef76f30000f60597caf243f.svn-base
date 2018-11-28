@@ -1,0 +1,44 @@
+package sng.service;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import sng.pojo.ClassToTeacher;
+import sng.pojo.SessionInfo;
+import sng.util.Paging;
+
+import java.util.Map;
+
+/***
+ * 
+ *  @Company sjwy
+ *  @Title: ClassService.java 
+ *  @Description: 班級管理
+ *	@author: shy
+ *  @date: 2018年10月23日 下午1:25:55
+ */
+@Service
+@Transactional
+public interface ClassService {
+	/***
+	 * 
+	 *  @Description: 添加/编辑  班级
+	 *  @param classes
+	 */
+	void save(Map<String, Object> reqMap, SessionInfo sessionInfo);	
+	/***
+	 * 
+	 *  @Description: 根据条件查询班级列表
+	 *  @param orgId
+	 *  @param termId
+	 *  @param clasType
+	 *  @param categoryId
+	 *  @param subjectId
+	 *  @param camId
+	 *  @param classWeek
+	 *  @param tech_names
+	 *  @return
+	 */
+	Paging<ClassToTeacher> getClassList(Integer orgId, Integer termId, Integer clasType, Integer categoryId, Integer subjectId, Integer camId, Integer classWeek, String tech_names, Integer isAll, Paging<ClassToTeacher> page);
+	
+}

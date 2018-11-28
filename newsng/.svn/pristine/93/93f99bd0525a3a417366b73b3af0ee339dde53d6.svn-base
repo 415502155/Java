@@ -1,0 +1,122 @@
+<!--操作日志-->
+<style>
+    .tablesorter-blue tbody td.stu_status {color: #e89090;}
+</style>
+
+<div class="content-wrap" id="sub_loadBox"  >
+    <div class="search">
+        <select class="gui-input" style="width: 100px">
+            <option value="100">操作动作</option>
+            <option value="1">新生班</option>
+            <option value="0">老生班</option>
+        </select>
+        <!-- &lt;!&ndash;开始时间&ndash;&gt;
+         <input type="text" class="gui-input" data-date="YYYY-MM-DD" placeholder="请选择开始时间" id="startDate" readonly style="width: 120px" >
+         &lt;!&ndash;结束时间&ndash;&gt;
+         <input type="text" class="gui-input" data-date="YYYY-MM-DD" placeholder="请选择结束时间" id="endDate" readonly  style="width: 120px" >-->
+
+        <input type="text" class="gui-input" id="content" placeholder="请输入学员姓名、证件号或家长手机号" style="width: 240px" />
+        <button class="gui-btn  gui-btn-normal" id="sentSearch"><i class="fa fa-search"></i>搜索</button>
+        <button class="gui-btn gui-btn-warm" id="sentEmpty"><i class="fa fa-trash-o"></i>清空</button>
+        <!--<input type="text" id="sendInp" class="gui-input" placeholder="请输入收费主题关键字搜索"/>-->
+    </div>
+    <div class="bod-con-fer-form">
+        <table align="center" class="tab tablesorter-blue">
+            <thead>
+            <tr>
+                <th><input type="checkbox" name="allClass" onclick="all_click(this,'class')"></th>
+                <th>序号</th>
+                <th>操作动作</th>
+                <th>操作对象</th>
+                <th>操作内容</th>
+                <th>操作人</th>
+                <th>操作时间</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td><input type="checkbox" name="class"></td>
+                <td>1</td>
+                <td>删除学员</td>
+                <td>李立伟（12010420177887）</td>
+                <td>单独转班 儿童画（儿162-1-2B）赵岩</td>
+                <td>张志和</td>
+                <td>17-9-20 17:34:54</td>
+            </tr>
+            <tr>
+                <td><input type="checkbox" name="class"></td>
+                <td>2</td>
+                <td>名额保留</td>
+                <td>李立伟（12010420175486）</td>
+                <td>立即缴费  儿童画（儿162-1-2B）刘丽 </td>
+                <td>张志和</td>
+                <td>17-9-20 17:34:54</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <!-- 分页 -->
+    <div class="gui-page-wapper" style="margin:20px 0;line-height: 28px;">
+        <ul class="gui-page" id="limitUi">
+            <span class="gui-page-total">共151页 15065数据</span>
+            <!---->
+            <li title="上一页" class="gui-page-prev gui-page-disabled">
+                <a><i class="fa fa-angle-left"></i></a>
+            </li>
+            <li title="1" class="gui-page-item gui-page-item-active">
+                <a>1</a>
+            </li>
+            <li title="2" class="gui-page-item">
+                <a>2</a>
+            </li>
+            <li title="3" class="gui-page-item">
+                <a>3</a>
+            </li>
+            <li title="向后 5 页" class="gui-page-item-jump-next">
+                <a><i class="fa fa-ellipsis-h"></i></a>
+            </li>
+            <li title="10" class="gui-page-item">
+                <a>10</a>
+            </li>
+            <li title="下一页" class="gui-page-next">
+                <a>
+                </a><a><i class="fa fa-angle-right"></i></a>
+            </li>
+        </ul>
+
+        <span class="gui-page-options-elevator" style="padding-left: 10px;">
+                每页条数：
+                <select id="limit" class="">
+                     <option value="20">20</option>
+                     <option value="50">50</option>
+                     <option value="100">100</option>
+                </select>
+            </span>
+
+        <span class="gui-page-options">
+            <span class="gui-page-options-elevator">跳至第
+            <input id="page" class="gui-input">
+             页</span>
+           </span>
+    </div>
+    <!--分页-->
+    <div class="dataTool" style="">
+        <div class="pull-left">
+            <label for="isAll">
+                <input type="checkbox" id="isAll" name="allClass" onclick="toAll()">选择全部分页数据
+            </label>
+        </div>
+        <div class="pull-right">
+            <button class="gui-btn  gui-btn-normal" id="sentSearch"><i class="fa fa-cloud-download"></i>导出日志</button>
+        </div>
+    </div>
+</div>
+<script src="js/countUp.js"></script>
+<script>
+    $(function () {
+        $(".toDetail").click(function () {
+            window.location.href="#12?id=12"
+        })
+
+    })
+</script>

@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title>收费列表</title>
+		<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+		<!--<link rel="shortcut icon" href="/favicon.ico">-->
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<!--ui包-->
+		<link rel="stylesheet" href="../../../css/sm.css">
+		<link rel="stylesheet" href="../../../css/layout.css">
+		<link rel="stylesheet" href="../../../css/teacher.css">
+		<style type="text/css">
+		.infinite-scroll-preloader {
+			margin-top: -20px;
+		}
+
+		</style>
+	</head>
+	<body>
+		<div class="page-group">
+			<div id="page-infinite-scroll-bottom" class="page page-current">
+				<!-- 添加 class infinite-scroll 和 data-distance  向下无限滚动可不加infinite-scroll-bottom类，这里加上是为了和下面的向上无限滚动区分-->
+				<div class="content infinite-scroll infinite-scroll-bottom  pull-to-refresh-content" data-distance="100">
+					<!-- 默认的下拉刷新层 -->
+					<div class="pull-to-refresh-layer">
+						<div class="preloader"></div>
+						<div class="pull-to-refresh-arrow"></div>
+					</div>
+					<div class="list-block" style="margin-top: 0">
+						<ul class="list-container" style="border:none"  id="addData">
+
+						</ul>
+					</div>
+					<!-- 加载提示符 -->
+					<div class="infinite-scroll-preloader">
+						<div class="preloader"></div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</body>
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.js'></script>
+<script src="../../../js/config.js"></script>
+
+<script >
+    //后退刷新
+    window.addEventListener('pagehide', function(event) {
+        sessionStorage.home=1;
+    });
+
+    var loading = false;
+    $(function () {
+        'use strict';
+        var base = null;
+        //如果从通过微信消息模板登录
+        if(sessionStorage.baseUser==undefined || sessionStorage.baseUser== null){
+            var nowOrg_id=GetUrlParam("org_id");
+            var nowIdentity=GetUrlParam("identity");
+            var nowOpenid=GetUrlParam("openid");
+
+            var parameter={
+                openid:nowOpenid,
+                identity:nowIdentity,
+                org_id:nowOrg_id,
+                version:3
+            }
+
+            getData(domainName+"/esb/api/wxredirect ",parameter,function(res){
+                if(res.code==200 && res.success==true){
+                    sessionStorage.baseUser=JSON.stringify(res.data);
+					parameter={
+                        token:JSON.parse(sessionStorage.baseUser).token,
+                        udid:JSON.parse(sessionStorage.baseUser).udid,
+                        version:3,
+                        max:"",
+                        min:"",
+                        num:5
+                    }
+                    addItems();
+
+                    //无限滚动
+                    $(document).on("pageInit", "#page-infinite-scroll-bottom", function(e, id, page) {
+                        $(page).on('infinite', function() {
+                            console.info("1")
+                            // 如果正在加载，则退出
+                            if (loading) return;
+                            // 设置flag
+                            loading = true;
+
+                            addItems();
+
+                        });
+                    });
+
+                    //初始化
+                    $.init();
+
+                }else{
+                    $.alert(res.message);
+                }
+            });
+
+        }else{
+            addItems();
+            //无限滚动
+            $(document).on("pageInit", "#page-infinite-scroll-bottom", function(e, id, page) {
+                $(page).on('infinite', function() {
+                    // 如果正在加载，则退出
+                    if (loading) return;
+                    // 设置flag
+                    loading = true;
+                    addItems();
+                });
+            });
+
+            //初始化
+            $.init();
+        }
+
+
+
+    });
+
+    var localPay=[];
+
+    function addItems() {
+
+        var  parameter={
+            token:JSON.parse(sessionStorage.baseUser).token,
+            udid:JSON.parse(sessionStorage.baseUser).udid,
+            version:3,
+            max:"",
+            min:"",
+            num:5
+        }
+
+        parameter.min=$("#addData li:last-child").attr("id");
+        parameter.max="";
+
+        if(parameter.min=="none"){
+            return false
+        }
+
+        getDataNoLoading(domainName+"/shijiwxy/wechat/portal/charge/getTList.json", parameter,function(res){
+
+            if(res.code==200 && res.success==true){
+                var html = '';
+                if(res.data.list==undefined||res.data.list.length==0){
+					if($("#none").length==1){
+					    return false
+					}
+                    html +=' <li id="none" class="noData noData_line lastData" ><span class="noData__tips">我是有底线的</span></li>';
+                    parameter.min="none";
+                    $(".infinite-scroll-preloader").hide()
+
+                }else{
+                    var listObj=res.data.list;
+                    // 生成新条目的HTML
+                    localPay=localPay.concat(listObj);
+					sessionStorage.payList=JSON.stringify(localPay);
+
+					if(listObj.length>0){
+						  for (var i=0;i< listObj.length; i++) {
+
+		                        html +=' <li id="'+listObj[i].cid+'" data-type="'+listObj[i].pay_type+'" data-refund="'+listObj[i].refund+'">'+
+		                            '<div class="content-block-title text-center">'+listObj[i].start_time+'</div>'+
+		                            '<div class="card demo-card-header-pic">'+
+		                            '<div valign="bottom" class="card-header color-white"  style="font-weight: bold; font-size: 1rem; line-height: 1.8rem">'+
+		                            '<span   class="link external overTitle">'+listObj[i].item+'</span>'+
+		                            '<span   class="link external" style="color: #ff6600">'+listObj[i].money+'元</span>'+
+		                            '</div>'+
+		                            '<div class="card-footer">'+
+		                            '<a href="javascript:void(0);" class="link external" style="color: #bfbfbf">收费结束:'+listObj[i].end_time+'</a>'+
+		                            '<a href="javascript:void(0);" class="link external">详情</a>'+
+		                            '</div>'+
+		                            '</div>'+
+		                            '</li>';
+
+		                    }
+
+                        if(listObj.length<5){
+                            html += ' <li id="none" class="noData noData_line lastData" ><span class="noData__tips">我是有底线的</span></li>';
+                            parameter.min = "none";
+
+                            // 删除加载提示符
+                            $('.infinite-scroll-preloader').remove();
+                        }
+					}else {
+                        if($("#addData li").length==0){
+                            $('#addData').empty();
+                            html += '<div class="error-img"><p class="error-text">还没有什么内容哦~</p></div>';
+                        }else{
+                            var text="我是有底线的";
+                            html +=' <li id="none" class="noData noData_line lastData"><span class="noData__tips">'+text+'</span></li>';
+                        }
+                        // 删除加载提示符
+                        $('.infinite-scroll-preloader').remove();
+					}
+
+                }
+                loading = false;
+                // 添加新条目
+                $('#addData').append(html);
+
+                //空数据样式
+                if($('#addData .error-text').length>0){
+                    noContentImg($('#addData .error-text'), 'images/empty.png');
+                }
+
+                $.refreshScroller();
+
+                $("#addData").on("click", "li", function(e, id, page) {
+                    var cid=$(this).attr("id"),type=$(this).attr("data-type"),refoundType=$(this).attr("data-refund");
+                    if(cid=="none"){
+                    	return false
+                    }
+                    window.location="pay_detail.html?cid="+cid+"&type="+type+"&refoundType="+refoundType;
+                });
+
+            }else{
+                $.alert(res.message);
+            }
+        },"POST");
+    }
+
+
+    //加载最新的数据
+    $(document).on('refresh', '.pull-to-refresh-content',function(e) {
+
+        var  parameter={
+            token:JSON.parse(sessionStorage.baseUser).token,
+            udid:JSON.parse(sessionStorage.baseUser).udid,
+            version:3,
+            max:"",
+            min:"",
+            num:5
+        }
+
+        parameter.min="";
+        parameter.max=$("#addData  li:first-child").attr("id")=="none"?"0":$("#addData  li:first-child").attr("id");
+        loading = true;
+
+        getDataNoLoading(domainName+"/shijiwxy/wechat/portal/charge/getTList.json", parameter,function(res){
+
+            if(res.code==200 && res.success==true){
+                var html = '';
+                if(res.data.list==undefined||res.data.list.length==0){
+
+                }else{
+                    var html = '';
+                    if(res.data.list.length>0){
+
+                        var listObj=res.data.list;
+                        // 生成新条目的HTML
+                        for (var i=0;i< listObj.length; i++) {
+
+                        /*    html +=' <li id="'+listObj[i].cid+'" data-type="'+listObj[i].pay_type+'" data-refund="'+listObj[i].refund+'">'+
+                                '<div class="content-block-title text-center">'+listObj[i].start_time+'</div>'+
+                                '<div class="card demo-card-header-pic">'+
+                                '<div valign="bottom" class="card-header color-white"  style="font-weight: bold; font-size: 1rem; line-height: 1.8rem">'+
+                                '<span   class="link external overTitle">'+listObj[i].item+'</span>'+
+                                '<span   class="link external" style="color: #ff6600">'+listObj[i].money+'元</span>'+
+                                '</div>'+
+                                '<div class="card-footer">'+
+                                '<a href="javascript:void(0)" class="link external" style="color: #bfbfbf">收费结束:'+listObj[i].end_time+'</a>'+
+                                '<a href="javascript:void(0)" class="link external">详情</a>'+
+                                '</div>'+
+                                '</div>'+
+                                '</li>';*/
+
+                            html +=' <li id="'+listObj[i].cid+'" data-type="'+listObj[i].pay_type+'" data-refund="'+listObj[i].refund+'">'+
+                                '<div class="content-block-title text-center">'+listObj[i].start_time+'</div>'+
+                                '<div class="card demo-card-header-pic">'+
+                                '<div valign="bottom" class="card-header color-white"  style="font-weight: bold; font-size: 1rem; line-height: 1.8rem">'+
+                                '<span   class="link external overTitle">'+listObj[i].item+'</span>'+
+                                '<span   class="link external" style="color: #ff6600">'+listObj[i].money+'元</span>'+
+                                '</div>'+
+                                '<div class="card-footer">'+
+                                '<a href="javascript:void(0);" class="link external" style="color: #bfbfbf">收费结束:'+listObj[i].end_time+'</a>'+
+                                '<a href="javascript:void(0);" class="link external">详情</a>'+
+                                '</div>'+
+                                '</div>'+
+                                '</li>';
+
+
+                        /*     if(i==listObj.length-1){
+                                if(listObj.length<5){
+                                    html +=' <li id="none" class="noData noData_line lastData" ><span class="noData__tips">我是有底线的</span></li>';
+                                    $('.infinite-scroll-preloader').remove();
+                                    parameter.min="none";
+                                }else{
+                                    parameter.min=listObj[i].cid;
+                                }
+                            } */
+                        }
+                    }
+
+                }
+
+                loading = false;
+                $.pullToRefreshDone('.pull-to-refresh-content');
+
+                // 添加新条目
+                $('#addData').prepend(html);
+                $.refreshScroller();
+
+            }else{
+                $.alert(res.message);
+                $.pullToRefreshDone('.pull-to-refresh-content');
+            }
+        },"GET");
+    });
+
+</script>
+
+

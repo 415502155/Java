@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title>个人设置</title>
+		<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+		<link rel="shortcut icon" href="/favicon.ico">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<!--ui包-->
+		<link rel="stylesheet" href="../../../css/sm.css">
+		<link rel="stylesheet" href="../../../css/layout.css">
+		<link rel="stylesheet" href="../../../css/teacher.css">
+	</head>
+	<body>
+		<div class="page-group">
+			<div class="page page-current">
+			 	<div class="list-block">
+					<ul>
+					  <li class="item-content">
+					      <div class="item-inner">
+					        <div class="item-title">微信头像</div>
+					        <div class="userobj userImg" style="margin: 0;" id="userHead"><img src=""></div></div>
+					  </li>
+					  <li class="item-content">
+					      <div class="item-inner">
+					        <div class="item-title">微信昵称</div>
+					        <div class="item-after" id="nickname">布鲁斯贵伊</div>
+					      </div>
+					  </li>
+					  <li class="item-content">
+					      <div class="item-inner">
+					        <div class="item-title">用户ID</div>
+					        <div class="item-after" id="userId">2145123975 </div>
+					      </div>    
+					  </li>
+					  <li class="item-content">
+					      <div class="item-inner">
+					        <div class="item-title">姓名</div>
+					        <div class="item-after" id="userName">柳爽</div>
+					      </div>
+					  </li>
+					  <li class="item-content item-link" id="toMobPage">
+					      <div class="item-inner">
+					        <div class="item-title">手机号</div>
+					        <div class="item-after" id="userMob">15002291581</div>
+					      </div>
+					  </li>
+					   <li class="item-content item-link" id="toPSWPage">
+					      <div class="item-inner">
+					        <div class="item-title">登录密码</div>
+					        <div class="item-after">修改密码</div>
+					      </div>
+					  </li>
+					</ul>
+			   </div>
+			   <div class="content-block">
+		          <a href="javascript:void(0)" class="button button-fill external" id="quit">切换账号</a>
+		  	   </div>
+			</div>
+		</div>
+		
+		<!--修改手机号-->
+		<div class="page" id='mobile'>
+		  <div class="content">
+		     	<div class="list-block">
+				    <ul>
+				      <li>
+				        <div class="item-content">
+				          <div class="item-inner">
+				            <div class="item-title label">密码</div>
+				            <div class="item-input">
+				              <input type="password" placeholder="请输入登录密码"  name="mobile">
+				            </div>
+				          </div>
+				        </div>
+				      </li>
+				   </ul>
+			    </div>	      
+			    <div class="list-block">
+					 <ul>
+					     <li>
+					        <div class="item-content">
+					          <div class="item-inner">
+					            <div class="item-title label">新手机号</div>
+					            <div class="item-input">
+					              <input type="tel" placeholder="请输入手机号码"  name="mobile">
+					            </div>
+					          </div>
+					        </div>
+					      </li>
+					      <li>
+					        <div class="item-content" style="background: #fff;">
+					          <div class="item-inner">
+					            <div class="item-title label">验证码</div>
+					            <div class="item-input">
+					              <input type="tel" placeholder="请输入验证码" id="mobCode">
+					              <div class="getCode" id="getCode">获取验证码</div>
+					            </div>
+					          </div>
+					        </div>
+					      </li>
+					</ul>
+			    </div>
+		        <div class="content-block">
+					<a href="javascript:void(0)" class="button button-fill external" id="editMob">修改手机</a>
+					<a class="button close-popup back" style="margin-top:1rem">返回</a>
+				</div>
+		  </div>
+		</div>
+		<!-- 修改该手机号 End-->
+		
+		<!--修改密码-->
+		<div class="page" id='password'>
+		  <div class="content">
+		     	<div class="list-block">
+				    <ul>
+				      <li>
+				        <div class="item-content">
+				          <div class="item-inner">
+				            <div class="item-title label">密码</div>
+				            <div class="item-input">
+				              <input type="password" placeholder="请输入登录密码" id="oldPsw" name="mobile">
+				            </div>
+				          </div>
+				        </div>
+				      </li>
+				   </ul>
+			    </div>	      
+			    <div class="list-block">
+				    <ul>
+				     <li>
+				        <div class="item-content">
+				          <div class="item-inner">
+				            <div class="item-title label">新密码</div>
+				            <div class="item-input">
+				              <input type="password" placeholder="请输入新密码" id="newPsw" name="mobile">
+				            </div>
+				          </div>
+				        </div>
+				      </li>
+				      <li>
+				        <div class="item-content" style="background: #fff;">
+				          <div class="item-inner">
+				            <div class="item-title label">新密码</div>
+				            <div class="item-input">
+				              <input type="password" placeholder="请再次输入新密码" id="reNewPsw">
+				            </div>
+				          </div>
+				        </div>
+				      </li>
+				    </ul>
+			    </div>
+		        <div class="content-block">
+					<a href="javascript:void(0)" class="button button-fill external" id="editPsw">修改密码</a>
+					<a class="button close-popup back" style="margin-top:1rem">返回</a>
+				</div>
+		  </div>
+		</div>
+		<!-- 修改该手机号 End-->
+	</body>
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script type="text/javascript">
+	$(".back").on("click",function(){
+		$.router.back();
+	})
+	//更新本地状态
+	// getData("../../../../api/userInfo", {token:sessionStorage.token,da:Math.random()},function(result){
+	// 	if(result.code=="0"){
+	// 		sessionStorage.baseUser=JSON.stringify(result.baseUser);
+	// 		sessionStorage.baseInfo=JSON.stringify(result.baseWeixinInfo);
+			
+	// 		var baseWeixinInfo=JSON.parse(sessionStorage.baseInfo);
+	// 		var baseUser=JSON.parse(sessionStorage.baseUser);
+			  
+	// 		   $("#userHead img").attr("src",baseWeixinInfo.headimgurl);//用户-头像
+	// 		   $("#nickname").html(baseWeixinInfo.nickname);//用户-微信昵称
+	// 		   $("#userName").text(baseUser.name);//用户-姓名
+			   
+	// 		    var idLength=parseInt(baseUser.id.toString().length);
+	// 			 switch(idLength)
+	// 			 {
+	// 			 case 1:
+	// 				var idhtml="0000";
+	// 			   break;
+	// 			 case 2:
+	// 				var idhtml="000";
+	// 			   break;
+	// 			 case 3:
+	// 					var idhtml="00";
+	// 				   break;
+	// 			 default:
+	// 				var idhtml="0";
+	// 			 }
+				 
+	// 		   $("#userId").text(idhtml+baseUser.id);//用户-id
+	// 		   $("#userMob").text(baseUser.mobile);//用户-手机号 
+	// 	}else{
+	// 		$.alert(result.msg);
+	// 	}
+	// });
+	
+ 
+   
+   if(window.location.hash!==""){
+	 	window.location="index.html";
+   }
+   
+
+   //设置手机号
+   $("#toMobPage").click(function(){
+	   $.router.loadPage("#mobile");
+	});
+   //设置密码editPSW
+    $("#toPSWPage").click(function(){
+	   $.router.loadPage("#password");
+	});
+    //修改密码
+    $("#editPsw").click(function(){
+	    	var  psw=$("#newPsw").val(),
+				reNewPsw=$("#reNewPsw").val(),
+			  oldPsw=$("#oldPsw").val();
+			if(oldPsw==""){
+				$.alert("请输入旧密码！");
+				return false
+			}
+			if(psw==""){
+				$.alert("请输入新密码！");
+				return false
+			}
+			if(reNewPsw==""){
+				$.alert("请确认新密码！");
+				return false
+			}
+			
+			if(reNewPsw!==psw){
+				$.alert("两次密码输入不一致！");
+				return false
+			}
+			
+			var parameter={
+					token:sessionStorage.token,
+					//用户登录时获取的token
+					password:oldPsw,
+					//用户密码
+					newPassword:psw,
+					//新密码
+					reNewPassword:reNewPsw,
+					//确认新密码
+			}
+		
+			//修改密码
+		 	getData("../../../../api/weixinModifyPassword", parameter,function(res){
+				if(res.code=="0"){
+			
+					$.alert("密码修改成功！",function(){
+						//修改密码后如果token失效，必须重新登录
+						//window.location.href="../login_byPSW.html?id="+userId;
+						$.router.back("index.html")
+						});
+					setTimeout(function(){
+						//window.location.href="../login_byPSW.html?id="+userId;
+						$.router.back("index.html")
+					},600);
+				}else{
+					$.alert(res.msg);
+				}
+			},"POST");  
+ 	});
+    
+    //修改手机号
+    $("#editMob").click(function(){
+    	
+    	var  psw=$("#pswFmob").val(),
+		     mob=$("#mobFmob").val(),
+		 mobCode=$("#codeFmob").val();
+    	
+		if(psw==""){
+			$.alert("请输入密码！");
+			return false
+		}
+		if(mob==""){
+			$.alert("请输入手机号！");
+			return false
+		}
+		
+		if(mobCode==""){
+			$.alert("请输入获取的验证码！");
+			return false
+		}
+		
+		var parameter={
+				token:sessionStorage.token,
+				//用户登录时获取的token
+				password:psw,
+				//用户密码
+				mobile:mob,
+				//手机号
+				validateCode:mobCode,
+				//验证码
+		}
+	
+		//修改密码
+	 	getData("../../../../api/weixinModifyMobile", parameter,function(res){
+			if(res.code=="0"){
+				$.alert("手机号修改成功！",function(){
+					//修改密码后如果token失效，必须重新登录
+					$.router.back("index.html")
+					});
+				setTimeout(function(){
+					$.router.back("index.html")
+				},2000);
+			}else{
+				$.alert(res.msg);
+			}
+		},"POST");  
+	});
+    
+    //修改手机号获取验证码
+	$("#getCode").click(function(){
+			var val=$("#mobFmob").val();
+			if(val==""){
+				$.alert("手机号不能为空！");
+				return false
+			}
+			//获取验证码
+			getData("../../../../api/sendValidateCode4Register", {mobile:val},function(res){
+				if(res.code!=="0"){
+					$.alert(res.msg);
+				}
+			})
+	});
+	 //退出登录
+    $("#quit").click(function(){
+    	userQuit();
+    	window.location="../login/login_byPSW.html"
+    });
+   //返回$.router.back("set.htm")
+</script>
+ 

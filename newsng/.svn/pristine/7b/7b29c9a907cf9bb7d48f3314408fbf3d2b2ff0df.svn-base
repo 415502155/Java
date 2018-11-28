@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>个人设置</title>
+	<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+	<!--<link rel="shortcut icon" href="/favicon.ico">-->
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<!--ui包-->
+	<link rel="stylesheet" href="../../../css/sm.css">
+	<link rel="stylesheet" href="../../../css/layout.css">
+	<link rel="stylesheet" href="../../../css/teacher.css">
+	<style>
+		#nowsSex {
+			color: #000;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="page-group">
+		<div class="page page-current" id="set">
+
+			<div class="content native-scroll">
+				<div class="content-block-title">家长信息</div>
+				<div class="list-block">
+					<ul>
+						<li class="item-content item-link" id="toEditName">
+							<div class="item-inner">
+								<div class="item-title">用户姓名</div>
+								<div class="item-after" id="userName"></div>
+							</div>
+						</li>
+						<li class="item-content ">
+							<div class="item-inner">
+								<div class="item-title">手机号</div>
+								<div class="item-after" id="userMob"></div>
+							</div>
+						</li>
+					</ul>
+				</div>
+				<div class="content-block-title">学生信息</div>
+				<div class="list-block" id="childrens">
+					<ul>
+						<!--	<li class="item-content item-link toDetail">
+							<div class="item-inner">
+								<div class="item-title">金杨茗多</div>
+								<div class="item-after" id="userName"></div>
+							</div>
+						</li>
+						<li class="item-content item-link toDetail">
+							<div class="item-inner">
+								<div class="item-title">金杨铭泽</div>
+								<div class="item-after" id="userbirthday"></div>
+							</div>
+						</li>-->
+					</ul>
+				</div>
+				<div class="content-block-title">其他操作</div>
+				<div class="list-block">
+					<ul>
+						<li class="item-content item-link" id="resetPSW">
+							<div class="item-inner">
+								<div class="item-title">设置密码</div>
+								<div class="item-after"></div>
+							</div>
+						</li>
+						<li class="item-content item-link" id="toFreeback">
+							<div class="item-inner">
+								<div class="item-title">意见反馈 <span class="badge" style="margin-left: .3rem;padding:0 .3rem;">new</span></div>
+								<div class="item-after"></div>
+							</div>
+						</li>
+					</ul>
+				</div>
+
+				<div class="content-block-title" style="padding:1rem .75rem;">为保证正常接收校方通知，请务必填写真实资料。</div>
+				<div class="content-block">
+					<a href="tel:4006610016" class="button button-fill external">
+						<span class="icon icon-phone" style="margin-right: .5rem"></span>联系客服</a>
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+	<!--修改家长姓名-->
+	<div class="page" id='editName'>
+		<div class="content">
+			<div class="content-block-title">修改姓名</div>
+			<div class="list-block">
+				<ul>
+					<li>
+						<div class="item-content">
+							<div class="item-inner">
+								<div class="item-title label">家长姓名</div>
+								<div class="item-input">
+									<input type="text" placeholder="请输入您的姓名" id="mobFmob" Maxlength="10" name="mobile">
+								</div>
+							</div>
+						</div>
+					</li>
+				</ul>
+			</div>
+			<div class="content-block">
+				<a href="javascript:void(0)" class="button button-fill external" id="quit">保存修改</a>
+				<a class="button close-popup back" style="margin-top:1rem;display: none">返回</a>
+			</div>
+		</div>
+	</div>
+	<!-- 修改家长姓名 End-->
+
+	<!--修改与孩子关系-->
+	<div class="page" id='studentDetail'>
+		<div class="content">
+			<div class="content-block-title">学生信息</div>
+			<div class="list-block">
+				<ul>
+					<li>
+						<div class="item-content">
+							<div class="item-inner">
+								<div class="item-title label">头像</div>
+								<div class=" ">
+									<img src="../../../images/defaultHead.jpg" height="60" mediaId id="nowsHead">
+								</div>
+							</div>
+						</div>
+					</li>
+					<li>
+						<div class="item-content">
+							<div class="item-inner">
+								<div class="item-title label">姓名</div>
+								<div class="item-after" id="nowsName">
+
+								</div>
+							</div>
+						</div>
+					</li>
+					<li>
+						<div class="item-content item-link" style="overflow: hidden">
+							<div class="item-inner change-sex">
+								<div class="item-title label">性别</div>
+								<div class="item-after " sex id="nowsSex">
+
+								</div>
+							</div>
+						</div>
+					</li>
+
+					<li>
+						<div class="item-content" style="background: #fff;">
+							<div class="item-inner">
+								<div class="item-title label">班级</div>
+								<div class="item-after" id="nowsClass">
+
+								</div>
+							</div>
+						</div>
+					</li>
+					<li>
+						<div class="item-content  item-link" style="overflow: hidden">
+							<div class="item-inner">
+								<div class="item-title label">亲子关系</div>
+								<div class="item-input  item-after" id="nowsRelation">
+									<input type="text" placeholder="选择亲子关系" id="picker" readonly="" relation value="" style="text-align:right;width: 70%;
+    margin-top: -.46rem;">
+								</div>
+							</div>
+						</div>
+					</li>
+				</ul>
+			</div>
+			<div class="content-block">
+				<a href="javascript:void(0)" class="button button-fill external" id="editSinfo">保存</a>
+				<a class="button close-popup back" style="margin-top:1rem">返回</a>
+			</div>
+		</div>
+	</div>
+	<!-- 修改与孩子关系 End-->
+
+</body>
+
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script src='https://res.wx.qq.com/open/js/jweixin-1.2.0.js'></script>
+<script>
+	//设置返回首页标识
+	sessionStorage.home = 1;
+
+	//后退刷新
+	window.addEventListener('pageshow', function (event) {
+		if(sessionStorage.setHome == 1){
+			sessionStorage.removeItem('setHome');
+			window.location.reload();
+		}
+	});
+
+
+	var baseP = getJPermissions(JSON.parse(sessionStorage.baseUser).orguser.org_id);
+	wx.config({
+		debug: false,
+		appId: baseP.appId,
+		timestamp: baseP.timestamp,
+		nonceStr: baseP.nonceStr,
+		signature: baseP.signature,
+		jsApiList: [
+			'chooseImage',
+			'previewImage',
+			'uploadImage',
+			'downloadImage',
+		]
+	});
+</script>
+<script>
+	$(function () {
+		"use strict";
+
+		//家长信息
+		var obj = JSON.parse(sessionStorage.baseUser).orguser;
+		console.log(obj);
+		var sessions = {};
+		var nowId;
+		sessionStorage.parent_name ? $("#userName").text(sessionStorage.parent_name) : $("#userName").text(obj.parent.parent_name);
+		$("#userMob").text(obj.user_mobile);
+
+		//孩子信息
+		//获取登陆者孩子信息
+		var studentObj = obj.childrens;
+		console.log(studentObj);
+		if (studentObj.length > 0) {
+			var studentHtml = "";
+
+			for (var i = 0; i < studentObj.length; i++) {
+
+				studentHtml += '<li class="item-content item-link toDetail" id="' + studentObj[i].stud_id + '">' +
+					'<div class="item-inner">' +
+					'<div class="item-title">' + studentObj[i].stud_name + '</div>' +
+					'<div class="item-after" id="userName"></div>' +
+					'</div>' +
+					'</li>';
+
+			}
+			$("#childrens").html(studentHtml);
+		}
+
+		//编辑家长姓名
+		$("#toEditName").click(function () {
+			$.router.loadPage("#editName");
+			$("#mobFmob").val($('#userName').text());
+		});
+		$('#quit').click(function () {
+			var mob = $("#mobFmob").val();
+			if (mob.length < 1||$.trim(mob)=="") {
+				$.alert("家长姓名不能为空!");
+				return false;
+			}
+			var param = {
+				token: JSON.parse(sessionStorage.baseUser).token,
+				udid: JSON.parse(sessionStorage.baseUser).udid,
+				version: 3,
+				parent_name: $('#mobFmob').val()
+			}
+			getData(domainName + '/shijiwxy/wechat/portal/parent/updateParent.htm', param, function (res) {
+				$.alert(res.message);
+				$("#userName").text(param.parent_name);
+				sessionStorage.setItem('parent_name', param.parent_name);
+				$.router.back();
+			})
+		})
+
+
+		$("#toFreeback").click(function () {
+			window.location="../feedback/index.html"
+        })
+
+
+		var ioslocId = []; //用于兼容ios的本地id列表 图片是base64格式的
+		wx.ready(function () {
+			//隐藏非基础类菜单
+			wx.hideAllNonBaseMenuItem();
+			//本地存储
+			var images = {
+				localId: [],
+				serverId: []
+			};
+			$('#nowsHead').on('click', function () {
+				wx.chooseImage({
+					count: 1,
+					needResult: 1,
+					sizeType: ['original', 'compressed'], // 可以指定是原图还是压缩图，默认二者都有
+					sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有
+					success: function (data) {
+						images.localId = [];
+						images.localId = images.localId.concat(data.localIds); // 返回选定照片的本地ID列表，localId可以作为img标签的src属性显示图片
+						wx.uploadImage({
+							localId: images.localId[0], // 需要上传的图片的本地ID，由chooseImage接口获得
+							isShowProgressTips: 1, // 默认为1，显示进度提示
+							success: function (res) {
+								$('#nowsHead').attr('mediaId', res.serverId); // 返回图片的服务器端ID
+							}
+						});
+						if (window.__wxjs_is_wkwebview) {
+							wx.getLocalImgData({
+								localId: images.localId[0], // 图片的localID
+								success: function (res) {
+									var localData = res.localData; // localData是图片的base64数据，可以用img标签显示
+									localData = localData.replace('jpg', 'jpeg'); //iOS 系统里面得到的数据，类型为 image/jgp,因此需要替换一下
+									ioslocId.push(localData); //把base64格式的图片添加到ioslocId数组里 这样该数组里的元素都是base64格式的
+									$('#nowsHead').attr('src', localData);
+								}
+							});
+						} else {
+							$('#nowsHead').attr('src', images.localId[0]);
+						}
+						//实时获取头像mdzz
+						var params = {
+							token: JSON.parse(sessionStorage.baseUser).token,
+							udid: JSON.parse(sessionStorage.baseUser).udid,
+							version: 3,
+							stud_id: nowId
+						}
+						var imgArr = [];
+						getData(domainName + '/esb/api/student/getStudent', params, function (res) {
+							var imgObj = {
+								id: nowId,
+								mdzzImg: res.data.headurl
+							};
+							imgArr.push(imgObj);
+							sessionStorage.setItem('mdzzTX', JSON.stringify(imgArr));
+						});
+
+
+					},
+					fail: function (res) {
+						$.alert(JSON.stringify(res));
+					}
+				});
+			})
+		});
+
+
+		//编辑孩子信息
+		$(".toDetail").click(function () {
+			window.location.href = "studentInfo.html?stud_id=" + $(this).attr("id");
+
+		});
+
+
+		//重置密码
+		$("#resetPSW").click(function () {
+			window.location = "forgotPSW.html"
+		});
+	})
+</script>

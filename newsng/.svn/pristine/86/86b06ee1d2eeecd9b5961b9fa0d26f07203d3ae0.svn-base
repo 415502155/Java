@@ -1,0 +1,206 @@
+@charset "utf-8";
+/* CSS Document */
+/*布局*/
+.blog_classList {
+    margin-right: 1%;
+    flex: 1 0 19%;
+    max-width:200px
+}
+.blog_list {
+    flex: 1 0 80%;
+}
+ .blog {
+	background: #fbfbfb;
+     margin-bottom: 10px;
+     border: 1px #efefef solid;
+	/* -webkit-box-shadow: 0 0 8px #e2e2e2;
+	 box-shadow: 0 0 8px #e2e2e2; border-bottom: 1px #ccc dotted;*/
+ }
+.blog .blog_time { color: #b8b8b8; line-height: 22px;  padding:0  3% 5px;}
+.blog .blog_author { font-weight: bold;font-size: 16px; line-height: 26px; padding:10px 3% 0;}
+.blog .blog_text { color: #657180;  font-size: 14px; line-height: 24px;  padding:0  3% 15px;}
+
+.blog_operating {border-top: 1px #e6e6e6 solid;    padding: 5px 0;}
+.blog_operating .item {
+    color: #9bb5cc;
+    line-height: 20px;
+    display: inline-block;
+    width: 32.6%;
+    text-align: center;
+    cursor: pointer;
+
+}
+
+.blog_operating .item:hover { color: #0a5ca3}
+
+.blog .blog_comment { border-left:1px #e6e6e6 solid; }
+
+
+/*图片放大列表*/
+.my-gallery { padding: 0 3% 3%}
+.my-gallery figure {
+    width: 96px;
+    height:96px;
+    display: inline-block;
+    padding:3px;
+    margin: 0;
+    vertical-align: top;
+    margin-bottom: 20px;
+}
+.my-gallery figure a {
+    padding-bottom: 100%;
+    height: 0;
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+.my-gallery figure img {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    z-index: 0;
+    vertical-align: middle;
+    -o-object-fit: cover;
+    object-fit: cover;
+    position: absolute;
+}
+
+/*班级列表*/
+.allClass {
+    width: 20%;
+    /*   //position: absolute;
+       right: 10px;*/
+    background: #fbfbfb;
+    text-align: center;
+    line-height: 36px;border: 1px #efefef solid;
+}
+.allClass ul {
+    background:#fff;
+
+    border-bottom:1px #efefef solid
+}
+.allClass ul li {
+    border-bottom:1px #efefef solid; cursor: pointer;
+}
+.allClass ul li:hover {
+    background: #f2f5f9;
+    color: #7a9dbb;
+}
+.allClass ul li.active {
+    background: #f3f5f9;
+    color: #5388bd;
+}
+
+.allClass ul li:last-child { border: none}
+.grade { position: relative;border-bottom:1px #efefef solid;}
+.grade i {
+    position: absolute;
+    top: 12px;
+    right: 15px;
+   /* //color: #7cc6dc;*/
+    color:#d5d5d5;
+    font-size: 18px;}
+
+/*博客列表*/
+.blogWrap {
+    display: flex;
+    justify-content: space-evenly;
+}
+.blog_layout {
+    /*//display: inline-flex;*/
+}
+
+.nodata {
+    text-align: center;
+    line-height: 120px;
+    background: #fdfdfd;
+    color: #90a1b5;
+    padding: 10px;
+}
+.noMoreData {
+    line-height: 20px;
+    color: #c1c1c1;
+    padding: 10px;
+    border: 1px #f7f7f7 solid;
+}
+
+/*博客详情*/
+.blogDetail-wrap {
+    margin: 20px;
+}
+.blogDetail-wrap i { padding-right: 5px; color: #ccc}
+.blogDetail-wrap .item-content i {
+    color:#c7d8e6;
+    font-size: 12px;
+}
+.blogDetail-wrap .item-content i:first-child{ vertical-align:top; padding-right:15px}
+.blogDetail-wrap .item-content i:last-child{vertical-align: bottom;padding-left: 15px}
+
+.blogDetail_dz {
+    padding: 10px;
+    color: #7f9dbb;
+    /*box-shadow: 2px 2px 3px #e4e4e4;*/
+    margin-bottom:10px;
+    background: #fdfdfd;
+    border: 1px #f7f7f7 solid;
+}
+.blogDetail_pl {
+    border-bottom: 1px #fff solid;
+    color: #7f9dbb;
+    /*box-shadow: 2px 2px 3px #e4e4e4;*/
+    margin-bottom:10px;
+    background: #fdfdfd;
+}
+.blogDetail_pl .pl_time {
+    font-size: 12px;
+    color: #ccc;
+    padding-left: 10px;
+}
+.blogDetail_pl .item-head { padding: 10px;}
+.item-content { padding:0px 20px 15px 28px;color: #757575;}
+.blogDetail_pl .item {border-bottom:1px #dadada dotted; margin-bottom: 10px;}
+.blogDetail_pl .item:last-child {border-bottom:none;}
+
+/*博客通知--转发*/
+.shareImg {
+    width: 100%;
+    overflow: hidden;
+    /* padding-bottom: 100%;*/
+    height: 240px;
+    position: relative;
+    margin-top: 10px;
+   /* max-width: 375px;*/
+}
+.shareImg img {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    z-index: 0;
+    vertical-align: middle;
+    -o-object-fit: cover;
+    object-fit: cover;
+    position: absolute;
+}
+.shareTitle {
+    background: #f5f5f5;
+    padding: 9px 10px;
+    color: #000;
+}
+.shareNoImg {
+    display: flex;
+    justify-content: space-evenly;
+    margin-top: 10px;
+}
+.shareNoImg .icon { width: 58px;height: 48px; margin-right: 10px;overflow: hidden}
+.shareNoImg .icon  img { width: 48px;height: 48px;}
+.shareNoImg .noImgtitle {
+    width: 100%;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    display:-webkit-box;
+    -webkit-box-orient:vertical;
+    -webkit-line-clamp:2;
+}
+#newShare {
+    padding: .84rem .75rem .64rem .75rem;
+}

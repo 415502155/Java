@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>问卷调查</title>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+    <link rel="shortcut icon" href="../../favicon.ico">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <!--ui包-->
+    <!-- <link rel="stylesheet" href="//at.alicdn.com/t/font_431334_smk25a436zyhw7b9.css"> -->
+    <link rel="stylesheet" href="../../../css/sm.css">
+    <link rel="stylesheet" href="../../../css/layout.css">
+    <style>
+        .content-block-title { height: 1rem; line-height: 1rem; text-align: center }
+        .question-cont p{text-indent: 0;color:#999;line-height: 1.2rem}
+        .back-button{color:#fff}
+        /* .infinite-scroll-preloader { margin-top:-20px} */
+        .card-header{ display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1rem}
+        .noData_line .noData__tips {background: none}
+        .list-block ul{border-bottom:0}
+
+        .is-fill,.go-fill{color:#999}
+    </style>
+</head>
+<body>
+    <div class="page-group">
+        <div id="page-infinite-scroll-bottom" class="page" >
+            <!-- 添加 class infinite-scroll 和 data-distance  向下无限滚动可不加infinite-scroll-bottom类，这里加上是为了和下面的向上无限滚动区分-->
+            <div class="content infinite-scroll infinite-scroll-bottom" data-distance="200" id="mainPage">
+                <div class="list-block" style="margin:0">
+                    <ul class="list-container">
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script>
+    //设置返回首页标识
+    sessionStorage.echart = 1;
+
+    //后退刷新
+    window.addEventListener('pageshow', function (event) {
+        if (sessionStorage.echartBlog == 1) {
+            sessionStorage.removeItem("echartBlog");
+            window.location.reload();
+        }
+    });
+    $(function(){
+        var today = GetUrlParam("date");
+        getData(domainName + "/shijiwxy/survey/getByDate.json",{
+            token:JSON.parse(sessionStorage.baseUser).token,
+            udid:JSON.parse(sessionStorage.baseUser).udid,
+            version:3,
+            date:today
+        },function(res){
+            // 生成新条目的HTML
+            var surveyList = res.data,html = '';
+            
+            for (var i = 0; i < surveyList.length; i++) {
+                html += ("<li data-id=\"" + surveyList[i][0] + "\" data-answer=\"\" class=\"\">\n                            <div class=\"content-block-title\">" + surveyList[i][5] + "</div>\n                            <div class=\"card question-cont\">\n                                <div class=\"card-header\">" + surveyList[i][2] + "</div>\n                                <div class=\"card-content\">\n                                <div class=\"card-content-inner\">\n                                    " + (surveyList[i][8] !== 1 ? ("<p> 调研人数/提交人数 : " + surveyList[i][4] + "/" + surveyList[i][3] + "</p>") : ("<p> 提交人数 : " + surveyList[i][3] + "</p>")) + "\n                                    <p>截止时间 : " + surveyList[i][6] + "</p>\n                                </div>\n                                </div>\n                                <div class=\"card-footer\">\n                                    <a class=\"is-fill\" href=\"#\" class=\"link\">" + (surveyList[i][7] == 3 ? "进行中" : "已关闭") + "</a>\n                                    <a class=\"go-fill\" href=\"javaScript:;\" class=\"link\">查看详情></a>\n                                </div>\n                            </div>\n                        </li>");
+                        // `<li data-id="${surveyList[i][0]}" data-answer="" class="">
+                        //     <div class="content-block-title">${surveyList[i][5]}</div>
+                        //     <div class="card question-cont">
+                        //         <div class="card-header">${surveyList[i][2]}</div>
+                        //         <div class="card-content">
+                        //         <div class="card-content-inner">
+                        //             ${surveyList[i][8] !== 1?`<p> 调研人数/提交人数 : ${surveyList[i][4]}/${surveyList[i][3]}</p>`: `<p> 提交人数 : ${surveyList[i][3]}</p>`}
+                        //             <p>截止时间 : ${surveyList[i][6]}</p>
+                        //         </div>
+                        //         </div>
+                        //         <div class="card-footer">
+                        //             <a class="is-fill" href="#" class="link">${surveyList[i][7] == 3?"进行中":"已关闭"}</a>
+                        //             <a class="go-fill" href="javaScript:;" class="link">查看详情></a>
+                        //         </div>
+                        //     </div>
+                        // </li>`
+            }
+            // 添加新条目
+            $('.infinite-scroll .list-container').append(html);
+            if(surveyList.length == 0){
+                $('#mainPage').empty();
+                $('#mainPage').append('<div class="error-img"><p class="error-text">还没有什么内容哦~</p></div>');
+                noContentImg($('#mainPage .error-text'), 'images/empty.png');
+            }
+            //将未填写变色
+            $(".is-fill").each(function (){
+                if($(this).text()=="进行中"){
+                    $(this).css("color","#00cc00");
+                }
+            })
+        })
+        //跳转到答题页面
+        $("body").on("click",".list-container li",function (){
+            location.href = "../question/show_result.html?surveyId="+$(this).attr('data-id');
+        })
+    })
+    
+</script>

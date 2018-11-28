@@ -1,0 +1,7 @@
+package sng.dao;
+
+import sng.entity.Student;
+
+public interface StudentDao extends BaseDao<Student>{
+	
+}

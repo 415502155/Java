@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>实名验证</title>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <!--ui包-->
+    <link rel="stylesheet" href="../../../css/sm.css">
+    <link rel="stylesheet" href="../../../css/layout.css">
+  </head>
+  <body>
+    <div class="page-group">
+        <div class="page page-current" id="authentication">
+        <div class="content native-scroll">
+          <!--  文字提示信息 -->
+		   <div class="authenticationTipText">
+		   	 <div style="line-height: 1.6rem; height: 1.8rem; font-size: 1rem; text-align: center; padding-bottom: .8rem;"><i class="authentication_icon"></i> 实名认证</div>
+		   	用户信息用于培训报名，受法律保护。少年宫不会泄露您的任何隐私。海外及港澳台学员请使用人工方式进行认证！
+		   </div>
+		   <!-- 自动认证 -->
+		   <div class="card">
+		     <div class="card-header"><span><i class="authentication_icon authentication_icon_online"></i>在线认证</span><span style="color: #726DDE;font-size: .9rem;">方便快捷</span></div>
+		     <div class="card-content">
+			       <div class="card-content-inner">
+				       <div class="list-block">
+						    <ul>
+						      <!-- Text inputs -->
+						      <li>
+						        <div class="item-content">
+						          <div class="item-inner">
+						            <div class="item-title label">孩子姓名</div>
+						            <div class="item-input">
+						              <input type="text" placeholder="请输入孩子身份证姓名" id="userName">
+						            </div>
+						          </div>
+						        </div>
+						      </li>
+						      <li>
+						        <div class="item-content" style="background: #fff;">
+						          <div class="item-inner">
+						            <div class="item-title label">身份证号</div>
+						            <div class="item-input">
+						              <input type="text" placeholder="请输入孩子身份证号" id="userCode">
+						            </div>
+						          </div>
+						        </div>
+						      </li>
+						    </ul>
+					   </div>
+			       </div>
+			       <div class="card-footer">
+			   	  	  <a href="#" class="button button-fill" id="toBind" style="width: 100%;">立刻认证（收费0.6元）</a>
+			 	   </div>
+		     </div>
+		   </div>
+		   <!-- 自动认证 -->
+		   
+		   <!-- 人工认证 -->
+		   <div class="card" id="peopleMode" style="display:none">
+			   <div class="card-header"><span><i class="authentication_icon authentication_icon_manMade"></i>人工审核</span></div>
+			   <div class="card-content">
+			       <div class="card-content-inner" id="byPeaple">
+							 
+			       </div>
+			   </div>
+		   </div>
+		   </div>
+    	  <!-- 人工认证 End -->
+    	</div>
+    </div>
+  </body>
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script>
+	$(function(){
+		//判断用户是否实名认证
+		// getData("../../../api/userInfo", {token:sessionStorage.token,da:Math.random()},function(result){
+		// 	if(result.code=="0"){
+		// 				 var certificationState=result.baseUser.isCertification;
+		// 				 if(certificationState==1){
+		// 					 $.alert("您已通过验证，无需重复操作！",function(){
+		// 						 window.location="parent.html";
+		// 					 });
+		// 				 }
+		// 		}else{
+		// 				$.alert(result.msg)
+		// 		}
+		// }); 
+
+		
+		/*实名认证*/
+		$("#toBind").click(function(){
+			var val=$.trim($("#userName").val()),code=$.trim($("#userCode").val());
+			if(val==""){
+				$.alert("孩子姓名不能为空！");
+				return false
+			}
+			if(code==""){
+				$.alert("孩子身份证号不能为空！");
+				return false
+			}
+			if(code.length!==18){
+				$.alert("孩子身份证号格式不正确！");
+				return false
+			}
+			var data={
+					token:sessionStorage.token,
+					name:val,
+					certificateCode:code,
+			}
+			
+			window.location="../../../api/recruit/identification?token="+sessionStorage.token+"&name="+val+"&certificateCode="+code;
+		    /* getData("../../../api/recruit/identification",data,function(result){
+				if(result.success=="true"){
+					$.alert("认证成功！",function(){window.location.href="parent.html";});
+					setTimeout(function(){window.location.href="parent.html";},600);
+				}else{
+					$.alert(result.msg);
+				}
+			}); */
+		});
+		
+		//查看接口
+		var partcha="../../../busconfig/info?a="+Math.random();
+		//参数列表
+		var payPcha={
+				key1:"CERTIFICATION_REQUIREMENTS",
+				key2:"OFFLINE_CERTIFICATION"
+		}
+		//查看
+
+		// getData(partcha,payPcha,function(result){
+		
+		// 	if(result.success=="true"){
+		// 		if(result.offlineCertification==1){
+		// 			 //须知内容
+		// 			var notice=result.certificationRequirements;
+		// 		   	$("#byPeaple").text(notice);
+		// 		   	$("#peopleMode").show();
+		// 			return false;
+		// 		}
+		// 	}else{
+		// 		myAlert(result.msg,2,null);
+		// 	}
+		// }); 
+	})
+</script>

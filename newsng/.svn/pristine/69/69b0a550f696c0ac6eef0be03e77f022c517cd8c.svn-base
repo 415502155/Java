@@ -1,0 +1,143 @@
+package sng.dao.impl;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
+
+import sng.constant.Consts;
+import sng.dao.BaseSetTermManageDao;
+import sng.entity.Term;
+import sng.pojo.ParamObj;
+import sng.pojo.TermInfoPojo;
+import sng.util.Paging;
+
+/**
+ * @desc 基础设置模块-学期管理dao实现
+ * @author magq
+ * @data 2018-10-29
+ * @version 1.0
+ */
+@Repository
+public class BaseSetTermManageDaoImpl extends BaseDaoImpl<Term> implements BaseSetTermManageDao {
+
+	/**
+	 * 查询学期信息列表
+	 */
+	@Override
+	public Paging<TermInfoPojo> queryTermListInfo(ParamObj paramObj) {
+		Paging<TermInfoPojo> paging = new Paging<TermInfoPojo>();
+		StringBuffer sql = new StringBuffer();
+		StringBuffer countSql = new StringBuffer();
+		List<Object> paramList = new ArrayList<Object>();
+
+		sql.append(
+				"select distinct t.term_id,t.org_id,t.term_name,t.cur_year,t.term_type,t.start_time,c.term_id,c.is_del from term t");
+		sql.append(" left join classes c on t.term_id=c.term_id and t.org_id=c.org_id and c.is_del<>1 where 1=1");
+		if (paramObj != null) {
+			if (StringUtils.isNotBlank(paramObj.getTerm_name())) {
+				sql.append(" and t.term_name like %?%");
+				paramList.add(paramObj.getTerm_name());
+			}
+			if (paramObj.getTerm_type() != null) {
+				sql.append(" and t.term_type =?");
+				paramList.add(paramObj.getTerm_type());
+			}
+
+			if (StringUtils.isNotBlank(paramObj.getOrderContent())) {
+				sql.append(" order by ?");
+				paramList.add(paramObj.getOrderContent());
+				if (StringUtils.isNotBlank(paramObj.getOrderType())) {
+					sql.append(" ?");
+					paramList.add(paramObj.getOrderType());
+				}
+			} else {
+				sql.append(" order by t.cur_year desc,t.term_name asc");
+			}
+
+		}
+
+		Session session = this.factory.getCurrentSession();
+
+		int count = 0;
+		if (paramObj.isNeedCount()) {
+			countSql.append("select count(*) from " + sql.toString() + " T");
+			Query queryCount = session.createSQLQuery(countSql.toString());
+			for (int i = 0; i < paramList.size(); i++) {
+				queryCount.setParameter(i, paramList.get(i));
+			}
+			count = Integer.parseInt(queryCount.uniqueResult().toString());
+			sql.append(" limit ?,?");
+			paramList.add(paramObj.getLimit() * (paramObj.getPage() - 1));
+			paramList.add(paramObj.getLimit());
+
+		}
+
+		Query query = session.createSQLQuery(sql.toString());
+		List<Object[]> list = query.list();
+
+		List<TermInfoPojo> termList = new ArrayList<TermInfoPojo>();
+		if (list != null) {
+			for (Object[] objs : list) {
+				TermInfoPojo info = new TermInfoPojo();
+				if (objs[0] != null) {
+					info.setTerm_id(Integer.parseInt(objs[0].toString()));
+				}
+				if (objs[1] != null) {
+					info.setOrg_id(Integer.parseInt(objs[1].toString()));
+				}
+				if (objs[2] != null) {
+					info.setTerm_name(objs[2].toString());
+				}
+				if (objs[3] != null) {
+					String term_type = objs[3].toString();
+					info.setTerm_type(Consts.TERM_TYPE_MAP.get(term_type));
+				}
+				if (objs[4] != null) {
+					info.setStart_time(objs[4].toString());
+				}
+				if (objs[5] != null) {
+					String obj = objs[5].toString();
+					if (StringUtils.isNotBlank(obj)) {
+						info.setOperate(false);
+					} else {
+						info.setOperate(true);
+					}
+				}
+				termList.add(info);
+			}
+		}
+
+		paging.setSize(
+				count % paramObj.getLimit() == 0 ? (count / paramObj.getLimit()) : (count / paramObj.getLimit() + 1));
+		paging.setTotal(count);
+		paging.setData(termList);
+		paging.setSuccess(true);
+		return paging;
+	}
+
+	/**
+	 * 删除学期列表
+	 */
+	@Override
+	public void deleteTermByTerm(ParamObj paramObj) {
+		// TODO Auto-generated method stub
+		StringBuffer sql = new StringBuffer();
+		List<Object> paramList = new ArrayList<>();
+		sql.append("update term set  is_del=1,update_time=? where term_id=?");
+		paramList.add(new Date());
+		paramList.add(paramObj.getTerm_id());
+		
+		Session session = this.factory.getCurrentSession();
+		Query query = session.createSQLQuery(sql.toString());
+		for(int i=0;i<paramList.size();i++) {
+			query.setParameter(i, paramList.get(i));
+		}
+		query.executeUpdate();
+	}
+
+}

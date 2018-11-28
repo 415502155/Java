@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>退费成功</title>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <!--ui包-->
+    <link rel="stylesheet" href="../../css/sm.css">
+    <link rel="stylesheet" href="../../css/layout.css">
+    <style>
+    	.list-block ul {border-bottom:none;}
+    	li {border-bottom:1px solid #e7e7e7}
+    	.list-block .item-inner {border:none}
+    </style>
+  </head>
+  <body>
+    <div class="page-group">
+        <div class="page page-current"> 
+			<div class="weui-msg">
+		        <div class="weui-msg__icon-area">
+		        	<div class="info-icon">
+		        	<i class="icon icon-check"></i>
+		          </div>
+		        </div>
+		        <div class="weui-msg__text-area">
+		            <h2 class="weui-msg__title" id="successTitle">已成功退费</h2>
+		            <p class="weui-msg__desc" id="successTip">请在规定时间内完成支付，否则名额将自动作废！</p>
+		        </div>
+		        <div class="content-block">
+		      		<p><a href="pay_list.html" class="button button-light" >返回支付列表</a></p>
+		        </div>
+		    </div>
+		</div>
+    </div>
+  </body>
+</html>
+<script src='../../js/zepto.min.js'></script>
+<script src='../../js/sm.min.js'></script>
+<script src='../../js/config.js'></script>
+<script type="text/javascript">	
+$(function(){
+	var goStatus=GetUrlParam("status");
+	if(goStatus=="1"){//自动
+		 var title="已成功退费";
+		 var tiptext="您已成功办理退费，银行将于7个工作日内将学费退还回您的银行卡，请留意银行短信。"
+	    
+	}else{
+		var title="退费申请已提交";
+		var tiptext=sessionStorage.refundExplain//从后台获取
+	}
+	$("#successTitle").text(title);
+	$("#successTip").text(tiptext);
+});	
+</script>
+ 

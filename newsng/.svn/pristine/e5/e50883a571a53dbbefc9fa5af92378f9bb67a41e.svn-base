@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title>班列表</title>
+		<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<link rel="stylesheet" href="../../../css/sm.css">
+		<link rel="stylesheet" href="../../../css/layout.css">
+		<style>
+			.list-block .item-link .item-inner {
+				padding-right: 1.5rem;
+				background-size: .7rem;
+				padding-top: .4rem;
+				padding-bottom: .35rem;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="page-group">
+			<div class="page page-current" id="sendNotice">
+				<div class="content native-scroll">
+			        <div id="allClass"></div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/iscroll/js/iscroll.js'></script>
+<script src='../../../js/sm.js'></script>
+<script src="../../../js/config.js"></script>
+<script>
+   //主页刷新
+   sessionStorage.home=1;
+   var base =JSON.parse(sessionStorage.baseUser);
+   var localClassJson={};
+ 	var localClass=JSON.parse(sessionStorage.baseUser).orguser.identityDatas[0].mapRK.concat(JSON.parse(sessionStorage.baseUser).orguser.identityDatas[0].mapBZR);
+
+      var classHmtl="";
+      var getAll=[];
+
+      if(localClass.length>0){
+          for(var i=localClass.length-1;i>=0;i--){
+              var obj=localClass[i];
+              var gradeid=obj.grade_number;
+              //判断年级是否存在
+              if (localClassJson[gradeid] == undefined) {
+
+                  localClassJson[obj.grade_number] = {};
+                  localClassJson[obj.grade_number]["grade_name"] = obj.grade_name;
+                  localClassJson[obj.grade_number]["grade_id"] = obj.grade_id;
+                  localClassJson[obj.grade_number]["classList"] = {}; //班级信息
+                  localClassJson[obj.grade_number]["classList"][obj.clas_id] = {};
+                  localClassJson[obj.grade_number]["classList"][obj.clas_id]["className"] = obj.clas_name;
+                  localClassJson[obj.grade_number]["classList"][obj.clas_id]["students"] = [];
+              } else {
+                  //判断班级是否重复
+                  if (localClassJson[gradeid]["classList"][obj.clas_id] == undefined) {
+                      localClassJson[gradeid]["classList"][obj.clas_id] = {};
+                      localClassJson[gradeid]["classList"][obj.clas_id]["className"] = obj.clas_name;
+                      localClassJson[gradeid]["classList"][obj.clas_id]["students"] = [];
+                  }
+              }
+              if(i==0){
+                  sessionStorage.allClass=JSON.stringify(localClassJson);
+              }
+          }
+
+
+          for(var i in localClassJson){
+              classHmtl +='<div class="content-block-title" >'+localClassJson[i].grade_name+'</div><div class="list-block" id="'+i+'"  data-id="'+localClassJson[i].grade_id+'"><ul id="'+localClassJson[i].grade_id+'">';
+              for(var m in localClassJson[i].classList){
+                  classHmtl +='<li id="'+m+'" class="item-link item-content class-name" >' +
+                      '<div class="item-inner">' +
+                      '<div class="item-title">'+localClassJson[i].classList[m].className+'</div>' +
+                      '<div class="item-after"></div>'+
+                      '</div>' +
+                      '</li>'
+                  getAll.push(localClassJson[i].grade_id+"_"+m);
+              }
+              classHmtl +='</ul></div>';
+          }
+
+
+		}else{
+		  classHmtl +='<div class="list-block media-list"><li id="none" class="noData noData_line lastData" ><span class="noData__tips">暂无管理或者执教班级</span></li></div>';
+		}
+      $("#allClass").html(classHmtl);
+
+      //进入指定班级
+      $("body").on("click",".class-name", function(){
+          var clas_id=$(this).attr("id");
+		  var grade_id=$(this).closest("ul").attr("id")
+		  var nowDate=$(this).attr("data-date");
+          window.location="classDetail.html?clas_id="+clas_id+"&grade_id="+grade_id+"&attnDate="+nowDate;
+      });
+
+      $(function () {
+
+          var parameter={
+              token:JSON.parse(sessionStorage.baseUser).token,
+              udid:JSON.parse(sessionStorage.baseUser).udid,
+              version:3,
+              org_id:JSON.parse(sessionStorage.baseUser).orguser.org_id,
+              gradeId_classId:getAll.join(";"),
+			  time:new Date().getTime()
+	};
+
+          //获取班级考勤情况
+          getData(domainName+"/shijiwxy/wechat/portal/studentAttendance/getClassSubmitStatus.htm", parameter,function(res){
+              if(res.code==200 && res.success==true){
+                 var obj=res.data;
+                 for(var n=obj.length-1;n>=0;n--){
+
+                     if(obj[n].submit_date==null){
+                         var html='<span style="color: #ff4b4c">未提交</span>';
+					 }else {
+                         var html='<span >已提交</span>';
+					 }
+                     //显示请假人数
+                     if(obj[n].leave_num !== null){
+
+                         if(obj[n].leave_num==0){
+                             var leavehtml=$("#"+obj[n].class_id).find(" .item-title").text();
+						 }else {
+                             var leavehtml=$("#"+obj[n].class_id).find(" .item-title").text()+' ('+obj[n].leave_num+'人请假)';
+						 }
+
+                         $("#"+obj[n].class_id).find(" .item-title").text(leavehtml);
+			           }
+			   //显示提交状态
+                     $("#"+obj[n].class_id).attr("data-date",res.message).find(" .item-after").html(html);
+		   }
+
+              }else{
+                  $.alert(res.message);
+              }
+          },"POST");
+      })
+
+</script>

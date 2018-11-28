@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>学生考勤</title>
+	<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+	<!--<link rel="shortcut icon" href="/favicon.ico">-->
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<!--ui包-->
+	<link rel="stylesheet" href="../../../css/sm.css">
+	<link rel="stylesheet" href="../../../css/layout.css">
+	<link rel='stylesheet prefetch' href='../../../js/photoSwipe/photoswipe.css'>
+	<link rel='stylesheet prefetch' href='../../../js/photoSwipe/default-skin/default-skin.css'>
+
+	<script src='../../../js/zepto.min.js'></script>
+	<script src='../../../js/sm.min.js'></script>
+	<script src='../../../js/config.js'></script>
+	<script src='../../../js/photoSwipe/photoswipe.min.js'></script>
+	<script src='../../../js/photoSwipe/photoswipe-ui-default.js'></script>
+	<script>
+		function getimg(obj){
+		    $(obj).show();
+		    $(obj).next().hide();
+		}
+	</script>
+</head>
+<body>
+	<div class="page-group">
+		<div class="page page-current" id="set">
+			<div class="content native-scroll">
+				<div class="content-block-title" id="schoolName"></div>
+				<div class="list-block">
+					<ul>
+						<li class="item-content " id="toEditName">
+							<div class="item-inner">
+								<div class="item-title">学生姓名</div>
+								<div class="item-after" id="studentName"></div>
+							</div>
+						</li>
+						<li class="item-content " >
+							<div class="item-inner" >
+								<div class="item-title">打卡时间</div>
+								<div class="item-after" id="studentrTime">0000-00-00 00:00:00</div>
+							</div>
+						</li>
+					</ul>
+				</div>
+				<div class="content-block-title">考勤照片</div>
+				<div class="my-gallery " id="imgBox" data-pswp-uid="1" style="padding: 0;">
+					<figure itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject" style="min-height: 100px;position: relative;">
+						<a href="javascript:void(0)" itemprop="contentUrl" class="external" data-size="1920x1080">
+							<img src="" width="100%"  itemprop="thumbnail" alt="" style="display: none;">
+						</a>
+						<div class="imgLoading" style="background: #e4e4e4;line-height:100px;font-size: .72rem;color: #aaa7a7;"><span class="iconloadingtip"></span></div>
+					</figure>
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+	<!--图片查看器-->
+	<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="pswp__bg"></div>
+		<div class="pswp__scroll-wrap">
+			<div class="pswp__container">
+				<div class="pswp__item"></div>
+				<div class="pswp__item"></div>
+				<div class="pswp__item"></div>
+			</div>
+			<div class="pswp__ui pswp__ui--hidden">
+				<div class="pswp__top-bar">
+					<div class="pswp__counter"></div>
+					<button class="pswp__button pswp__button--close" title="关闭"></button>
+					<!--<button class="pswp__button pswp__button&#45;&#45;share" title="Share"></button>-->
+					<div class="pswp__preloader">
+						<div class="pswp__preloader__icn">
+							<div class="pswp__preloader__cut">
+								<div class="pswp__preloader__donut"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+					<div class="pswp__share-tooltip"></div>
+				</div>
+				<div class="pswp__caption">
+					<div class="pswp__caption__center"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!--图片查看器 END-->
+
+</body>
+</html>
+
+<script>
+$(function () {
+    var parameter={
+        sid:GetUrlParam("sid")
+    }
+    getDataNoLoading(domainName + "/eduWeixin/weixin/getsign", parameter,function(res){
+        if(res.code==200 && res.success==true){
+            var obj=res.data;
+            $("#studentName").text(obj.userName);
+            $("#studentrTime").text(obj.card_time);
+            $("#schoolName").text(obj.schoolName);
+
+            $("#imgBox img").attr("src",obj.pic);
+            $("#imgBox img").attr("onerror","nofind()");
+            $("#imgBox img").attr("onload","showImg(this)");
+            $("#imgBox a").attr("href",obj.pic);
+
+            //图片预览
+            initPhotoSwipeFromDOM('.my-gallery');
+
+        }else{
+            $.alert(res.message);
+        }
+    },"GET");
+    //图片预览
+    initPhotoSwipeFromDOM('.toDetail');
+});
+function nofind(){
+    var img=event.srcElement;
+    img.onerror=null;
+    $("#imgBox div").html("暂无图片");
+    $("#imgBox a").remove();
+}
+
+function showImg(obj){
+    $(obj).show();
+    if($(obj).parent().next().length>0){
+        $(obj).parent().next().hide();
+    }
+}
+</script>

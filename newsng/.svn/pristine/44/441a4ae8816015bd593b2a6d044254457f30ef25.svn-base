@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title>工资详情</title>
+		<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+		<link rel="shortcut icon" href="/favicon.ico">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<!--ui包-->
+		<link rel="stylesheet" href="../../../css/sm.css">
+		<link rel="stylesheet" href="../../../css/layout.css">
+		<link rel='stylesheet prefetch' href='../../../js/photoSwipe/photoswipe.css'>
+		<link rel='stylesheet prefetch' href='../../../js/photoSwipe/default-skin/default-skin.css'>
+		<style>
+			.moneyC  {color: #f60;}
+			.list-block .item-title {
+		    	font-size: medium;
+		    }
+		</style>
+	</head>
+	<body>
+		<div class="page-group">
+			<div class="page page-current" id="noticeD">
+                <!--内容显示区-->
+				<div class="content native-scroll">
+					<div class="content-block-title fontbolder"><span id="wageDate"></span> <span id="wageTitle"></span></div>
+					<div class="list-block">
+						<ul id="allOption">
+						</ul>
+					</div>
+				</div>
+				<!--内容显示区 End-->
+			</div>
+		</div>
+	</body>
+</html>
+
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script src='https://res.wx.qq.com/open/js/jweixin-1.2.0.js'></script>
+<script>
+var baseP=getJPermissions(JSON.parse(sessionStorage.baseUser).orguser.org_id);
+wx.config({
+    debug: false,
+    appId: baseP.appId,
+    timestamp: baseP.timestamp,
+    nonceStr: baseP.nonceStr,
+    signature: baseP.signature,
+    jsApiList: [
+        'checkJsApi',
+        'hideMenuItems',
+        'showMenuItems',
+        'hideAllNonBaseMenuItem',
+        'translateVoice',
+        'startRecord',
+        'stopRecord',
+        'onVoiceRecordEnd',
+        'playVoice',
+        'onVoicePlayEnd',
+        'pauseVoice',
+        'stopVoice',
+        'uploadVoice',
+        'downloadVoice',
+        'chooseImage',
+        'previewImage',
+        'uploadImage',
+        'downloadImage',
+        'getNetworkType',
+        'hideOptionMenu',
+        'showOptionMenu',
+        'closeWindow',
+        'scanQRCode',
+        'chooseWXPay',
+        'openProductSpecificView',
+    ]
+});
+wx.ready(function (){
+	//隐藏非基础类菜单
+	wx.hideAllNonBaseMenuItem();
+})
+</script>
+<script>
+	 $(function(){
+		 var base = null;
+         //如果从通过微信消息模板登录
+		 if(sessionStorage.baseUser==undefined || sessionStorage.baseUser== null){
+		     var nowOrg_id=GetUrlParam("org_id");
+             var nowIdentity=GetUrlParam("identity");
+             var nowOpenid=GetUrlParam("openid");
+
+            var parameter={
+                openid:nowOpenid,
+                identity:nowIdentity,
+                org_id:nowOrg_id,
+                version:3
+             }
+
+			 getData(domainName+"/esb/api/wxredirect ",parameter,function(res){
+				 if(res.code==200 && res.success==true){
+					 sessionStorage.baseUser=JSON.stringify(res.data);
+					 base =JSON.parse(sessionStorage.baseUser);
+					 showWage();
+				 }else{
+					 $.alert(res.message);
+				 }
+			 });
+
+         }else{
+             base=JSON.parse(sessionStorage.baseUser);
+             showWage();
+		 }
+
+		 function showWage(){
+             var ports=domainName+"/shijiwxy/wechat/portal/teacherSalary/getDetail.json";
+             var parameter={
+                 token:base.token,
+                 // 登录获得token
+                 udid:base.udid,
+                 // 登录获得udid
+                 version:3,
+                 recordID:GetUrlParam("recordID")
+             }
+             //获取消息
+             getData(ports,parameter,function(res){
+                 if(res.code==200 && res.success==true){
+                     //判断是否需要回执
+                     $("#wageDate").html(res.data.date);
+                     $("#wageTitle").html(res.data.title);
+
+                     var wageHtml="";
+                     var length = res.data.items.length;
+                     for(var i=0;i<length;i++){
+                         wageHtml +='<li class="item-content" id="toEditName">' +
+                             '<div class="item-inner">' +
+                             '<div class="item-title">'+res.data.items[i].itemName+'</div>' +
+                             '<div class="item-after" ><span class="moneyC">￥'+res.data.items[i].value+'</span></div>' +
+                             '</div>' +
+                             '</li>';
+                     }
+                     $("#allOption").html(wageHtml);
+
+                 }else{
+                     $.alert(res.message);
+                 }
+             });
+		 }
+
+
+	 });
+</script>

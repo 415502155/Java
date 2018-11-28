@@ -1,0 +1,149 @@
+<!--创建班级-->
+<style>
+    .form-label { line-height: 32px}
+    .form-label input { vertical-align: middle}
+    input[type=radio]:focus {outline: none}
+
+</style>
+<div class="content-wrap" id="sub_loadBox"  >
+
+    <form class="gui-form gui-form-label-right" id="my-form" novalidate="novalidate">
+
+        <div class="gui-form-item"><label class="gui-form-item-label">招生范围</label>
+            <div class="gui-form-item-content">
+                <select class="gui-input" style="width: 100px" id="allTerm">
+                    <option value="100">选择学期</option>
+                </select>
+            </div>
+        </div>
+        <div class="line"></div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">班级名称</label>
+            <div class="gui-form-item-content">
+                <input type="text" name="username" placeholder="请输入招生名称" class="gui-input" maxlength="20" style="width: 240px">
+            </div>
+        </div>
+
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">班级类型</label>
+            <div class="gui-form-item-content">
+                <select class="gui-input" style="width: 100px" id="classType">
+                    <option value="100">班级类型</option>
+                </select>
+            </div>
+        </div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">所属科目</label>
+            <div class="gui-form-item-content">
+                <select class="gui-input" style="width: 100px" id="allCategory">
+                    <option value="100">选择类目</option>
+                </select>
+                <select class="gui-input" style="width: 100px" id="subject">
+                    <option value="100">选择科目</option>
+                </select>
+            </div>
+        </div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">所在校区</label>
+            <div class="gui-form-item-content">
+                <select class="gui-input" style="width: 100px" id="allCampus">
+                    <option value="100">选择校区</option>
+                </select>
+            </div>
+        </div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">教室</label>
+            <div class="gui-form-item-content">
+                    <select class="gui-input" style="width: 500px" id="classRoom">
+                        <option value="100">选择教室</option>
+                    </select>
+            </div>
+        </div>
+        <div class="gui-form-item topBorder">
+            <label class="gui-form-item-label">是否开启</label>
+            <div class="gui-form-item-content">
+                <div class="gui-checkbox-group" style="padding-top: 6px;">
+                    <span class="switch-off" themeColor="#86b7ea" id="isRefundAudit">
+                </div>
+            </div>
+        </div>
+        <div class="line"></div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">年龄范围</label>
+            <div class="gui-form-item-content">
+                <input type="text" name="username" placeholder="请输入年龄范围如5-8" class="gui-input" maxlength="20" style="width: 160px;margin-right: 10px">岁
+            </div>
+        </div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">起始生日</label>
+            <div class="gui-form-item-content">
+                <input type="text" placeholder="选择日期" data-date="YYYY-MM-DD" readonly class="gui-input" style="width: 180px">
+            </div>
+        </div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">结束生日</label>
+            <div class="gui-form-item-content">
+                <input type="text" placeholder="选择日期" data-date="YYYY-MM-DD" readonly class="gui-input" style="width: 180px">
+            </div>
+        </div>
+
+        <div class="line"></div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">总课时数</label>
+            <div class="gui-form-item-content">
+                <input type="number" name="username" placeholder="请输入正整数" class="gui-input" maxlength="20" style="width: 120px;margin-right: 10px">
+            </div>
+        </div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">开课日期</label>
+            <div class="gui-form-item-content">
+                <input type="text" placeholder="选择日期" data-date="YYYY-MM-DD" readonly class="gui-input" style="width: 180px">
+            </div>
+        </div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">上课时间</label>
+            <div class="gui-form-item-content">
+                <div><label class="form-label"><input type="radio" name="" class="gui-input">每周一次课</label></div>
+                <div><label class="form-label"><input type="radio" name="" class="gui-input">不固定时间</label></div>
+            </div>
+        </div>
+        <div class="line"></div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">学费标准</label>
+            <div class="gui-form-item-content">
+                <input type="text" name="username" placeholder="请输入学费" class="gui-input" maxlength="20" style="width: 90px;margin-right: 10px">元
+            </div>
+        </div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">选择教师</label>
+            <div class="gui-form-item-content">
+                <div id="changedTeachers" style="line-height: 34px;color:#2d8cf0;">选择教师</div>
+            </div>
+        </div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">所属机构</label>
+            <div class="gui-form-item-content">
+                <select class="gui-input" style="width: 100px" id="allCooperation">
+                    <option value="0">无</option>
+                </select>
+            </div>
+        </div>
+        <div class="line"></div>
+        <div class="gui-form-item">
+            <div class="gui-form-item-content" >
+                <button type="submit" class="gui-btn gui-btn-normal"><i class="fa fa-save"></i><span>保存班级</span></button>
+
+            </div>
+        </div>
+    </form>
+
+</div>
+<script src="js/countUp.js"></script>
+<script>
+    $(function () {
+
+        //查看详情
+        $(".toDetail").click(function () {
+            window.location.href="#12?id=12"
+        });
+
+        //目前是演示，实际是ajax回调
+        setTimeout(function () {
+            countup("sum_Certificationed",4000);
+            countup("sum_unCertificationed",50);
+        },2000);
+
+        //下拉
+        allSelect();
+        //开关
+        honeySwitch.init();
+    })
+</script>
+
+

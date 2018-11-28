@@ -1,0 +1,88 @@
+
+<div style="padding: 40PX;">
+    <form class="gui-form gui-form-label-right" id="my-form" novalidate="novalidate">
+
+        <div class="gui-form-item"><label class="gui-form-item-label">教学楼名</label>
+            <div class="gui-form-item-content">
+                <input type="text" name="username" placeholder="请输入校区名称" class="gui-input" value="" maxlength="50" >
+            </div>
+        </div>
+        <div class="line"></div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">总楼层数</label>
+            <div class="gui-form-item-content">
+                <input type="number" name="username" placeholder="请输入数字" class="gui-input" value="" maxlength="50" >
+            </div>
+        </div>
+
+        <div class="gui-form-item gui-form-item-required">
+            <label class="gui-form-item-label">所属校区</label>
+            <div class="gui-form-item-content">
+                <div class=" gui-select-single">
+                    <select class="gui-input"  id="allCampus">
+                        <option value="100">选择校区</option>
+                        <option value="1">东马路</option>
+                        <option value="2">炫连</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="line"></div>
+        <div class="gui-form-item">
+            <div class="gui-form-item-content" >
+                <button type="submit" class="gui-btn gui-btn-normal"><i class="fa fa-save"></i><span>保存学期</span></button>
+                <button type="button" class="gui-btn gui-btn-primary" id="back"><i class="fa fa-angle-left"></i><span>取消返回</span></button>
+            </div>
+        </div>
+    </form>
+    <script type="text/javascript" src="plus/validate/jquery-validate.js"></script>
+    <script>
+        $(function() {
+
+            //取消编辑返回列表
+            $("#back").click(function () {
+                window.history.back();
+            })
+
+            allSelect();
+
+
+            $("#mytest-form").validate({
+                rules: {
+                    username: {
+                        required: true
+                    },
+                    password: {
+                        required: true,
+                        rangelength: [8, 10]
+                    },
+                    password2: {
+                        required: true,
+                        equalTo: '#password'
+                    }
+                },
+                messages: {
+                    username: {
+                        required: '请输入一个用户名'
+                    },
+                    password: {
+                        required: '请设置一个密码',
+                        rangelength: '密码位数为8到10位'
+                    },
+                    password2: {
+                        required: '请再次确认密码',
+                        equalTo: '两次输入密码不相符'
+                    }
+                },
+                errorPlacement: function(error, element) {
+                    console.info(element)
+                    error.appendTo(element.parent().after())
+                },
+                //errorClass: 'gui-form-item-error',
+                errorElement: 'span',
+
+            });
+        })
+    </script>
+
+</div>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title>学员名册</title>
+		<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+		<link rel="shortcut icon" href="../../../../favicon.ico">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<!--ui包-->
+		<link rel="stylesheet" href="../../../css/sm.css">
+		<link rel="stylesheet" href="../../../css/layout.css">
+		<link rel="stylesheet" href="../../../css/teacher.css">
+		<style type="text/css">
+			p{
+				text-indent: 0;
+			}
+		   .number{ 
+		    position: absolute;
+		    right: 1.5rem;
+		    top: 2.4rem;
+		   }
+		   #termName{margin-left:0.6rem;background-color:transparent;border:0}
+		</style>
+	</head>
+	<body>
+		<div class="page-group">
+			<div class="page page-current">
+			  <header class="bar bar-nav">
+				<div class="title pull-left" >
+					当前展示:
+					<input id="termName" type="text" value="2018年 第一学期" readonly>
+					
+					
+				</div>
+				<i class="icon"></i>
+			  </header>
+			 <div class="content native-scroll " id="allClass" >
+				<div id="" class="card">
+					<div class="card-content">
+						<div class="list-block media-list">
+							<ul style="padding-left:0">
+								<li>
+									<a href="javascript:;" class="item-link item-content external" >
+										<div class="item-inner">
+											<div class="item-title-row" style="margin-bottom: 1.35rem">
+												<div class="item-title">儿童画(儿162-1-2B)</div>
+												<div class="item-after number">65人</div>
+											</div>
+											<div class="item-text" style="width:10rem"><p style="margin-bottom:0">每周日 11:00-12:00</p> <p style="margin-top:0">东马路 校区 主教学楼1层103</p></div>
+										</div> 
+									</a>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+				 <!-- <div class="list-block media-list" id="allClass">
+				      <ul style="border-bottom:none">
+				      <div class="noData noData_line"><span class="noData__tips">暂无招生</span></div>
+				    </ul>
+				 </div>	 -->
+			</div>
+		</div>
+ </div>
+	</body>
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+
+<script>
+	 $(function(){
+		
+		$("#termName").picker({
+			toolbarTemplate: '<header class="bar bar-nav">\
+			<button class="button button-link pull-left">按钮</button>\
+			<button class="button button-link pull-right close-picker">确定</button>\
+			<h1 class="title">标题</h1>\
+			</header>',
+			cols: [
+				{
+					textAlign: 'center',
+					values: ['2017年','2018年']
+				},
+				{
+					textAlign: 'center',
+					values: ['第一学期','第二学期']
+				}
+			]
+		})
+		$("body").on("click",".card",function(){
+			location.href="class_studentList.html"
+		})
+		// (function (res){
+		// 	var html = '';
+		// 	html += `<li>
+		// 				<a href="javascript:;" class="item-link item-content external" >
+		// 					<div class="item-inner">
+		// 						<div class="item-title-row" style="margin-bottom: 1.35rem">
+		// 							<div class="item-title">儿童画(儿162-1-2B)</div>
+		// 							<div class="item-after number">65人</div>
+		// 						</div>
+		// 						<div class="item-text" style="width:10rem"><p style="margin-bottom:0">每周日 11:00-12:00</p> <p style="margin-top:0">东马路 校区 主教学楼1层103</p></div>
+		// 					</div> 
+		// 				</a>
+		// 			</li>`
+		// 	res.tech_name//
+		// 	res.class_week//
+		// 	res.cam_name//
+		// 	res.cooperation_id//
+		// 	res.name//
+		// 	res.user_id//
+		// })
+		//  var ports="../../../../api/recruit/studentsRegister";
+	 	//  var parameter={
+		// 		 token:sessionStorage.token,
+	    //     	 userId:JSON.parse(sessionStorage.baseInfo).userId,
+	    //     	 orgId:1
+		//          }    
+	     //显示学期
+         //$("#termName").html(decodeURI(GetUrlParam("name")));
+	     
+	     //发送请求
+		//   getData(ports, parameter,function(result){
+		// 		if(result.success=="true"){
+		// 				var res = result.data;
+		// 				var html="";
+		// 				if(res.length>0){
+		// 					//先遍历学期，再遍历学期下的班级
+		// 					for(var i=0;i<res.length;i++){
+		// 						html+='<div class="card"><div class="bar card-header notice-title">'+res[i].termName+'</div>';
+		// 						html+= '<div class="card-content">'+
+		// 							      '<div class="list-block media-list">'+
+		// 							        '<ul style="padding-left:0">';
+		// 						for(var m=0;m<res[i].classList.length;m++){
+		// 							var classdata=res[i].classList[m];
+		// 							   	html +='<li>'+
+		// 										    '<a href="class_studentList.html?id='+classdata.id+'&className='+classdata.className+'" class="item-link item-content external">'+
+		// 								            '<div class="item-inner">'+
+		// 								              '<div class="item-title-row">'+
+		// 								                '<div class="item-title">'+classdata.categoryName+'（'+classdata.className+'）</div>'+
+		// 								                 '<div class="item-after number">'+classdata.bmsum+'人</div>'+
+		// 								              '</div>'+
+		// 								              '<div class="item-text">每'+classdata.classDate+' '+classdata.campusName+'（'+classdata.classroom+'）</div>'+
+		// 								            '</div>'+
+		// 								          '</a>'+
+		// 								       ' </li>';   
+		// 							}
+		// 							html +='</ul></div></div></div>';
+		// 						}
+		// 					}else{
+		// 						html+='<div class="noData noData_line">'+
+		// 					         	'<span class="noData__tips">暂无记录</span>'+
+		// 					         '</div>';
+		// 					}
+		// 				$("#allClass").html(html);
+		// 		}else{
+		// 			$.alert(result.msg);
+		// 		}
+		//   }); 
+		  
+	 });
+</script>
+ 
