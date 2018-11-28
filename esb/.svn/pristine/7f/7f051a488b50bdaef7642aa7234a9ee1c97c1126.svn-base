@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:int="http://www.springframework.org/schema/integration"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:int-http="http://www.springframework.org/schema/integration/http"
+	xmlns:int-xml="http://www.springframework.org/schema/integration/xml"
+	xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+	xmlns:int-amqp="http://www.springframework.org/schema/integration/amqp"
+	xmlns:int-stream="http://www.springframework.org/schema/integration/stream"
+	xsi:schemaLocation="http://www.springframework.org/schema/integration/http http://www.springframework.org/schema/integration/http/spring-integration-http.xsd
+		http://www.springframework.org/schema/integration/amqp http://www.springframework.org/schema/integration/amqp/spring-integration-amqp-2.1.xsd
+		http://www.springframework.org/schema/integration/xml http://www.springframework.org/schema/integration/xml/spring-integration-xml.xsd
+		http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration-2.1.xsd
+		http://www.springframework.org/schema/rabbit http://www.springframework.org/schema/rabbit/spring-rabbit-1.0.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/integration/stream http://www.springframework.org/schema/integration/stream/spring-integration-stream.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<!-- A reference to the org.springframework.amqp.rabbit.connection.ConnectionFactory -->
+	
+	    <!--  On-line 
+	    <rabbit:connection-factory id="connectionFactory"
+		host="192.168.1.141" username="admin" password="rpcwFysng5PpKhSO" port="5672"
+		virtual-host="/" />  --> 
+		
+		<!--  test -->  
+	     <rabbit:connection-factory id="connectionFactory"
+		host="192.168.0.132" username="admin" password="rpcwFysng5PpKhSO" port="5672"
+		virtual-host="/" />  
+
+	<!-- Creates a org.springframework.amqp.rabbit.core.RabbitTemplate for access 
+		to the broker -->
+	<rabbit:template id="amqpTemplate" connection-factory="connectionFactory" />
+
+	<!-- Creates a org.springframework.amqp.rabbit.core.RabbitAdmin to manage 
+		exchanges, queues and bindings -->
+	<rabbit:admin connection-factory="connectionFactory" />
+
+	<!-- Queues -->
+	<rabbit:queue id="queue1" name="queue.1.name" />
+	<rabbit:queue id="queue2" name="queue.2.name" />
+	<rabbit:queue id="menuQueue.17" name="queue.menu.17" />
+	<!-- 1.批量添加教师队列 -->
+	<rabbit:queue id="batchAddTeacherQueue.17" name="batchAddTeacherQueue.17" />
+	
+	<!-- 异步同步环信组id到基数数据组中 -->
+	<rabbit:queue id="groupIdQueue.17" name="groupIdQueue.17" />
+
+	<!-- Exchanges -->
+	<rabbit:fanout-exchange name="fanout.exchange.1.name">
+		<rabbit:bindings>
+			<rabbit:binding queue="queue1" />
+			<rabbit:binding queue="queue2" />
+		</rabbit:bindings>
+	</rabbit:fanout-exchange>
+
+	<rabbit:fanout-exchange name="fanout.exchange.menu.17">
+		<rabbit:bindings>
+			<rabbit:binding queue="menuQueue.17" />
+		</rabbit:bindings>
+	</rabbit:fanout-exchange>
+
+	<!-- 2.批量添加教师exchange -->
+	<rabbit:fanout-exchange name="fanout.exchange.batchAddTeacher.17">
+		<rabbit:bindings>
+			<rabbit:binding queue="batchAddTeacherQueue.17"></rabbit:binding>
+		</rabbit:bindings>
+	</rabbit:fanout-exchange>
+	
+	<!-- 异步同步环信组idexchange -->
+	<rabbit:fanout-exchange name="fanout.exchange.syncGroup.17">
+		<rabbit:bindings>
+			<rabbit:binding queue="groupIdQueue.17"></rabbit:binding>
+		</rabbit:bindings>
+	</rabbit:fanout-exchange>
+
+	<int:publish-subscribe-channel id="fanoutChannel" />
+
+	<int-amqp:outbound-channel-adapter
+		channel="fanoutChannel" amqp-template="amqpTemplate" exchange-name="fanout.exchange.1.name" />
+
+
+	<int:publish-subscribe-channel id="menuChannel" />
+
+	<int-amqp:outbound-channel-adapter
+		channel="menuChannel" amqp-template="amqpTemplate" exchange-name="fanout.exchange.menu.17" />
+
+	<!-- 3.批量添加教师channel -->
+	<int:publish-subscribe-channel id="batchAddTeacherSendChannel" />
+	<!-- 异步同步环信组idexchange -->
+	<int:publish-subscribe-channel id="syncgroupchannel" />
+	
+	<int-amqp:outbound-channel-adapter
+		channel="batchAddTeacherSendChannel" amqp-template="amqpTemplate"
+		exchange-name="fanout.exchange.batchAddTeacher.17" />		
+		
+	<int-amqp:outbound-channel-adapter
+		channel="syncgroupchannel" amqp-template="amqpTemplate"
+		exchange-name="fanout.exchange.syncGroup.17" />
+
+	<!-- From STDIN To RabbitMQ -->
+	<int-stream:stdin-channel-adapter id="consoleIn"
+		channel="toRabbit">
+		<int:poller fixed-delay="1000" max-messages-per-poll="1" />
+	</int-stream:stdin-channel-adapter>
+
+	<int:channel id="toRabbit" />
+
+	<int-amqp:outbound-channel-adapter
+		channel="toRabbit" amqp-template="amqpTemplate" exchange-name="si.test.exchange"
+		routing-key="si.test.binding" />
+
+	<!-- From RabbitMQ To STDOUT -->
+
+	<int-amqp:inbound-channel-adapter
+		channel="fromRabbit" queue-names="si.test.queue" connection-factory="connectionFactory" />
+
+	<int:channel id="fromRabbit">
+		<int:interceptors>
+			<int:wire-tap channel="loggingChannel" />
+		</int:interceptors>
+	</int:channel>
+
+	<int:transformer input-channel="fromRabbit"
+		output-channel="consoleOut" expression="'Received: ' + payload" />
+
+	<int-stream:stdout-channel-adapter
+		id="consoleOut" append-newline="true" />
+
+	<int:logging-channel-adapter id="loggingChannel"
+		log-full-message="true" logger-name="tapInbound" level="INFO" />
+
+	<!-- Infrastructure -->
+
+	<rabbit:queue name="si.test.queue" />
+
+	<rabbit:direct-exchange name="si.test.exchange">
+		<rabbit:bindings>
+			<rabbit:binding queue="si.test.queue" key="si.test.binding" />
+		</rabbit:bindings>
+	</rabbit:direct-exchange>
+
+
+	<!-- p2p 通道 -->
+	<int-amqp:channel id="p2p-pollable-channel"
+		connection-factory="connectionFactory" />
+
+	<!-- 创建广播通道 -->
+	<int-amqp:publish-subscribe-channel
+		id="pub-sub-channel" connection-factory="connectionFactory" />
+
+	<!-- 消息通道桥, p2p-pollable-channel 通道的消息发送到 pub-sub-channel 广播通道,这样所有客户端都可以接受到消息 -->
+	<int:bridge input-channel="p2p-pollable-channel"
+		output-channel="pub-sub-channel" />
+
+	<int:service-activator input-channel="pub-sub-channel"
+		id="serviceActivator1" ref="serviceActivator1Bean" method="logXml" />
+
+	<int:service-activator input-channel="pub-sub-channel"
+		id="serviceActivator2" ref="serviceActivator2Bean" method="logXml" />
+
+	<bean id="serviceActivator1Bean" class="cn.edugate.esb.amqp.Subscriber1ServiceActivator">
+	</bean>
+
+	<bean id="serviceActivator2Bean" class="cn.edugate.esb.amqp.Subscriber2ServiceActivator">
+	</bean>
+
+
+	<!-- *************************************************消费者**************************************** -->
+	<int:channel id="inbound-channel" />
+
+	<int-amqp:inbound-channel-adapter
+		channel="inbound-channel" queue-names="queue.1.name"
+		connection-factory="connectionFactory" />
+
+	<int:service-activator input-channel="inbound-channel"
+		id="serviceActivator" ref="serviceActivatorBean" method="logXml" />
+
+	<bean id="serviceActivatorBean" class="cn.edugate.esb.amqp.SubscriberServiceActivator">
+	</bean>
+
+	<!-- 菜单 -->
+	<int:channel id="menu-channel.17" />
+
+	<int-amqp:inbound-channel-adapter
+		channel="menu-channel.17" queue-names="queue.menu.17" connection-factory="connectionFactory" />
+
+	<int:service-activator input-channel="menu-channel.17"
+		id="menuActivator" ref="menuActivatorBean" method="logXml" />
+
+	<bean id="menuActivatorBean" class="cn.edugate.esb.amqp.MenuServiceActivator">
+	</bean>
+
+	<!-- 4.批量添加教师 -->
+	<int:channel id="batchAddTeacherReceiveChannel.17"></int:channel>
+
+	<int-amqp:inbound-channel-adapter
+		channel="batchAddTeacherReceiveChannel.17" queue-names="batchAddTeacherQueue.17"
+		connection-factory="connectionFactory" />
+
+	<bean id="batchAddTeacherActivatorBean" class="cn.edugate.esb.amqp.BatchAddTeacherActivator" />
+	<int:service-activator input-channel="batchAddTeacherReceiveChannel.17"
+		id="batchAddTeacherActivator" ref="batchAddTeacherActivatorBean"
+		method="getExcelFileAndProcessData" />
+		
+	<!-- 异步更新组 -->
+	<int:channel id="batchsyncgroupChannel.17"></int:channel>
+
+	<int-amqp:inbound-channel-adapter
+		channel="batchsyncgroupChannel.17" queue-names="groupIdQueue.17"
+		connection-factory="connectionFactory" />
+
+	<bean id="batchsyncgroupActivatorBean" class="cn.edugate.esb.amqp.SyncGroupActivator" />
+	<int:service-activator input-channel="batchsyncgroupChannel.17"
+		id="batchsycgroupActivator" ref="batchsyncgroupActivatorBean"
+		method="syncGroup" />
+
+</beans>

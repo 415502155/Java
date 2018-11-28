@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.2.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd">	
+        
+    
+    <!-- 自动扫描且只扫描@Controller -->
+	<context:component-scan base-package="cn.edugate.esb.web" use-default-filters="false">
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller" />
+	</context:component-scan>
+	
+	<mvc:annotation-driven />
+	
+	<!-- 静态资源 -->
+	<mvc:resources mapping="/js/**" location="/js/"/>  
+    <mvc:resources mapping="/css/**" location="/css/"/>  
+    <mvc:resources mapping="/images/**" location="/images/"/>  
+	<mvc:default-servlet-handler />    
+
+	<!-- 定义首页 -->
+	<mvc:view-controller path="/" view-name="redirect:/manage/main/index" />	
+	<!-- 国际化支持 -->
+    <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+        <property name="basename" value="messages">            
+        </property>
+    </bean>
+	<!-- 定义JSP -->
+	<bean id="viewResolverCommon" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/> 
+		<property name="prefix" value="/WEB-INF/views/" />
+		<property name="suffix" value=".jsp" />
+		<property name="contentType" value="text/html"></property>
+	</bean>
+
+	<!-- 支持上传文件-->
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver" p:defaultEncoding="UTF-8"/>
+	
+	<!-- 全局异常配置 start     
+     <bean id="exceptionResolver" class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+	    <property name="defaultErrorView" value="/error" />
+	    <property name="exceptionAttribute" value="ex"></property> 
+	    <property name="defaultStatusCode" value="500"></property>
+	    <property name="statusCodes">     
+             <props>     
+                 <prop key="/error">500</prop>     
+                 <prop key="/error">404</prop>
+				 <prop key="/error">400</prop>  
+             </props>     
+         </property>
+	    <property name="exceptionMappings">
+	        <props>
+	            <prop key="java.lang.Exception">/error</prop>
+	            <prop key="java.lang.RuntimeException">/error</prop>
+	            <prop key="org.springframework.web.bind.ServletRequestBindingException">/error</prop> 
+	            <prop key="java.lang.IllegalArgumentException">/error</prop> 
+        		<prop key="org.springframework.validation.BindException">/error</prop> 
+	        </props>
+	    </property>	    
+	 </bean>     
+	--> <!-- 全局异常配置 end -->
+	<!-- Configures integration -->
+	
+	
+	<bean id="authInterceptor" class="cn.edugate.esb.AuthFilterAdvice" />
+	<bean id="filterInterceptor" class="cn.edugate.esb.params.EduJsonFilterAdvice" />
+	<aop:config>
+		<aop:aspect id="dataSourceAspect" ref="authInterceptor">			
+			<aop:pointcut id="app" expression="execution(* cn.edugate.esb.web.api.*.*(..))" />
+			<aop:around method="doBefore" pointcut-ref="app"/>
+		</aop:aspect>
+		<aop:aspect id="dataSourceAspect" ref="filterInterceptor">			
+			<aop:pointcut id="app" expression="execution(* cn.edugate.esb.web.api.*.*(..))" />
+			<aop:around method="doAround" pointcut-ref="app"/>
+		</aop:aspect> 
+	</aop:config>
+</beans>

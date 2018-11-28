@@ -1,0 +1,11 @@
+jdbc.driverClassName=com.mysql.jdbc.Driver
+jdbc.url.esb=jdbc:mysql://192.168.0.110:3306/edugate_base?useUnicode=true&characterEncoding=utf8&mysqlEncoding=utf8;
+jdbc.username=www
+jdbc.password=DYPephEAyZKT51D8M1kUyrOtt
+
+
+jdbc.edu.driverClassName=com.mysql.jdbc.Driver
+jdbc.edu.url.esb=jdbc:mysql://192.168.0.110:3306/?useUnicode=true&characterEncoding=utf8&mysqlEncoding=utf8;
+#jdbc.edu.url.esb=jdbc:mysql://192.168.0.8:3306/?useUnicode=true&characterEncoding=utf8&mysqlEncoding=utf8;
+jdbc.edu.username=www
+jdbc.edu.password=DYPephEAyZKT51D8M1kUyrOtt

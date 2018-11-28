@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>	
+	<eduModle>
+	   
+	    <set name="picPath" value="/wxresource"/>
+
+        <!-- On-line    
+        <set name="picurl" value="http://yunimg.5tree.cn/esb/res/pic/"/>
+	    <set name="excelurl" value="http://yun.5tree.cn/esb/res/excel/"/> 
+	    <set name="Fdsurl" value="http://192.168.1.124/"/>--> 
+	    
+	    
+	     <!-- test   -->
+	    <set name="picurl" value="http://103.36.29.26/esb/res/pic/"/>
+	    <set name="excelurl" value="http://103.36.29.26/esb/res/excel/"/> 
+	    <set name="Fdsurl" value="http://192.168.0.111/"/> 
+	   
+	    <set name="databaseName" value="jysms_ttx"/>
+	    <set name="webName" value="世纪伟业数据服务中心"/>
+	    <set name="secret" value="5c4174c59453ef91a022c9e4fb1359f6"/>
+	    <set name="expired0" value="8640000"/>	  <!-- 超时时间1天，单位秒  0web--> 
+	    <set name="expired1" value="259200000"/>	  <!-- 超时时间1天，单位秒  1 ios-->
+	    <set name="expired2" value="259200000"/>	  <!-- 超时时间1天，单位秒  2 android--> 
+	    <set name="expired3" value="8640000"/>
+	    <set name="token" value="esbtoken"/>
+	    <set name="udid" value="esbudid"/>
+	    <set name="baseuiservice" value="localbaseui"/>
+	    <set name="baseuissourl" value="http://127.0.0.1:8080/esb"/>
+	</eduModle>	
+	<sms> 
+		<set name="CmHost" value="211.147.239.62"/>
+		<set name="CmHostPort" value="9080"/>
+		<set name="WsHost" value="211.147.239.62"/>
+		<set name="WsHostPort" value="9070"/>
+		<set name="userName" value="yunbangong@sjwy"/>	
+		<set name="passWord" value="YS4Q4ngH"/>
+		<set name="timeLimit" value="10"/>
+	</sms>
+	<picConfig>
+		<set name="small" value="180X180"/>
+		<set name="middle" value="423X423"/>
+		<set name="big" value="1080X1080"/>
+	</picConfig>	
+</config>

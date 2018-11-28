@@ -1,0 +1,9 @@
+qxt_sms_url=http://211.147.239.62:9050/cgi-bin/sendsms
+qxt_sms_name=yunbangong@sjwy
+qxt_sms_pass=yunbangong
+
+#qxt_sms_name=sjwy1@sjwy
+#qxt_sms_pass=sjwy-123
+
+
+sms_url=http\://192.168.0.110/jysms/main/schoolsms

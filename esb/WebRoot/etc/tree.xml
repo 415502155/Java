@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<trees>
+	<tree>
+		<set name="title" value="基础信息" />
+		<sub>
+			<set name="href" value="manage/user/list" />
+			<set name="target" value="navTab" />
+			<set name="rel" value="user" />
+			<set name="title" value="用户信息" />
+		</sub>
+		<sub>
+			<set name="href" value="manage/organization/list" />
+			<set name="target" value="navTab" />
+			<set name="rel" value="org" />
+			<set name="title" value="机构列表" />
+		</sub>
+	</tree>
+		
+	<tree>
+		<set name="title" value="OA配置" />
+		<sub>
+			<set name="href" value="manage/function/list" />
+			<set name="target" value="navTab" />
+			<set name="rel" value="function_list" />
+			<set name="title" value="功能配置" />
+		</sub>
+		<sub>
+			<set name="href" value="manage/menu/list" />
+			<set name="target" value="navTab" />
+			<set name="rel" value="menu_list" />
+			<set name="title" value="菜单配置" />
+		</sub>
+	</tree>
+		
+	<tree>
+		<set name="title" value="微校云配置" />
+		<sub>
+			<set name="href" value="manage/attnMachineManage/list" />
+			<set name="target" value="navTab" />
+			<set name="rel" value="attnMachineManage_list" />
+			<set name="title" value="考勤机管理" />
+		</sub>
+		<sub>
+			<set name="href" value="manage/classUpgrade/list" />
+			<set name="target" value="navTab" />
+			<set name="rel" value="classUpgrade_list" />
+			<set name="title" value="班级升级管理" />
+		</sub>
+		<sub>
+			<set name="href" value="manage/data/index" />
+			<set name="target" value="navTab" />
+			<set name="rel" value="data_list" />
+			<set name="title" value="数据统计" />
+		</sub>
+		<sub>
+			<set name="href" value="manage/feedback/index" />
+			<set name="target" value="navTab" />
+			<set name="rel" value="data_list" />
+			<set name="title" value="意见反馈" />
+		</sub>
+	</tree>
+	
+	<tree>
+		<set name="title" value="系统配置" />
+		<sub>
+			<set name="href" value="manage/redis/list" />
+			<set name="target" value="navTab" />
+			<set name="rel" value="redis_list" />
+			<set name="title" value="操作列表" />
+		</sub>
+		<sub>
+			<set name="href" value="manage/app/list" />
+			<set name="target" value="navTab" />
+			<set name="rel" value="menu_list" />
+			<set name="title" value="市局SSO对接" />
+		</sub>
+		<sub>
+			<set name="href" value="manage/roleCode/list" />
+			<set name="target" value="navTab" />
+			<set name="rel" value="role_code" />
+			<set name="title" value="功能编码" />
+		</sub>
+	</tree>
+
+
+	<!--<sub> <set name="href" value="manage/role/list"/> <set name="target" 
+		value="navTab"/> <set name="rel" value="role"/> <set name="title" value="用户角色"/> 
+		</sub> <sub> <set name="href" value="manage/role/rightlist"/> <set name="target" 
+		value="navTab"/> <set name="rel" value="right"/> <set name="title" value="权限配置"/> 
+		</sub> <sub> <set name="href" value="manage/role/rightlist"/> <set name="target" 
+		value="navTab"/> <set name="rel" value="right"/> <set name="title" value="设置授课"/> 
+		</sub> <tree> <set name="title" value="教师范围管理"/> <sub> <set name="href" value="manage/range/setadmin"/> 
+		<set name="target" value="navTab"/> <set name="rel" value="admin"/> <set 
+		name="title" value="设置管理员"/> </sub> <sub> <set name="href" value="manage/range/setheadmaster"/> 
+		<set name="target" value="navTab"/> <set name="rel" value="headmaster"/> 
+		<set name="title" value="设置校长"/> </sub> <sub> <set name="href" value="manage/range/setteaching"/> 
+		<set name="target" value="navTab"/> <set name="rel" value="teaching"/> <set 
+		name="title" value="设置任课教师"/> </sub> <sub> <set name="href" value="manage/range/setcharge"/> 
+		<set name="target" value="navTab"/> <set name="rel" value="charge"/> <set 
+		name="title" value="设置班主任"/> </sub> <sub> <set name="href" value="manage/range/setgradegroup"/> 
+		<set name="target" value="navTab"/> <set name="rel" value="right"/> <set 
+		name="title" value="设置年级组长"/> </sub> <sub> <set name="href" value="manage/range/setstudentgroup"/> 
+		<set name="target" value="navTab"/> <set name="rel" value="studentgroup"/> 
+		<set name="title" value="设置学生组管理员"/> </sub> <sub> <set name="href" value="manage/range/setdepartadmin"/> 
+		<set name="target" value="navTab"/> <set name="rel" value="departadmin"/> 
+		<set name="title" value="设置部门管理员"/> </sub> <sub> <set name="href" value="manage/range/setteachermanager"/> 
+		<set name="target" value="navTab"/> <set name="rel" value="teachermanager"/> 
+		<set name="title" value="设置教师组管理员"/> </sub> <sub> <set name="href" value="manage/range/setfunctionmanager"/> 
+		<set name="target" value="navTab"/> <set name="rel" value="functionmanager"/> 
+		<set name="title" value="设置功能管理员"/> </sub> </tree> <tree> <set name="title" 
+		value="应用管理"/> <sub> <set name="href" value="manage/application/list"/> <set 
+		name="target" value="navTab"/> <set name="rel" value="application"/> <set 
+		name="title" value="应用列表"/> </sub> </tree> <tree> <set name="title" value="机构管理"/> 
+		<sub> <set name="href" value="manage/organization/list"/> <set name="target" 
+		value="navTab"/> <set name="rel" value="org"/> <set name="title" value="机构列表"/> 
+		</sub> </tree> <tree> <set name="title" value="班级管理"/> <sub> <set name="href" 
+		value="manage/application/list"/> <set name="target" value="navTab"/> <set 
+		name="rel" value="class"/> <set name="title" value="班级列表"/> </sub> </tree> 
+		<tree> <set name="title" value="课程管理"/> <sub> <set name="href" value="manage/application/list"/> 
+		<set name="target" value="navTab"/> <set name="rel" value="plate"/> <set 
+		name="title" value="年级列表"/> </sub> <sub> <set name="href" value="manage/application/list"/> 
+		<set name="target" value="navTab"/> <set name="rel" value="plate"/> <set 
+		name="title" value="班级列表"/> </sub> <sub> <set name="href" value="manage/application/list"/> 
+		<set name="target" value="navTab"/> <set name="rel" value="pggz"/> <set name="title" 
+		value="课程列表"/> </sub> </tree> <tree> <set name="title" value="redis管理"/> 
+		<sub> <set name="href" value="manage/redis/list"/> <set name="target" value="navTab"/> 
+		<set name="rel" value="redis_list"/> <set name="title" value="操作列表"/> </sub> 
+		</tree> <tree> <set name="title" value="功能管理"/> <sub> <set name="href" value="manage/function/list"/> 
+		<set name="target" value="navTab"/> <set name="rel" value="function_list"/> 
+		<set name="title" value="功能配置"/> </sub> <sub> <set name="href" value="manage/menu/list"/> 
+		<set name="target" value="navTab"/> <set name="rel" value="menu_list"/> <set 
+		name="title" value="菜单配置"/> </sub> </tree> -->
+	<!-- <tree> <set name="title" value="功能管理"/> <sub> <set name="href" value="manage/synclianzhi"/> 
+		<set name="target" value="navTab"/> <set name="rel" value="sync_lianzhi"/> 
+		<set name="title" value="同步连枝号"/> </sub> </tree> -->
+</trees>

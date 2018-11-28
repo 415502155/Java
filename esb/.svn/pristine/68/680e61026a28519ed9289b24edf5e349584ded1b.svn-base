@@ -1,0 +1,12 @@
+#Tracker Server IP\u5730\u5740
+fileupload.FastDFS.trackers=192.168.1.124:22122
+#\u8FDE\u63A5soTimeout\u8BBE\u7F6E
+fileupload.FastDFS.soTimeout=10000
+#\u8FDE\u63A5\u8D85\u65F6\u8BBE\u7F6E
+fileupload.FastDFS.connectTimeout=5000
+#\u8FDE\u63A5\u6C60 maxTotal
+fileupload.FastDFS.maxTotal=200
+#\u8FDE\u63A5\u6C60 maxTotalPerKey
+fileupload.FastDFS.maxTotalPerKey=200
+#\u8FDE\u63A5\u6C60 maxIdlePerKey \u6700\u5927\u7A7A\u95F2\u8FDE\u63A5\u6570(\u5F71\u54CD\u5E76\u53D1\u6027\u80FD)
+fileupload.FastDFS.maxIdlePerKey=50

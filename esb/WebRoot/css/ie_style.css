@@ -1,0 +1,8 @@
+@CHARSET "UTF-8";
+
+.g-hd #inner-page-header .logo {
+    background: url("../images/icons/logo.png") no-repeat scroll 0 0;
+}
+.clients-down .icon {
+    background: url(../images/icon.png) no-repeat scroll 0 0;
+}

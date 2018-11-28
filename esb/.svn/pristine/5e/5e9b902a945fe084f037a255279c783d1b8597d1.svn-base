@@ -1,0 +1,11 @@
+ORG_NAME = sjwy
+APP_NAME = swofficetest
+GRANT_TYPE= client_credentials
+CLIENT_ID = YXA6VF6eYJkrEeecXJ14WjeXxQ
+CLIENT_SECRET =YXA6-uCYztHzrI427QOnwV9a9_pTBXE
+
+#ORG_NAME = sjwy
+#APP_NAME = swoffice
+#GRANT_TYPE= client_credentials
+#CLIENT_ID = YXA6G9s44Ix6EeeARTlguzd8Xg
+#CLIENT_SECRET =YXA6MV87zRW8EGXL6cHjEJjKAe7_wuM

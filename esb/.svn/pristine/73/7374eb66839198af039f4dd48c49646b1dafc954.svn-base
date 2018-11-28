@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.2.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd">
+		
+	<!-- 使用annotation 自动注册bean, 并保证@Required、@Autowired的属性被注入 -->
+    <context:component-scan base-package="cn.edugate.esb">
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>  
+    </context:component-scan>
+
+	<bean id="ContextUtil" class="cn.edugate.esb.EduApplicationContextUtil"></bean>
+	<bean id="SpringContextUtil" class="cn.edugate.esb.util.SpringContextUtil"/>
+	<bean id="eduConfig" class="cn.edugate.esb.EduConfig">
+	    <property name="configFile">
+	        <value>/etc/edugate.xml</value>
+	    </property>
+	    <property name="contextUtil" ref="ContextUtil"/>
+	</bean>	
+	<bean id="Error404Filter" class="cn.edugate.esb.file.Error404Filter">
+	    <property name="eduConfig">
+	        <ref bean="eduConfig"/>
+	    </property>
+	</bean>
+	<bean id="Excel404Filter" class="cn.edugate.esb.file.Excel404Filter">
+	    <property name="eduConfig">
+	        <ref bean="eduConfig"/>
+	    </property>
+	</bean>
+	
+	<bean name="smsTaskEventHandler" class="cn.edugate.esb.disruptor.SmsTaskEventHandler"></bean>
+	<bean id="smsTaskHelper" class="cn.edugate.esb.util.SmsTaskHelper">
+	    <property name="smsTaskEventHandler" ref="smsTaskEventHandler"/>
+	</bean>
+	
+	<bean id="multipartResolver"  
+        class="org.springframework.web.multipart.commons.CommonsMultipartResolver">  
+        <!-- one of the properties available; the maximum file size in bytes -->  
+        <property name="maxUploadSize" value="100000000" />  
+    </bean>
+
+	<!-- 将多个配置文件读取到容器中，交给Spring管理 -->  
+    <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">  
+        <property name="locations">  
+           <list>
+              <value>classpath:/db.properties</value>
+              <value>classpath:/Redis.properties</value>
+              <value>classpath:/cleverframe-filemanager.properties</value>
+            </list>  
+        </property>  
+        <property name="fileEncoding">
+	      <value>UTF-8</value>	      
+	    </property>
+    </bean>
+    
+    <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+		<property name="maxTotal" value="100"/>
+        <property name="maxIdle" value="100"/>
+        <property name="testOnBorrow" value="true"/>
+	</bean>
+	
+	<bean id="jedisConnectionFactory"
+		class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory">
+		<property name="hostName" value="${redis.host}" />
+		<property name="port" value="${redis.port}" />
+		<property name="password" value="${redis.pass}" />
+		<property name="timeout" value="${redis.timeout}" />
+		<property name="poolConfig" ref="jedisPoolConfig" />
+		<property name="usePool" value="true" />
+		<property name="database" value="${redis.dbIndex}" />
+	</bean>
+	
+	<bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate">
+		<property name="connectionFactory" ref="jedisConnectionFactory" />
+		<property name="keySerializer">
+			<bean class="org.springframework.data.redis.serializer.StringRedisSerializer"></bean>
+		</property>
+		<property name="valueSerializer">
+			<bean class="org.springframework.data.redis.serializer.StringRedisSerializer"></bean>
+		</property>
+	</bean>
+
+    <import resource="db-config.xml" />
+    <!-- Configures Spring Security -->
+	<import resource="app-security.xml" />
+	<import resource="spring-context-filemanager.xml" />
+	<import resource="integration/spring-integration-context.xml" />
+</beans>

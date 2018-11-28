@@ -1,0 +1,13 @@
+@CHARSET "UTF-8";
+.sprite-div .sprite-text{
+	float:left;	
+}
+.sprite-div .sprite-frame{
+	float:left;	
+}
+.freshbutton-blue, .button-primary, a.button-primary {
+    background: #168ADD;
+}
+.sick-input label {
+	z-index: -1;
+}}
