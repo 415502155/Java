@@ -1,0 +1,391 @@
+<!--操作日志-->
+<style>
+    .tablesorter-blue tbody td.stu_status {color: #e89090;}
+</style>
+
+<div class="content-wrap" id="sub_loadBox"  >
+    <div class="search">
+        <select class="gui-input" style="margin-right: 10px" id="allAction">
+            <option value=" ">操作动作</option>
+        </select>
+         <!--开始时间-->
+         <input type="text" class="gui-input" data-date="YYYY-MM-DD" placeholder="选择开始时间" id="startTime" readonly > --
+         <!--结束时间-->
+         <input type="text" class="gui-input" data-date="YYYY-MM-DD" placeholder="选择结束时间" id="endTime" readonly  style="margin-right: 10px" >
+         <div class="gui-input-group">
+            <input type="text" class="gui-input" id="keyWord" placeholder="请输入操作内容" style="width: 180px" />
+            <button type="button" class="gui-btn  gui-btn-normal" id="toSearch"><i class="fa fa-search"></i>搜索</button>
+        </div>
+    </div>
+    <div class="bod-con-fer-form">
+        <table align="center" class="tab tablesorter-blue">
+            <thead>
+            <tr>
+                <th><input type="checkbox" name="allLog" onclick="all_click(this,'log',changeLocal(this))"></th>
+                <th>序号</th>
+                <th>操作动作</th>
+                <th>操作对象</th>
+                <th>操作内容</th>
+                <th>操作人</th>
+                <th>操作时间</th>
+            </tr>
+            </thead>
+            <tbody id="logList">
+            </tbody>
+        </table>
+    </div>
+    <!-- 分页 -->
+    <div class="gui-page-wapper" style="margin:20px 0;line-height: 28px;" id="pageContent">
+        <ul class="gui-page" id="limitUi">
+            <span class="gui-page-total">共<span class="numberShow" id="allPage">0</span>页 <span class="numberShow" id="allTotal">0</span>数据</span>
+            <span id="creatPage">
+            </span>
+        </ul>
+        <span class="gui-page-options-elevator" style="padding-left: 10px;">
+                每页条数：
+                <select id="limit" >
+                     <option value="20">20</option>
+                     <option value="50">50</option>
+                     <option value="100">100</option>
+                </select>
+            </span>
+
+        <span class="gui-page-options">
+            <span class="gui-page-options-elevator">跳至第
+            <input id="page" class="gui-input" data-onlyNumber="true">
+             页</span>
+           </span>
+    </div>
+    <!--分页-->
+    <div class="dataTool" >
+        <div class="pull-left">
+            <label for="isAll" style="line-height: 32px">
+                <input type="checkbox" id="isAll" name="allClass">选择全部分页数据
+            </label>
+        </div>
+        <div class="pull-right">
+            <span id="changeSum" style="margin-right:10px;">已选择<span>0</span>日志</span>
+            <button type="button" class="gui-btn  gui-btn-normal" id="downloadLog" disabled title="暂无选择日志"><i class="fa fa-cloud-download"></i>导出日志</button>
+            <button type="button" class="gui-btn gui-btn-warm" id="delChanged" disabled title="暂无选择日志"><i class="fa fa-trash-o"></i>清空选择</button>
+        </div>
+    </div>
+</div>
+<script>
+    var changedlog=[];
+
+    var alllogId={};
+
+    var log_list={
+        "parameter":{
+            "org_id":option.org_id,
+            "token":option.token,
+            "limit":$("#limit").val()?$("#limit").val():20,
+            "page":$("#page").val()?$("#page").val():1,
+            "action":"",
+            "startTime":"",
+            "endTime":"",
+            "content":"",
+            "ids":changedlog.unique().join(""),
+            "isAll":""
+        },
+        "url":domain+"/logger/list.htm"
+    };
+
+
+
+    $(function () {
+        //默认
+        showHtml();allSelect();
+
+        $("#allAction").change(function(){
+            log_list.parameter.action= $("#allAction").val();
+            showHtml();
+        });
+
+        $("#delChanged").click(function(){
+            changedlog=[];
+            addData();
+            $("input[name=allLog]").prop("checked",false);
+            $("input[name=log]").prop("checked",false);
+            $("#downloadLog").prop({"disabled":true,"title":"暂未选择要下载的日志"});
+            $("#delChanged").prop({"disabled":true,"title":"暂未选择要下载的日志"});
+            $("#changeSum span").text("0");
+            $("#isAll").prop("checked",false);
+        });
+
+        //按条件查询
+        $("#toSearch").click(function () {
+
+            //开始时间不能《结束时间
+            var start=$("#startTime").val(),end=$("#endTime").val();
+            if(start!==""&& end!==""){
+                var startstr=new Date(start).getTime();
+                var endstr=new Date(end).getTime();
+                if(startstr>=endstr){
+                    myAlert("开始时间不能晚于或者等于结束时间",2,null,function () {
+                        $("#endTime").focus();
+                    })
+                    return false
+                }
+            };
+
+            log_list.parameter.startTime= $("#startTime").val();
+            log_list.parameter.endTime= $("#endTime").val();
+            log_list.parameter.content= $("#keyWord").val();
+            log_list.parameter.limit= $("#limit").val();
+            showHtml();
+
+            $("#isAll").prop("checked",false);
+        });
+
+        //导出
+        $("#downloadLog").click(function (){
+
+            if(log_list.parameter.isAll==1){
+                //转GET请求参数
+                var parameter=parseParams(log_list.parameter);
+                window.location.href = domain+"/logger/export.htm?"+parameter;
+            }else{
+                if(changedlog.length==0){
+                    myAlert("请选择一条日志",2,null,null);
+                    return false
+                }else{
+                    log_list.parameter.ids=changedlog.unique().join(",");
+                    var parameter=parseParams(log_list.parameter);
+                    window.location.href = domain+"/logger/export.htm?"+parameter;
+                }
+            }
+        });
+
+        //全选分页
+        $("#isAll").click(function (){
+
+            var isChecked=$(this).is(":checked");
+            //获取该搜索条件下的所有班级
+            getData(domain+"/logger/logIdList.htm",log_list.parameter,function (res) {
+                if(res.code==200 && res.success==true){
+                    var allclassIds=res.data.split(",");
+                    var m=allclassIds.length;
+
+                    if(m>0){
+
+                        if(isChecked){
+                            //添加到已选
+                            for(var i=0;i<m;i++){
+                                changedlog.push(allclassIds[i]);
+                                changedlog=changedlog.unique();
+                                var sum=changedlog.length;
+                                //更新数据
+                                $("input[name=allLog]").prop("checked",true);
+                                $("input[name=log]").prop("checked",true);
+                                $("#downloadLog").prop({"disabled":false,"title":"下载全部日志"});
+                                $("#delChanged").prop({"disabled":false,"title":"清空全部日志"});
+                                $("#changeSum span").text(sum);
+
+                            }
+                        }else{
+                            //从已选删除
+                            for(var i=0;i<m;i++){
+                                changedlog.removeByValue(allclassIds[i]);
+                                changedlog=changedlog.unique();
+                                var sum=changedlog.length;
+                                //更新数据
+                                $("input[name=allLog]").prop("checked",false);
+                                $("input[name=log]").prop("checked",false);
+                                $("#downloadLog").prop({"disabled":true,"title":"暂未选择要下载的日志"});
+                                $("#delChanged").prop({"disabled":true,"title":"暂未选择要下载的日志"});
+                                $("#changeSum span").text(sum);
+                            }
+                        }
+                        //更新数据
+                        addData();
+                    }else{
+                        myAlert("该条件下没有任何日志，请切换条件从新筛选！",2,res.code,null);
+                    }
+                }else {
+                    myAlert("获取分页数据失败，请稍后再试",2,res.code,null);
+                }
+            },"POST",false);
+
+        });
+
+
+        //单选班级：如果选中插入到备选，否则从已选删除
+        //编辑的时候会后渲染，所以得绑定事件
+        $("#logList").on("click","input[name=\"log\"]",function (e) {
+
+            var classID=$(this).attr("id");
+
+            if($(this).is(":checked")){//选中
+                changedlog.push(classID);
+
+            }else{  //取消
+                changedlog.removeByValue(classID);
+                $("#isAll").prop("checked",false);
+                $("input[name=allLog]").prop("checked",false);
+            }
+
+            //更新数据
+            addData();
+            e.stopPropagation();
+        });
+
+        $("#logList").on("click","tr",function (e) {
+
+            var obj=$(this).find("input[name=\"log\"]");
+            var classID=obj.attr("id");
+
+            if(!obj.is(":checked")){//选中
+                obj.prop("checked",true);
+                changedlog.push(classID);
+
+            }else{  //取消
+                obj.prop("checked",false);
+                changedlog.removeByValue(classID);
+                $("#isAll").prop("checked",false);
+                $("input[name=allLog]").prop("checked",false);
+            }
+
+            //更新数据
+            addData();
+
+            e.stopPropagation();
+        });
+
+    });
+
+
+    /**
+     * 触发页面更新
+     * 包括 统计和页面更新（能否触发发送）
+     */
+
+    function addData() {
+        changedlog=changedlog.unique();
+        var sum=changedlog.length;
+        if(changedlog.length>0){
+            $("#downloadLog").prop({"disabled":false,"title":"下载已选择（"+sum+"）的日志"});
+            $("#delChanged").prop({"disabled":false,"title":"清空已选择（"+sum+"）的日志"});
+            $("#changeSum span").text(sum+"条");
+        }else{
+
+            if($("#isAll").is(":checked")){
+                $("#downloadLog").prop({"disabled":false,"title":"下载全部日志"});
+                $("#delChanged").prop({"disabled":false,"title":"清空全部日志"});
+
+                $("#changeSum span").text("全部");
+            }else{
+                $("#downloadLog").prop({"disabled":true,"title":"选择日志下载"});
+                $("#delChanged").prop({"disabled":true,"title":"未选中日志"});
+            }
+        }
+
+        setTimeout(function(){
+            if($("input[name=log]").length==$("input[name=log]:checked").length && $("input[name=log]:checked").length !== 0){
+                $("input[name=allLog]").prop("checked",true);
+            }
+        },400)
+
+
+    }
+
+
+    //列表
+    function showHtml(limit,page) {
+        log_list.parameter.page=page==undefined?1:page;
+        getData(log_list.url,log_list.parameter,function (res) {
+
+            if(res.code==200 && res.success==true){
+                var data=res.data,html="";
+                //如果当前页是第一页从新渲染
+                if(data.page==1){
+                    //生成页数(总条数，总页数，)
+                    $("#creatPage").createPage({
+                        pageCount:data.size,
+                        current:page,
+                        url:log_list.url,
+                        creat:1,
+                        backFn:function(page){
+                            debugger
+                            var limit=$("#limit").val();
+                            showHtml(limit,page)
+                        }
+                    });
+                }
+
+                //总页数
+                $("#allPage").text(data.size);
+                //总条数
+                $("#allTotal").text(data.total);
+
+                if(data.data.length>0){
+                    for(var n=0,m=data.data.length;n<m;n++){
+
+                        var toShow=(parseInt(page==undefined?1:page)-1)*parseInt(data.limit);
+                        var logObj=data.data[n];
+
+                        //判断是否已选择
+                        if($.inArray(logObj.operation_id.toString(), changedlog)>=0){
+                            var chehtml="checked='checked'"
+                        }else{
+                            var chehtml=""
+                        }
+
+
+                        html += " <tr>" +
+                            "     <td><input type='checkbox' name='log'  "+chehtml+"  id='"+logObj.operation_id+"'></td>" +
+                            "     <td>"+(n+toShow+1)+"</td>" +
+                            "     <td>"+option.allAction[logObj.action]+"</td>" +
+                            "     <td>"+logObj.target_name+"</td>" +
+                            "     <td>"+logObj.content+"</td>" +
+                            "     <td>"+logObj.user_type_name+"</td>" +
+                            "     <td>"+logObj.operation_time+"</td>" +
+                            " </tr>";
+                    }
+                    $("#download").prop("disabled",false);
+                    $("#isAll").prop("disabled",false)
+                }else{
+                    html += "<tr>" +
+                        "<td colspan='7' class='noData' title='没有找到数据'><i class=\"fa fa-warning\" aria-hidden=\"true\"></i>没有找到操作数据</td>" +
+                        "</tr>";
+                    $("#download").prop("disabled",true);
+                    $("#isAll").prop("disabled",true)
+                }
+
+                $("#logList").html(html);
+                setTimeout(function(){
+                    if($("input[name=log]").length==$("input[name=log]:checked").length && $("input[name=log]:checked").length !== 0){
+                        $("input[name=allLog]").prop("checked",true);
+                    }
+                },400)
+
+            }else {
+                myAlert(res.message,2,res.code,null);
+            }
+        },"POST",false)
+    }
+
+
+    /**
+     * 单页全选
+     * 包括 清除选中和清空 及触发统计和页面更新
+     */
+    function changeLocal(obj){
+debugger
+        //遍历本地数据
+        if($(obj).is(":checked")){
+            $("input[name=log]").each(function () {
+                var nowClass=$(this).attr("id");
+                changedlog.push(nowClass);
+            });
+        }else{
+            $("input[name=log]").each(function () {
+                var nowClass=$(this).attr("id");
+                changedlog.removeByValue(nowClass);
+            });
+
+            $("#isAll").prop("checked",false)
+        }
+        addData();
+    }
+</script>

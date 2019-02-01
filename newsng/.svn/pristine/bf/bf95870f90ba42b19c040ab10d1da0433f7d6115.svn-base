@@ -1,0 +1,252 @@
+<!--添加或者编辑教师信息-->
+<div style="padding: 40PX;">
+    <form class="gui-form gui-form-label-right" id="add-form" novalidate="novalidate">
+
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">教师姓名</label>
+            <div class="gui-form-item-content">
+                <input type="text" name="teacher_name" id="teacher_name" placeholder="请输入教师姓名" class="gui-input" value="" >
+            </div>
+        </div>
+        <div class="line"></div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">教师手机</label>
+            <div class="gui-form-item-content">
+                <input type="text" name="teacher_mob" id="teacher_mob" placeholder="请输入教师手机号" class="gui-input" maxlength="11">
+                <span id="checkTeltip" style="display: none"><i class="fa fa-circle-o-notch fa-spin" ></i>正在查询教师手机号是否存在</span>
+                <input type="hidden" name="teacher_userId" id="teacher_userId">
+            </div>
+        </div>
+
+        <div class="gui-form-item gui-form-item-required">
+            <label class="gui-form-item-label">教师类型</label>
+            <div class="gui-form-item-content">
+                <div class=" gui-select-single">
+                    <select class="gui-select" name="teacherType" id="teacherType" >
+                        <option value="">选择教师类型</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="gui-form-item ">
+            <label class="gui-form-item-label">所属机构</label>
+            <div class="gui-form-item-content">
+                <div class=" gui-select-single">
+                    <select class="gui-select"  name="orgId"  id="allCooperatives" disabled style="margin-right: 20px;">
+                        <option value="">选择教师所属机构</option>
+                    </select> 教师类型是专职的时候，不用选择所属机构
+                </div>
+            </div>
+        </div>
+
+        <div class="gui-form-item "><label class="gui-form-item-label">备注信息</label>
+            <div class="gui-form-item-content">
+                <textarea placeholder="请输入..." id="teacher_note" name="teacher_note" rows="2" class="gui-textarea"></textarea>
+            </div>
+        </div>
+        <div class="line"></div>
+        <div class="gui-form-item">
+            <div class="gui-form-item-content" >
+                <button type="button" class="gui-btn gui-btn-normal" id="save" disabled><i class="fa fa-save"></i><span>保存教师</span></button>
+                <button type="reset" class="gui-btn gui-btn-warm" id="clearform"><i class="fa fa fa-trash-o"></i><span>清空表单</span></button>
+                <button type="button" class="gui-btn gui-btn-primary" id="back"><i class="fa fa-angle-left"></i><span>取消返回</span></button>
+            </div>
+        </div>
+    </form>
+</div>
+<script type="text/javascript" src="plus/validate/jquery-validate.js"></script>
+<script>
+    var nowTeacher=GetUrlParam("tech_id");
+
+    $(function() {
+
+        //编辑则赋值
+        if(nowTeacher!==""){
+            var teacherObj=JSON.parse(sessionStorage.localListTechers)[nowTeacher];
+
+            //localListTechers[obj.tech_id]={mob:obj.mobile,type:obj.type,name:obj.teacher_name;org:obj.org_id};
+            $("#teacher_name").val(teacherObj.name);
+            $("#teacher_mob").val(teacherObj.mob);
+            $("#teacher_userId").val(teacherObj.user_id);
+            setTimeout(function () {
+
+                $("#allCooperatives").val(teacherObj.cooperative_id);
+                $("#teacherType").val(teacherObj.type).change();
+            },200);
+
+            checkTechPhone();
+            $("#teacher_note").val(teacherObj.note);
+        }
+
+        //判断教师身份类型
+        $("#teacherType").change(function(){
+            var val=$(this).val();
+            if(val==""||val==1){
+                $("#allCooperatives").prop("disabled",true);
+            }else{
+                $("#allCooperatives").prop("disabled",false);
+            }
+            $("#allCooperatives").removeClass("gui-form-input-error");
+            $("#allCooperatives-error").removeClass("gui-form-input-error");
+        });
+
+
+        //校验手机号是否存在
+        $("#teacher_mob").keyup(function(){
+            var mob=$(this).val();
+            if(mob==""||mob.length !== 11){
+                return false
+            }
+            checkTechPhone();
+        });
+
+        //取消编辑返回列表
+        $("#back").click(function () {
+            window.location.href="#d2";
+        });
+
+        //下拉菜单
+        allSelect();
+
+
+        //添加编辑教师校验
+        $("#add-form").validate({
+            rules: {
+                teacher_name: {
+                    required: true,
+                    minlength:2,
+                    maxlength:20
+                },
+                teacher_mob: {
+                    required: true,
+                    minlength:11,
+                    maxlength:12
+                },
+                teacherType: {
+                    required: true
+                },
+                orgId: {
+                    required: $("#teacherType").val()!==1
+                }
+            },
+            messages: {
+                teacher_name: {
+                    required: '请输入教师姓名',
+                    minlength:'教师姓名最少2个字符',
+                    maxlength:'教师姓名不能超过20个字'
+                },
+                teacher_mob: {
+                    required: '请填写教师手机号',
+                    minlength:'手机号最少11位',
+                    maxlength:'手机号不能超过12位',
+                },
+                teacherType: {
+                    required: '请选择教师类型'
+                },
+                orgId: {
+                    required: '请选择教师所属机构'
+                }
+            },
+            errorPlacement: function(error, element) {
+                error.appendTo(element.parent().after())
+            },
+            errorClass: 'gui-form-item-error',
+            errorElement: 'span',
+            submitHandler: function(form) {
+                 debugger
+                //保存或者更新校区信息
+                var save={
+                    "parameter":{
+                        "org_id":option.org_id,
+                        "token":option.token,
+                        "udid":option.udid,
+                        //计划--教师姓名 教师手机号 类型 备注 机构代码
+                        "tech_name":$("#teacher_name").val(),
+                        "tech_type": $("#teacherType").val(),
+                        "user_mobile":$("#teacher_mob").val(),
+                        "tech_note":$("#teacher_note").val(),
+                        "cooperative_id":$("#teacherType").val()==1?"":$("#allCooperatives").val()
+
+                    },
+                    "url":loginMain+"/esb/api/tech/addSngTeacher"
+                };
+
+                if(nowTeacher!==""){
+                    save.parameter.tech_id=nowTeacher ;
+                    save.parameter.user_id=$("#teacher_userId").val();
+
+                    //save.parameter.cooperative_id;
+                    save.url=loginMain+"/esb/api/tech/updateSngTeacher";
+                }
+
+                //保存或者更新校区
+                getData(save.url,save.parameter,function (data) {
+
+                    if(data.code==200 && data.success==true){
+
+                        //如果更新的是登录的教师，则更新本地缓存
+                        if($("#teacher_userId").val()==JSON.parse(sessionStorage.loginUser).user_id){
+                            var teacherName=$("#teacher_name").val();
+                            var user=JSON.parse(sessionStorage.loginUser)
+                                user.useName=teacherName;
+                                user.Phone=$("#teacher_mob").val();
+                            $("#teacherName").text(teacherName + " 老师");
+                        }
+
+                        myAlert("保存成功",1,data.code,function () {
+                            window.location.href="#d2"
+                        });
+                    }else {
+                        myAlert(data.message,2,data.code,null);
+                    }
+                },"POST",false)
+            }
+        });
+
+        //提交
+        $("#save").click(function () {
+
+            var mob=$("#teacher_mob").val();
+
+            if(!testMob(mob)){
+                myAlert("手机号格式不正确",2,null,null);
+                return false
+            }
+
+            $("#add-form").submit();
+        });
+
+    });
+
+    //检查手机号是否存在
+    function checkTechPhone(){
+        //$("#checkTeltip").show();
+        var mob=$("#teacher_mob").val();
+        if(mob.length<11){
+            return false
+        }
+        //保存或者更新校区信息
+        var check={
+            "parameter":{
+                "org_id":option.org_id,
+                "token":option.token,
+                "udid":option.udid,
+                "phone":mob,
+                "tech_id":nowTeacher
+            },
+            "url":loginMain+"/esb/api/tech/checkTechPhone"
+        };
+        //保存或者更新校区
+        getData(check.url,check.parameter,function (data) {
+
+            if(data.code==200 && data.success==true){
+                $("#save").prop("disabled",false);
+               // $("#checkTeltip").hide();
+            }else {
+               // $("#checkTeltip").hide();
+                $("#save").prop("disabled",true);
+                dialogFormItemerrorTip("teacher_mob",data.message);
+
+            }
+        },"POST",false)
+    }
+</script>

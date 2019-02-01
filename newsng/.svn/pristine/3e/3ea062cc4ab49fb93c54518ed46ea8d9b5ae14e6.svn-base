@@ -1,0 +1,545 @@
+<!--用户编辑页面-->
+<div style="padding: 40px;">
+    <form class="gui-form gui-form-label-right" id="addUser-form" novalidate="novalidate">
+
+        <div class="gui-form-item"><label class="gui-form-item-label">用户ID</label>
+            <div class="gui-form-item-content">
+                <input type="text" name="userId" id="userId" placeholder="请输入用户姓名" class="gui-input readonlyInput"  readonly value=" " >
+            </div>
+        </div>
+        <div class="line"></div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">用户姓名</label>
+            <div class="gui-form-item-content">
+                <input type="text" name="userName" id="userName" placeholder="请输入用户姓名" class="gui-input" style="width: 240px">
+
+                <input type="hidden" name="open_id" id="open_id"  class="gui-input" >
+                <input type="hidden" name="parent_salt" id="parent_salt"  class="gui-input" >
+                <input type="hidden" name="parent_loginpass" id="parent_loginpass"  class="gui-input" >
+                <input type="hidden" name="relation" id="relation"  class="gui-input">
+
+            </div>
+        </div>
+
+        <div class="gui-form-item gui-form-item-required">
+            <label class="gui-form-item-label">证件类型</label>
+            <div class="gui-form-item-content">
+                <div class=" gui-select-single">
+                    <select class="gui-select" name="idType" id="idType">
+                            <option value="">请选择证件类型</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">证件号</label>
+            <div class="gui-form-item-content">
+                <input type="text" placeholder="请输入学生证件号"  name="idCard" id="idCard" class="gui-input" disabled style="width: 240px">
+            </div>
+        </div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">出生日期</label>
+            <div class="gui-form-item-content">
+                <input type="text" placeholder="选择日期" data-date="YYYY-MM-DD" id="brithday" name="userBrithday" disabled readonly class="gui-input" >
+            </div>
+        </div>
+        <div class="gui-form-item gui-form-item-required">
+            <label class="gui-form-item-label">认证状态</label>
+            <div class="gui-form-item-content">
+                <div class=" gui-select-single">
+                    <select class="gui-select" id="certificationType" name="certificationType">
+                        <option value="">请选择认证状态</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="gui-form-item "><label class="gui-form-item-label">手机号</label>
+            <div class="gui-form-item-content">
+                <input type="text" placeholder="请输入手机号" readonly value="" id="mob" class="gui-input readonlyInput" style="width:120px;margin-right:0px;" >
+                <span class="formlink" title="修改手机号" id="changedMob">修改<em></em></span>
+                <div  class="gui-alert gui-alert-warning" id="certificationTip"><i class="fa fa-times pull-right" aria-hidden="true" title="关闭提示"></i><i class="fa fa-info-circle" aria-hidden="true"></i> 已认证用户只能修改手机号</div>
+            </div>
+        </div>
+        <div class="line"></div>
+        <div class="gui-form-item">
+            <div class="gui-form-item-content" >
+                <button type="button" class="gui-btn gui-btn-normal" id="saveUser"><i class="fa fa-save"></i><span>保存更新</span></button>
+                <button type="button" class="gui-btn gui-btn-danger" id="delUser"><i class="fa fa-trash-o"></i><span>删除用户</span></button>
+                <button type="button" class="gui-btn gui-btn-primary" id="back"><i class="fa fa-angle-left"></i><span>取消返回</span></button>
+            </div>
+        </div>
+    </form>
+</div>
+<script type="text/javascript" src="plus/validate/jquery-validate.js"></script>
+<script>
+    $(function() {
+        var loginUser;
+        if(typeof sessionStorage.loginUser !== "undefined"){
+            loginUser = JSON.parse(sessionStorage.loginUser);
+        }
+        //获取用户登录信息
+        //编辑则赋值
+        var userId=GetUrlParam("userId");
+
+        $("#userId").focus(function(){ $(this).blur});
+
+        if(userId!==""){
+debugger
+            var userObj=JSON.parse(sessionStorage.localUsers)[userId];
+            $("#userId").val(userObj.user_register_id);
+            $("#userName").val(userObj.stud_name);
+
+            $("#mob").val(userObj.telephone);
+
+            $("#open_id").val(userObj.open_id);
+            $("#parent_salt").val(userObj.login_salt);
+            $("#parent_loginpass").val(userObj.login_password);
+            $("#relation").val(userObj.relation==null?"6":userObj.relation);
+
+             /* <input type="hidden" name="open_id" id="open_id"  class="gui-input" >
+                <input type="hidden" name="parent_salt" id="parent_salt"  class="gui-input" >
+                <input type="hidden" name="parent_loginpass" id="parent_loginpass"  class="gui-input" >
+                <input type="hidden" name="relation" id="relation"  class="gui-input">*/
+
+            setTimeout(function(){
+
+                $("#idType").val(userObj.card_type).change();
+                $("#idCard").val(userObj.card_num);
+                $("#brithday").val(userObj.brithday);
+
+                $("#certificationType").val(userObj.auth_status);
+                if(userObj.auth_status==1){
+                    $("#delUser").hide();
+                }
+
+                if(userObj.auth_status!==0){
+                    $("#userName").prop("disabled",true);
+                    $("#idCard").prop("disabled",true);
+                    $("#brithday").prop("disabled",true);
+                    $("#idType").prop("disabled",true);
+                    $("#certificationType").prop("disabled",true);
+                    if(userObj.auth_status==1){
+                        $("#delUser").hide();
+                        $("#certificationTip").show();
+                    }
+                }
+            },200);
+
+
+        }
+
+        //下拉生成 教室，科目类目，校区
+        allSelect();
+
+        //取消编辑返回列表
+        $("#back").click(function () {
+            window.history.back();
+        });
+
+        //身份证类型
+        $("#idType").change(function () {
+            var type=$(this).val();
+            if(type==1){
+                $("#brithday").prop("disabled",true).val("");
+                $("#idCard").prop("disabled",false).prop("maxlength",18).blur().val("");
+            }
+
+            if(type==2){
+                $("#brithday").prop("disabled",false).val("");
+                $("#idCard").prop("disabled",false).prop("maxlength",18).val("");
+            }
+            if(type==3){
+                $("#brithday").prop("disabled",false).val("");
+                $("#idCard").prop("disabled",false).prop("maxlength",9).val("");
+            }
+           if(type==""){
+                $("#idCard").prop("disabled",true);
+                $("#brithday").prop("disabled",true);
+            }
+
+        });
+
+        $("#idType").change();
+
+        //如果选择的身份证类型，生日从身份证号里取
+        $("#idCard").keyup(function () {
+
+            var $this=$(this);
+
+            if($("#idType").val()==1){
+                var val=$this.val();
+                if(val.length!==18){
+                    return false
+                }
+                var year=val.substr(6,4);
+                var month=val.substr(10,2);
+                var day=val.substr(12,2);
+                var date=year+"-"+month+"-"+day;
+
+                if(!IsDate(date)){
+                    $("#brithday").val(date);
+                }else{
+                    myAlert("输入的身份证件号码不正确！",2,null,null);
+                    return false
+                }
+            }
+
+        }).bind("cut paste",function(e){
+            var $this=$(this);
+            setTimeout(function () {
+                if($("#idType").val()==1){
+
+                    var val=$this.val();
+                    if(val.length!==18){
+                        return false
+                    }
+                    var year=val.substr(6,4);
+                    var month=val.substr(10,2);
+                    var day=val.substr(12,2);
+                    var date=year+"-"+month+"-"+day;
+
+                    if(!IsDate(date)){
+                        $("#brithday").val(date);
+                    }else{
+                        myAlert("输入的身份证件号码不正确！",2,null,null);
+                        return false
+                    }
+                }
+            },10)
+        })/*.change(function () {
+            var $this=$(this);
+            if($("#idType").val()==1){
+                var val=$this.val();
+                if(val.length!==18){
+                    return false
+                }
+                var year=val.substr(6,4);
+                var month=val.substr(10,2);
+                var day=val.substr(12,2);
+                var date=year+"-"+month+"-"+day;
+
+                if(IsDate(date)){
+                    $("#brithday").val(date);
+                }else{
+                    myAlert("输入的身份证件号码不正确！",2,null,null);
+                    return false
+                }
+            }
+        }).blur(function () {
+            var $this=$(this);
+            if($("#idType").val()==1){
+                var val=$this.val();
+                if(val.length!==18){
+                    return false
+                }
+                var year=val.substr(6,4);
+                var month=val.substr(10,2);
+                var day=val.substr(12,2);
+                var date=year+"-"+month+"-"+day;
+                if(IsDate(date)){
+                    $("#brithday").val(date);
+                }else{
+                    myAlert("输入的身份证件号码不正确！",2,null,null);
+                    return false
+                }
+
+            }
+        })*/;
+
+
+
+        //删除用户
+        $("#delUser").click(function () {
+            var user_id=$("#userId").val();
+            var user_mob=$("#mob").val();
+
+            myConfirm("你确定要删除家长手机号是 ["+user_mob+"] 的学生吗？",function () {
+                //删除操作
+                var delSubject = {
+                    parameter:{
+                        "user_id":user_id,
+                        "org_id":option.org_id,
+                        "token":option.token
+                    },
+                    url:domain+"/userAuth/delUserDetailsInfo.json"
+                };
+                //保存或者更新类目
+                getData(delSubject.url,delSubject.parameter,function (data) {
+                    if(data.code==200 && data.success==true){
+                        myAlert("家长手机号是 ["+user_mob+"] 的学生删除成功！",1,data.code,function(){
+                            window.location.href="#1"
+                        });
+                    }else {
+                        myAlert(data.message,2,data.code,null);
+                    }
+                },"POST",false)
+            },null,null,2)
+
+        });
+
+        //修改手机号
+        $("#changedMob").click(function (e) {
+            var searchHtml="<div class=\"gui-form\" style='padding:30px 50px;'>" +
+                            "<div class=\"gui-form-item gui-form-item-required\">"+
+                                "<label class=\"gui-form-item-label\">新手机号</label>" +
+                                "<div class=\"gui-form-item-content\">" +
+                                "     <input type=\"text\" name=\"newMob\" data-onlyNumber='true' placeholder=\"请输入新手机号\" id=\"newMob\" class=\"gui-input\" value=\"\" maxlength=\"50\" >" +
+                                "     <button class=\"gui-btn  gui-btn-normal\" id=\"getCode\"><i class=\"fa fa-mobile\"></i><span>获取验证码</span></button>"+
+                                "</div>" +
+                            "</div>" +
+
+                            "<div class=\"gui-form-item gui-form-item-required\">"+
+                                "<label class=\"gui-form-item-label\">验证码</label>" +
+                                "<div class=\"gui-form-item-content\">" +
+                                "     <input type=\"text\" name=\"code\" data-onlyNumber='true' placeholder=\"请输入验证码\"  id=\"code\" class=\"gui-input\"  maxlength=\"20\">" +
+                                "</div>" +
+                            "</div>" +
+                        "</div>";
+
+            mydialogForm(searchHtml, "修改手机号", null, ['540px', '260px'], ["确定", "取消"], [function(t){
+                var mob=$("#newMob").val();
+                var code=$("#code").val();
+                $("#code,#newMob").focus(function(){
+                    $(this).removeClass("gui-form-input-error");
+                });
+
+                if(mob==""){
+                    $("#newMob").addClass("gui-form-input-error");
+                    return false
+                }
+                if(code==""){
+                    $("#code").addClass("gui-form-input-error");
+                    return false
+                }
+
+                //校验手机号是否可用
+                getData(domain + '/userAuth/isTelExist.json',{
+                    token:option.token,
+                    udid:option.udid,
+                    version:0,
+                    identity:0,
+                    org_id: option.org_id,
+                    telephone: mob,
+                    validateCode: code
+                },function(res){
+                    if(res.code == 200 && res.success == true){
+                        $("#mob").val(mob);
+                        layer.close(t);
+                        // //修改手机号
+                        // var insert={
+                        //     "parameter":{
+                        //         "org_id":option.org_id,
+                        //         "token":option.token,
+                        //         "udid":option.udid,
+                        //         "userId":$("#userId").val(),
+                        //         "mobile":mob,
+                        //         "validateCode":$("#code").val(),
+                        //         "identity":0,
+                        //         "old_mobile":$.trim($("#mob").val()),
+                        //     },
+                        //     "url":domain+"/mobile/parentApp/updateCustomInfoTelNum.json"
+                        // };
+                        // getData(insert.url,insert.parameter,function (data){
+                        //     if(data.code==200 && data.success==true){
+                        //         myAlert("手机号码修改成功！",1,null,null);
+                        //         $("#mob").val(mob);
+                        //         layer.close(t);
+                        //     }else {
+                        //         myAlert(data.message,2,data.code,null);
+                        //     }
+                        // },"POST",false)
+                    }else{
+                        myAlert(res.message,2);
+                    }
+                })
+            },null]);
+
+            //获取验证码
+            $("#getCode").click(function () {
+                var mob=$.trim($("#newMob").val());
+                if(mob.length==""){
+                    myAlert("新手机号不能为空或都是空格！",2,null,null);
+                    return false
+                }
+                if(!testMob(mob)){
+                    myAlert("手机号码格式不正确",2,null,null);
+                    return false
+                }
+
+                if(mob==$("#mob").val()){
+                    myAlert("新手机号不能与旧手机号相同",2,null,null);
+                    return false
+                }
+                var getStudent={
+                    "parameter":{
+                        "org_id":option.org_id,
+                        "token":option.token,
+                        "phone":mob
+                    },
+                    "url":loginMain+"/esb/sendValidCodeSng"
+                };
+                getData(getStudent.url,getStudent.parameter,function (res){
+                    if(res.code==200 && res.success==true){
+                        myAlert("验证码发送成功！",1,null,null);
+                        var countDown = 60000;
+                        var Time = setInterval(function () {
+                            countDown = countDown - 1000;
+                            if (countDown >= 1000) {
+                                $('#getCode').prop("disabled",true);
+                                $('#getCode span').text(countDown / 1000 + "s后可获取验证码");
+                            } else {
+                                $('#getCode').prop("disabled",false);
+                                $('#getCode span').text("获取验证码");
+                                clearInterval(Time);
+                            }
+                        }, 1000);
+                    }else {
+                        myAlert(res.message,2,res.code,null);
+                    }
+                },"POST",false)
+            })
+
+        });
+
+
+
+        //保存用户信息校验
+        $("#addUser-form").validate({
+            rules: {
+                userName: {
+                    required: true
+                },
+                idType: {
+                    required: true
+                },
+                userBrithday: {
+                    required: true
+                },
+                idCard: {
+                    required: true
+                },
+                certificationType: {
+                    required: true
+                }
+            },
+            messages: {
+                userName: {
+                    required:"请输入用户姓名"
+                },
+                idType: {
+                    required: "请选择用户身份证件类型"
+                },
+                userBrithday: {
+                    required: "请选择用户生日"
+                },
+                idCard: {
+                    required: "请输入证件号码"
+                },
+                certificationType: {
+                    required: "请选择用户认证状态"
+                }
+            },
+            errorPlacement: function(error, element) {
+                error.appendTo(element.parent().after())
+            },
+            errorClass: 'gui-form-item-error',
+            errorElement: 'span',
+            submitHandler: function(form) {
+
+                //更新用户信息
+                var scategory = {
+                    parameter:{
+                        "orgId": option.org_id,
+                        "userRegisterId":GetUrlParam("userId"),
+                        "studName":$("#userName").val(),
+                        "cardType":$("#idType").val(),
+                        "cardNum":$("#idCard").val(),
+                        "brithday":$("#brithday").val(),
+                        "authStatus":$("#certificationType").val(),
+                        "telephone":$("#mob").val(),
+                        "open_id":$("#open_id").val(),
+                        "login_salt":$("#parent_salt").val(),
+                        "login_password":$("#parent_loginpass").val(),
+                        "relation":$("#relation").val(),
+                        "version":0
+                    },
+                    url:domain+"/userAuth/updateUserDetailsInfo.json"
+                };
+
+                //保存或者更新类目
+                getData(scategory.url,scategory.parameter,function (data) {
+
+                    if(data.code==200 && data.success==true){
+                        myAlert("用户信息保存成功",1,data.code,function () {
+                            window.location.href="#1"
+                        });
+                    }else {
+                        myAlert(data.message,2,data.code,null);
+                    }
+                },"POST",false)
+
+            }
+        });
+
+        //提交
+        $("#saveUser").click(function () {
+            if(userObj.auth_status!==0){
+                if(userObj.telephone  != $("#mob").val()){
+                    getData(domain + '/userAuth/updateUserPhone.json',{
+                        token: option.token,
+                        udid: option.udid,
+                        version: 0,
+                        identity: 0,
+                        new_user_mobil: $("#mob").val(),
+                        telephone: userObj.telephone,
+                        org_id: option.org_id
+                    },function(res){
+                        if(res.code==200 && res.success==true){
+                            myAlert("用户信息保存成功",1,res.code,function () {
+                                window.location.href="#1"
+                            });
+                        }else {
+                            myAlert(res.message,2,res.code,null);
+                        }
+                    })
+                }else{
+                    return false;
+                    throw new Error("手机号未更改!");
+                }
+            }else{
+
+                var id=$("#idCard").val();
+
+                if($("#idType").val()==1){
+                    //校验身份证号
+                    var reg= /^[1-9]\d{5}(18|19|20)\d{2}((0[1-9])|(1[0-2]))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/;
+                    if(!reg.test(id)){
+                        myAlert("用户身份证号不合法，请重新输入!",2,null,null);
+                        return false
+                    }
+                }
+
+                //护照格式为8—9位字符+数字，请检查您填写的证件号码。
+                //1、台胞证输入和护照验证提示语句分开。
+                //2、台胞证只验证18位数字，不能有特殊字符，并且不带入生日。提示语句为：台胞证格式为18位数字，请检查您填写的证件号码。
+                //3、护照可以输入字符和数字，通常为G12345678.提示语句为：护照格式为8—9位字符+数字，请检查您填写的证件号码。
+
+                if($("#idType").val()==2){
+                    var reg= /^[0-9a-zA-Z]{18}/;
+                    if(!reg.test(id)){
+                        myAlert("台胞证格式为18位字母或数字，请检查您填写的证件号码",2,null,null);
+                        return false
+                    }
+                }
+
+                if($("#idType").val()==3){
+                    var reg= /^[0-9a-zA-Z]{8,9}/;/*/^[G]\d{8}$/;*/
+                    if(!reg.test(id)){
+                        myAlert("护照格式为8—9位字符,字母+数字，请检查您填写的证件号码",2,null,null);
+                        return false
+                    }
+                }
+
+                $("#addUser-form").submit();
+            }
+
+        });
+    })
+</script>

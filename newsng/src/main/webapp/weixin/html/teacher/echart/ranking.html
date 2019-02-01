@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title>排名统计</title>
+		<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+		<link rel="shortcut icon" href="../../../favicon.ico">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<!--ui包-->
+		<link rel="stylesheet" href="../../../css/sm.css">
+		<link rel="stylesheet" href="../../../css/layout.css">
+        <link rel="stylesheet" href="../../../css/teacher.css">
+        <style>
+            table{width:100%}
+            tr{line-height:3rem}
+            th,td{text-align: center;font-size:.7rem}
+            tbody tr{border-bottom:1px dotted #ccc}
+            .bar-header-secondary{top:0}
+            .bar .searchbar .searchbar-cancel{color:#fff}
+            .content{background-color: #fff}
+            .icon{font-size:.5rem}
+            .rotated{transform: rotate(180deg)}
+        </style>
+	</head>
+	<body>
+		<div class="page-group">
+			<div class="page page-current">
+                <div class="bar bar-header-secondary">
+                    <div class="searchbar">
+                        <a class="searchbar-cancel">取消</a>
+                        <div class="search-input">
+                        <label class="icon icon-search" for="search"></label>
+                        <input type="search" id='search' placeholder='请输入教师姓名'/>
+                        </div>
+                    </div>
+                </div>
+		 		<div class="content native-scroll " style="top: 2.2rem;">
+					  <table>
+                            <thead>
+                                <th>序号</th>
+                                <th id="order_by_name">姓名
+                                    <!-- <i class="icon icon-caret"></i> -->
+                                </th>
+                                <th id="order_by_clas">开班<i class="icon icon-caret"></i></th>
+                                <th id="order_by_stud">学生<i class="icon icon-caret"></i></th>
+                                <th id="order_by_money">学费<i class="icon icon-caret"></i></th>
+                            </thead>
+                          <tbody id="tech_list">
+                                <tr>
+                                    <td>1</td>
+                                    <td data-name="王一一">王一一</td>
+                                    <td data-clas="1">1</td>
+                                    <td data-stud="5">5</td>
+                                    <td data-money="1200">1200</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td data-name="王二二">王二二</td>
+                                    <td data-clas="2">2</td>
+                                    <td data-stud="4">4</td>
+                                    <td data-money="800">800</td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td data-name="王三三">王三三</td>
+                                    <td data-clas="3">3</td>
+                                    <td data-stud="3">3</td>
+                                    <td data-money="900">900</td>
+                                </tr>
+                                <tr>
+                                    <td>4</td>
+                                    <td data-name="王四四">王四四</td>
+                                    <td data-clas="4">4</td>
+                                    <td data-stud="2">2</td>
+                                    <td data-money="1000">1000</td>
+                                </tr>
+                                <tr>
+                                    <td>5</td>
+                                    <td data-name="王五五">王五五</td>
+                                    <td data-clas="5">5</td>
+                                    <td data-stud="1">1</td>
+                                    <td data-money="700">700</td>
+                                </tr>
+                          </tbody>
+                      </table>
+				</div>
+			</div>
+ 		</div>
+	</body>
+</html>
+				 
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script>
+    var baseUser = JSON.parse(sessionStorage.baseUser);
+    var cam_id = GetUrlParam("cam_id"),term_id = GetUrlParam("term_id");
+    $(function(){
+        //按教师名字搜索
+        $("#search").on("input propertychange",function(){
+            var name = $(this).val();
+            if(name.length>0){
+                $("#tech_list").find("tr").hide();
+                $("[data-name]").each(function(i,e){
+                    if($(this).attr("data-name").indexOf(name) !== -1){
+                        $(this).parents("tr").show();
+                    }
+                })
+            }else{
+                $("#tech_list").find("tr").show();
+            }
+            // var index = 1;
+            // $("#tech_list tr").each(function(i,e){
+            //     if($(e).css("display") != "none"){
+            //         $(e).find("td").eq(0).text(index);
+            //         index++;
+            //     }
+            // })
+        })
+        
+        getData(domainName + '/wechat/portal/echart/rtTopAll.json',{
+            token: baseUser.token,
+            udid: baseUser.udid,
+            org_id: baseUser.orguser.org_id,
+            version: 3,
+            identity: 1,
+            termId: term_id,
+            camId: cam_id
+        },function(res){
+            if(res.code == 200 && res.success == true){
+                var html = '';
+                for(var i=0;i<res.data.length;i++){
+                    var d = res.data[i];
+                    // html += `<tr data-id="${d.techId}">
+                    //             <td>${i+1}</td>
+                    //             <td data-name="${d.techName}">${d.techName}</td>
+                    //             <td data-clas="${d.classCount}">${d.classCount}</td>
+                    //             <td data-stud="${d.studCount}">${d.studCount}</td>
+                    //             <td data-money="${d.totalMoney}">${d.totalMoney}</td>
+                    //         </tr>`
+                    html += "<tr data-id=\"".concat(d.techId, "\">\n                                <td>").concat(i + 1, "</td>\n                                <td data-name=\"").concat(d.techName, "\">").concat(d.techName, "</td>\n                                <td data-clas=\"").concat(d.classCount, "\">").concat(d.classCount, "</td>\n                                <td data-stud=\"").concat(d.studCount, "\">").concat(d.studCount, "</td>\n                                <td data-money=\"").concat(d.totalMoney, "\">").concat(d.totalMoney, "</td>\n                            </tr>");        
+                }
+                $("#tech_list").html(html);
+            }
+        })
+
+        //排序
+        $("thead th").on("click",function(){
+            var $this = $(this);
+            var type = $this.attr("id");
+            var tr = $("#tech_list tr");
+            var sortDom = function(selector){
+                tr.sort(function(a,b){
+                    var valueA = $(a).find("["+selector+"]").attr(selector),
+                        valueB = $(b).find("["+selector+"]").attr(selector);
+                    if($this.find("i").hasClass("rotated")){
+                        if(parseInt(valueA) < parseInt(valueB)){
+                            return 1;
+                        }
+                        else{
+                            return -1;
+                        }
+                    }else{
+                        if(parseInt(valueA) < parseInt(valueB)){
+                            return -1;
+                        }
+                        else{
+                            return 1;
+                        }
+                    }
+                })
+                var index = 1;
+                tr.each(function(i,e){
+                    if($(e).css("display") != "none"){
+                        $(e).find("td").eq(0).text(index);
+                        index++;
+                    }
+                })
+                tr.remove().appendTo('#tech_list');
+            }
+            var orders = function(type){
+                var obj = {
+                    "order_by_name":function(){
+
+                    },
+                    "order_by_clas":function(){
+                        sortDom("data-clas");
+                    },
+                    "order_by_stud":function(){
+                        sortDom("data-stud");
+                    },
+                    "order_by_money":function(){
+                        sortDom("data-money");
+                    }
+                }
+                return obj[type]();
+            }
+            orders(type);
+            $("thead th").each(function(i,e){
+                if($(e).attr("id")!==type){
+                    $(e).find("i").removeClass("rotated");
+                }else{
+                    $(e).find("i").toggleClass("rotated")
+                }
+            })
+        })
+	 });
+</script>

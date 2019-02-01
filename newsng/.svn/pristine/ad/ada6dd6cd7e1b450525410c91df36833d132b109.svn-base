@@ -1,0 +1,378 @@
+<!--发送记录-->
+<style>
+    .tablesorter-blue tbody tr > td.noticeContent   { overflow:hidden;
+        text-overflow:ellipsis;
+        -o-text-overflow:ellipsis;
+        -webkit-text-overflow:ellipsis;
+        -moz-text-overflow:ellipsis;
+        white-space:nowrap;
+        max-width: 240px;
+        text-align: left;
+        cursor: pointer;
+    }
+    .noticeWrap { margin: 30px 32px 0px 30px;}
+    .noticeWrap .lengthTip {
+        text-align: right;
+        line-height: 32px;
+        padding: 0 3px;
+        color: #c9c9c9;
+    }
+    .noticeWrap textarea { width: 100%;height: 360px}
+</style>
+<div class="content-wrap" id="sub_loadBox"  >
+    <div class="search">
+         <!--开始时间-->
+         <input type="text" class="gui-input" data-date="YYYY-MM-DD" placeholder="请选择开始时间" id="startDate" readonly  >
+         <!--结束时间-->
+         <input type="text" class="gui-input" data-date="YYYY-MM-DD" placeholder="请选择结束时间" id="endDate" readonly   >
+
+        <div class="gui-input-group">
+            <input type="text" class="gui-input" id="searchKeyword" placeholder="请输入发布人姓名或内容关键字！" style="width: 220px"/>
+            <button type="button" class="gui-btn  gui-btn-normal" id="toSearch"><i class="fa fa-search"></i>搜索</button>
+        </div>
+        <!--<input type="text" id="sendInp" class="gui-input" placeholder="请输入收费主题关键字搜索"/>-->
+    </div>
+    <div class="bod-con-fer-form">
+        <table align="center" class="tab tablesorter-blue">
+            <thead>
+            <tr>
+                <th>序号</th>
+                <th>消息内容</th>
+                <th>发布人</th>
+                <th>发布时间</th>
+                <th>发送人数/班级</th>
+                <th style="width: 240px">操作</th>
+            </tr>
+            </thead>
+            <tbody id="noticeList">
+                  <tr>
+                      <td colspan="6" class="noData"><i class="fa fa-warning" aria-hidden="true"></i>获取不到通知记录</td>
+                  </tr>
+            </tbody>
+        </table>
+    </div>
+    <!-- 分页 -->
+    <div class="gui-page-wapper" style="margin:20px 0;line-height: 28px;" id="pageContent">
+        <ul class="gui-page" id="limitUi">
+            <span class="gui-page-total">共<span id="allPage" class="numberShow">0</span>页 <span id="allTotal" class="numberShow">0</span>数据</span>
+            <span id="creatPage">
+            </span>
+        </ul>
+        <span class="gui-page-options-elevator" style="padding-left: 10px;">
+                每页条数：
+                <select id="limit" >
+                     <option value="20">20</option>
+                     <option value="50">50</option>
+                     <option value="100">100</option>
+                </select>
+            </span>
+
+        <span class="gui-page-options">
+            <span class="gui-page-options-elevator">跳至第
+            <input id="page" class="gui-input" data-onlyNumber="true">
+             页</span>
+           </span>
+    </div>
+    <!--分页END-->
+
+</div>
+<script src="js/countUp.js"></script>
+<script>
+
+    var stu_list={
+        "parameter":{
+            "org_id":option.org_id,
+            "token":option.token,
+            "udid":option.udid,
+
+            "searchBeginDate":"",
+            "searchEndDate":"",
+            "searchKeyWord":"",
+
+            "isAdmin":1,//进来的全是管理员
+            //查询关键字（学生姓名、班级名称）
+            "currentPageNum":1,
+            //页码
+            "pageSize":20
+        },
+        "url":domain+"/notice/getStudentNoticeSendHistory.htm"
+    };
+
+    var loacalNotice={};
+
+    $(function () {
+
+        //撤回通知
+        $("#noticeList").on("click",".toCannel",function (e) {
+            var noticeId=$(this).parent().attr("id");
+
+            myConfirm("你确定要再次发送吗?",function () {
+                var stu_list={
+                    "parameter":{
+                        "org_id":option.org_id,
+                        "token":option.token,
+                        "udid":option.udid,
+                        "noticeId":noticeId
+                    },
+                    "url":domain+"/notice/revocationStudentNotice.htm"
+                };
+                getData(stu_list.url,stu_list.parameter,function (res) {
+
+                    if(res.code==200 && res.success==true){
+                        if(res.message.indexOf("成功")>0){
+                            myAlert("撤回成功！",1,res.code,function(){
+                                window.location.reload();
+                            });
+                        }else{
+                            myAlert(res.message,2,null,null);
+                        }
+                    }else {
+                        myAlert(res.message,2,res.code,null);
+                    }
+
+                },"POST",false);
+            },null,null,2);
+            e.stopPropagation();
+        });
+
+        //查看通知内容
+        $("#noticeList").on("click",".noticeContent",function (e) {
+            //学员状态
+            var notioce=$(this).text(),
+                time=$(this).parent().find("td:eq(3)").text(),
+                author=$(this).parent().find("td:eq(2)").text();
+
+            var templateThtml="<div class=\"noticeWrap\">" +
+                                 "<div  disabled style='width: 100%;height:360px'>"+notioce+"</div>" +
+                            "</div>";
+
+            var  templateThtml  = '<div class="gui-form" style="padding:20px">' +
+                                    '<div class="gui-form-item">' +
+                                        '<label class="gui-form-item-label">发送人</label>'+
+                                        '<div class="gui-form-item-content">'+
+                                            author +
+                                        '</div>'+
+                                     '</div>'+
+                                    '<div class="gui-form-item">' +
+                                        '<label class="gui-form-item-label">发送时间</label>'+
+                                        '<div class="gui-form-item-content">'+time +'</div>'+
+                                    '</div>'+
+                                    '<div class="gui-form-item">' +
+                                        '<label class="gui-form-item-label">内容</label>'+
+                                        '<div class="gui-form-item-content">'+notioce +'</div>'+
+                                    '</div>' +
+                                '</div>';
+
+
+            mydialogForm(templateThtml, "通知内容", null, ['800px', '540px'], ["取消"], [null]);
+        });
+
+
+        //再次发送
+        $("#noticeList").on("click",".reSend",function (e) {
+
+            var noticeId=Number($(this).parent().attr("id"));
+            var noticeObj=loacalNotice[noticeId];
+
+            myConfirm("你确定要再次发送吗?",function () {
+
+            var templateThtm="<div class=\"noticeWrap\">" +
+                "        <textarea placeholder=\"请输入通知内容\" rows=\"2\" class=\"gui-textarea\" id=\"noticeText\"  maxlength=\"1000\">"+noticeObj.content+"</textarea>" +
+                "        <div class=\"lengthTip\"><span id=\"noticeLength\">0</span>/1000</div>" +
+                "    </div>";
+
+            mydialogForm(templateThtm, "发布通知("+noticeObj.total_class_num+"班级)", null, ['800px', '540px'], ["立即发布", "取消"], [function(t){
+                var notice=$.trim($("#noticeText").val());
+                if(notice==""){
+                    myAlert("通知内容不能为空或者都是空格！",2,null,function () {
+                        $("#noticeText").focus().addClass('animated shake');
+                        return false
+                    });
+                    return false
+                }
+
+                //发送通知
+                var save={
+                    "parameter":{
+                        "org_id":option.org_id,
+                        "token":option.token,
+
+                        //计划--发送对象，学员状态，通知内容，发送人员userid，发送通知的姓名
+                        "classIds":noticeObj.target,
+                        "studentStatus":noticeObj.target_status,
+                        "content":$("#noticeText").val(),
+                        "sender_id":JSON.parse(sessionStorage.loginUser).user_id,
+                        "sender_name":JSON.parse(sessionStorage.loginUser).useName
+                    },
+                    "url":domain+"/notice/submitStudentNoticeForm.htm"
+                };
+
+                getData(save.url,save.parameter,function (data) {
+
+                    if(data.code==200 && data.success==true){
+                        myAlert("通知发送成功",1,data.code,function () {
+                            window.location.reload()
+                        });
+                        layer.close(t);
+                    }else {
+                        myAlert(data.message,2,data.code,null);
+                    }
+                },"POST",false)
+
+
+            },null]);
+
+
+
+            //监控通知内容字数
+            $("#noticeText").keyup(function(){
+                var cnChar=$(this).val()
+                //var entryLen =cnChar.gblen();//算出实际的字符长度
+                var entryLen =cnChar.length;//算出实际的字符长度
+                $("#noticeLength").text(entryLen);
+
+            }).change(function(){
+                var cnChar=$(this).val()
+                var entryLen =cnChar.length;//算出实际的字符长度
+                $("#noticeLength").text(entryLen);
+            });
+
+            //通知内容粘贴事件
+            $("#noticeText").bind("cut paste",function(e){
+                var $this=$(this);
+                setTimeout(function () {
+                    var cnChar=$this.val()
+                    var entryLen =cnChar.length;//算出实际的字符长度
+                    $("#noticeLength").text(entryLen);
+                },10)
+            });
+            e.stopPropagation();
+
+            },null,null,2);
+
+
+
+        });
+
+        //查看发送的班级
+        $("#noticeList").on("click",".toDetail",function (e) {
+            var classID=$(this).parent().attr("id");
+            window.location.href="#23?noticeId="+classID
+            e.stopPropagation();
+        });
+
+
+        //检索
+        $("#toSearch").click(function () {
+            var key=$.trim($("#searchKeyword").val());
+           /* if(key==""){
+                myAlert("请输入发布人姓名或内容关键字进行检索",2,null,null)
+                return false
+            }*/
+
+            var strart=$("#startDate").val();
+            var end=$("#endDate").val();
+
+            if(strart!=="" && end!==""){
+                if(new Date(strart).getTime() > new Date(end).getTime()){
+                    myAlert("开始时间不能晚于结束时间",2,null,null)
+                    return false
+                }
+            }
+
+            stu_list.parameter.searchBeginDate=$("#startDate").val();
+            stu_list.parameter.searchEndDate=$("#endDate").val();
+            stu_list.parameter.searchKeyWord=key;
+            //查询操作
+            showHtml();
+        });
+
+        //默认加载
+        showHtml();
+
+    })
+
+
+    //列表
+    function showHtml(limit,page) {
+            stu_list.parameter.pageSize=limit!==undefined?limit:20;
+            stu_list.parameter.currentPageNum=page!==undefined?page:1;
+            loacalNotice={};
+            getData(stu_list.url,stu_list.parameter,function (res) {
+
+                if(res.code==200 && res.success==true){
+
+                    var listObj=res.data,html="";
+
+                    //如果当前页是第一页从新渲染
+                    if(listObj.page==1){
+                        //生成页数(总条数，总页数，)
+                        $("#creatPage").createPage({
+                            pageCount:listObj.totalPage,
+                            current:listObj.page,
+                            url:stu_list.url,
+                            backFn:function(page){
+                                var limit=$("#limit").val();
+                                showHtml(limit,page)
+                            }
+                        });
+                    }
+
+                    //总页数
+                    $("#allPage").text(listObj.totalPage);
+                    //总条数
+                    $("#allTotal").text(listObj.total);
+                    countup("sum_student",listObj.total);
+                    countup("sum_money",res.data.money);
+                    if(listObj.data==null){
+                        html += "<tr>" +
+                            "<td colspan='6' class='noData' title='没有找到数据'><i class=\"fa fa-warning\" aria-hidden=\"true\"></i>该条件下没有找到任何记录</td>" +
+                            "</tr>";
+                    }else{
+                        if(listObj.data.length>0){
+                            for(var n=0,m=listObj.data.length;n<m;n++){
+                                var toShow=(parseInt(listObj.page)-1)*parseInt(listObj.limit);
+                                var obj=listObj.data[n];
+
+
+                                var btnhtml="<span class=\"toDetail\" title='查看接收的班级'>查看班级<em></em></span>";
+
+                                if(obj.canRevocation){
+                                    btnhtml += "<span class=\"toCannel\" title='撤回该通知'>撤回<em></em></span>"
+                                }
+
+                                if(obj.status==2){
+                                    btnhtml +="<span class=\"reSend\" title='再次发送'>再次发送<em></em></span>";
+                                }
+
+                                loacalNotice[obj.id]=obj;
+
+                                html += "<tr>" +
+                                            "<td>"+(n+toShow+1)+"</td>" +
+                                            "<td class='noticeContent' title='查看通知内容'>"+obj.content+"</td>" +
+                                            "<td>"+obj.sender_name+"</td>" +
+                                            "<td>"+obj.insert_time+"</td>" +
+                                            "<td>"+obj.total_num+"/"+obj.total_class_num+"</td>" +
+                                            "<td class=\"operation\"  id='"+obj.id_str+"'>" +
+                                                btnhtml +
+                                            "</td>" +
+                                        "</tr>";
+                            }
+                        }else {
+                            html += "<tr>" +
+                                "<td colspan='6' class='noData' title='没有找到数据'><i class=\"fa fa-warning\" aria-hidden=\"true\"></i>该条件下没有找到任何记录</td>" +
+                                "</tr>";
+                        }
+
+                    }
+                    $("#noticeList").html(html)
+
+                }else {
+                    myAlert(res.message,2,res.code,null);
+                }
+            },"POST",false)
+    }
+</script>
+
+
+

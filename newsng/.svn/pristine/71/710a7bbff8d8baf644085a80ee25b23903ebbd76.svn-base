@@ -1,0 +1,142 @@
+package sng.service;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import sng.pojo.ParamObj;
+import sng.pojo.Result;
+import sng.pojo.SessionInfo;
+import sng.pojo.StudentPojo;
+import sng.pojo.base.Student;
+import sng.pojo.base.Teacher;
+
+/**
+ * @类 名： StudentService
+ * @功能描述：学员Service接口 
+ * @作者信息： LiuYang
+ * @创建时间： 2018年11月20日下午3:59:15
+ */
+@Service
+@Transactional
+public interface StudentService {
+
+	/**
+	 * 根据条件查询学生列表
+	 */
+	Map<String, Object> queryList(String term_id, String category_id,
+			String subject_id, String clas_type, String cam_id,
+			String stu_status, String pay_method, String is_print,
+			String keyword, Integer currentPageNum, Integer pageSize);
+
+	/**
+	 * 获取财务人员查看的待审核退费列表
+	 */
+	Map<String, Object> getRefundApplyList(String starttime, String endtime,
+			String category_id, String subject_id, String class_type,
+			String cam_id, String term_id, String keywords, Integer currentPageNum, Integer pageSize);
+	
+	/**
+	 * 获取财务人员查看的待审核退费列表
+	 */
+	List getRefundApplyAllPageIds(String starttime, String endtime,
+			String category_id, String subject_id, String class_type,
+			String cam_id, String term_id, String keywords);
+	/**
+	 * 获取财务人员查看的待审核退费列表
+	 */
+	List<StudentPojo> getRefundApplyList(String ids);
+
+	/**
+	 * 根据学生班级关系表主键获取待教务退费审核的退费列表
+	 */
+	public List<StudentPojo> getRefundList(String stu_clas_ids);
+
+	/**
+	 * 根据条件查询学生列表
+	 */
+	List<StudentPojo> getList(String term_id, String category_id,
+			String subject_id, String clas_type, String cam_id,
+			String stu_status, String pay_method, String is_print,
+			String keyword);
+	/**
+	 * 根据条件查询学生列表
+	 */
+	List<StudentPojo> getList(String ids);
+
+	/**
+	 * 根据条件查询支付信息记录
+	 *  @param txn_type 1缴费2退费
+	 */
+	Map<String, Object> getRecordList(String starttime, String endtime,
+			String category_id, String subject_id, String class_type,
+			String cam_id, String term_id, String pay_method, String txn_type, String keywords,
+			Integer currentPageNum, Integer pageSize);
+	/**
+	 * 根据条件查询支付信息IDS记录
+	 *  @param txn_type 1缴费2退费
+	 */
+	List getRecordIdsList(String starttime, String endtime,
+			String category_id, String subject_id, String class_type,
+			String cam_id, String term_id, String pay_method, String txn_type, String keywords,
+			Integer currentPageNum, Integer pageSize);
+	/**
+	 * 根据条件查询支付信息记录
+	 */
+	List<StudentPojo> getRecordList(String ids);
+
+	/**
+	 * 根据家长user_id查询学生信息
+	 */
+	List<Student> getStudentByParentUserId(String parent_user_id);
+
+
+	/**
+	 * @author magq
+	 * @desc 学员管理--点击转班按钮弹出页面后点击搜索按钮列表 
+	 * @param obj
+	 * @return
+	 */
+	public Result queryMoveClassListInfo(ParamObj obj);
+	
+	/**
+	 * @author magq
+	 * @desc 学员管理--转班提交信息保存
+	 * @param obj
+	 * @return
+	 */
+	public Result saveMoveClassStuInfo(Teacher teacher,Integer org_id,String stud_id,Integer clas_id,String clas_name,String category_name,
+									   String subject_name,String class_week,String class_begin_time,String class_over_time,
+									   String class_unset_time);
+	
+	/**
+	 * @author magq
+	 * @desc 学员管理--点击学员管理中每条学员信息后面操作的按钮"手机"
+	 * @param obj
+	 * @return
+	 */
+	public Result queryStuManageTelInfo(ParamObj obj);
+	
+	
+	/**
+	 * @author magq
+	 * @desc 学员管理--批量删除学员
+	 * @param ids
+	 * @param sessionInfo 获取登录用户信息
+	 * @return
+	 */
+	public Result batchDelStuInfo(String ids,Teacher tech);
+
+	/**
+	 * 取当前查询条件的全部
+	 */
+	List<Integer> getidList(String term_id, String category_id,
+			String subject_id, String clas_type, String cam_id,
+			String stu_status, String pay_method, String is_print,
+			String keyword);
+	
+	
+	
+}

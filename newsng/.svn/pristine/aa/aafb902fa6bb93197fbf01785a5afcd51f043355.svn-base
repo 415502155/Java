@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:util="http://www.springframework.org/schema/util" xmlns:sharding="http://shardingsphere.io/schema/shardingsphere/sharding"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-4.3.xsd
+           http://www.springframework.org/schema/mvc
+		   http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+           http://www.springframework.org/schema/aop
+           http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+           http://www.springframework.org/schema/tx 
+           http://www.springframework.org/schema/tx/spring-tx-4.3.xsd
+           http://www.springframework.org/schema/util
+           http://www.springframework.org/schema/util/spring-util-4.3.xsd
+           http://shardingsphere.io/schema/shardingsphere/sharding
+           http://shardingsphere.io/schema/shardingsphere/sharding/sharding.xsd"
+	default-autowire="byName">
+	
+	<context:component-scan base-package="sng" />
+	
+	<bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">      
+		<property name="location">  
+			<value>classpath:config.properties</value>        
+		</property> 
+	</bean>
+	
+	
+	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+		<!-- 基本属性 url、user、password -->
+		<!--test -->
+		<property name="url"
+			value="jdbc:mysql://${${switch}.mysql.host}:3306/newsng?useUnicode=true" />
+		<property name="username" value="${${switch}.mysql.username}" />
+		<property name="password" value="${${switch}.mysql.password}" /> 
+
+		<!-- 配置初始化大小、最小、最大 -->
+		<property name="initialSize" value="${${switch}.newsng.mysql.initialSize}" />
+		<property name="minIdle" value="${${switch}.newsng.mysql.minIdle}" />
+		<property name="maxActive" value="${${switch}.newsng.mysql.maxActive}" />
+
+		<!-- 配置获取连接等待超时的时间 -->
+		<property name="maxWait" value="120000" />
+
+		<!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+		<property name="timeBetweenEvictionRunsMillis" value="10000" />
+
+		<!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+		<property name="minEvictableIdleTimeMillis" value="60000" />
+
+		<property name="validationQuery" value="SELECT NOW();" />
+		<property name="testWhileIdle" value="true" />
+		<property name="testOnBorrow" value="false" />
+		<property name="testOnReturn" value="false" />
+
+		<!-- 打开PSCache，并且指定每个连接上PSCache的大小 -->
+		<property name="poolPreparedStatements" value="true" />
+		<property name="maxPoolPreparedStatementPerConnectionSize" value="${${switch}.newsng.mysql.maxPoolPreparedStatementPerConnectionSize}" />
+
+		<!-- 配置监控统计拦截的filters -->
+		<property name="filters" value="stat" />
+		<!-- 配置执行时间大于3秒的慢sql输出 -->
+		<property name="connectionProperties" value="druid.stat.slowSqlMillis=3000" />
+	</bean>
+
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">  
+        <property name="dataSource" ref="dataSource" />  
+        <property name="hibernateProperties">  
+            <props>  
+                <prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>  
+                <prop key="hibernate.current_session_context_class">org.springframework.orm.hibernate4.SpringSessionContext</prop>  
+                <prop key="hibernate.show_sql">false</prop>  
+                <prop key="hibernate.format_sql">true</prop>  
+                <prop key="hbm2ddl.auto">update</prop>            
+            </props>  
+        </property>  
+        <property name="packagesToScan">  
+            <list>  
+                <value>sng.entity</value>
+            </list>  
+        </property>
+        <qualifier value="sessionFactory"></qualifier>
+    </bean>
+    
+    <!-- 设置事务的数据源--> 
+	<bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+
+	<tx:annotation-driven transaction-manager="transactionManager"/>
+	
+	<!-- 配置连接edugate_base数据库 Begin -->
+	<bean id="ds4EduBase" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+		<!-- 基本属性 url、user、password -->
+		<property name="url"
+			value="jdbc:mysql://${${switch}.mysql.host}/edugate_base?useUnicode=true&amp;characterEncoding=utf8&amp;mysqlEncoding=utf8" />
+		<property name="username" value="${${switch}.mysql.username}" />
+		<property name="password" value="${${switch}.mysql.password}" />
+		
+		<!-- 配置初始化大小、最小、最大 -->
+		<property name="initialSize" value="${${switch}.base.mysql.initialSize}" />
+		<property name="minIdle" value="${${switch}.base.mysql.minIdle}" />
+		<property name="maxActive" value="${${switch}.base.mysql.maxActive}" />
+
+		<!-- 配置获取连接等待超时的时间 -->
+		<property name="maxWait" value="120000" />
+
+		<!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+		<property name="timeBetweenEvictionRunsMillis" value="10000" />
+
+		<!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+		<property name="minEvictableIdleTimeMillis" value="60000" />
+
+		<property name="validationQuery" value="select now();" />
+		<property name="testWhileIdle" value="true" />
+		<property name="testOnBorrow" value="false" />
+		<property name="testOnReturn" value="false" />
+
+		<!-- 打开PSCache，并且指定每个连接上PSCache的大小 -->
+		<property name="poolPreparedStatements" value="true" />
+		<property name="maxPoolPreparedStatementPerConnectionSize" value="${${switch}.base.mysql.maxPoolPreparedStatementPerConnectionSize}" />
+
+		<!-- 配置监控统计拦截的filters -->
+		<property name="filters" value="stat" />
+		<!-- 配置执行时间大于3秒的慢sql输出 -->
+		<property name="connectionProperties" value="druid.stat.slowSqlMillis=3000" />
+	</bean>
+	
+    <bean id="jdbcTemplate4EduBase" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="ds4EduBase" />
+	</bean>
+    
+    <!-- 设置事务的数据源--> 
+	<bean id="transactionManager4EduBase" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="ds4EduBase" />
+		<qualifier value="transactionManager4ds4EduBase"></qualifier>
+	</bean>
+	<!-- 配置连接edugate_base数据库 End -->
+	
+	
+	<!-- 配置用于通知的4个数据库 Begin -->
+	<bean id="ds_0" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+		<property name="url" 
+			value="jdbc:mysql://${${switch}.mysql.host}:3306/wx_notice_0?useUnicode=true&amp;characterEncoding=utf8&amp;mysqlEncoding=utf8" />
+		<property name="username" value="${${switch}.mysql.username}" />
+		<property name="password" value="${${switch}.mysql.password}" />
+	
+		<!-- 配置初始化大小、最小、最大 -->
+		<property name="initialSize" value="${${switch}.notice.mysql.initialSize}" />
+		<property name="minIdle" value="${${switch}.notice.mysql.minIdle}" />
+		<property name="maxActive" value="${${switch}.notice.mysql.maxActive}" />
+
+		<!-- 配置获取连接等待超时的时间 -->
+		<property name="maxWait" value="120000" />
+
+		<!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+		<property name="timeBetweenEvictionRunsMillis" value="10000" />
+
+		<!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+		<property name="minEvictableIdleTimeMillis" value="60000" />
+
+		<property name="validationQuery" value="SELECT NOW();" />
+		<property name="testWhileIdle" value="true" />
+		<property name="testOnBorrow" value="false" />
+		<property name="testOnReturn" value="false" />
+
+		<!-- 打开PSCache，并且指定每个连接上PSCache的大小 -->
+		<property name="poolPreparedStatements" value="true" />
+		<property name="maxPoolPreparedStatementPerConnectionSize" value="${${switch}.notice.mysql.maxPoolPreparedStatementPerConnectionSize}" />
+
+		<!-- 配置监控统计拦截的filters -->
+		<property name="filters" value="stat" />
+		<!-- 配置执行时间大于3秒的慢sql输出 -->
+		<property name="connectionProperties" value="druid.stat.slowSqlMillis=3000" />
+	</bean>
+	
+	<bean id="ds_1" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+		<property name="url" 
+			value="jdbc:mysql://${${switch}.mysql.host}:3306/wx_notice_1?useUnicode=true&amp;characterEncoding=utf8&amp;mysqlEncoding=utf8" />
+		<property name="username" value="${${switch}.mysql.username}" />
+		<property name="password" value="${${switch}.mysql.password}" />
+		
+		<!-- 配置初始化大小、最小、最大 -->
+		<property name="initialSize" value="${${switch}.notice.mysql.initialSize}" />
+		<property name="minIdle" value="${${switch}.notice.mysql.minIdle}" />
+		<property name="maxActive" value="${${switch}.notice.mysql.maxActive}" />
+
+		<!-- 配置获取连接等待超时的时间 -->
+		<property name="maxWait" value="120000" />
+
+		<!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+		<property name="timeBetweenEvictionRunsMillis" value="10000" />
+
+		<!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+		<property name="minEvictableIdleTimeMillis" value="60000" />
+
+		<property name="validationQuery" value="SELECT NOW();" />
+		<property name="testWhileIdle" value="true" />
+		<property name="testOnBorrow" value="false" />
+		<property name="testOnReturn" value="false" />
+
+		<!-- 打开PSCache，并且指定每个连接上PSCache的大小 -->
+		<property name="poolPreparedStatements" value="true" />
+		<property name="maxPoolPreparedStatementPerConnectionSize" value="${${switch}.notice.mysql.maxPoolPreparedStatementPerConnectionSize}" />
+
+		<!-- 配置监控统计拦截的filters -->
+		<property name="filters" value="stat" />
+		<!-- 配置执行时间大于3秒的慢sql输出 -->
+		<property name="connectionProperties" value="druid.stat.slowSqlMillis=3000" />
+	</bean>
+	
+	<bean id="ds_2" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+		<property name="url" 
+			value="jdbc:mysql://${${switch}.mysql.host}:3306/wx_notice_2?useUnicode=true&amp;characterEncoding=utf8&amp;mysqlEncoding=utf8" />
+		<property name="username" value="${${switch}.mysql.username}" />
+		<property name="password" value="${${switch}.mysql.password}" />
+	
+		<!-- 配置初始化大小、最小、最大 -->
+		<property name="initialSize" value="${${switch}.notice.mysql.initialSize}" />
+		<property name="minIdle" value="${${switch}.notice.mysql.minIdle}" />
+		<property name="maxActive" value="${${switch}.notice.mysql.maxActive}" />
+
+		<!-- 配置获取连接等待超时的时间 -->
+		<property name="maxWait" value="120000" />
+
+		<!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+		<property name="timeBetweenEvictionRunsMillis" value="10000" />
+
+		<!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+		<property name="minEvictableIdleTimeMillis" value="60000" />
+
+		<property name="validationQuery" value="SELECT NOW();" />
+		<property name="testWhileIdle" value="true" />
+		<property name="testOnBorrow" value="false" />
+		<property name="testOnReturn" value="false" />
+
+		<!-- 打开PSCache，并且指定每个连接上PSCache的大小 -->
+		<property name="poolPreparedStatements" value="true" />
+		<property name="maxPoolPreparedStatementPerConnectionSize" value="${${switch}.notice.mysql.maxPoolPreparedStatementPerConnectionSize}" />
+
+		<!-- 配置监控统计拦截的filters -->
+		<property name="filters" value="stat" />
+		<!-- 配置执行时间大于3秒的慢sql输出 -->
+		<property name="connectionProperties" value="druid.stat.slowSqlMillis=3000" />
+	</bean>
+	
+	<bean id="ds_3" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+		
+		<property name="url" 
+			value="jdbc:mysql://${${switch}.mysql.host}:3306/wx_notice_3?useUnicode=true&amp;characterEncoding=utf8&amp;mysqlEncoding=utf8" />
+		<property name="username" value="${${switch}.mysql.username}" />
+		<property name="password" value="${${switch}.mysql.password}" />
+	
+		<!-- 配置初始化大小、最小、最大 -->
+		<property name="initialSize" value="${${switch}.notice.mysql.initialSize}" />
+		<property name="minIdle" value="${${switch}.notice.mysql.minIdle}" />
+		<property name="maxActive" value="${${switch}.notice.mysql.maxActive}" />
+
+		<!-- 配置获取连接等待超时的时间 -->
+		<property name="maxWait" value="120000" />
+
+		<!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+		<property name="timeBetweenEvictionRunsMillis" value="10000" />
+
+		<!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+		<property name="minEvictableIdleTimeMillis" value="60000" />
+
+		<property name="validationQuery" value="SELECT NOW();" />
+		<property name="testWhileIdle" value="true" />
+		<property name="testOnBorrow" value="false" />
+		<property name="testOnReturn" value="false" />
+
+		<!-- 打开PSCache，并且指定每个连接上PSCache的大小 -->
+		<property name="poolPreparedStatements" value="true" />
+		<property name="maxPoolPreparedStatementPerConnectionSize" value="${${switch}.notice.mysql.maxPoolPreparedStatementPerConnectionSize}" />
+
+		<!-- 配置监控统计拦截的filters -->
+		<property name="filters" value="stat" />
+		<!-- 配置执行时间大于3秒的慢sql输出 -->
+		<property name="connectionProperties" value="druid.stat.slowSqlMillis=3000" />
+	</bean>
+	
+	<!-- 配置分库分表 Begin -->
+	<bean id="databaseShardingAlgorithm" class="sharding.algorithm.AttendanceDBShardingAlgorithm" />
+    <bean id="tableShardingAlgorithm" class="sharding.algorithm.AttendanceTableShardingAlgorithm" />
+	<sharding:standard-strategy id="databaseShardingStrategy" sharding-column="org_id" precise-algorithm-ref="databaseShardingAlgorithm" />
+	<sharding:standard-strategy id="tableShardingStrategy" sharding-column="user_id" precise-algorithm-ref="tableShardingAlgorithm" />
+
+	<sharding:data-source id="shardingDataSource">
+		<sharding:sharding-rule data-source-names="ds_0,ds_1,ds_2,ds_3,dataSource" default-data-source-name="dataSource">
+			<sharding:table-rules>
+				<sharding:table-rule logic-table="sng_notice"
+					actual-data-nodes="ds_$->{0..3}.sng_notice" database-strategy-ref="databaseShardingStrategy"
+					generate-key-column-name="id" />
+				<sharding:table-rule logic-table="sng_notice_detail"
+					actual-data-nodes="ds_$->{0..3}.sng_notice_detail_$->{0..3}"
+					database-strategy-ref="databaseShardingStrategy" table-strategy-ref="tableShardingStrategy"
+					generate-key-column-name="id" />
+			</sharding:table-rules>
+		</sharding:sharding-rule>
+		<sharding:props>
+			<prop key="sql.show">true</prop>
+		</sharding:props>
+	</sharding:data-source>
+	
+	<bean id="sessionFactory4Sharding" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">  
+        <property name="dataSource" ref="shardingDataSource" />  
+        <property name="hibernateProperties">  
+            <props>  
+                <prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>  
+                <prop key="hibernate.current_session_context_class">org.springframework.orm.hibernate4.SpringSessionContext</prop>  
+                <prop key="hibernate.show_sql">true</prop>  
+                <prop key="hibernate.format_sql">true</prop>  
+                <prop key="hbm2ddl.auto">update</prop>            
+            </props>  
+        </property>  
+        <property name="packagesToScan">  
+            <list>  
+                <value>sharding.entity</value>
+                <value>sng.entity</value>
+            </list>  
+        </property>
+        <qualifier value="sessionFactory4Sharding"></qualifier>
+    </bean>
+    
+    <!-- 设置事务的数据源--> 
+	<bean id="transactionManager4Sharding" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory4Sharding" />
+		<qualifier value="transactionManager4Sharding"></qualifier>
+	</bean>
+	
+	<!-- 配置分库分表 End -->
+		<!-- 加载rabbitmq配置 -->
+	<import resource="/spring/spring-rabbitmq.xml" />
+	<!-- 加载springsession配置 -->
+	<import resource="/spring/spring-session.xml"/>
+	
+	
+</beans>

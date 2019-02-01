@@ -1,0 +1,208 @@
+<!--学生通知发布详情-->
+
+<div class="content-wrap" id="sub_loadBox"  >
+   <!-- <div class="search">
+        <select class="gui-input" id="allTerm">
+            <option value="">选择学期</option>
+        </select>
+        <select class="gui-input" id="classType">
+            <option value="">班级类型</option>
+        </select>
+        <select class="gui-input" id="allCategory">
+            <option value="">选择类目</option>
+        </select>
+        <select class="gui-input" id="subject" disabled>
+            <option value="">选择科目</option>
+        </select>
+        <select class="gui-input" id="allCampus"></select>
+        <select class="gui-input" id="allTime">
+            <option value="">上课时间</option>
+        </select>
+        <div class="gui-input-group">
+            <input type="text" class="gui-input" id="content" placeholder="请输入学员姓名、证件号或家长手机号" style="width:180px" />
+            <button class="gui-btn  gui-btn-normal" id="sentSearch"><i class="fa fa-search"></i>搜索</button>
+        </div>
+    </div>-->
+    <div class="bod-con-fer-form" style="margin-top: 20px;">
+        <table align="center" class="tab tablesorter-blue">
+            <thead>
+                <tr>
+
+                    <th>序号</th>
+                    <th>科目（班级名称）</th>
+                    <th>类型</th>
+                    <th>校区</th>
+                    <th>教室</th>
+                    <th>开课日期</th>
+                    <th>上课时间</th>
+                    <th>教师</th>
+                    <th>学费</th>
+                    <th>人数</th>
+                </tr>
+            </thead>
+            <tbody id="classList"></tbody>
+        </table>
+    </div>
+
+  <!--  &lt;!&ndash; 分页 &ndash;&gt;
+    <div class="gui-page-wapper" style="margin:20px 0;line-height: 28px;" id="pageContent">
+        <ul class="gui-page" id="limitUi">
+            <span class="gui-page-total">共<span id="allPage" class="numberShow">0</span>页 <span id="allTotal" class="numberShow">0</span>数据</span>
+            <span id="creatPage">
+            </span>
+        </ul>
+        <span class="gui-page-options-elevator" style="padding-left: 10px;">
+                每页条数：
+                <select id="limit" >
+                     <option value="20">20</option>
+                     <option value="50">50</option>
+                     <option value="100">100</option>
+                </select>
+            </span>
+        <span class="gui-page-options">
+            <span class="gui-page-options-elevator">跳至第
+            <input id="page" class="gui-input">
+             页</span>
+           </span>
+    </div>
+    &lt;!&ndash;分页END&ndash;&gt;
+
+    <div class="dataStatistics">
+        <i class="fa fa-bar-chart"></i>:   班级数：<span class="numberShow" id="sum_Certificationed"><i class="fa fa-circle-o-notch fa-spin" ></i></span> 学员数：<span  class="numberShow" id="sum_unCertificationed" ><i class="fa fa-circle-o-notch fa-spin" ></i></span>
+    </div>-->
+    <div class="dataTool" >
+        <div class="pull-right">
+            <button type="button" class="gui-btn  gui-btn-normal" id="back" onclick="option.goBack()"><i class="fa fa-angle-left"></i>返回通知记录列表</button>
+        </div>
+    </div>
+
+
+</div>
+<script src="js/countUp.js"></script>
+<script>
+
+    var noticeSender_list={
+        "parameter":{
+            "org_id":option.org_id,
+            "token":option.token,
+            "udid":option.udid,
+
+            "noticeId":GetUrlParam("noticeId"),
+            //查询关键字（学生姓名、班级名称）
+            "currentPageNum":20,
+            //页码
+            "pageSize":1
+        },
+        "url":domain+"/notice/getClassList4StudentNotice.htm"
+    };
+
+    $(function () {
+
+        //生成下拉菜单
+        allSelect();
+        //默认
+        showHtml();
+    });
+
+    /**
+     * 生成班级列表
+     * @param limit { number} 请求条数
+     * @param page  { number} 请求页数
+     */
+
+    //列表
+    function showHtml(limit,page) {
+
+        noticeSender_list.parameter.limit=limit?limit:20,
+            noticeSender_list.parameter.page=page?page:1,
+
+            getData(noticeSender_list.url,noticeSender_list.parameter,function (res) {
+
+                if(res.code==200 && res.success==true){
+
+                    var listObj=res.data,html="";
+
+                /*    //如果当前页是第一页从新渲染
+                    if(data.page==1){
+                        //生成页数(总条数，总页数，)
+                        $("#creatPage").createPage({
+                            pageCount:data.totalPage,
+                            current:page,
+                            url:search_classlist.url,
+                            backFn:function(page){
+                                var limit=$("#limit").val();
+                                showHtml(limit,page)
+                            }
+                        });
+                    }*/
+
+                   /* //总页数
+                    $("#allPage").text(data.size);
+                    //总条数
+                    $("#allTotal").text(data.total);
+                    countup("sum_class",data.total);*/
+
+                    if(listObj.length>0){
+                        for(var n=0,m=listObj.length;n<m;n++){
+
+                            /* var toShow=(parseInt(data.page)-1)*parseInt(data.limit); */
+                            var obj=listObj[n];
+
+                            if(obj.class_unset_time==""||obj.class_unset_time==null||obj.class_unset_time==undefined){
+                                var startStr=option.allTime[obj.class_week]+" "+obj.class_begin_time+"-"+obj.class_over_time;
+                            }else {
+                                var startStr=obj.class_unset_time;
+                            }
+
+                        /*    //判断是否已选择
+                            if($.inArray(obj.clas_id.toString(), changedClass)>=0){
+                                var checkedHtml="checked='true'";
+                            }else {
+                                var checkedHtml="";
+                            }*/
+
+                            if(obj.tech_name!==null){
+                                //判断教师是否是多人
+                                var teachers=obj.tech_name.split(",");
+
+                                if(teachers.length>1){
+                                    var teacherStr="多人";
+                                }else {
+                                    var teacherStr=obj.tech_name;
+                                }
+
+                            }else {
+                                var teacherStr="暂未设置";
+                            }
+
+
+                            html += "<tr>" +
+                               /* "   <td><input type=\"checkbox\" "+checkedHtml+" name=\"class\" id='"+obj.clas_id+"'></td>" +*/
+                                "   <td>"+(n+1)+"</td>" +
+                                "   <td>"+obj.subject_name+"("+obj.clas_name+")</td>" +
+                                "   <td data-type='"+obj.clas_type+"'>"+option.classType[obj.clas_type]+"</td>" +
+                                "   <td>"+obj.cam_name+"</td>" +
+                                "   <td>"+(obj.building==null?"":obj.building)+(obj.floor==null?"":obj.floor+"层")+obj.classroom_name+"</td>" +
+                                "   <td>"+obj.class_start_date.substr(2,8)+"</td>" +
+                                "   <td>"+startStr+"</td>" +
+                                "   <td title='"+teacherStr+"'>"+teacherStr+"</td>" +
+                                "   <td class='money'>"+parseFloat(obj.tuition_fees  ).toFixed(2)+"</td>" +
+                                "   <td>"+obj.divide+"</td>" +
+                                "</tr>";
+                        }
+                    }else {
+                        html += "<tr>" +
+                            "<td colspan='13' class='noData' title='没有找到数据'><i class=\"fa fa-warning\" aria-hidden=\"true\"></i>该条件下没有找到任何班级</td>" +
+                            "</tr>";
+                    }
+
+                    $("#classList").html(html);
+
+                }else {
+                    myAlert(res.message,2,res.code,null);
+                }
+            },"POST",false)
+    };
+</script>
+
+

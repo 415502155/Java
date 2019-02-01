@@ -1,0 +1,296 @@
+package sng.service.impl;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import sng.constant.Consts;
+import sng.dao.BaseSetRuleManageDao;
+import sng.dao.ChargeDao;
+import sng.dao.ChargeDetailDao;
+import sng.dao.StudentClassDao;
+import sng.entity.Charge;
+import sng.entity.ChargeDetail;
+import sng.entity.ChargeRecord;
+import sng.entity.StudentClass;
+import sng.pojo.StudentPojo;
+import sng.service.ChargeDetailService;
+import sng.service.ChargeService;
+import sng.util.Constant;
+import sng.util.MoneyUtil;
+import sng.util.PropertyReader;
+import sng.util.RedisUtil;
+
+/**
+ * Title: ChargeService
+ * Description: 支付学生端接口
+ * Company: 世纪伟业
+ * @author Liuyang
+ * @date 2018年1月4日下午1:22:21
+ */
+@Component
+@Transactional("transactionManager")
+
+public class ChargeDetailServiceImpl implements ChargeDetailService{
+	@Autowired
+	private ChargeDetailDao chargeDetailDao;
+	@Autowired
+	private ChargeService chargeService;
+	@Autowired
+	private ChargeDao chargeDao;
+	@Autowired
+	private StudentClassDao studentClassDao;
+	@Autowired
+	private BaseSetRuleManageDao baseSetRuleManageDao;
+	@Autowired
+	private RedisUtil redisUtil;
+	
+	private static String DEFAULT_EXPIRED_TIMES=PropertyReader.getCommonProperty("pay_expired_times");
+
+	@Override
+	public List<ChargeDetail> getListForRemind(Integer cid, String classIds, String cd_ids) {
+		return chargeDetailDao.getListForRemind(cid, classIds, cd_ids);
+	}
+	
+	@Override
+	public Integer update(ChargeDetail cd) {
+		return chargeDetailDao.update(cd);
+	}
+
+	@Override
+	public ChargeDetail getById(Integer cd_id) {
+		return chargeDetailDao.getById(cd_id);
+	}
+
+	@Override
+	public Integer lockChargeDetail(Date lockDate, ChargeDetail cd) {
+		return chargeDetailDao.lockChargeDetail(lockDate, cd);
+	}
+
+	@Override
+	public Integer updateWithLock(ChargeDetail cd, Date lockDate) {
+		return chargeDetailDao.updateWithLock(cd, lockDate);
+	}
+
+	@Override
+	public ChargeDetail getByIdForRefund(Integer cd_id) {
+		return chargeDetailDao.getByIdForRefund(cd_id);
+	}
+
+	@Override
+	public ChargeDetail getByIdForPay(Integer cd_id) {
+		return chargeDetailDao.getByIdForPay(cd_id);
+	}
+
+	@Override
+	public ChargeDetail getByOrderId(String order_id) {
+		return chargeDetailDao.getByOrderId(order_id);
+	}
+
+	@Override
+	public void updateSendStatus(ChargeDetail cd) {
+		chargeDetailDao.updateSendStatus(cd);
+	}
+
+	@Override
+	public ChargeDetail getByOrderIdForQuery(String orderId) {
+		return chargeDetailDao.getByOrderIdForQuery(orderId);
+	}
+
+	@Override
+	public ChargeDetail getByIdForCorrect(Integer cd_id) {
+		return chargeDetailDao.getByIdForCorrect(cd_id);
+	}
+	
+	@Override
+	public ChargeDetail getByIdForPayWithCEBUrl(Integer cd_id) {
+		return chargeDetailDao.getByIdForPayWithCEBUrl(cd_id);
+	}
+	
+	@Override
+	public List<ChargeDetail> getRecordList(Integer accType, String date, String txnType) {
+		return chargeDetailDao.getRecordList(accType,date,txnType);
+	}
+
+	@Override
+	public String getIdsBySCIds(String ids) {
+		return chargeDetailDao.getIdsBySCIds(ids);
+	}
+
+	@Override
+	public List<ChargeDetail> getDetailByStudId(String stud_id) {
+		return chargeDetailDao.getDetailByStudId(stud_id);
+	}
+
+	@Override
+	public List<ChargeDetail> getDetailByStuStatus(Integer cid,int stu_status) {
+		return chargeDetailDao.getDetailByStuStatus(cid,stu_status);
+	}
+
+	@Override
+	public int deleteByCdIds(List<StudentPojo> delList) {
+		StringBuffer sb = new StringBuffer();
+		for (StudentPojo sp : delList) {
+			sb.append(sp.getStu_class_id()).append(",");
+		}
+		String ids = sb.toString();
+		return chargeDetailDao.deleteByCdIds(ids.substring(0,ids.length()-1));
+	}
+
+	@Override
+	public List<ChargeDetail> getByClasId(Integer clas_id) {
+		List<ChargeDetail> list = chargeDetailDao.getByClasId(clas_id); 
+		for (ChargeDetail cd : list) {
+			try {
+				switch (cd.getTxnType()) {
+				case Constant.TXNTYPE_SJWY_OFFLINE_PAY:
+					cd.setTxnType("收费");
+					cd.setMoney(MoneyUtil.fromFENtoYUAN(cd.getTxnAmt()));
+					break;
+				case Constant.TXNTYPE_SJWY_OFFLINE_REFUND_AGREE:
+					cd.setTxnType("退费");
+					cd.setMoney("-"+MoneyUtil.fromFENtoYUAN(cd.getTxnAmt()));
+					break;
+				case Constant.TXNTYPE_UNIONPAY_REFUND:
+					cd.setTxnType("退费");
+					cd.setMoney("-"+MoneyUtil.fromFENtoYUAN(cd.getTxnAmt()));
+					break;
+				case Constant.TXNTYPE_UNIONPAY_PAY:
+					cd.setTxnType("收费");
+					cd.setMoney(MoneyUtil.fromFENtoYUAN(cd.getTxnAmt()));
+					break;
+				default:
+					break;
+				}
+			} catch (Exception e) {
+			}
+		}
+		return list;
+	}
+
+	@Override
+	public int createChargeDetail(Integer org_id, Integer stud_id, Integer clas_id, Integer cam_id, Integer old_cd_id, String money) {
+		if(null!=old_cd_id){
+			//结算旧的支付记录
+			Charge old_c = chargeDao.getCharge(org_id, cam_id, clas_id);
+			ChargeDetail old_cd = chargeDetailDao.getById(old_cd_id);
+			old_cd.setStatus(Constant.CHARGE_DETAIL_STATUS_REFUND_ALL);
+			boolean isOnline = true;
+			if(Constant.CHARGE_DETAIL_STATUS_NEVER==old_cd.getOnline_pay()){
+				old_cd.setOffline_pay(Constant.CHARGE_DETAIL_STATUS_REFUND_ALL);
+				isOnline = false;
+			}else if(Constant.CHARGE_DETAIL_STATUS_NEVER==old_cd.getOffline_pay()){
+				old_cd.setOnline_pay(Constant.CHARGE_DETAIL_STATUS_REFUND_ALL);
+				isOnline = true;
+			}else{
+				old_cd.setOnline_pay(Constant.CHARGE_DETAIL_STATUS_REFUND_ALL);
+				old_cd.setOffline_pay(Constant.CHARGE_DETAIL_STATUS_REFUND_ALL);
+				isOnline = true;
+			}
+			String txnAmt = old_cd.getTxnAmt();
+			old_cd.setTxnAmt("0");
+			ChargeRecord old_cr = new ChargeRecord();
+			old_cr.setTxnType(Constant.TXNTYPE_SJWY_OFFLINE_REFUND_AGREE);
+			old_cr.setCid(old_cd.getCid());
+			old_cr.setCd_id(old_cd.getCd_id());
+			old_cr.setTxnAmt(txnAmt);
+			old_cr.setTxnTime(new Date());
+			old_cr.setInsert_time(new Date());
+			old_cr.setOrg_user_id(0);
+			old_cr.setUser_identify(99);
+			old_cr.setUser_type_id(0);
+			old_cr.setUser_type_name("转班时系统自动结算");
+			//修改学员状态，并为老学员立即脱坑
+			chargeService.chargeFinally(old_c, old_cd, old_cr,Consts.STUD_STATUS_8REFUND_FINISHED,Constant.NO,true);
+			//插入新的支付
+			int newCdId = createNew(org_id, stud_id, clas_id, cam_id,money);
+			ChargeDetail new_cd = getById(newCdId);
+			Charge new_c = chargeDao.get(Charge.class, newCdId);
+			ChargeRecord new_r = new ChargeRecord();
+			if(isOnline){
+				new_cd.setOnline_pay(Constant.CHARGE_DETAIL_STATUS_OK);
+				new_cd.setStatus(Constant.CHARGE_DETAIL_STATUS_OK);
+				new_r.setTxnType(Constant.TXNTYPE_UNIONPAY_PAY);
+			}else{
+				new_cd.setStatus(Constant.CHARGE_DETAIL_STATUS_OK);
+				new_cd.setOffline_pay(Constant.CHARGE_DETAIL_STATUS_OK);
+				new_r.setTxnType(Constant.TXNTYPE_SJWY_OFFLINE_PAY);
+			}
+			new_r.setCid(new_c.getCid());
+			new_r.setCd_id(newCdId);
+			new_r.setTxnAmt(txnAmt);
+			new_r.setTxnTime(new Date());
+			new_r.setInsert_time(new Date());
+			new_r.setOrg_user_id(0);
+			new_r.setUser_identify(99);
+			new_r.setUser_type_id(0);
+			new_r.setUser_type_name("转班时系统自动创建");
+			new_cd.setTxnAmt(txnAmt);
+			try {
+				new_cd.setMoney(MoneyUtil.fromFENtoYUAN(txnAmt));
+			} catch (Exception e) {
+			}
+			new_cd.setTxnTime(new Date());
+			chargeService.chargeFinally(new_c, new_cd, new_r,Consts.STUD_STATUS_5PAID,Constant.YES,true);
+			return newCdId;
+		}else{
+			return createNew(org_id, stud_id, clas_id, cam_id,money);
+		}
+	}
+	
+	private int createNew(Integer org_id, Integer stud_id,Integer clas_id, Integer cam_id,String money){
+		Charge charge = chargeDao.getCharge(org_id,cam_id,clas_id);
+		StudentClass sc = studentClassDao.getWithNames(stud_id, clas_id,Consts.STUD_STATUS_3SIGNUP_TO_PAY);
+		ChargeDetail cd = new ChargeDetail();
+		cd.setCid(charge.getCid());
+		cd.setOrg_id(org_id);
+		cd.setCam_id(cam_id);
+		cd.setStu_class_id(sc.getStuClassId());
+		cd.setStud_id(stud_id);
+		cd.setStud_name(sc.getStud_name());
+		cd.setClas_id(clas_id);
+		cd.setClas_name(sc.getClas_name());
+		cd.setStart_time(charge.getStart_time());
+		cd.setOrder_id(charge.getOrder_prefix()+sc.getStuClassId()+Constant.order.format(new Date()));
+		String tt = (String)redisUtil.get("EXPIRED_TIMES:"+org_id);
+		if(tt==null) {
+			tt=DEFAULT_EXPIRED_TIMES;
+		}
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.HOUR_OF_DAY, Integer.parseInt(tt));
+		cd.setEnd_time(cal.getTime());
+		if(StringUtils.isNotBlank(money)){
+			cd.setMoney(money);
+		}else{
+			cd.setMoney(sc.getTuition_fees());
+		}
+		cd.setStatus(Constant.CHARGE_DETAIL_STATUS_NEVER);
+		cd.setOnline_pay(Constant.CHARGE_DETAIL_STATUS_NEVER);
+		cd.setOffline_pay(Constant.CHARGE_DETAIL_STATUS_NEVER);
+		cd.setPay_type(charge.getPay_type());
+		cd.setIs_send(Constant.NO);
+		cd.setOrderDesc(charge.getItem());
+		cd.setAccId(charge.getAccId());
+		cd.setIs_del(Constant.IS_DEL_NO);
+		cd.setInsert_time(new Date());
+		cd.setPay_method(Constant.PAY_METHOD_NO);
+		chargeDetailDao.save(cd);
+		return cd.getCd_id();
+	}
+
+	@Override
+	public void finishChargeDetail(int studId, int classId, int camId) {
+		ChargeDetail cd = chargeDetailDao.getToFinish(studId,classId,camId);
+		if(null!=cd&&null!=cd.getEnd_time()&&cd.getEnd_time().after(new Date())){
+			cd.setEnd_time(new Date());
+			cd.setIs_del(Constant.IS_DEL_YES);
+			update(cd);
+		}
+	}
+
+}

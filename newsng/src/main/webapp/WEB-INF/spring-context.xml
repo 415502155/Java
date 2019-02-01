@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:util="http://www.springframework.org/schema/util" xmlns:sharding="http://shardingsphere.io/schema/shardingsphere/sharding"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-4.3.xsd
+           http://www.springframework.org/schema/mvc
+		   http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+           http://www.springframework.org/schema/aop
+           http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+           http://www.springframework.org/schema/tx 
+           http://www.springframework.org/schema/tx/spring-tx-4.3.xsd
+           http://www.springframework.org/schema/util
+           http://www.springframework.org/schema/util/spring-util-4.3.xsd
+           http://shardingsphere.io/schema/shardingsphere/sharding
+           http://shardingsphere.io/schema/shardingsphere/sharding/sharding.xsd"
+	default-autowire="byName">
+
+	<!-- 用component配置可以省去写bean配置，这样在程序运行时会找到有关的component注解进行注入 -->
+	<context:component-scan base-package="sng" />
+	
+	<mvc:annotation-driven>
+        <mvc:message-converters register-defaults="true">
+            <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter" p:supportedMediaTypes="*/*" />
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+	
+	<bean id="viewResolverhtml" class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">
+	   <property name="prefix" value="/"/><!-- 指定文件前缀 -->
+	   <property name="suffix" value=".html"/><!-- 指定文件后缀 -->
+	   <property name="order" value="1"/><!-- 指定当前视图解析器的优先级 -->
+	   <property name="contentType" value="text/html; charset=utf-8" /><!-- 指定编码类型输出，防止出现中文乱码现象 -->
+	</bean>
+	
+	<bean class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
+	   <property name="templateLoaderPath" value="/"/><!-- 指定模板文件存放位置 -->
+	   <property name="defaultEncoding" value="UTF-8" /><!-- 由于模板文件中使用utf-8编码，如果不显式指定，会采用系统默认编码，易造成乱码 -->
+	   <property name="freemarkerSettings"><!-- 定义FreeMaker丰富的自定义属性 -->
+	    <props>
+	        <prop key="classic_compatible">true</prop><!--  当碰到对象属性为null时，返回一个空字符串而非抛出系统异常 -->
+	    </props>
+	   </property>
+	</bean>
+
+	<bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver"
+		p:prefix="/" p:suffix=".jsp" p:cache="true" p:order="2"/>
+
+	<!-- 支持上传文件 -->
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<!-- maxUploadSize以字节为单位：10485760 =10M -->
+		<property name="maxUploadSize" value="104857600" />
+		<!-- 设置在文件上传时允许写到内存中的最大值，以字节为单位计算，默认是10240 -->
+		<property name="maxInMemorySize" value="10240" />
+		<property name="defaultEncoding" value="UTF-8"></property>
+	</bean>
+
+	
+
+
+	<!-- 项目权限拦截 -->
+	<bean id="authInterceptor" class="sng.filter.AuthFilter" />
+	<aop:config>
+		<aop:aspect id="dataSourceAspect" ref="authInterceptor">			
+			<aop:pointcut id="app" expression="execution(* sng.controller.web.*.*(..))" />
+			<aop:around method="doBefore" pointcut-ref="app"/>
+		</aop:aspect>
+		<aop:aspect id="dataSourceAspect" ref="authInterceptor">			
+			<aop:pointcut id="app2" expression="execution(* sng.controller.weixin.*.*(..))" />
+			<aop:around method="doBefore" pointcut-ref="app2"/>
+		</aop:aspect>
+	</aop:config>
+	
+</beans>

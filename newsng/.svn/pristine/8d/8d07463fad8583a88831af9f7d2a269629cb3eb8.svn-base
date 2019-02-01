@@ -1,0 +1,190 @@
+<!--用户管理列表-->
+<div class="content-wrap" id="sub_loadBox"  >
+    <div class="search">
+        <select class="gui-input" style="width: 100px" id="certificationType">
+            <option value="">全部状态</option>
+            <option value="1">已认证</option>
+            <option value="0">未认证</option>
+        </select>
+        <div class="gui-input-group">
+            <input type="text" class="gui-input" id="keyword" placeholder="请输入学员姓名、证件号或家长手机号" style="width: 240px" />
+            <button type="button" class="gui-btn  gui-btn-normal" id="sentSearch"><i class="fa fa-search"></i>搜索</button>
+        </div>
+    </div>
+    <div class="bod-con-fer-form">
+        <table align="center" class="tab tablesorter-blue">
+            <thead>
+            <tr>
+                <th>序号</th>
+                <th>学生姓名</th>
+                <th>是否认证</th>
+                <th>证件类型</th>
+                <th>证件号码</th>
+                <th>手机号</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody id="userList">
+                <tr>
+                    <td colspan="7" class="noData"><i class="fa fa-warning" aria-hidden="true"></i>获取不到用户记录</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 分页 -->
+    <div class="gui-page-wapper" style="margin:20px 0;line-height: 28px;" id="pageContent">
+        <ul class="gui-page" id="limitUi">
+            <span class="gui-page-total">共<span id="allPage" class="numberShow">0</span>页 <span class="numberShow" id="allTotal">0</span>数据</span>
+            <span id="creatPage">
+            </span>
+        </ul>
+        <span class="gui-page-options-elevator" style="padding-left: 10px;">
+                每页条数：
+                <select id="limit" class="">
+                     <option value="20">20</option>
+                     <option value="50">50</option>
+                     <option value="100">100</option>
+                </select>
+            </span>
+
+        <span class="gui-page-options">
+            <span class="gui-page-options-elevator">跳至第
+            <input id="page" class="gui-input" data-onlyNumber="true">
+             页</span>
+           </span>
+    </div>
+    <!--分页END-->
+
+  <!-- <div class="dataStatistics">
+        <i class="fa fa-bar-chart"></i>:   已认证：<span class="numberShow" id="sum_Certificationed"><i class="fa fa-circle-o-notch fa-spin" ></i></span> 未认证：<span  class="numberShow" id="sum_unCertificationed" ><i class="fa fa-circle-o-notch fa-spin" ></i></span>
+    </div>-->
+</div>
+<script src="js/countUp.js"></script>
+<script>
+    var user_list={
+        "parameter":{
+            "org_id":option.org_id,
+            "token":option.token,
+            "auth_status":"",
+            "authQueryContent":"",
+            "limit":20,
+            "page":1
+        },
+        "url":domain+"/userAuth/queryUserDetailsInfo.json"
+    };
+
+  $(function () {
+
+      $("#userList").on("click",".userDetail",function () {
+          var userId=$(this).attr("data-id");
+          window.location.href="#12?userId="+userId
+      });
+
+
+      showHtml();
+
+      //变化状态触发查询
+      $("#certificationType").change(function(){
+          user_list.parameter.auth_status=$("#certificationType").val()
+              //"authQueryContent":$("#keyword").val(),
+          showHtml();
+      });
+
+      $("#sentSearch").click(function(){
+
+          var keyword=$.trim($("#keyword").val());
+       /*   if(keyword==""){
+              myAlert("请输入学员姓名、证件号或家长手机号",2,null,null);
+              return false
+          }*/
+          user_list.parameter.auth_status=$("#certificationType").val();
+          user_list.parameter.authQueryContent=keyword;
+          showHtml();
+      });
+
+  });
+
+  //列表
+  function showHtml(limit,page) {
+
+      user_list.parameter.limit=limit==undefined?"20":$("#limit").val();
+      user_list.parameter.page=page==undefined?"1":$("#page").val();
+
+      getData(user_list.url,user_list.parameter,function (res) {
+
+          if(res.code==200 && res.success==true){
+
+              var data=res.data,html="";
+
+              //如果当前页是第一页从新渲染
+              if(data.page==1){
+                  //生成页数(总条数，总页数，)
+                  $("#creatPage").off("click", ".gui-page-item,li.gui-page-prev,li.gui-page-next");
+                  $("#creatPage").createPage({
+                      pageCount:data.totalPage,
+                      current:page,
+                      url:user_list.url,
+                      backFn:function(page){
+                          var limit=$("#limit").val();
+                          showHtml(limit,page)
+                      }
+                  });
+              }
+
+              //总页数
+              $("#allPage").text(data.size);
+              //总条数
+              $("#allTotal").text(data.total);
+
+              var localuser={};
+
+              if(data.data.length>0){
+                  for(var n=0,m=data.data.length;n<m;n++){
+                      var toShow=(parseInt(page==undefined?"1":page)-1)*parseInt(data.limit);
+                      var obj=data.data[n];
+
+                      var j=obj.auth_status;
+
+                      //判断是否认证
+                      if(j!==1){
+                          var classHtml="stu_status";
+                      }else{
+                          var classHtml="";
+                      }
+
+                      html += "<tr>" +
+                              "   <td>"+(n+toShow+1)+"</td>" +
+                              "   <td>"+(obj.stud_name==null||obj.stud_name==""?"--":obj.stud_name)+"</td>" +
+                              "   <td class='"+classHtml+"'>"+option.certificationType[obj.auth_status]+"</td>" +
+                              "   <td>"+(obj.card_type==null||obj.card_type==""?"--":option.idType[obj.card_type])+"</td>" +
+                              "   <td>"+(obj.card_num==null||obj.card_num==""?"--":obj.card_num)+"</td>" +
+                               " <td>"+obj.telephone+"</td>" +
+                              "   <td class=\"operation\" >" +
+                              "       <span  class=\"userDetail\" data-id=\""+obj.user_register_id+"\" >编辑<em></em></span>" +
+                              "   </td>" +
+                              "</tr>";
+
+                      //存储到本地
+                      localuser[obj.user_register_id]=obj;
+
+
+                  }
+
+                  sessionStorage.localUsers=JSON.stringify(localuser);
+
+
+              }else {
+                  html += "<tr>" +
+                      "<td colspan='11' class='noData' title='没有找到数据'><i class=\"fa fa-warning\" aria-hidden=\"true\"></i>该条件下没有找到学员</td>" +
+                      "</tr>";
+              }
+
+              $("#userList").html(html)
+
+          }else {
+              myAlert(res.message,2,res.code,null);
+          }
+      },"GET",true)
+  }
+</script>

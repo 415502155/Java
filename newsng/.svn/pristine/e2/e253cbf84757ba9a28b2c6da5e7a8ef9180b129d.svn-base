@@ -1,0 +1,473 @@
+<!--班级列表-->
+
+<div class="content-wrap" id="sub_loadBox"  >
+
+    <div class="search">
+        <select class="gui-input" id="allTerm">
+            <option value="">选择学期</option>
+        </select>
+        <select class="gui-input" id="classType">
+            <option value="">班级类型</option>
+        </select>
+        <select class="gui-input" id="allCategory">
+            <option value="">选择类目</option>
+        </select>
+        <select class="gui-input" id="subject" disabled>
+            <option value="">选择科目</option>
+        </select>
+        <select class="gui-input" id="allCampus"></select>
+        <select class="gui-input" id="allTime">
+            <option value="">上课时间</option>
+        </select>
+        <div class="gui-input-group">
+            <input type="text" class="gui-input" id="searchKeyword" placeholder="请输入教师姓名、手机号，班级名称" style="width: 220px"/>
+            <button class="gui-btn  gui-btn-normal" id="toSearch"><i class="fa fa-search"></i>搜索</button>
+        </div>
+    </div>
+
+    <div class="bod-con-fer-form">
+        <table align="center" class="tab tablesorter-blue">
+            <thead>
+            <tr>
+                <th><input type="checkbox" name="allClass" onclick="all_click(this,'class',changeLocal(this))"></th>
+                <th>序号</th>
+                <th>科目（班级名称）</th>
+                <th>班级类型</th>
+                <th>校区</th>
+                <th>教室</th>
+                <th>开课日期</th>
+                <th>上课时间</th>
+                <th>教师</th>
+                <th>学费标准</th>
+                <th>人数</th>
+                <th>实收学费</th>
+            </tr>
+            </thead>
+            <tbody id="classList">
+            <tr>
+                <td colspan="12" class="noData"><i class="fa fa-warning" aria-hidden="true"></i>获取不到班级数据</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <!-- 分页 -->
+    <div class="gui-page-wapper" style="margin:20px 0;line-height: 28px;" id="pageContent">
+        <ul class="gui-page" id="limitUi">
+            <span class="gui-page-total">共<span id="allPage" class="numberShow">0</span>页 <span id="allTotal" class="numberShow">0</span>数据</span>
+            <span id="creatPage">
+            </span>
+        </ul>
+        <span class="gui-page-options-elevator" style="padding-left: 10px;">
+                每页条数：
+                <select id="limit" class="">
+                     <option value="20">20</option>
+                     <option value="50">50</option>
+                     <option value="100">100</option>
+                </select>
+        </span>
+        <span class="gui-page-options">
+            <span class="gui-page-options-elevator">跳至第
+            <input id="page" class="gui-input" data-onlyNumber="true">
+             页</span>
+           </span>
+    </div>
+    <!--分页END-->
+
+
+    <div class="dataStatistics">
+        <i class="fa fa-bar-chart"></i>:
+        班级：<span class="numberShow" id="sum_class"><i class="fa fa-circle-o-notch fa-spin" ></i></span>
+        学员数：<span class="numberShow" id="sum_student"><i class="fa fa-circle-o-notch fa-spin" ></i></span>
+        学费数：<span  class="numberShow" id="sum_tuition" ><i class="fa fa-circle-o-notch fa-spin" ></i></span>
+    </div>
+
+    <!-- //数据操作-->
+    <div class="dataTool" style="">
+        <div class="pull-left">
+            <label for="isAll">
+                <input type="checkbox" id="isAll" name="allClass" >选择全部分页数据
+            </label>
+        </div>
+        <div class="pull-right">
+            <span id="changeSum" style="margin-right:10px;">已选择<span>0</span>个班级</span>
+            <button class="gui-btn  gui-btn-normal" id="downTechTimeSheet" disabled><i class="fa fa-cloud-download"></i>教师开课统计表</button>
+            <button class="gui-btn  gui-btn-normal" id="downPay" disabled><i class="fa fa-cloud-download"></i>各班缴费明细</button>
+            <button class="gui-btn  gui-btn-normal" id="downClassTimeSheet" disabled><i class="fa fa-cloud-download"></i>各班考勤表</button>
+            <button class="gui-btn  gui-btn-normal" id="downClassStu" disabled><i class="fa fa-cloud-download"></i>各班花名册</button>
+        </div>
+    </div>
+
+
+</div>
+<script src="js/countUp.js"></script>
+<script>
+
+    var changedClass=[];
+    var allclassIds=[];//一次查询的班级列表
+
+
+    var search_classlist={
+            "parameter":{
+                "org_id":option.org_id,
+                "org_id":option.org_id,
+                "token":option.token,
+
+                "termId":$("#allTerm").val(),
+                "clasType":$("#classType").val(),
+                "categoryId":"",
+                "subjectId":"",
+                "classWeek":"",
+                "techNames":"",
+                "camId":option.roleCam,
+
+                "limit":20,
+                "page":1
+            },
+            "url":domain+"/class/class/list.htm"
+    };
+
+    //显示列表
+    showHtml();
+
+
+    $(function () {
+        //下拉
+        allSelect();
+
+        //变换查询条件触发查询
+        $("#allTerm").change(function(){
+            search_classlist.parameter.termId=$("#allTerm").val();
+            search_classlist.parameter.limit=$("#limit").val();
+            search_classlist.parameter.page=1;
+            showHtml();
+        });
+        $("#classType").change(function(){
+            search_classlist.parameter.clasType=$("#classType").val();
+            search_classlist.parameter.limit=$("#limit").val();
+            search_classlist.parameter.page=1;
+            showHtml();
+        });
+        $("#allCampus").change(function(){
+
+            search_classlist.parameter.camId=$("#allCampus").val();
+            search_classlist.parameter.limit=$("#limit").val();
+            search_classlist.parameter.page=1;
+            showHtml();
+        });
+        $("#allCategory").change(function(){
+            search_classlist.parameter.categoryId=$("#allCategory").val();
+            search_classlist.parameter.limit=$("#limit").val();
+            search_classlist.parameter.page=1;
+            showHtml();
+
+        });
+        $("#subject").change(function(){
+            search_classlist.parameter.subjectId=$("#subject").val();
+            search_classlist.parameter.limit=$("#limit").val();
+            search_classlist.parameter.page=1;
+            showHtml();
+        });
+
+        $("#allTime").change(function(){
+            search_list.parameter.classWeek=$("#allTime").val();
+            search_list.parameter.limit=$("#limit").val();
+            search_list.parameter.page=1;
+            showHtml();
+        });
+
+        //点击查询
+        $("#toSearch").click(function(){
+            var keyword=$.trim($("#searchKeyword").val());
+            if(keyword==""){
+                myAlert("请输入教师姓名、手机号，班级名称进行搜索",2,null,null);
+                return false
+            }
+            search_classlist.parameter.techNames=keyword;
+            search_classlist.parameter.limit=$("#limit").val();
+            search_classlist.parameter.page=1;
+            showHtml();
+        });
+
+
+
+        //单选班级：如果选中插入到备选，否则从已选删除
+        //编辑的时候会后渲染，所以得绑定事件
+        $("#classList").on("click","input[name=\"class\"]",function (e) {
+
+            var classID=$(this).attr("id");
+
+            if($(this).is(":checked")){//选中
+                changedClass.push(classID);
+                if($("input[name=class]").length==$("input[name=class]:checked").length){
+                    $("input[name=allClass]").prop("checked",true);
+                }
+            }else{ //取消
+                changedClass.removeByValue(classID);
+                $("#isAll").prop("checked",false);
+                $("input[name=allClass]").prop("checked",false);
+            }
+            counter();
+            e.stopPropagation();
+        });
+
+        $("#classList").on("click","tr",function (e) {
+            var obj=$(this).find("input[name=\"class\"]");
+            var classID=obj.attr("id");
+            if(classID==undefined){
+                return false
+            }
+            if(!obj.is(":checked")){//选中
+                obj.prop("checked",true);
+                changedClass.push(classID);
+                if($("input[name=class]").length==$("input[name=class]:checked").length){
+                    $("input[name=allClass]").prop("checked",true);
+                }
+            }else{  //取消
+                obj.prop("checked",false);
+                changedClass.removeByValue(classID);
+                $("#isAll").prop("checked",false);
+                $("input[name=allClass]").prop("checked",false);
+            }
+            counter()
+            e.stopPropagation();
+        });
+
+
+     //下载教师开课统计表
+        $("#downTechTimeSheet").click(function(){
+            if(changedClass.length==0){
+                myAlert("请选择一个班级",2,null,null);
+                return false
+            }
+            search_classlist.parameter.ids=changedClass.join(",");
+            var upErrorStr=parseParams(search_classlist.parameter);
+            window.location.href=domain+"/print/export/download/statistics.htm?"+upErrorStr
+        });
+
+        //各班缴费明细
+        $("#downPay").click(function(){
+            if(changedClass.length==0){
+                myAlert("请选择一个班级",2,null,null);
+                return false
+            }
+            search_classlist.parameter.ids=changedClass.join(",");
+            var upErrorStr=parseParams(search_classlist.parameter);
+            window.location.href=domain+"/print/export/download/paymentRecords.htm?"+upErrorStr
+        });
+
+        //各班考勤表
+        $("#downClassTimeSheet").click(function(){
+            if(changedClass.length==0){
+                myAlert("请选择一个班级",2,null,null);
+                return false
+            }
+            search_classlist.parameter.ids=changedClass.join(",");
+            var upErrorStr=parseParams(search_classlist.parameter);
+            window.location.href=domain+"/print/export/download/attendance.htm?"+upErrorStr
+        });
+
+        //各班花名册
+        $("#downClassStu").click(function(){
+            if(changedClass.length==0){
+                myAlert("请选择一个班级",2,null,null);
+                return false
+            }
+            search_classlist.parameter.ids=changedClass.join(",");
+            var upErrorStr=parseParams(search_classlist.parameter);
+            window.location.href=domain+"/print/export/download/studentRoster.htm?"+upErrorStr
+        });
+
+        //获取分页全部数据
+        $("#isAll").click(function () {
+            var isChecked=$(this).is(":checked");
+            //获取该搜索条件下的所有班级
+            var m=allclassIds.length;
+            if(isChecked){
+                //添加到已选
+                for(var i=0;i<m;i++){
+                    changedClass.push(allclassIds[i]);
+                    $("#"+allclassIds[i]).prop("checked","checked");
+                    $("input[name=allClass]").prop("checked",true);
+                }
+
+            }else{
+                //从已选删除
+                for(var i=0;i<m;i++){
+                    changedClass.removeByValue(allclassIds[i]);
+                    $("#"+allclassIds[i]).removeAttr("checked");
+                }
+                $("input[name=allClass]").prop("checked",false);
+            }
+            //更新数据
+            counter();
+
+        });
+
+
+    })
+
+    //列表
+    function showHtml(limit,page) {
+
+        search_classlist.parameter.limit=limit?limit:20,
+            search_classlist.parameter.page=page?page:1,
+
+            getData(search_classlist.url,search_classlist.parameter,function (res) {
+
+                if(res.code==200 && res.success==true){
+
+                    var data=res.data,html="";
+
+                    //如果当前页是第一页从新渲染
+                    if(data.page==1){
+                        //生成页数(总条数，总页数，)
+                        $("#creatPage").createPage({
+                            pageCount:data.totalPage,
+                            current:page,
+                            url:search_classlist.url,
+                            backFn:function(page){
+                                var limit=$("#limit").val();
+                                showHtml(limit,page)
+                            }
+                        });
+                    }
+
+                    //总页数
+                    $("#allPage").text(data.size);
+                    //总条数
+                    $("#allTotal").text(data.total);
+                    countup("sum_class",data.total);
+
+                    if(data.data.length>0){
+                        for(var n=0,m=data.data.length;n<m;n++){
+
+                            var toShow=(parseInt(data.page)-1)*parseInt(data.limit);
+                            var obj=data.data[n];
+
+                            if(obj.class_unset_time==""||obj.class_unset_time==null||obj.class_unset_time==undefined){
+                                var startStr=option.allTime[obj.class_week]+" "+obj.class_begin_time+"-"+obj.class_over_time;
+                            }else {
+                                var startStr=obj.class_unset_time;
+                            }
+
+
+                            //判断是否已选择
+                            if($.inArray(obj.clas_id.toString(), changedClass)>=0){
+                                var checkedHtml="checked='true'";
+                            }else {
+                                var checkedHtml="";
+                            }
+
+                            if(obj.tech_name!==null){
+                                //判断教师是否是多人
+                                var teachers=obj.tech_name.split(",");
+
+                                if(teachers.length>1){
+                                    var teacherStr="多人";
+                                }else {
+                                    var teacherStr=obj.tech_name;
+                                }
+
+                            }else {
+                                var teacherStr="暂未设置";
+                            }
+
+
+                            html += "<tr>" +
+                                "   <td><input type=\"checkbox\" "+checkedHtml+" name=\"class\" id='"+obj.clas_id+"'></td>" +
+                                "   <td>"+(n+toShow+1)+"</td>" +
+                                "   <td>"+obj.subject_name+"("+obj.clas_name+")</td>" +
+                                "   <td data-type='"+obj.clas_type+"'>"+option.classType[obj.clas_type]+"</td>" +
+                                "   <td>"+obj.cam_name+"</td>" +
+                                "   <td>"+(obj.building==null?"":obj.building)+(obj.floor==null?"":obj.floor+"层")+obj.classroom_name+"</td>" +
+                                "   <td>"+obj.class_start_date_str.substr(2,8)+"</td>" +
+                                "   <td>"+startStr+"</td>" +
+                                "   <td title='"+teacherStr+"'>"+teacherStr+"</td>" +
+                                "   <td class='money'>"+parseFloat(obj.tuition_fees  ).toFixed(2)+"</td>" +
+                                "   <td>"+obj.divide+"</td>" +
+                                "   <td class='money'>"+ parseFloat(obj.ss_tuition ).toFixed(2)+"</td>" +
+                                "</tr>";
+                        }
+                    }else {
+                        html += "<tr>" +
+                            "<td colspan='13' class='noData' title='没有找到数据'><i class=\"fa fa-warning\" aria-hidden=\"true\"></i>该条件下没有找到任何班级</td>" +
+                            "</tr>";
+                    }
+
+                    $("#classList").html(html);
+
+
+                    //调用统计接口，界面更新
+                    sumMoneyandStudent();
+                    counter();
+                }else {
+                    myAlert(res.message,2,res.code,null);
+                }
+            },"POST",false)
+    };
+
+    //单页全选回调
+    function changeLocal(obj){
+        //遍历本地数据
+        if($(obj).is(":checked")){
+            $("input[name=class]").each(function () {
+                var nowClass=$(this).attr("id");
+                changedClass.push(nowClass);
+            });
+        }else{
+            $("input[name=class]").each(function () {
+                var nowClass=$(this).attr("id");
+                changedClass.removeByValue(nowClass);
+            });
+        }
+        counter();
+    }
+
+    /**
+     * 计数器
+     * 单选，复选，含分页选的情况下的界面更新
+     *
+     */
+    function counter(){
+        if(changedClass.length==0){
+            $("#downTechTimeSheet").attr("disabled",true);
+            $("#downPay").attr("disabled",true);
+            $("#downClassTimeSheet").attr("disabled",true);
+            $("#downClassStu").attr("disabled",true);
+
+        }else {
+            $("#downTechTimeSheet").attr("disabled",false);
+            $("#downPay").attr("disabled",false);
+            $("#downClassTimeSheet").attr("disabled",false);
+            $("#downClassStu").attr("disabled",false);
+        }
+        $("#changeSum span").text(changedClass.length);
+    }
+
+    /**
+     * 查询学生总数，缴费总金额
+     * sumMoneyandStudent
+     */
+    function sumMoneyandStudent() {
+        getData(domain+"/class/statistics/list.htm",search_classlist.parameter,function (res) {
+            if(res.code==200 && res.success==true){
+                var sumStu=res.data.ss_num;
+                var sumTuition=res.data.sjs_money;
+                countup("sum_tuition",sumTuition);
+                countup("sum_student",sumStu);
+
+                if(res.data.clas_id !=="" && res.data.clas_id !== undefined){
+                    //存入本地
+                    allclassIds=res.data.clas_id.split(",");
+                }
+
+
+            }else {
+                myAlert("获取统计信息失败",2,res.code,null);
+            }
+        },"POST",false);
+    }
+
+</script>
+
+

@@ -1,0 +1,304 @@
+package sng.service;
+
+import org.apache.poi.ss.usermodel.Workbook;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import sng.entity.Classes;
+import sng.entity.StudentClass;
+import sng.pojo.ClassToTeacher;
+import sng.pojo.ImportClass;
+import sng.pojo.SessionInfo;
+import sng.pojo.StudentRoster;
+import sng.pojo.base.Student;
+import sng.util.Paging;
+
+import java.io.InputStream;
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+/***
+ * 
+ *  @Company sjwy
+ *  @Title: ClassService.java 
+ *  @Description: 班級管理
+ *	@author: shy
+ *  @date: 2018年10月23日 下午1:25:55
+ */
+@Service
+@Transactional
+public interface ClassService {
+	/***
+	 * 
+	 *  @Description: 添加/编辑  班级
+	 *  @param classes
+	 * @throws ParseException 
+	 */
+	void save(String userTypeName, Map<String, Object> reqMap, SessionInfo sessionInfo) throws ParseException;	
+	/***
+	 * 
+	 *  @Description: 根据条件查询班级列表
+	 *  @param orgId
+	 *  @param termId
+	 *  @param clasType
+	 *  @param categoryId
+	 *  @param subjectId
+	 *  @param camId
+	 *  @param classWeek
+	 *  @param tech_names
+	 *  @return
+	 */
+	Paging<ClassToTeacher> getClassList(Integer orgId, Integer termId, Integer clasType, Integer categoryId, Integer subjectId, String camId, Integer classWeek, String techNames, Paging<ClassToTeacher> page) throws Exception;
+	/***
+	 * 
+	 *  @Description: 根据条件查询班级列表(不分页)
+	 *  @param orgId
+	 *  @param termId
+	 *  @param clasType
+	 *  @param categoryId
+	 *  @param subjectId
+	 *  @param camId
+	 *  @param classWeek
+	 *  @param techNames
+	 *  @return
+	 */
+	@SuppressWarnings("rawtypes")
+	Map getStatisticsInfo(List<Integer> ids) throws Exception;
+	
+	List<ClassToTeacher> getClassList(Integer orgId, Integer termId, Integer clasType, Integer categoryId, Integer subjectId, String camId, Integer classWeek, String techNames);
+
+	/***
+	 * 
+	 *  @Description: 根据查询条件导出班级id列表
+	 *  @param orgId
+	 *  @param termId
+	 *  @param clasType
+	 *  @param categoryId
+	 *  @param subjectId
+	 *  @param camId
+	 *  @param classWeek
+	 *  @param tech_names
+	 *  @param ids 
+	 *  @param isAll
+	 *  @param page
+	 *  @return
+	 */
+	List<ClassToTeacher> getClassIdList(Integer orgId, Integer termId, Integer clasType, Integer categoryId, Integer subjectId, String camId, Integer classWeek, String techNames, String ids, Integer isAll) throws Exception;
+	/***
+	 * 
+	 *  @Description: 根据班级id查询学生列表
+	 *  @param orgId
+	 *  @param clasId
+	 *  @return
+	 */
+	List<Map<String, Object>> getStudentList(Integer orgId, String cidList, String status);
+	
+	@SuppressWarnings("rawtypes")
+	Map getById(Integer orgId, Integer clasId);
+	
+	void update(Map<String, Object> reqMap, SessionInfo sessionInfo, List<Map<String, Object>> techList) throws Exception ;
+	
+	void updateClasssAndTeacher(String userTypeName, Map<String, Object> reqMap, SessionInfo sessionInfo, List<Map<String, Object>> techList) throws Exception;
+	/***
+	 * 
+	 *  @Description: 获取班级下的老师
+	 *  @param orgId
+	 *  @param clasId
+	 *  @return
+	 */
+	List<Map<String, Object>> getTecherIds(Integer orgId, Integer clasId);
+	
+	/***
+	 * 
+	 *  @Description: 根据证件号码查询学员信息和所在班级信息
+	 *  @param orgId
+	 *  @param studCard
+	 *  @return
+	 */
+	List<Map<String, Object>> getStudentInfo(Integer orgId, String studCard);
+	/***
+	 * 
+	 *  @Description: 插班
+	 *  @param reqMap
+	 *  @param sessionInfo
+	 *  @param orgId
+	 *  @param studName
+	 *  @param studId
+	 *  @param clasId
+	 *  @param clasType
+	 *  @param tuitionFee
+	 */
+	void joinClass(String userTypeName, Map<String, Object> reqMap, SessionInfo sessionInfo, Integer orgId, String studName, Integer studId, Integer clasId, Integer clasType, String tuitionFee, Integer insertPayType, String openId, Integer parentId) throws Exception;
+	
+	/**
+	 * 发送插班微信消息
+	 * @param messageMap
+	 */
+	public void consumptionJoinClass(Map<String, Object> messageMap);
+	/***
+	 * 
+	 *  @Description: 查询当前班级下的信息
+	 *  @param orgId
+	 *  @param clasId
+	 *  @return
+	 */
+	List<Map<String, Object>> getCurClassInfo(Integer orgId, Integer clasId);
+	
+	void delClass(Integer orgId, Integer clasId) throws Exception;
+	/***
+	 * 
+	 *  @Description: 当前班级的学员数 
+	 *  @param orgId
+	 *  @param clasId
+	 *  @return
+	 */
+	Integer getClassNum(Integer orgId, Integer clasId);
+	/***
+	 * 
+	 *  @Description: 当前班级的学费数
+	 *  @param orgId
+	 *  @param clasId
+	 *  @return
+	 */
+	BigDecimal getClassFees(Integer orgId, Integer clasId);
+	
+	Integer getClassCount(Integer orgId, Integer termId, String clasName, Integer clasId );
+	
+	@SuppressWarnings("rawtypes")
+	Map getClassListByTerm(Integer orgId, Integer termId, Integer clasType, String camIds);
+	
+	boolean existsClassromm(Integer camId, String building, String floor, String classroomName);
+	
+	boolean existsCategory(Integer orgId, String categoryName);
+	
+	boolean existsSubject(Integer orgId, String subjectName);
+	/***
+	 * 
+	 *  @Description: 获取当前校区下的所有教室
+	 *  @param camId
+	 *  @return
+	 */
+	@SuppressWarnings("rawtypes")
+	Map getClassromm(Integer camId);
+	/***
+	 * 
+	 *  @Description: 获取当前机构下的所有类目
+	 *  @param orgId
+	 *  @return
+	 */
+	@SuppressWarnings("rawtypes")
+	Map getCategory(Integer orgId);
+	
+	@SuppressWarnings("rawtypes")
+	Map getSubject(Integer orgId);
+	
+	@SuppressWarnings("rawtypes")
+	Map getTeacher(Integer orgId);
+	
+	@SuppressWarnings("rawtypes")
+	Map getCooperative(Integer orgId);
+	
+	Map<String, Integer> getCampus(Integer orgId, String camIds);
+	/***
+	 * 
+	 *  @Description: 获取当前机构下（学员_证件号码) 的所有学员
+	 *  @param orgId
+	 *  @return
+	 */
+	@SuppressWarnings("rawtypes")
+	Map getStudent(Integer orgId);
+
+	@SuppressWarnings("rawtypes")
+	void saveClass(ImportClass iClass, Map allTechMap, SessionInfo sessionInfo, String userTypeName) throws Exception;
+	
+	@SuppressWarnings("rawtypes")
+	Map importClass(Workbook wb, String [] columnName, String userTypeName, HttpSession session, SessionInfo sessionInfo, InputStream fin, Integer orgId, Integer termId, String suffix, String camIds) throws Exception;
+
+	@SuppressWarnings("rawtypes")
+	Map importStudent(Workbook wb, String userTypeName, HttpSession session, SessionInfo sessionInfo, InputStream fin, Integer orgId, Integer termId, String suffix, String camIds) throws Exception;
+
+	void saveStudentClass(StudentClass sc);
+	
+	void downloadErrorExcel(HttpSession session, HttpServletRequest request, HttpServletResponse response, Integer type) throws Exception;
+	
+	@SuppressWarnings("rawtypes")
+	Paging<Map<String, Object>> getStudentListByClasId(Integer orgId, Integer clasId,  String status, Paging<Map> page) throws Exception;
+
+	List<ClassToTeacher> getTechClassInfoList(Integer orgId, Integer techId, Integer termId);
+	
+	void downloadStatistics(HttpServletRequest request, HttpServletResponse response, List<ClassToTeacher> returnList);
+	
+	void downloadPaymentRecords(HttpServletRequest request, HttpServletResponse response,
+			Integer orgId, Integer termId, Integer clasType, Integer categoryId,
+			Integer subjectId, String camId, Integer classWeek, String techNames, Integer isAll, String ids) throws Exception;
+	
+	void downloadStudentsAttendance(HttpServletRequest request, HttpServletResponse response,
+			Integer orgId, Integer termId, Integer clasType, Integer categoryId,
+			Integer subjectId, String camId, Integer classWeek, String techNames, Integer isAll, String ids);
+	
+	List<Student> getStudentList(Integer orgId, Integer clasId);
+	
+	List<StudentRoster> getStudentRosterList(Integer orgId, Integer clasId);
+	
+	void downloadStudentRoster(HttpServletRequest request, HttpServletResponse response,
+			Integer orgId, Integer termId, Integer clasType, Integer categoryId,
+			Integer subjectId, String camId, Integer classWeek, String techNames, Integer isAll, String ids, String status);
+	
+	/**
+	 * 查询符合条件的可转班级列表
+	 */
+	List<Classes> queryListForExchangeClass(Integer stu_class_id);
+	
+	/**
+	 * 根据机构id和班级id和quotaHold=1（占有名额的）的 获取班级容量 已占用的班级名额 可容纳人数 返回 当前班级的可容纳人数
+	 */
+	public Integer getCurClassUsableNum(Integer orgId, Integer clasId, Integer quotaHold, Integer size);
+	
+	/**
+	 * 根据学生班级关系主键查询班级信息
+	 */
+	public Classes getBySCId(String stu_class_id);
+	
+	Integer getStudStatusByClasId(Integer clasId, Integer studId);
+	
+	List<Map<String, Object>> getStudentInfoByClasIdAndStudId(Integer clasId, Integer studId, String status);
+	/**
+	 * 查询班级的人数和学费
+	 */
+	Map<String, Object> getStatisticsStuList(Integer orgId, Integer clasId) throws Exception;
+	
+	List<Map<String, Object>> getStuList(Integer orgId, Integer clasId);
+	/**
+	 * 智慧统计  注册量  学员数 开班数
+	 */
+	Map<String, Object> getStatisticsInfoByTermAndCampus(Integer orgId, Integer termId, String camId, Integer clasType) throws Exception;
+	/**
+	 * 智慧统计  本期老生数  上期学员数  总注册率  缴费总人数 退费总人数  总流失率
+	 */
+	Map<String, Object> termCampusStatisticalComparison(Integer orgId, Integer termId1, String camId1, Integer termId2, String camId2, Integer clasType) throws Exception;
+	/**
+	 * 根据班级id获取校区id
+	 */
+	Integer getCampusIdByClasId(Integer orgId, Integer clasId);
+	
+	@SuppressWarnings("rawtypes")
+	Paging<Map<String, Object>> getStudentListByClasId_bak(Integer orgId, Integer clasId,  String status, Paging<Map> page);
+	
+	List<ClassToTeacher> getListByClasId(Integer orgId, String ids);
+	
+	Map<String, Object> getMyCoucher(Integer orgId, Integer studId, String userIdnumber, String techName, Integer clasId) throws Exception;
+	
+	List<Map<String, Object>> getUserRegisterList(Integer orgId, String userIdnumber);
+	
+	List<Map<String, Object>> getMyCoucherList(Integer orgId, String studClasIds) throws Exception;
+	
+	Map<String, Object> getStudentInfoByUserIdnumber(Integer orgId, String userIdnumber);
+	
+	List<Map<String, Object>> getStudentToParent(Integer studId);
+}

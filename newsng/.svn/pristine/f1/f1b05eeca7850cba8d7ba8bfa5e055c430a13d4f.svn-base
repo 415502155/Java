@@ -1,0 +1,608 @@
+package sng.service.impl;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import oracle.jdbc.driver.Const;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import sng.constant.Consts;
+import sng.dao.StudentClassDao;
+import sng.dao.StudentDao;
+import sng.entity.StudentClass;
+import sng.pojo.Clas2Student;
+import sng.pojo.ParamObj;
+import sng.pojo.Result;
+import sng.pojo.SessionInfo;
+import sng.pojo.StudentPojo;
+import sng.pojo.base.Student;
+import sng.pojo.base.Teacher;
+import sng.service.ChargeDetailService;
+import sng.service.StudentService;
+import sng.util.CommonUtils;
+import sng.util.Constant;
+import sng.util.DateUtil;
+import sng.util.EnumLog;
+import sng.util.LoggerUtil;
+
+/**
+ * @类 名： StudentServiceImpl
+ * @功能描述：学员Service实现类
+ * @作者信息： LiuYang
+ * @创建时间： 2018年11月20日下午3:59:32
+ */
+@Component
+@Transactional("transactionManager")
+public class StudentServiceImpl implements StudentService {
+
+    @Autowired
+    private StudentDao studentDao;
+    @Autowired
+    private ChargeDetailService chargeDetailService;
+
+    @Autowired
+    private StudentClassDao studentClassDao;
+
+    @Override
+    public Map<String, Object> queryList(String term_id, String category_id, String subject_id, String clas_type,
+                                         String cam_id, String stu_status, String pay_method, String is_print, String keyword,
+                                         Integer currentPageNum, Integer pageSize) {
+        return studentDao.queryList(term_id, category_id, subject_id, clas_type, cam_id, stu_status, pay_method,
+                is_print, keyword, currentPageNum, pageSize);
+    }
+
+    @Override
+    public Map<String, Object> getRefundApplyList(String starttime, String endtime, String category_id,
+                                                  String subject_id, String class_type, String cam_id, String term_id, String keywords,
+                                                  Integer currentPageNum, Integer pageSize) {
+        return studentDao.getRefundApplyList(starttime, endtime, category_id, subject_id, class_type, cam_id, term_id,
+                keywords, currentPageNum, pageSize);
+    }
+
+    @Override
+    public List<StudentPojo> getRefundApplyList(String ids) {
+        return studentDao.getRefundApplyList(ids);
+    }
+
+    @Override
+    public List<StudentPojo> getRefundList(String stu_clas_ids) {
+        return studentDao.getRefundList(stu_clas_ids);
+    }
+
+    @Override
+    public List<StudentPojo> getList(String term_id, String category_id, String subject_id, String clas_type,
+                                     String cam_id, String stu_status, String pay_method, String is_print, String keyword) {
+        return studentDao.getList(term_id, category_id, subject_id, clas_type, cam_id, stu_status, pay_method, is_print,
+                keyword);
+    }
+
+    @Override
+    public List<StudentPojo> getList(String ids) {
+        List<StudentPojo> list = null;
+        String[] id = ids.split(",");
+        /**
+         * @author magq
+         * @date 2018-12-10 传入的ids如果多于500条则全部查出来然后在过滤
+         */
+        if (id != null && id.length <= Consts.STU_MOVE_COUNT) {
+            list = studentDao.getList(ids);
+        } else {
+            List<StudentPojo> list_ = studentDao.getList(null, null, null, null, null, null, null, null, null);
+            list = new ArrayList<>();
+            filterStuListInfo(list, list_, id);
+        }
+
+        return list;
+    }
+
+    /**
+     * 批量导出，如果要导出是数据大于500条，则取出所有数据，然后在java中过滤
+     *
+     * @param list
+     * @param list_
+     * @author magq
+     */
+    private void filterStuListInfo(List<StudentPojo> list, List<StudentPojo> list_, String[] ids) {
+        if (list_ != null && ids != null && !list_.isEmpty()) {
+            for (StudentPojo pojo : list_) {
+                Integer stud_id = pojo.getStud_id();
+                if (stud_id == null) {
+                    continue;
+                }
+                for (String id : ids) {
+                    Integer stuId = Integer.valueOf(id);
+                    if (stuId == null || stud_id.intValue() != stuId.intValue()) {
+                        continue;
+                    }
+                    list.add(pojo);
+                }
+            }
+        }
+    }
+
+    @Override
+    public Map<String, Object> getRecordList(String starttime, String endtime, String category_id, String subject_id,
+                                             String class_type, String cam_id, String term_id, String pay_method, String txn_type, String keywords,
+                                             Integer currentPageNum, Integer pageSize) {
+        return studentDao.getRecordList(starttime, endtime, category_id, subject_id, class_type, cam_id, term_id,
+                pay_method, txn_type, keywords, currentPageNum, pageSize);
+    }
+
+    @Override
+    public List<StudentPojo> getRecordList(String ids) {
+        return studentDao.getRecordList(ids);
+    }
+
+    @Override
+    public List<Student> getStudentByParentUserId(String parent_user_id) {
+        return studentDao.getStudentByParentUserId(parent_user_id);
+    }
+
+    /*
+     * (non-Javadoc) 学员管理中单个转班，班级管理中批量转班
+     *
+     * @see sng.service.StudentService#queryMoveClassListInfo(sng.pojo.ParamObj)
+     *
+     * @auth magq
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public Result queryMoveClassListInfo(ParamObj obj) {
+
+        Result result = new Result();
+        if (obj.getOrg_id() == null || obj.getClas_id() == null || StringUtils.isBlank(obj.getStud_id())) {
+            result.setMessage("请求参数有误");
+            result.setSuccess(false);
+            return result;
+        }
+
+        List<Clas2Student> list = studentDao.queryStuAndClassInfo(obj);
+        boolean flag = filterStuStatus(list);
+        if (flag) {
+            result.setMessage("学员状态不同不能转班");
+            result.setSuccess(false);
+            return result;
+        }
+
+        // 获取学员状态
+        if (list != null && !list.isEmpty()) {
+            Clas2Student cs = list.get(0);
+            cs.setQueryContext(obj.getQueryContext());
+            if (cs != null) {
+                List<Clas2Student> csList = studentDao.queryMoveClassListInfo(cs);
+                List<Clas2Student> list_ = null;
+                if (csList != null && !csList.isEmpty()) {
+                    list_ = this.getStuTypeListInfo(csList, list);
+                }
+                result.setData(list_);
+                result.setSuccess(true);
+            }
+        } else {
+            result.setMessage("没有查询到相匹配的班级，请更换查询条件!");
+            result.setSuccess(true);
+        }
+
+        return result;
+
+    }
+
+    /**
+     * 如果是批量转班过滤所转班的学员状态是否一致，如果不一致不能获取班级信息，否则能获取（注：单个学员转班不存在过滤）
+     *
+     * @param list
+     * @return
+     */
+    private boolean filterStuStatus(List<Clas2Student> list) {
+        boolean flag = false;
+        Map<Integer, String> map = null;
+        if (list != null && !list.isEmpty()) {
+            map = new HashMap<Integer, String>();
+            for (Clas2Student cs : list) {
+                Integer stu_status = cs.getStu_status();
+                if (Consts.STUD_STATUS_1OLD_TO_PAY == stu_status || Consts.STUD_STATUS_5PAID == stu_status) {
+                    if (!map.containsKey(stu_status)) {
+                        map.put(stu_status, null);
+                    }
+                }
+            }
+        }
+        if (map != null && !map.isEmpty()) {
+            if (map.size() > 1) {
+                flag = true;
+            }
+        }
+        return flag;
+    }
+
+    /**
+     * &&校验&& 获取满足不同类型班级信息
+     *
+     * @param list  查询出满足科目  类目  同老师或者同学费的数据
+     * @param list1 要转班的数据
+     * @return
+     */
+    private List<Clas2Student> getStuTypeListInfo(List<Clas2Student> list, List<Clas2Student> list1) {
+        List<Clas2Student> list_ = null;
+        Map<String, List<Clas2Student>> map_ = null; // 用于过滤
+        /**
+         * 1:判断年龄段是否符合(只是提示) 2:要转的班级是否有可用名额(只是提示) 3:上课时间是否有冲突(只是提示)
+         * 4:要转的学员是否在该班级中存在（不允许转）
+         */
+        try {
+            map_ = new HashMap<String, List<Clas2Student>>();
+            list_ = new ArrayList<Clas2Student>();
+            for (Clas2Student cs : list) {
+                String errMessage = "";
+                Integer usable_num = cs.getUsable_num(); // 可用名额
+                Integer clas_id = cs.getClas_id();// 用来判断是否在班级存在
+
+                Date start = null;
+                Date end = null;
+                if (StringUtils.isNotBlank(cs.getStart_birthday()) && StringUtils.isNotBlank(cs.getEnd_birthday())) {
+                    start = CommonUtils.stringToDate(cs.getStart_birthday(), "yyyy-MM-dd");
+                    end = CommonUtils.stringToDate(cs.getEnd_birthday(), "yyyy-MM-dd");
+                }
+
+                // ①判断可用名额
+                if (usable_num != null && usable_num <= 0) {
+                    errMessage += "名额已满";
+                }
+                for (Clas2Student cs_ : list1) {
+                    // ②判断当前学员是否在此班级中
+                    if (clas_id != null && cs_.getClas_id() != null && clas_id.intValue() == cs_.getClas_id().intValue()) {
+                        if (errMessage.length() > 2) {
+                            errMessage += ",学员:" + cs_.getStud_name() + "在班级中存在";
+                        } else {
+                            errMessage += "学员:" + cs_.getStud_name() + "在班级中存在";
+                        }
+                        cs.setIsExist(1);
+                    }
+
+                    // ③判断年龄段是否符合
+                    if (StringUtils.isNotBlank(cs_.getUser_idnumber())) {
+                        Date birthdayDate = cs_.getBirthday();// 当前学员的生日
+                        if (birthdayDate != null) {
+                            if (start != null && end != null) {
+                                int flag1 = DateUtil.compareDate(birthdayDate, start);
+                                int flag2 = DateUtil.compareDate(birthdayDate, end);
+                                if (flag1 != 1 || flag2 != -1) {
+                                    if (errMessage.length() > 2) {
+                                        errMessage += ",学员:" + cs_.getStud_name() + "该学生生日不符合班级招收年龄段";
+                                    } else {
+                                        errMessage += "学员:" + cs_.getStud_name() + "该学生生日不符合班级招收年龄段";
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                // ④如果是多个学员，也是同一个班，可以把所有的学员看做一个整体，也就是只取一条中的上课时间和要转的班级进行比较，比较上课时间是否有冲突
+                Clas2Student cs1 = list1.get(0);
+                if (cs.getClass_week() != null && cs1.getClass_week() != null
+                        && cs.getClass_week() == cs1.getClass_week()) { // 如果是同一天才判断，否则不用判断时间
+                    if (StringUtils.isNotBlank(cs1.getClass_begin_time())
+                            && StringUtils.isNotBlank(cs1.getClass_over_time())
+                            && StringUtils.isNotBlank(cs.getClass_over_time())
+                            && StringUtils.isNotBlank(cs.getClass_begin_time())) {
+                        boolean flagTime1 = DateUtil.compTime(cs1.getClass_begin_time(), cs.getClass_over_time());
+                        boolean flagTime2 = DateUtil.compTime(cs1.getClass_over_time(), cs.getClass_begin_time());
+                        if (flagTime1 == false && flagTime2 == true) {
+                            if (errMessage.length() > 2) {
+                                errMessage += ",与选择的班级上课时间冲突";
+                            } else {
+                                errMessage += "与选择的班级上课时间冲突";
+                            }
+
+                        }
+                    }
+                }
+                cs.setErrorMessage(errMessage);
+
+                // 封装成前端想要的数据结构
+                if (!map_.containsKey(cs.getCam_id().toString())) {
+                    Clas2Student key = new Clas2Student();
+                    key.setCam_id(cs.getCam_id());
+                    key.setCam_name(cs.getCam_name());
+                    list_.add(key);
+                    key.getList().add(cs);
+                    map_.put(cs.getCam_id().toString(), list_);
+                } else {
+                    map_.get(cs.getCam_id().toString()).get(0).getList().add(cs);
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list_;
+    }
+
+
+    /*
+     * (non-Javadoc) 学员管理单个转班 ，以及批量转班时点击"确认转班"按钮时调用此接口
+     *
+     * @see sng.service.StudentService#saveMoveClassStuInfo(sng.pojo.ParamObj)
+     */
+    @Override
+    public Result saveMoveClassStuInfo(Teacher teacher,Integer org_id,String stud_id,Integer old_clas_id,Integer clas_id,String clas_name,String category_name,
+                                       String subject_name,String class_week,String class_begin_time,String class_over_time,
+                                       String class_unset_time) {
+        Result result = new Result();
+
+
+        // 1:更具传过来的学员IDS得到学员相关信息
+        ParamObj obj = new ParamObj();
+        obj.setOrg_id(org_id);
+        obj.setStud_id(stud_id);
+        obj.setClas_id(old_clas_id);
+        List<Clas2Student> list = studentDao.queryStuAndClassInfo(obj);
+
+        // 3:想学员班级关系表中插入新的数据
+        String flag = "单独转班";
+
+
+        for (Clas2Student cs : list) {
+
+            Integer stuStatus = cs.getStu_status();
+            Integer cam_id = cs.getCam_id();
+            Integer stuId = cs.getStud_id();
+
+
+            Integer cdId = null;
+            StudentClass ts = new StudentClass();
+            if (Consts.STUD_STATUS_1OLD_TO_PAY == stuStatus) {
+                //老生待续费  直接更新班级ID
+                ts.setStu_class_id(ts.getStu_class_id());
+                ts.setClasId(clas_id);
+                ts.setUpdateTime(new Date());
+                studentDao.updateStu2ClassInfo(ts);
+
+
+            } else if (Consts.STUD_STATUS_8REFUND_FINISHED == stuStatus) {
+                //缴费已完成 更新 和插入
+                cdId = cs.getCd_id();
+                ts.setStu_class_id(ts.getStu_class_id());
+                ts.setStuStatus(Consts.STUD_STATUS_8REFUND_FINISHED);
+                ts.setUpdateTime(new Date());
+                studentDao.updateStu2ClassInfo(ts);
+
+                //插入
+                ts.setStu_class_id(null);
+                ts.setStu_status(Consts.STUD_STATUS_5PAID);
+                ts.setStud_id(stuId);
+                ts.setCam_id(cam_id);
+                ts.setClas_id(clas_id);
+                ts.setQuota_hold(cs.getQuota_hold());
+                ts.setPay_expired_time(cs.getPay_expired_time());
+                ts.setIsPrint(cs.getIs_print());
+                ts.setInsert_time(new Date());
+                ts.setIs_del(0);
+                ts.setCreater(cs.getCreater());
+
+
+                studentClassDao.save(ts);
+
+
+            }
+
+
+            // 4：插入支付详情表
+            /**
+             * org_id:机构ID stud_id:学员ID clas_id:新班级ID cam_id:校区ID old_cd_id:老的支付详情表的ID,拟收学费
+             */
+            chargeDetailService.createChargeDetail(cs.getOrg_id(), stuId, clas_id, cam_id, cdId, null);
+            // 5:日志记录表
+            String content = "";
+            content += flag;
+            content += cs.getSubject_name() + "   (  " + cs.getClas_name() + "  )  " + Consts.WEEK_MAP.get(String.valueOf(cs.getClass_week()));
+
+            if (8 != cs.getClass_week()) {
+                content += cs.getClass_begin_time() + "-" + cs.getClass_over_time();
+            } else {
+                content += cs.getClass_unset_time();
+            }
+            content+=" 至("+clas_name+") "+Consts.WEEK_MAP.get(class_week);
+            if(StringUtils.isNotBlank(class_unset_time)){
+                content+=class_unset_time;
+            }else{
+                content+=class_begin_time+"-"+class_over_time;
+            }
+
+
+            /***
+             *  @Description: 添加操作日志
+             *  @param orgId 机构id
+             *  @param camId 校区id
+             *  @param targetId 班级id/学生id
+             *  @param targetType 操作对象类型EnumLog.TARGET_TYPE_***
+             *  @param targetName 【必须】班级名称/学生姓名
+             *  @param action 操作动作 EnumLog.****.getKey()
+             *  @param content 操作内容 EnumLog.****.getValue()
+             *  @param userType 用户身份Constant.IDENTITY_***
+             *  @param userTypeId 老师id/家长id
+             *  @param userTypeName 【必须】老师名称/家长名称
+             */
+            //调用日志接口
+            LoggerUtil.save(cs.getOrg_id(),
+                    cam_id,
+                    stuId,
+                    EnumLog.TARGET_TYPE_STU.getKey(),
+                    cs.getStud_name() + "(" + cs.getUser_idnumber() + ")",
+                    EnumLog.OPERATION_STU_TRANSFER.getKey(),
+                    content,
+                    Constant.IDENTITY_TEACHER,
+                    teacher.getTech_id(),
+                    teacher.getTech_name(),
+                    null);
+
+        }
+
+
+        result.setSuccess(true);
+        result.setMessage("转班成功");
+        return result;
+    }
+
+    /*
+     * (non-Javadoc) 学员管理--点击学员管理中每条学员信息后面操作的按钮"手机"
+     *
+     * @see sng.service.StudentService#queryStuManageTelInfo(sng.pojo.ParamObj)
+     */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    @Override
+    public Result queryStuManageTelInfo(ParamObj obj) {
+        Result result = new Result();
+        if (obj.getClas_id() == null || obj.getStud_id() == null || obj.getOrg_id() == null) {
+            result.setMessage("请求获取手机参数有误");
+            result.setSuccess(false);
+            return result;
+        }
+        List<Clas2Student> list = studentDao.queryStuManageTelInfo(obj);
+        List<String> idsList = new ArrayList<String>();
+
+        if (null != list && list.size() > 0) {
+            for (Clas2Student ct : list) {
+                idsList.add("{\"mob\":" + ct.getUser_mobile() + ",\"relation\":" + ct.getRelation() + "}");
+            }
+        }
+        result.setData(idsList);
+        result.setSuccess(true);
+        return result;
+    }
+
+    /*
+     * (non-Javadoc)学员管理---批量删除学员
+     *
+     * @see sng.service.StudentService#batchDelStuInfo(sng.pojo.ParamObj)
+     */
+    @Override
+    public Result batchDelStuInfo(String ids, Teacher tech) {
+        Result result = new Result();
+        if (StringUtils.isBlank(ids)) {
+            result.setMessage("学员管理---批量删除学员请求参数有误");
+            result.setSuccess(false);
+            return result;
+        }
+
+        List<StudentPojo> temp = this.getList(ids);
+        // 删除操作
+        if (temp != null && !temp.isEmpty()) {
+            // 先过滤出要删除的数据，和不要删除的数据
+            List<StudentPojo> delList = new ArrayList<>();
+            List<StudentPojo> dotDelList = new ArrayList<>();
+            filterDelStuDataList(delList, dotDelList, temp);
+
+            if (delList != null && !delList.isEmpty()) {
+                // 更新学员班级关系表
+                int count1 = studentDao.updateStuClassTabInfoByStuClasId(delList);
+                // 更新支付详情表
+
+                int count2 = chargeDetailService.deleteByCdIds(delList);
+                if (count1 > 0) {
+                    // 插入日志记录表
+                    /***
+                     *  @Description: 添加操作日志
+                     *  @param orgId 机构id
+                     *  @param camId 校区id
+                     *  @param targetId 班级id/学生id
+                     *  @param targetType 操作对象类型EnumLog.TARGET_TYPE_***
+                     *  @param targetName 【必须】班级名称/学生姓名
+                     *  @param action 操作动作 EnumLog.****.getKey()
+                     *  @param content 操作内容 EnumLog.****.getValue()
+                     *  @param userType 用户身份Constant.IDENTITY_***
+                     *  @param userTypeId 老师id/家长id
+                     *  @param userTypeName 【必须】老师名称/家长名称
+                     */
+                    for (StudentPojo pojo : delList) {
+
+                        Integer classWeek = pojo.getClass_week();
+                        String classWeekName = Consts.WEEK_MAP.get(classWeek.intValue());
+
+                        String time = pojo.getClass_unset_time();
+                        if (StringUtils.isBlank(time)) {
+                            time = pojo.getClass_start_date() + "-" + pojo.getClass_over_time();
+                        }
+                        LoggerUtil
+                                .save(pojo.getOrg_id(),
+                                        pojo.getCam_id(),
+                                        pojo.getStud_id(),
+                                        EnumLog.TARGET_TYPE_STU.getKey(),
+                                        pojo.getStud_name(),
+                                        EnumLog.OPERATION_STU_DEL.getKey(),
+                                        pojo.getSubject_name() + "  (" + pojo.getClas_name() + ")  "
+                                                + pojo.getTech_name() + "  " + classWeekName + "  " + time,
+                                        Constant.IDENTITY_TEACHER,
+                                        tech.getTech_id(),
+                                        tech.getTech_name(),
+                                        null);
+                    }
+
+                }
+                result.setMessage("学员管理删除学员成功");
+                result.setSuccess(true);
+            } else {
+                result.setMessage("学员管理--没有符合删除的学员");
+                result.setSuccess(false);
+            }
+
+
+        } else {
+            result.setMessage("学员管理--删除学员信息不存在");
+            result.setSuccess(false);
+        }
+        return result;
+    }
+
+    /**
+     * 过滤批量删除学员数据，如果学员类型为老生带学费、名额保留中、报名已作废才可以删除，否则其他不能删除
+     *
+     * @param list1
+     * @param list2
+     * @param list3
+     */
+    private void filterDelStuDataList(List<StudentPojo> list1, List<StudentPojo> list2, List<StudentPojo> list3) {
+        for (StudentPojo pojo : list3) {
+            Integer status = pojo.getStu_status();
+            if (status == Consts.STUD_STATUS_1OLD_TO_PAY || status == Consts.STUD_STATUS_2QUOTA_RESERVED
+                    || status == Consts.STUD_STATUS_4SIGNUP_VOIDED) {
+                list1.add(pojo);
+            } else {
+                list2.add(pojo);
+            }
+        }
+    }
+
+    @Override
+    public List<Integer> getidList(String term_id, String category_id,
+                                   String subject_id, String clas_type, String cam_id,
+                                   String stu_status, String pay_method, String is_print,
+                                   String keyword) {
+        return studentDao.getidList(term_id, category_id, subject_id, clas_type, cam_id, stu_status, pay_method, is_print, keyword);
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see sng.service.StudentService#getAllPageIds(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.Integer, java.lang.Integer)
+     */
+    @Override
+    public List getRefundApplyAllPageIds(String starttime, String endtime, String category_id, String subject_id,
+                                         String class_type, String cam_id, String term_id, String keywords
+    ) {
+        return studentDao.getRefundApplyAllPageIds(starttime, endtime, category_id, subject_id, class_type, cam_id, term_id, keywords);
+    }
+
+    @Override
+    public List getRecordIdsList(String starttime, String endtime, String category_id, String subject_id,
+                                 String class_type, String cam_id, String term_id, String pay_method, String txn_type, String keywords,
+                                 Integer currentPageNum, Integer pageSize) {
+
+        return studentDao.getRecordIdsList(starttime, endtime, category_id, subject_id, class_type, cam_id, term_id, pay_method, txn_type, keywords, currentPageNum, pageSize);
+    }
+
+}

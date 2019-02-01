@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>智慧统计</title>
+<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+<link rel="shortcut icon" href="/favicon.ico">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<!--ui包-->
+<link rel="stylesheet" href="../../../css/sm.css">
+<link rel="stylesheet" href="../../../css/layout.css">
+<link rel="stylesheet" href="../../../css/teacher.css">
+<style>
+    p{text-indent: 0}
+    .page{background-color:#fff}
+    .title{padding-left:.5rem;margin:0}
+    .campus{margin-left:.5rem}
+    .statistics{display: flex;flex-wrap:wrap;flex-direction:row;justify-content:center}
+    .statistics-item{width:50%;height:6rem;border:1px dotted #ccc;text-align: center;padding-top: 1rem;line-height: 1.2rem;font-size: .7rem;}
+    .statistics-item .icon{font-size:2rem;margin-bottom:.5rem}
+    /* .term-compared{padding-top:1rem} */
+    .select-old-term{text-align: right;font-size: .8rem;margin-right: 1rem;padding:1rem 0}
+    .term-info{display: flex;flex-direction: row;justify-content:center;text-align: center;line-height: 2rem;border-bottom: 1px dotted #ccc;padding: 1.5rem 0 .5rem 0}
+    .term-info div{width:30%}
+    .percents{font-size: 1.5rem}
+    .info-nums,.info-nums1{font-size: 1rem}
+    .term-echart{padding:1rem;border-bottom:1px dotted #ccc}
+    .term-type{margin-bottom:2rem}
+    .sel-term-type{color:#ccc}
+    .sel-term-type.active{color:#FF9800}
+    #type_item{border-color: #ccc;color: #666;border-radius: 3px;font-size: .7rem;padding-bottom: .2rem;margin-top: -.2rem}
+    .echart-map{overflow-x:scroll;overflow-y:hidden;display: -webkit-box;transform: translateZ(0);}
+    .echart-map ul{width:auto;display: flex;flex-flow: row nowrap;justify-content:flex-start;align-items:flex-end;display: none}
+    .echart-map ul li{font-size: .7rem;text-align: center;margin:0 .5rem}
+    [data-height]{position: relative;margin:.5rem auto;width:1.5rem;height:0;background: -webkit-linear-gradient(#0bcfac,#6ed587);background: linear-gradient(#0bcfac,#6ed587);box-shadow: 4px 2px 2px #ccc}
+    .category-echart [data-height]{background: -webkit-linear-gradient(#1b7eff, #42b8fe);background: -o-linear-gradient(#1b7eff, #42b8fe);background: -moz-linear-gradient(#1b7eff, #42b8fe);background: linear-gradient(#1b7eff, #42b8fe)}
+    .tech-top10{padding:1rem}
+    .tech-list{margin-top:1rem}
+    .tech-list li{line-height:2rem}
+    span.list-number{font-size:1.5rem;vertical-align: top;width: 1.5rem;display: inline-block;text-align: right}
+    span.tech-name{vertical-align: text-bottom;margin-left: 1rem}
+    .picker-item{font-size:.8rem}
+    p.obj-name{text-overflow: ellipsis;white-space: nowrap;overflow-x: hidden;font-size:.6rem}
+</style>
+</head>
+<body>
+    <div class="page-group">
+        <div class="page page-current">
+            <header class="bar bar-nav">
+                <div id="change_term" class="title pull-left" style="text-align: left">
+                    <span class="grade-info" ></span><span class="campus">全部校区</span>
+                    <input id="termName" type="text" value="" readonly style="display: none">
+                    <!-- <input id="gradeYear" type="text" value="2018年" readonly style="display: none">
+                    <input id="gradeLession" type="text" value="第一学期" readonly style="display: none"> -->
+                </div>
+                <i class="icon icon-menu" style="position: absolute;right:1rem;color:#fff"></i>
+            </header>
+            <div class="content">
+                <!-- 数量统计 -->
+                <div class="statistics">
+                    <div id="regist_nums" class="statistics-item" style="border-left:0">
+                        <i class="icon icon-friends"></i>
+                        <p class="item-nums">-</p>
+                        <p class="item-txt">注册人数</p>
+                    </div>
+                    <div id="student_nums" class="statistics-item" style="border-right:0">
+                        <i class="icon icon-friends"></i>
+                        <p class="item-nums">-</p>
+                        <p class="item-txt">学员人数</p>
+                    </div>
+                    <div id="class_nums" class="statistics-item" style="border-left:0">
+                        <i class="icon icon-friends"></i>
+                        <p class="item-nums">-</p>
+                        <p class="item-txt">开班总数</p>
+                    </div>
+                    <div id="tuition_nums" class="statistics-item" style="border-right:0">
+                        <i class="icon icon-friends"></i>
+                        <p class="item-nums">-</p>
+                        <p class="item-txt">学费总数</p>
+                    </div>
+                </div>
+                <!-- 学期对比  -->
+                <div class="term-compared">
+                    <div class="select-old-term">参考学期:2017年第二学期 > </div>
+                    <input id="termOldName" type="text" value="" readonly style="display: none">
+                    <div id="registration_rate" class="term-info">
+                        <div>
+                            <p class="percents">-</p>
+                            <p class="info-txt">总注册率</p>
+                        </div>
+                        <div>
+                            <p class="info-nums">-</p>
+                            <p class="info-txt">本期老生数</p>
+                        </div>
+                        <div>
+                            <p class="info-nums1">-</p>
+                            <p class="info-txt">上期学员数</p>
+                        </div>
+                    </div>
+                    <div id="wastage_rate" class="term-info">
+                        <div>
+                            <p class="percents">-</p>
+                            <p class="info-txt">总流失率</p>
+                        </div>
+                        <div>
+                            <p class="info-nums">-</p>
+                            <p class="info-txt">缴费总人数</p>
+                        </div>
+                        <div>
+                            <p class="info-nums1">-</p>
+                            <p class="info-txt">退费总人数</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- 图表部分 -->
+                <div class="term-echart">
+                    <div class="term-type clearfix">
+                        <div id="change_type" class="fl">
+                            <a id="category_selected" data-type="category" class="sel-term-type active" href="javascript:;">类目</a>
+                            <a id="subject_selected" data-type="subject" class="sel-term-type" href="javascript:;">科目</a>
+                        </div>
+                        <select id="type_item" class="select fr">
+                            <option value="1">学费数</option>
+                            <option value="2">班级数</option>
+                            <option value="3">学员数</option>
+                            <option value="4">注册率</option>
+                            <option value="5">流失率</option>
+                        </select>
+                    </div>
+                    <div class="echart-map">
+                        <ul class="category-echart">
+                            
+                        </ul>
+                        <ul class="subject-echart">
+                            
+                        </ul>
+
+                    </div>
+                </div>
+                <!-- 教师top10 -->
+                <div id="ranking" class="tech-top10">
+                    <div class="list-title clearfix">
+                        <div class="fl">教师榜单 Top10</div>
+                        <a id="look_all" class="fr" href="javascript:;">全部 > </a>
+                    </div>
+                    <ul class="tech-list">
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</body>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script>
+$(function(){
+    var baseUser = JSON.parse(sessionStorage.baseUser);
+    var parameter = JSON.stringify({//通用请求参数
+        token: baseUser.token,
+        udid: baseUser.udid,
+        version: 3,
+        identity: 1,
+        org_id: baseUser.orguser.org_id
+    })
+    var now_cam_id = sessionStorage.cam_ids,//当前校区id
+        now_term_id,//当前学期
+        now_term_id_old;//对比学期
+
+    //先获取学期列表
+    var term_id_arr = [],term_name_arr = [],term_param = JSON.parse(parameter);
+    term_param["needCount"] = false;
+    getData(domainName + '/baseSet/termManage/queryTermListInfo.json',term_param,function(res){
+        if(res.code == 200 && res.success == true){
+            for(var i=0;i<res.data.data.length;i++){
+                var d = res.data.data[i];
+                term_id_arr.push(d.term_id);
+                term_name_arr.push("("+ d.cur_year +")" + d.term_name);
+            }
+        }else{
+            $.alert(res.message,function(){
+                if(res.message.indexOf("请登")!=-1){
+                    window.location = '/newsng/weixin/html/teacher/login/login_byPSW.html';
+                }
+            });
+            
+        }
+    },"GET",false)
+
+    //先获取校区列表
+    var cam_id_arr = [sessionStorage.cam_ids],cam_name_arr = ["全部校区"];
+    var cam_param = JSON.parse(parameter);
+    cam_param["isNeedCount"] = false;
+    getData(domainName + '/baseSet/campusManage/queryCampusListInfo.json',cam_param,function(res){
+        if(res.code == 200 && res.success == true){
+            var cam_ids = sessionStorage.cam_ids;
+            for(var i=0;i<res.data.data.length;i++){
+                var d = res.data.data[i];
+                if(cam_ids == 'all'){
+                    cam_id_arr.push(d.cam_id);
+                    cam_name_arr.push(d.cam_name);
+                }else{
+                    if(cam_ids.indexOf(d.cam_id+"")>=0){
+                        cam_id_arr.push(d.cam_id);
+                        cam_name_arr.push(d.cam_name);
+                    };
+                }
+            }
+        }else{
+            $.alert(res.message);
+        }
+    },"GET",false)
+
+    getData(domainName + '/baseSet/termManage/queryTermAndOldTerminfo.json',JSON.parse(parameter),function(res){//获取最近的学期和上一个学期
+        if(res.code == 200 && res.success == true){
+            var this_term = res.data[0],last_term = res.data[1];
+            now_term_id = this_term.term_id;
+            now_term_id_old = last_term.term_id;
+            $(".grade-info").text("("+this_term.cur_year+")"+this_term.term_name);
+            $(".select-old-term").text("参考学期：("+last_term.cur_year+")"+last_term.term_name+" >");
+            getAllDatas(JSON.parse(parameter));//获取其他模块数据
+        }else{
+            $.alert(res.message);
+        }
+    },"GET",false)
+
+    $(".icon-menu").on("click",function(e){//切换当前学期按钮
+        var $this = $(this);
+        if($this.hasClass("picker-on")){
+            return false;
+        }
+        $this.addClass("picker-on");
+        $("#termName").picker({
+            toolbarTemplate: '<header class="bar bar-nav">\
+            <button  class="button button-link pull-left close-picker">取消</button>\
+            <button id="term_cam_change" class="button button-link pull-right close-picker">确定</button>\
+            <h1 class="title">请选择学期和校区</h1>\
+            </header>',
+            cols: [
+                {
+                    textAlign: 'center',
+                    values: term_id_arr,
+                    displayValues: term_name_arr
+                },
+                {
+                    textAlign: 'center',
+                    values: cam_id_arr,
+                    displayValues: cam_name_arr
+                }
+            ],
+            onOpen:function(picker){
+                $("#term_cam_change").on("click",function() {
+                    $(".grade-info").text(picker.cols[0].displayValue);
+                    $(".campus").text(picker.cols[1].displayValue);
+                    now_cam_id = picker.cols[1].value;
+                    now_term_id = picker.cols[0].value;
+                    //按选择的学期校区更新数据
+                    getAllDatas(JSON.parse(parameter));
+                })
+            },
+            onClose:function(){          
+                $this.removeClass("picker-on");
+            }
+        })
+        e.stopPropagation();
+        $("#termName").picker("open");
+    })
+
+    $(".select-old-term").on("click",function(e){//切换对比的学期
+        var $this = $(this);
+        if($this.hasClass("picker-on")){
+            return false;
+        }
+        $this.addClass("picker-on");
+        $("#termOldName").picker({
+            toolbarTemplate: '<header class="bar bar-nav">\
+            <button  class="button button-link pull-left close-picker">取消</button>\
+            <button id="term_old_change" class="button button-link pull-right close-picker">确定</button>\
+            <h1 class="title">请选择学期</h1>\
+            </header>',
+            cols: [
+                {
+                    textAlign: 'center',
+                    values: term_id_arr,
+                    displayValues: term_name_arr
+                }
+            ],
+            onOpen:function(picker){
+                $("#term_old_change").on("click",function() {
+                    now_term_id_old = picker.cols[0].value;
+                    getCompareData(JSON.parse(parameter));
+                })
+            },
+            onClose:function(picker){          
+                $this.removeClass("picker-on");
+                $this.text("参考学期：" + picker.cols[0].displayValue + " >");
+            }
+        })
+        e.stopPropagation();
+        $("#termOldName").picker("open");
+    })
+
+    function getEcharts(param){//动态生成图表
+    console.log(JSON.parse(parameter));
+        $(".echart-map ul").empty();
+        var e_type = 'category',echart_type = $("#type_item").val();
+        if($("#change_type").find(".active").attr("id")!="category_selected"){
+            e_type = 'subject';
+        }
+        param["cam_ids"] = now_cam_id;
+        param["term_id"] = now_term_id;
+        param["type"] = e_type;
+        param["echartType"] = echart_type;
+        param["old_term_id"] = now_term_id_old;
+        getData(domainName + '/wechat/portal/echart/categoryAndSubjectEchart.json',param,function(res){
+            if(res.code == 200 && res.success == true){
+                var d = res.data;
+                var html = '';
+                if(d !== null && d.length > 0){
+                    for(var i=0;i<d.length;i++){
+                        var tol_nums = '',height = 0;
+                        if(echart_type == 1){
+                            if(d[i].moneyCount !== '' && d[i].moneyCount !== null){
+                                height = d[i].moneyCount;
+                                tol_nums = d[i].moneyCount;
+                            }else{
+                                height = 0;
+                                tol_nums = 0;
+                            }
+                        }else if(echart_type == 2){
+                            if(d[i].clasCount !== '' && d[i].clasCount !== null){
+                                height = d[i].clasCount;
+                                tol_nums = d[i].clasCount;
+                            }else{
+                                height = 0;
+                                tol_nums = 0;
+                            }
+                        }else if(echart_type == 3){
+                            if(d[i].stuCount !== '' && d[i].stuCount !== null){
+                                height = d[i].stuCount;
+                                tol_nums = d[i].stuCount
+                            }else{
+                                height = 0;
+                                tol_nums = 0;
+                            }
+                        }else if(echart_type == 4 || echart_type == 5){
+                            if(d[i].stuCount !== '' && d[i].stuCount !== null){
+                                height = d[i].stuCount;
+                                tol_nums = d[i].stuCount + '%';
+                            }else{
+                                height = 0;
+                                tol_nums = 0;
+                            }
+                        }
+                        // html += `<li data-echart-type="${echart_type}">
+                        //     <p class="tol-nums">${tol_nums}</p>
+                        //     <div data-height="${height}"></div>
+                        //     <p class="obj-name">${d[i].subject_name}</p>
+                        //     </li>`   
+                        html += "<li data-echart-type=\"".concat(echart_type, "\">\n                            <p class=\"tol-nums\">").concat(tol_nums, "</p>\n                            <div data-height=\"").concat(height, "\"></div>\n                            <p class=\"obj-name\">").concat(d[i].subject_name, "</p>\n                            </li>");
+                    }
+                    if(e_type == "subject"){
+                        $(".echart-map .subject-echart").html(html);
+                    }else{
+                        $(".echart-map .category-echart").html(html);
+                    }
+                    //根据此数据大小决定柱状图高度 data-height 属性
+                    var avg = 0;
+                    for(var l=0;l<$("[data-height]").length;l++){
+                        avg += +$($("[data-height]")[l]).attr("data-height");
+                    }
+                    avg = avg/$("[data-height]").length;
+                    $("[data-height]").each(function(i,e){
+                        var h = +$(e).attr("data-height")/avg
+                        $(e).css("height",h+ "rem");
+                    })
+                    //默认显示学费数 
+                    $("[data-echart-type='1']").show();
+                    $(".category-echart").css("display","flex");
+                }
+            }else{
+                $.alert(res.message);
+            }
+        })
+    }
+    
+    function getCompareData(param){//获取对比数据
+        param["termId1"] = now_term_id;
+        param["camId1"] = now_cam_id;
+        param["termId2"] = now_term_id_old;
+        param["camId2"] = now_cam_id;
+        getData(domainName + '/wechat/portal/echart/clasAndStuComparison.htm',param,function(res){
+            if(res.code == 200 && res.success == true){
+                var d = res.data;
+                $("#registration_rate").find(".percents").text(d.payPercent);//总注册率
+                $("#registration_rate").find(".info-nums").text(d.curCount);//本期老生数
+                $("#registration_rate").find(".info-nums1").text(d.frontCount);//上期学员数
+                $("#wastage_rate").find(".percents").text(d.leavePercent);//流失率
+                $("#wastage_rate").find(".info-nums").text(d.curPayCount);//缴费总人数
+                $("#wastage_rate").find(".info-nums1").text(d.fronZstCount);//退费总人数
+            }else{
+                $.alert(res.message);
+            }
+        })
+    }
+
+    function getAllDatas(param){//获取4个统计数字
+        param["termId"] = now_term_id;
+        param["camId"] = now_cam_id;
+        getData(domainName + '/wechat/portal/echart/clasAndStu.htm',param,function(res){
+            if(res.code == 200 && res.success == true){
+                $("#regist_nums").find(".item-nums").text(res.data.registerCount);
+                $("#student_nums").find(".item-nums").text(res.data.stuCount);
+                $("#class_nums").find(".item-nums").text(res.data.clasCount);
+                $("#tuition_nums").find(".item-nums").text(res.data.zsjsMoney);
+            }else{
+                $.alert(res.message);
+            }
+        })
+
+        getCompareData(JSON.parse(parameter));//对比数据
+
+        getEcharts(JSON.parse(parameter));//加载图表
+
+        getData(domainName + '/wechat/portal/echart/rtTop10.json',param,function(res){//top10
+            if(res.code == 200 && res.success == true){
+                var htmlTop = '';
+                if(res.data.length>0){
+                    for(var k=0;k<res.data.length;k++){
+                        var d = res.data[k]
+                        // htmlTop += `<li data-order="${k+1}" class="clearfix">
+                        //                 <div class="tech-info fl"><span class="list-number">${k+1}</span> <span class="tech-name">${d.techName}</span> </div>
+                        //                 <div class="tech-tuition fr">${d.totalMoney}</div>
+                        //             </li>`
+                        htmlTop += "<li data-order=\"".concat(k + 1, "\" class=\"clearfix\">\n                                            <div class=\"tech-info fl\"><span class=\"list-number\">").concat(k + 1, "</span> <span class=\"tech-name\">").concat(d.techName, "</span> </div>\n                                            <div class=\"tech-tuition fr\">").concat(d.totalMoney, "</div>\n                                        </li>");
+                    }
+                    $("#ranking .tech-list").html(htmlTop);
+                }
+            }else{
+                $.alert(res.message);
+            }
+        },"GET",false)
+    }
+
+    $("#change_type a").on("click",function(e){//切换类目科目图表
+        if($(e.target).hasClass("active")){
+            return false;
+        }
+        $("#change_type a").removeClass("active");
+        if(e.target == $("#change_type a")[0]){
+            $(e.target).addClass("active");
+            getEcharts(JSON.parse(parameter));
+            $(".category-echart").css("display","flex");
+            $(".subject-echart").hide();
+        }else{
+            $(e.target).addClass("active");
+            getEcharts(JSON.parse(parameter));
+            $(".subject-echart").css("display","flex");
+            $(".category-echart").hide();
+
+        }
+    })
+    
+    $("#type_item").on("change",function(){//切换图标数据类型  1:学费数 2:班级数 3:学员数 4:注册率 5:流失率
+        getEcharts(JSON.parse(parameter));
+    })
+
+    $("#registration_rate").on("click",function(){//注册率详情
+        location.href="registrationRate.html?cur_term_id="+now_term_id+"&pre_term_id="+now_term_id_old+"&cur_cam_id="+now_cam_id;
+    })
+    
+    $("#wastage_rate").on("click",function(){//流失率详情
+        location.href="wastageRate.html?term_id="+now_term_id+"&cam_id="+now_cam_id;
+    })
+    
+    $("#look_all").on("click",function(){//教师详情
+        location.href="ranking.html?cam_id="+now_cam_id+"&term_id="+now_term_id;
+    })
+})
+</script>
+</html>

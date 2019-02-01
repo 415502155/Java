@@ -1,0 +1,114 @@
+<!--用户管理-->
+<style>
+    .tablesorter-blue tbody td.stu_status {color: #e89090;}
+</style>
+
+<div class="content-wrap" id="sub_loadBox"  >
+
+    <div class="bod-con-fer-form" style="padding-top: 30px">
+        <table align="center" class="tab tablesorter-blue">
+            <thead>
+            <tr>
+                <th>序号</th>
+                <th>教师姓名</th>
+                <th>手机号码</th>
+                <th>角色名称</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            <!-- <tr>
+                <td>2</td>
+                <td>林夕</td>
+                <td>13820073131</td>
+                <td>保山道财务</td>
+                <td class="operation">
+                    <span  class="toDetail">编辑<em></em></span>
+                    <span  class="toDetail">删除<em></em></span>
+                </td>
+            </tr> -->
+            </tbody>
+        </table>
+    </div>
+    <!-- 分页 -->
+    <div class="gui-page-wapper" style="margin:20px 0;line-height: 28px;" id="pageContent">
+        <ul class="gui-page" id="limitUi">
+            <span class="gui-page-total">共<span id="allPage">0</span>页 <span id="allTotal">000</span>数据</span>
+            <span id="creatPage">
+            </span>
+        </ul>
+        <span class="gui-page-options-elevator" style="padding-left: 10px;">
+                每页条数：
+                <select id="limit" class="">
+                     <option value="20">20</option>
+                     <option value="50">50</option>
+                     <option value="100">100</option>
+                </select>
+        </span>
+        <span class="gui-page-options">
+            <span class="gui-page-options-elevator">跳至第
+            <input id="page" class="gui-input" data-onlyNumber="true">
+             页</span>
+           </span>
+    </div>
+    <!--分页-->
+
+</div>
+<script>
+    $(function () {
+        showHtml($("#limit").val(),1);
+        //列表
+        function showHtml(limit,page) {
+            //获取教师列表
+            getData(loginMain + '/esb/api/tech/getTechRolesOforg',{
+                org_id:option.org_id,
+                token:option.token,
+                udid:option.udid,
+                version:0
+            },function(res){
+                if(res.code == 200 && res.success == true){
+                    console.log(res)
+                    var d = res.data,html = '';
+                    var pageCount = Math.ceil(d.length/(limit));
+                    //生成页数(总条数，总页数，)
+                    $("#creatPage").createPage({
+                        pageCount:pageCount,
+                        current:page,
+                        url:"",
+                        backFn:function(page){
+                            var limit=$("#limit").val();
+                            showHtml(limit,page)
+                        }
+                    });
+
+                    //总页数
+                    $("#allPage").text(pageCount);
+                    //总条数
+                    $("#allTotal").text(d.length);
+
+                    for(var i=(page-1)*limit;i<page*limit;i++){
+                        if(i<d.length){
+                            // html += `<tr data-id="${d[i].user_id}">
+                            //             <td>${i+1}</td>
+                            //             <td>${d[i].tech_name}</td>
+                            //             <td>${d[i].user_mobile}</td>
+                            //             <td>${d[i].role_name}</td>
+                            //             <td class="operation">
+                            //                 <span  class="toDetail">编辑<em></em></span>
+                            //             </td>
+                            //         </tr>`
+                            html += "<tr data-id=\"".concat(d[i].user_id, "\">\n                                        <td>").concat(i + 1, "</td>\n                                        <td>").concat(d[i].tech_name, "</td>\n                                        <td>").concat(d[i].user_mobile, "</td>\n                                        <td>").concat(d[i].role_name, "</td>\n                                        <td class=\"operation\">\n                                            <span  class=\"toDetail\">\u7F16\u8F91<em></em></span>\n                                        </td>\n                                    </tr>");
+                        }
+                    }
+                    $("#sub_loadBox tbody").html(html);
+                }
+            })
+        };
+
+
+        $("#sub_loadBox").on("click",".toDetail",function () {
+            window.location.href="#g11?id="+$(this).parents("tr").attr("data-id");
+        })
+    })
+</script>

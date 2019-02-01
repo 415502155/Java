@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>报名结果</title>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <!--ui包-->
+   <link rel="stylesheet" href="../../../css/sm.css">
+   <link rel="stylesheet" href="../../../css/layout.css">t.css">
+    <style>
+    	.list-block ul {border-bottom:none;}
+    	li {border-bottom:1px solid #e7e7e7}
+    	.list-block .item-inner {border:none}
+			#tipTitle{padding-top:1rem}
+			#allClass .item-title{font-size:.7rem}
+    </style>
+  </head>
+  <body>
+    <div class="page-group">
+        <div class="page page-current content native-scroll"> 
+					<div class="weui-msg">
+				        <div class="weui-msg__icon-area" id="tipIcon">
+				        	<div class="info-icon">
+				        	 <i class="icon icon-check"></i>
+				            </div>
+				        </div>
+				        <div class="weui-msg__text-area">
+				            <h2 class="weui-msg__title" id="tipTitle"></h2>
+				            <span class="weui-msg__desc" id="tipText"></span>
+				        </div>
+				        <!--报名列表-->
+				        <div class="list-block" id="allClass">
+						      <ul>
+						        <li class="item-content">
+						            <div class="item-inner">
+						              <div class="item-title">儿童画（儿162-1-2B）<span>(已满)</span></div>
+						              <div class="item-after failedTip_text">失败</div>
+						            </div>    
+						        </li>
+						        <li class="item-content">
+						            <div class="item-inner">
+						              <div class="item-title">国学（儿162-1-2B）</div>
+						              <div class="item-after successTip_text">成功</div>
+						            </div>
+						        </li>
+						      </ul>
+						   </div>
+						   <!--报名列表 ENd-->
+				        <div class="content-block">
+				        	<a href="#" class="button button-fill" id="toPay">立即支付<span></span></a>
+				      		<a href="javascript:;" class="button button-light external" id="toBind" style="margin-top:1rem">返回列表</a>
+				        </div>
+				    </div>
+				</div>
+    </div>
+  </body>
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script type="text/javascript">
+$(function(){
+		$("#toBind").on("click",function(){
+			$.router.back();
+			$.router.back();
+		})
+    var res=JSON.parse(sessionStorage.signResult);
+    var html="";
+		var n=0; //报名成功个数
+    for(var i=res.length-1;i>=0;i--){
+    	var result=res[i];
+    	//var successTip=result.msg;
+    	if(result.applyResult==1){
+    		n+=1;
+    	    html+='<li class="item-content">'+
+		            '<div class="item-inner">'+
+		              '<div class="item-title">'+result.subjectName+'（'+result.className+'）</div>'+
+		              '<div class="item-after successTip_text">成功</div>'+
+		            '</div>    '+
+		       ' </li>';
+    	}else{
+    		html+='<li class="item-content">'+
+			            '<div class="item-inner">'+
+			            '<div class="item-title">'+result.subjectName+'('+result.className+')<span>('+result.message+')</span></div>'+
+			              '<div class="item-after failedTip_text">失败</div>'+
+			            '</div>'+
+			       ' </li>'
+			}
+		}
+		if(n>0){
+			var iconHtml='<div class="info-icon"><i class="icon icon-check"></i></div>';
+			var tipText="请在规定时间内完成支付，否则名额将自动作废";
+			$("#tipTitle").text("报名成功");
+			var sysTime=  res[0].serverTime;
+			// var endTime= new Date(GetDateDiff(res.createTime)).getTime()+res.expirationDuration*60*60*1000;
+			var endTime = res[0].payExpiredTime;
+			var lastTime = endTime-sysTime;
+			if(sessionStorage.paytime==undefined){
+				/* $("#toPay").attr("data-countdown",endTime-sysTime);
+				$("#toPay").find("span").html("("+format(endTime-sysTime)+")自动作废"); */
+				if(lastTime<=0){
+					$("#toPay").html("名额作废").addClass("disabled").removeClass("button-fill");
+				}else{
+					$("#toPay").attr("data-countdown",lastTime);
+						$("#toPay").find("span").html("("+format(lastTime)+")自动作废");	
+				}
+			}else{
+				if(sessionStorage.paytime<=0){
+					$("#toPay").html("名额作废").addClass("disabled").removeClass("button-fill");;
+				}else{
+					$("#toPay").attr("data-countdown",sessionStorage.paytime);
+						$("#toPay").find("span").html("("+format(sessionStorage.paytime)+")自动作废");	
+				}
+			}		
+		//更新倒计时
+			var dd=setInterval(function(){
+					var timeM=parseInt($("#toPay").attr("data-countdown"))-1000;
+					if(timeM>=0){
+						sessionStorage.paytime=timeM;
+						$("#toPay").attr("data-countdown",timeM);
+							if(timeM==0){
+							window.clearInterval(timeM);
+								$("#toPay").html("名额作废").addClass("disabled").removeClass("button-fill");
+								
+							}else{
+								$("#toPay").find("span").html("("+format(timeM)+")自动作废");
+							}
+					}
+					
+			}, 1000);		
+		}else{
+			var iconHtml='<div class="info-icon failed_color"><i class="failed"></i></div>';
+			var tipText="您所选择的班级已满，请持关注名额变化";
+			$("#tipTitle").text("报名失败");
+			$("#toPay").remove();
+		}
+		$("#tipIcon").html(iconHtml);//成功标识
+		$("#tipText").html(tipText);//成功提示文字
+		$("#allClass").html(html);  
+    $("#toPay").click(function(){
+    	if($(this).hasClass("disabled")){
+    		return false;
+    	}else{
+    		sessionStorage.removeItem('paytime');
+    		window.location="../pay/index.html";
+    	}
+    })
+});    
+function format(mss){
+    var hours = parseInt(mss / (1000 * 60 * 60 ));
+    var minutes = parseInt((mss % (1000 * 60 * 60)) / (1000 * 60));
+    var seconds = Math.floor((mss % (1000 * 60)) / 1000);
+    return  hours<0?"0":hours+ "小时" + (minutes<0?"0":minutes) + "分钟" + (seconds<0?"0":seconds) + "秒"
+}
+</script>
+ 

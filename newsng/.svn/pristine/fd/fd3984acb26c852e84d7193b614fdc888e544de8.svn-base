@@ -1,0 +1,144 @@
+<!--用户管理-->
+<style>
+    .tablesorter-blue tbody td.stu_status {color: #e89090;}
+</style>
+
+<div class="content-wrap" id="sub_loadBox"  >
+
+    <div class="bod-con-fer-form" style="padding-top: 30px">
+        <table id="user_list" align="center" class="tab tablesorter-blue">
+            <thead>
+            <tr>
+                <th>序号</th>
+                <th>角色名称</th>
+                <th>校区名称</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- <tr>
+                <td>1</td>
+                <td>总财务</td>
+                <td>东马路</td>
+                <td class="operation">
+                    <span  class="toDetail">编辑<em></em></span>
+                    <span  class="toDetail">删除<em></em></span>
+                </td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>保山道财务</td>
+                <td>保山道，炫联，东马路</td>
+                <td class="operation">
+                    <span  class="toDetail">编辑<em></em></span>
+                    <span  class="toDetail">删除<em></em></span>
+                </td>
+            </tr> -->
+            </tbody>
+        </table>
+    </div>
+    <!-- 分页 -->
+    <!-- <div class="gui-page-wapper" style="margin:20px 0;line-height: 28px;">
+        <ul class="gui-page" id="limitUi">
+            <span class="gui-page-total">共151页 15065数据</span>
+            <li title="上一页" class="gui-page-prev gui-page-disabled">
+                <a><i class="fa fa-angle-left"></i></a>
+            </li>
+            <li title="1" class="gui-page-item gui-page-item-active">
+                <a>1</a>
+            </li>
+            <li title="2" class="gui-page-item">
+                <a>2</a>
+            </li>
+            <li title="3" class="gui-page-item">
+                <a>3</a>
+            </li>
+            <li title="向后 5 页" class="gui-page-item-jump-next">
+                <a><i class="fa fa-ellipsis-h"></i></a>
+            </li>
+            <li title="10" class="gui-page-item">
+                <a>10</a>
+            </li>
+            <li title="下一页" class="gui-page-next">
+                <a>
+                </a><a><i class="fa fa-angle-right"></i></a>
+            </li>
+        </ul>
+
+        <span class="gui-page-options-elevator" style="padding-left: 10px;">
+                每页条数：
+                <select id="limit" class="">
+                     <option value="20">20</option>
+                     <option value="50">50</option>
+                     <option value="100">100</option>
+                </select>
+            </span>
+
+        <span class="gui-page-options">
+            <span class="gui-page-options-elevator">跳至第
+            <input id="page" class="gui-input">
+             页</span>
+           </span>
+    </div> -->
+    <!--分页-->
+</div>
+<script>
+    $(function () {
+        var cam_obj = {};
+        //先获取校区
+        getData(domain + '/baseSet/campusManage/queryCampusListInfo.json',{
+            token:option.token,
+            org_id:option.org_id,
+            udid:option.udid,
+            version:0,
+            needCount:false
+        },function(result){
+            if(result.code == 200 && result.success == true){
+                var d = result.data.data;
+                for(var i=0;i<d.length;i++){
+                    cam_obj[d[i].cam_id] = d[i].cam_name;
+                }
+            }
+        },"GET",false);
+
+        //再获取角色
+        getData(loginMain + '/esb/api/role/getSngRoles',{
+            org_id:option.org_id
+        },function(res){
+            if(res.code == 200 && res.success == true){
+                var d = res.data,
+                    tableHtml = '';
+                if(d.length>0){
+                    for(var i=0;i<d.length;i++){
+                            var cams = d[i].cam_ids.split(","),
+                                cam_names = [];
+                                for(var j=0;j<cams.length;j++){
+                                    cam_names.push(cam_obj[cams[j]]);
+                                }
+                            // tableHtml += `<tr data-id=${d[i].role_id}>
+                            //                 <td>${i+1}</td>
+                            //                 <td>${d[i].role_name}</td>
+                            //                 <td>${cam_names.join(",")}</td>
+                            //                 <td class="operation">
+                            //                     <span  class="toDetail">编辑<em></em></span>
+                            //                 </td>
+                            //             </tr>`
+                            tableHtml += "<tr data-id=".concat(d[i].role_id, ">\n                                            <td>").concat(i + 1, "</td>\n                                            <td>").concat(d[i].role_name, "</td>\n                                            <td>").concat(cam_names.join(","), "</td>\n                                            <td class=\"operation\">\n                                                <span  class=\"toDetail\">\u7F16\u8F91<em></em></span>\n                                            </td>\n                                        </tr>");
+                    }
+                    $("#user_list").append(tableHtml);
+                }else{
+                    $("#user_list").append('<div style="padding:30px;text-align:center">暂无数据</div>');
+                }
+
+            }else{
+                myAlert(res.message,2);
+            }
+            console.log(res);
+        })
+
+        $("#user_list").off("click").on("click",".toDetail",function () {
+            var role_id = $(this).parents("tr").attr("data-id");
+            window.location.href="#g21?role_id="+role_id;
+        })
+    })
+</script>

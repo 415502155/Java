@@ -1,0 +1,788 @@
+<!--创建班级-->
+<style>
+    .form-label { line-height: 32px}
+    .form-label input { vertical-align: middle}
+    input[type=radio]:focus {outline: none;}
+    .secondlebel { padding-left: 20px;}
+
+</style>
+<div class="content-wrap" id="sub_loadBox"  >
+
+    <form class="gui-form gui-form-label-right" id="add-form" novalidate="novalidate">
+
+        <div class="gui-form-item"><label class="gui-form-item-label">选择学期</label>
+            <div class="gui-form-item-content">
+                <select class="gui-input" name="termId"  id="allTerm">
+                    <option value="">选择学期</option>
+                </select>
+            </div>
+        </div>
+        <div class="line"></div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">班级名称</label>
+            <div class="gui-form-item-content">
+                <input type="text" name="className"  id="className" placeholder="请输入班级名称" class="gui-input" maxlength="20" style="width: 240px">
+            </div>
+        </div>
+
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">班级类型</label>
+            <div class="gui-form-item-content">
+                <select class="gui-input" name="classType" id="classType">
+                    <option value="">班级类型</option>
+                </select>
+            </div>
+        </div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">所属科目</label>
+            <div class="gui-form-item-content">
+                <select class="gui-input"  id="allCategory" name="categoryId">
+                    <option value="">选择类目</option>
+                </select>
+                <select class="gui-input" disabled id="subject" name="subjectId">
+                    <option value="">选择科目</option>
+                </select>
+            </div>
+        </div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">所在校区</label>
+            <div class="gui-form-item-content">
+                <select class="gui-input"  name="camId" id="allCampus"></select>
+            </div>
+        </div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">教室</label>
+            <div class="gui-form-item-content">
+                    <select class="gui-input"  id="allClassrooms" name="classroomId" disabled >
+                        <option value="">选择教室</option>
+                    </select>
+            </div>
+        </div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">班容量</label>
+            <div class="gui-form-item-content">
+                <input type="text" class="gui-input" id="size" name="size" data-onlyNumber="true">
+            </div>
+        </div>
+
+        <div class="line"></div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">年龄范围</label>
+            <div class="gui-form-item-content">
+                <input type="text" name="ageRange" id="ageRange" placeholder="请输入年龄范围如5-8" class="gui-input" maxlength="20" style="width: 160px;margin-right: 10px">岁
+            </div>
+        </div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">起始生日</label>
+            <div class="gui-form-item-content">
+                <input type="text" name="startBirthday" id="startBirthday" placeholder="选择日期" data-date="YYYY-MM-DD" readonly class="gui-input" >
+            </div>
+        </div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">结束生日</label>
+            <div class="gui-form-item-content">
+                <input type="text" name="endBirthday" id="endBirthday" placeholder="选择日期" data-date="YYYY-MM-DD" readonly class="gui-input" >
+            </div>
+        </div>
+
+        <div class="line"></div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">总课时数</label>
+            <div class="gui-form-item-content">
+                <input type="text" name="totalHours" id="totalHours" placeholder="请输入正整数" class="gui-input" maxlength="20" data-onlyNumber="true">
+            </div>
+        </div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">开课日期</label>
+            <div class="gui-form-item-content">
+                <input type="text" name="classStartDate" id="classStartDate" placeholder="选择日期" data-date="YYYY-MM-DD" readonly class="gui-input" >
+            </div>
+        </div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">上课时间</label>
+            <div class="gui-form-item-content">
+                <div>
+                    <label class="form-label" style="color:#555555">
+                     <input type="radio" checked name="timeType" id="timeNormal" class="gui-input">每周一次课</label>
+                    <select class="gui-input" style="width: 100px" id="allTime" name="classWeek">
+                        <option value="">请选择</option>
+                    </select>
+                    <span class="secondlebel">上课时间：</span><input type="text" name="classBeginTime" data-date="hh:mm:ss"  id="classBeginTime" placeholder="上课时间" class="gui-input" maxlength="20" >
+                    <span class="secondlebel">下课时间：</span><input type="text" name="classOverTime" data-date="hh:mm:ss"  id="classOverTime" placeholder="下课时间" class="gui-input" maxlength="20" >
+                </div>
+
+                <div style="padding-top: 10px"><label class="form-label"><input type="radio" name="timeType" id="timeUnnormal" class="gui-input">不固定时间</label>
+                    <input type="text" name="classUnsetTime" id="classUnsetTime" placeholder="请输入上课时间" disabled class="gui-input" maxlength="100"  style="width:360px">
+                </div>
+            </div>
+
+        </div>
+        <div class="line"></div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">学费标准</label>
+            <div class="gui-form-item-content">
+                <input type="text" name="tuitionFees" id="tuitionFees" placeholder="请输入学费" class="gui-input" maxlength="20">元<!--data-onlyNumber="true"-->
+            </div>
+        </div>
+        <div class="gui-form-item"><label class="gui-form-item-label">选择教师</label>
+            <div class="gui-form-item-content">
+                <div id="changedTeachers" style="line-height: 34px;color:#2d8cf0; float: left">
+                    <span>选择教师</span>
+                    <input type="text" name="techIds" style="width: 1px;overflow: hidden;border:none;background:none;box-shadow:none;">
+                </div>
+            </div>
+        </div>
+        <div class="gui-form-item "><label class="gui-form-item-label">所属机构</label>
+            <div class="gui-form-item-content">
+                <select class="gui-input"  id="allCooperatives" name="cooperationId">
+                    <option value="">选择所属机构</option>
+                </select>
+            </div>
+        </div>
+        <div class="line"></div>
+        <div class="gui-form-item">
+            <div class="gui-form-item-content" >
+                <button type="button" class="gui-btn gui-btn-normal" id="save"><i class="fa fa-save"></i><span>保存班级</span></button>
+                <button type="reset" class="gui-btn gui-btn-warm"  id="clearClassinfo"><i class="fa fa fa-trash-o"></i><span>清空表单</span></button>
+            </div>
+        </div>
+    </form>
+
+</div>
+<script src="plus/validate/jquery-validate.js"></script>
+<script>
+
+    var allTeacher=null,//全部教师
+        teachertName=[],//已选择教师姓名
+        changedTea=[];  //已选择教师ID
+
+
+    $(function () {
+
+        //编辑则赋值
+        var nowClass_id=GetUrlParam("clasId");
+
+        if(nowClass_id!==""){
+
+            //保存合作机构
+            var getClassinfo = {
+                parameter:{
+                    "org_id": option.org_id,
+                    "token":  option.token,
+                    "clasId":GetUrlParam("clasId")
+                },
+                url:domain+"/class/toUpdate.htm"
+            };
+
+            getData(getClassinfo.url,getClassinfo.parameter,function (data) {
+
+                if(data.code==200 && data.success==true){
+                    var classObj=data.data;
+                    setTimeout(function () {
+                        //学期
+                        $("#allTerm").val(classObj.term_id).prop("disabled",true);
+                        //班级类型
+                        $("#classType").val(classObj.clas_type).prop("disabled",true);
+                        //类目
+                        $("#allCategory").val(classObj.category_id).change().prop("disabled",true);;
+                        //科目
+                        $("#subject").val(classObj.subject_id).prop("disabled",true);;
+                        //校区
+                        $("#allCampus").val(classObj.cam_id).change();
+                        //教室
+                        $("#allClassrooms").val(classObj.classroom_id);
+                        //合作机构
+                        $("#allCooperatives").val(classObj.cooperation_id);
+
+                        $("#clearClassinfo").hide();
+
+                    },300);
+
+                    //班级名称
+                    $("#className").val(classObj.clas_name);
+
+                    //班容量
+                    $("#size").val(classObj.size);
+
+                    //年龄范围
+                    $("#ageRange").val(classObj.age_range);
+
+                    //起始生日
+                    $("#startBirthday").val(classObj.start_birthday);
+                    $("#endBirthday").val(classObj.end_birthday);
+                    //总课时数
+                    $("#totalHours").val(classObj.total_hours);
+                    //开课日期
+                    $("#classStartDate").val(classObj.class_start_date);
+
+                    //固定上课时间
+                    if(classObj.class_unset_time==null ||classObj.class_unset_time==undefined ){
+                        setTimeout(function () {
+                            //学期
+                            $("#allTime").val(classObj.class_week);
+                        },300);
+
+                        $("#classBeginTime").val(classObj.class_begin_time);
+                        $("#classOverTime").val(classObj.class_over_time);
+
+                    }else{
+                        $("#timeUnnormal").click();
+                        $("#classUnsetTime").val(classObj.class_unset_time).prop("disabled",false);
+                    }
+
+                    //学费
+                    $("#tuitionFees").val(classObj.tuition_fees).prop("disabled",true);
+
+                    //教师信息
+                    if(classObj.tech_names!=="" && classObj.tech_names!==null){
+                        $("#changedTeachers span").text(classObj.tech_names);
+                        $("#changedTeachers input").val(classObj.tech_ids);
+                        teachertName=classObj.tech_names.split(",");
+                        changedTea=classObj.tech_ids.split(",");
+                    }
+
+
+                }else {
+                    myAlert(data.message,2,data.code,null);
+                }
+            },"POST",false);
+
+        };
+
+
+
+        //下拉生成 教室，科目类目，校区
+        allSelect();
+        $("#allCampus option:eq(0)").val("");
+
+
+        //判断选择的日期类型
+        $("input[name=timeType]").click(function () {
+            var id=$(this).attr("id");
+           if($(this).is(":checked")){
+               //删除报错模式
+              if(id!=="timeNormal"){
+                  $("#allTime").prop("disabled",true).removeClass("gui-form-input-error");
+                  $("#classBeginTime").prop("disabled",true).removeClass("gui-form-input-error");
+                  $("#classOverTime").prop("disabled",true).removeClass("gui-form-input-error");
+                  $("#classBeginTime-error").remove();
+                  $("#classOverTime-error").remove();
+                  $("#allTime-error").remove();
+                  $("#classUnsetTime").prop("disabled",false).removeClass("gui-form-input-error");
+              }else{
+                  $("#classUnsetTime").prop("disabled",true).removeClass("gui-form-input-error");
+                  $("#classUnsetTime-error").remove();
+                  $("#allTime").prop("disabled",false).removeClass("gui-form-input-error");
+                  $("#classBeginTime").prop("disabled",false).removeClass("gui-form-input-error");
+                  $("#classOverTime").prop("disabled",false).removeClass("gui-form-input-error");
+              }
+           }else{
+               if(id!=="timeNormal"){
+                   $("#allTime").prop("disabled",false).removeClass("gui-form-input-error");
+                   $("#classBeginTime").prop("disabled",false).removeClass("gui-form-input-error");
+                   $("#classOverTime").prop("disabled",false).removeClass("gui-form-input-error");
+
+                   $("#classUnsetTime").prop("disabled",true).removeClass("gui-form-input-error");
+                   $("#classUnsetTime-error").remove();
+
+               }else{
+                   $("#classUnsetTime").prop("disabled",false).removeClass("gui-form-input-error");
+
+                   $("#allTime").prop("disabled",true).removeClass("gui-form-input-error");
+                   $("#classBeginTime").prop("disabled",true).removeClass("gui-form-input-error");
+                   $("#classOverTime").prop("disabled",true).removeClass("gui-form-input-error");
+
+                   $("#allTime-error").remove();
+                   $("#classBeginTime-error").remove();
+                   $("#classOverTime-error").remove();
+
+               }
+           }
+            $(this).blur();//防止出现蓝框
+        });
+
+        //通过校区塞选教室---前端实现
+        $("#allCampus").change(function(){
+            var val=$(this).val();
+            $("#size-error").remove();
+            var obj=option.allClassroom;
+            var html="<option value=\"\">选择教室</option>";
+            if(obj.length>0){
+                for(var i=0,m=obj.length; i<m;i++){
+                    if(obj[i].cam_id==val){
+                        var str=(obj[i].building!==null? obj[i].building+" ":"") + (obj[i].floor!==null?obj[i].floor+" ":"")+obj[i].classroom_name;
+                        html+="<option value='"+obj[i].classroom_id+"' data-camid='"+obj[i].cam_id+"'>"+str+"</option>";
+                    }
+                }
+                $("#allClassrooms").html(html);
+            }
+
+           var sum=$("#allClassrooms option").length;
+            if(sum>1){
+                $("#allClassrooms").prop("disabled",false).val("0");
+            }else{
+                $("#allClassrooms").prop("disabled",true).val("0");
+                if($("#allClassrooms").val()==""){
+                   return false
+                }
+                $("#allClassrooms").parent().append(" <span id=\"size-error\" class=\"gui-form-item-error\"><i class='fa fa-'></i>该校区没有教室，请切换校区</span>")
+            }
+        });
+
+
+        //获取所有教师
+        var cam={
+            "parameter":{
+                "org_id":option.org_id,
+                "token":option.token,
+                "term_name" :$("#termName").val(),
+                "cur_year" :$("#termYear").val(),
+                "term_type" :$("#termType").val(),
+                "time":$("#termStart_time").val(),
+            },
+            "url":loginMain+"/esb/api/tech/getSngTeacherList"
+        };
+        getData(cam.url,cam.parameter,function (res) {
+            if(res.code==200 && res.success==true){
+                allTeacher=res.data.teacher;
+            }else {
+                myAlert(res.message,2,res.code,null);
+            }
+        },"POST",false);
+
+
+        //选择教师
+        $("#changedTeachers").click(function () {
+
+            //显示已选教师
+            var changedTearcher=changedTea;
+
+            var res = allTeacher;
+            var unchangedHtml='',changedHtml="";
+
+            for(var i=res.length-1;i>=0;i--){
+
+                var teacherObj=res[i];
+
+                if($.inArray(teacherObj.tech_id.toString(),changedTearcher)>=0){
+
+                    var changeTip='class=\"changed\" title=\"'+teacherObj.tech_name+'老师已添加\"';
+
+                    changedHtml+='<li class="changed" data-id="'+teacherObj.tech_id+'" title="删除">' +
+                        '<i class="fa fa-user"></i>' +
+                        '<span class="t_name">'+teacherObj.tech_name+'</span>' +
+                        '(<span class="t_mob">'+teacherObj.user_mobile+'</span>)' +
+                        '<i class="fa fa-times-circle"></i>' +
+                        '</li>';
+                }else{
+                    var changeTip='class="unChanged" title="添加 '+teacherObj.tech_name+' 老师"';
+                }
+
+
+                unchangedHtml+='<li '+changeTip+' id="'+teacherObj.tech_id+'">' +
+                                    '<i class="fa fa-user"></i>' +
+                                    '<span class="t_name">'+teacherObj.tech_name+'</span>' +
+                                    '(<span class="t_mob">'+teacherObj.user_mobile+'</span>)' +
+                                    '<i class="fa fa-plus-square-o"></i>' +
+                                '</li>';
+            }
+
+
+          var templateThtm='<div class="tech_Wrap">' +
+                                  '<div class="tech_item allTeachers"  >' +
+                                  '      <div class="dialogSearch">' +
+                                  '         <input type="text" name="" id="searchTName" placeholder="请输入教师姓名或者手机号" class="gui-input" maxlength="20" >' +
+                                  '         <div id="toSearchTeacher" title="点击查询"><i class="fa fa-search"></i></div>' +
+                                  '       </div>' +
+                                  '       <ul id="unChangedT">' +
+                                              unchangedHtml +
+                                  '       </ul>' +
+                                  '</div>' +
+                                  '<div class="tech_item changedTeachers" >' +
+                                  '    <div class="changedTtitle">已选教师</div>' +
+                                  '     <ul id="changedT">' +
+                                           changedHtml +
+                                  '     </ul>' +
+                                  '</div>' +
+                             '</div>';
+
+            //注册查询方法--按名字和手机号查询教师
+            $("body").off("click","#toSearchTeacher");
+            $("body").on("click","#toSearchTeacher",function () {
+
+                var tech_name=$("#searchTName").val();
+                if(tech_name==""){
+                    myAlert("请输入教师姓名或手机号！",2,null,function () {
+                        $("#searchTName").focus();
+                    });
+                    return false
+                }
+
+               if($(this).find(".fa").hasClass("fa-close")){
+                    $("#unChangedT li").show();
+                    $(this).find(".fa").addClass("fa-search").removeClass("fa-close").attr("title","查询");
+                    $("#searchTName").val("");
+                    return false
+                }
+
+
+                //更新按钮样式
+                $(this).find(".fa-search").addClass("fa-close").removeClass("fa-search").attr("title","清空所选");
+
+
+                $("#unChangedT li").hide();
+                $("#unChangedT li").each(function () {
+
+                    var name=$(this).find(".t_name").text();
+                    var mob=$(this).find(".t_mob").text();
+
+                    if(name.indexOf(tech_name) !== -1 || mob.indexOf(tech_name) !== -1){
+                        $(this).show();
+                    }
+
+                });
+
+            });
+
+
+            $("body").off("keydown","#searchTName");
+            $("body").on("keydown","#searchTName",function (e) {
+                var e=e||event;
+                if(e.keyCode==13){
+                  var val=$.trim($(this).val());
+                  if(val==""){
+                      myAlert("请输入教师姓名或手机号！",2,null,function () {
+                          $(this).focus();
+                      });
+                      return false
+                  };
+
+                    if($(this).find(".fa").hasClass("fa-close")){
+                        $("#unChangedT li").show();
+                        $(this).find(".fa").addClass("fa-search").removeClass("fa-close").attr("title","查询");
+                        $("#searchTName").val("");
+                        return false
+                    }
+
+
+                    //更新按钮样式
+                    $(this).find(".fa-search").addClass("fa-close").removeClass("fa-search").attr("title","清空所选");
+
+
+                   $("#unChangedT li").hide();
+                   $("#unChangedT li").each(function () {
+
+                      var name=$(this).find(".t_name").text();
+                      var mob=$(this).find(".t_name").text();
+
+                      if(name.indexOf(val) !== -1 || mob.indexOf(val) !== -1){
+                         $(this).show();
+                      }
+
+                   });
+
+                }
+            });
+
+
+            //注册添加方法
+            $("body").off("click","#unChangedT li.unChanged");
+            $("body").on("click","#unChangedT li.unChanged",function () {
+                var tech_id=$(this).attr("id");
+                var tech_name=$(this).find(".t_name").text();
+                var tech_mob=$(this).find(".t_mob").text();
+                //更新本身
+                $(this).addClass("changed").attr("title",tech_name+"老师已添加").removeClass("unChanged");
+                //更新界面
+                var html='<li class="changed" data-id="'+ tech_id +'" title="删除">' +
+                            '<i class="fa fa-user"></i>' +
+                            '<span class="t_name">'+tech_name+'</span>' +
+                            '(<span class="t_mob">'+tech_mob+'</span>)' +
+                            '<i class="fa fa-times-circle"></i>' +
+                         '</li>';
+                $("#changedT").append(html);
+            });
+
+            //注册删除方法
+            $("body").off("click","#changedT li");
+            $("body").on("click","#changedT li",function () {
+                var tech_id=$(this).attr("data-id");
+                //更新本身
+                $(this).remove();
+                //更新界面
+               $("#"+tech_id).addClass("unChanged").attr("title","添加").removeClass("changed");
+            });
+
+
+
+            mydialogForm(templateThtm, "选择教师", null, ['720px', '510px'], ["保存", "取消"], [function(t){
+
+                $("#changedTeachers span").text("");
+
+                if($("#changedT [data-id]").length>0){
+
+                    changedTea=[];
+                    teachertName=[];
+
+                    //遍历所选教师
+                    $("#changedT [data-id]").each(function(){
+                            var t_id=$(this).attr("data-id");
+                            var t_name=$(this).find(".t_name").text();
+                            changedTea.push(t_id);
+                            teachertName.push(t_name);
+                    });
+
+
+                    if(teachertName.length==0){
+                        $("#changedTeachers span").text("共选择0个老师");
+                    }else{
+                        $("#changedTeachers span").text(teachertName.join(","));
+                        $("#changedTeachers input").val(changedTea.join(","));
+                    }//共0个班级
+
+                }else{
+
+                    for(var i=changedTea.length-1;i>=0;i--){
+                        //遍历所选部门
+                        changedTea.removeByValue(changedTea[i])
+                        $("#changedTeachers span").text("共选择0个老师");
+                        $("#changedTeachers input").val("");
+
+                    }
+                }
+                layer.close(t);
+
+            },null]);
+
+        });
+
+
+        //表单校验
+        $("#add-form").validate({
+            rules: {
+                "termId":  {
+                    required: true
+                },
+                "className":  {
+                    required: true,
+                    minlength:2,
+                    maxlength:20
+                },
+                "classType":  {
+                    required: true
+                },
+                "categoryId": {
+                    required: true
+                },
+                "subjectId":  {
+                    required: true
+                },
+                "camId":  {
+                    required: true
+                },
+                "classroomId": {
+                    required: true
+                },
+                "size":  {
+                    required: true,
+                    digits:true,
+                    min:1
+                },
+                "ageRange":  {
+                    required: true
+                },
+                "startBirthday":  {
+                    required: true
+                },
+                "endBirthday":  {
+                    required: true
+                },
+                "totalHours":  {
+                    required: true,
+                    digits:true,
+                    min:1
+                },
+                "classStartDate":  {
+                    required: true
+                },
+                "classWeek":  {
+                    required:  "#timeNormal:checked",
+                },
+                "classBeginTime": {
+                    required: "#timeNormal:checked",
+                },
+                "classOverTime":  {
+                    required: "#timeNormal:checked",
+                },
+
+                "classUnsetTime":  {
+                    required: "#timeUnnormal:checked",
+                    minlength:2,
+                },
+            /*    "tuitionFees":  {
+                    required: true,
+                    digits:true,
+                    min:1
+                },*/
+             /*   "techIds":  {
+                    required: true
+                },*/
+               /* "cooperationId":  {
+                    required: true
+                }*/
+
+            },
+            messages: {
+                "termId":  {
+                    required: "请选择学期"
+                },
+                "className":  {
+                    required: "请输入班级名称",
+                    minlength:'上课时间最少2个字符',
+                    maxlength:'上课时间最长20个字符',
+                },
+                "classType":  {
+                    required: "请选择班级类型"
+                },
+                "categoryId": {
+                    required: "请选择类目"
+                },
+                "subjectId":  {
+                    required: "请选择科目"
+                },
+                "camId":  {
+                    required: "请选择校区"
+                },
+                "classroomId": {
+                    required: "请选择教室"
+                },
+                "size":  {
+                    required: "请输入班容量",
+                    digits:"班容量只能是正整数",
+                    min:"最小值不能小于1"
+                },
+                "ageRange":  {
+                    required: "请选择招生年龄范围"
+                },
+                "startBirthday":  {
+                    required: "请选择起始生日"
+                },
+                "endBirthday":  {
+                    required: "请选择结束生日"
+                },
+                "totalHours":  {
+                    required: "请输入班级总课时数",
+                    digits:"学费标准只能是正整数",
+                    min:"最小值不能小于1"
+                },
+
+                "classStartDate":  {
+                    required: "请选择开课日期"
+                },
+                "classWeek":  {
+                    required: "请选择上课星期"
+                },
+                "classBeginTime": {
+                    required: "请选择上课时间"
+                },
+                "classOverTime":  {
+                    required: "请输入下课时间"
+                },
+
+                "classUnsetTime":  {
+                    required: "请输入上课时间",
+                    minlength:'上课时间最少2个字符',
+                },
+
+            /*    "tuitionFees":  {
+                    required: "请填写学费标准",
+                    digits:"学费标准只能是正整数",
+                    min:"最小值不能小于1"
+                },*/
+               /* "techIds":  {
+                    required: "请选择任课教师"
+                },*/
+               /*"cooperationId":  {
+                    required: "请选择合作机构"
+                }*/
+
+            },
+            errorPlacement: function(error, element) {
+                error.appendTo(element.parent().after())
+            },
+            errorClass: 'gui-form-item-error',
+            errorElement: 'span',
+            submitHandler: function(form) {
+
+                //保存或者更新班级信息
+                var classSave={
+                    "parameter":{
+                        "org_id":option.org_id,
+                        "orgId":option.org_id,
+                        "token":option.token,
+                        clasId:GetUrlParam("clasId"),
+                        termId:$("#allTerm").val(),
+                        clasName:$("#className").val(),
+                        clasType:$("#classType").val(),
+                        categoryId:$("#allCategory").val(),
+                        subjectId:$("#subject").val(),
+                        camId:$("#allCampus").val(),
+                        classroomId:$("#allClassrooms").val(),
+                        size:$("#size").val(),
+                        ageRange:$("#ageRange").val(),
+                        startBirthday:$("#startBirthday").val(),
+                        endBirthday:$("#endBirthday").val(),
+                        totalHours:$("#totalHours").val(),
+                        classStartDate:$("#classStartDate").val(),
+                        /*classWeek:$("#allTime").val(),
+                        classBeginTime:$("#classBeginTime").val(),
+                        classOverTime:$("#classOverTime").val(),
+                        classUnsetTime:$("#classUnsetTime").val(),//不固定时间*/
+                        tuitionFees:$("#tuitionFees").val(),//学费
+                        techIds:$("#changedTeachers input").val(),//教师
+                        cooperationId:$("#allCooperatives").val()//合作机构
+                    },
+                    "url":domain+"/class/update.htm"
+                };
+
+                //如果班级为空则进入创建接口
+                if(GetUrlParam("clasId")==""){
+                    classSave.url=domain+"/class/add.htm"
+                }
+
+                if($("#timeNormal").is(":checked")){
+                    classSave.parameter.classWeek=$("#allTime").val();
+                    classSave.parameter.classBeginTime=$("#classBeginTime").val();
+                    classSave.parameter.classOverTime=$("#classOverTime").val();
+                }else{
+                    classSave.parameter.classUnsetTime=$("#classUnsetTime").val();
+                }
+
+                getData(classSave.url,classSave.parameter,function (data) {
+
+                    if(data.code==200 && data.success==true){
+                        myAlert("班级保存成功",1,data.code,function () {
+                            window.location.href="#63"
+                        });
+                    }else {
+                        myAlert(data.message,2,data.code,null);
+                    }
+                },"POST",false)
+
+            }
+        });
+
+        //提交
+        $("#save").click(function () {
+
+            var termYear=new Date($("#startBirthday").val().replace(/\-/g, "/")).getTime();
+            var start=new Date($("#endBirthday").val().replace(/\-/g, "/")).getTime();
+            if(termYear!==0 && start!==0 && termYear > start){
+                myAlert("结束生日应早于起始生日",2,null,null);
+                return false
+            }
+
+            if($("#allClassrooms").val()==""){
+                myAlert("请选择教室",2,null,null);
+                return false
+            }
+            if($("#subject").val()==""){
+                myAlert("请选择科目",2,null,null);
+                return false
+            }
+
+
+            $("#add-form").submit();
+        });
+
+    })
+</script>
+
+

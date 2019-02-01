@@ -1,0 +1,259 @@
+<!--发布通知-->
+<style>
+    .tablesorter-blue tbody tr > td.operation{
+        width: auto;
+    }
+</style>
+
+<div class="content-wrap" id="sub_loadBox"  >
+    <div class="search">
+        <select class="gui-input" style="width: 100px" id="allYear">
+            <option value="">选择年份</option>
+        </select>
+    </div>
+    <div class="bod-con-fer-form">
+        <table align="center" class="tab tablesorter-blue">
+            <thead>
+            <tr>
+                <th>序号</th>
+                <th>招生计划</th>
+                <th>开始时间</th>
+                <th>结束时间</th>
+                <th>招生类型</th>
+                <th>开启状态</th>
+                <th>招生班级</th>
+                <th>招生进度</th>
+                <th>已交学费</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody id="planList">
+                <tr>
+                    <td colspan="10" class="noData"><i class="fa fa-warning" aria-hidden="true"></i>获取不到班级数据</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 分页 -->
+    <div class="gui-page-wapper" style="margin:20px 0;line-height: 28px;" id="pageContent">
+        <ul class="gui-page" id="limitUi">
+            <span class="gui-page-total">共<span id="allPage" class="numberShow">0</span>页 <span id="allTotal" class="numberShow">0</span>数据</span>
+            <span id="creatPage">
+            </span>
+        </ul>
+        <span class="gui-page-options-elevator" style="padding-left: 10px;">
+                每页条数：
+                <select id="limit" class="">
+                     <option value="20">20</option>
+                     <option value="50">50</option>
+                     <option value="100">100</option>
+                </select>
+            </span>
+        <span class="gui-page-options">
+            <span class="gui-page-options-elevator">跳至第
+            <input id="page" class="gui-input" data-onlyNumber="true">
+             页</span>
+           </span>
+    </div>
+    <!--分页END-->
+
+</div>
+<script src="js/countUp.js"></script>
+<script>
+    $(function () {
+
+        //查看招生计划详情
+        $("#planList").on("click", ".planDetail", function() {
+            var planId=$(this).attr("data-id");
+            /**
+             * 查询是否可可编辑
+             */
+            getData(domain+"/plan/info.json",{planId:planId,roleCamIds:option.roleCam},function (res) {
+                if(res.code==200 && res.success==true){
+                    if(res.data.canEdit=="1"){
+                        window.location.href="#41?planId="+planId;
+                    }else{
+                        myAlert("招生计划中的班级所属校区，不在您校区权限范围内，不能编辑!",2,res.code,null);
+                    }
+                }else {
+                    myAlert(res.message,2,res.code,null);
+                }
+            },"POST",false);
+
+        });
+
+        //计划开启
+        $("#planList").on("click", ".planSwitch", function() {
+
+            var name=$(this).closest("tr").find("td:eq(1)").text();
+            var planId=$(this).attr("data-id");
+            var tip=$(this).attr("data-planSwitch")==1?"0":"1";
+
+            var tipStr=tip==1?"开启":"关闭";
+
+            myConfirm("你确定要"+tipStr+" ["+name+"] 吗?",function () {
+                /**
+                 * 查询是否可关闭开启计划
+                 */
+
+                getData(domain+"/plan/updatePlanSwitch.json",{planId:planId,roleCamIds:option.roleCam,planSwitch:tip},function (res) {
+                    if(res.code==200 && res.success==true){
+                        myAlert(name+tipStr+"成功！",1,null,function(){
+                            window.location.reload();
+                        });
+
+                    }else {
+                        if(res.code==403){
+                            myAlert("您没有该计划"+tipStr+"权限",0,res.code,null);
+                        }else{
+                            myAlert("获取统计信息失败",2,res.code,null);
+                        }
+
+                    }
+                },"POST",false);
+
+            },null,null,2);
+
+
+        });
+
+
+        //生成下拉菜单
+        allSelect();
+
+        //默认
+        showHtml();
+
+        //变换年份
+        $("#allYear").change(function(){
+            showHtml()
+        });
+    })
+
+
+    //列表
+    function showHtml(limit,page) {
+        var cam_list={
+            "parameter":{
+                "org_id":option.org_id,
+                "udid":option.udid,
+                "token":option.token,
+
+                "year":$("#allYear").val(),
+                "limit":limit?limit:20,
+                "page":page?page:1
+            },
+            "url":domain+"/plan/list.json"
+        };
+
+        getData(cam_list.url,cam_list.parameter,function (res) {
+
+            if(res.code==200 && res.success==true){
+
+                var data=res.data,html="";
+
+                //如果当前页是第一页从新渲染
+                if(data.page==1){
+                    //生成页数(总条数，总页数，)
+                    $("#creatPage").createPage({
+                        pageCount:data.totalPage,
+                        current:data.page,
+                        url:cam_list.url,
+                        backFn:function(page){
+                            var limit=$("#limit").val();
+                            showHtml(limit,page)
+                        }
+                    });
+                }
+
+                //总页数
+                $("#allPage").text(data.size);
+                //总条数
+                $("#allTotal").text(data.total);
+
+                if(data.data.length>0){
+                    for(var n=0,m=data.data.length;n<m;n++){
+                        var toShow=(parseInt(data.page)-1)*parseInt(data.limit);
+                        var obj=data.data[n];
+
+                        if(obj.planSwitch!==1){
+                            var op="<span  class=\"planDetail\" data-id=\""+obj.planId+"\" >编辑<em></em></span>"+
+                                   "<span  class=\"planSwitch\" data-planSwitch='\"+obj.planSwitch+\"' data-id=\""+obj.planId+"\" >开启<em></em></span>";
+                        }else{
+                            var op="<span  class=\"plansDetail\" data-id=\""+obj.planId+"\" style='color:#ccc;cursor: pointer' title='开启中招生计划不能编辑'>编辑<em></em></span>"+
+                                   "<span  class=\"planSwitch\" data-planSwitch='"+obj.planSwitch+"' data-id=\""+obj.planId+"\" >关闭<em></em></span>";
+                        }
+
+                        html += "<tr>" +
+                                "   <td>"+(n+toShow+1)+"</td>" +
+                                "   <td>"+obj.title+"</td>" +
+                                "   <td>"+obj.beginTimeStr.substr(2,15)+"</td>" +
+                                "   <td>"+obj.endTimeStr.substr(2,15)+"</td>" +
+                                "   <td>"+option.classType[obj.classType]+"</td>" +
+                                "   <td class='"+(obj.planSwitch==1?"ongoing":"stop")+"'>"+(obj.planSwitch==1?"开启中":"已关闭")+"</td>" +
+                                "   <td>"+obj.classCount+"</td>" +
+                                "   <td>"+obj.progress+"</td>" +
+                                "   <td class='money'>"+Number(obj.tuition).toFixed(2)+"</td>" +
+                                "   <td class=\"operation\" >" +
+                                     op+
+                                "   </td>" +
+                                "</tr>";
+                    }
+                }else {
+                    html += "<tr>" +
+                        "<td colspan='11' class='noData' title='没有找到数据'><i class=\"fa fa-warning\" aria-hidden=\"true\"></i>该条件下没有找到任何班级</td>" +
+                        "</tr>";
+                }
+
+                $("#planList").html(html)
+
+            }else {
+                myAlert(res.message,2,res.code,null);
+            }
+        },"POST",false)
+    }
+
+
+    /**
+     * 查询是否可编辑
+     * toEditCheck
+     */
+    function toEditCheck(id) {
+        getData(domain+"/plan/info.json",{planId:id,roleCamIds:option.roleCam},function (res) {
+            if(res.code==200 && res.success==true){
+                var sumStu=res.data.ss_num;
+                countup("sum_students",sumStu);
+                if(res.data.clas_id !=="" && res.data.clas_id !== undefined){
+                    //存入本地
+                    allclassIds=res.data.clas_id.split(",");
+                }
+            }else {
+                myAlert("获取统计信息失败",2,res.code,null);
+            }
+        },"POST",false);
+    }
+
+    /**
+     * 招生计划开启或者关闭
+     * toEditCheck
+     */
+    function planSwitch(tip) {
+
+        var tipStr=tip==1?"开启":"关闭";
+
+        getData(domain+"/plan/updatePlanSwitch.json",{planId:id,roleCamIds:option.roleCam,planSwitch:tip},function (res) {
+            if(res.code==200 && res.success==true){
+                myAlert("计划"+tipStr+"成功",2,res.code,null);
+
+            }else {
+                if(res.code==403){
+                    myAlert("您没有该计划"+tipStr+"权限",2,res.code,null);
+                }else{
+                    myAlert("获取统计信息失败",2,res.code,null);
+                }
+
+            }
+        },"POST",false);
+    }
+</script>

@@ -1,0 +1,126 @@
+
+<div style="padding: 40PX;">
+    <form class="gui-form gui-form-label-right" id="addc-form" novalidate="novalidate">
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">机构名称</label>
+            <div class="gui-form-item-content">
+                <input type="text" name="name" placeholder="请输入机构名称" class="gui-input" value="" maxlength="50" id="name" style="width:360px;">
+            </div>
+        </div>
+        <div class="line"></div>
+        <div class="gui-form-item "><label class="gui-form-item-label">联系人</label>
+            <div class="gui-form-item-content">
+                <input type="text" name="clinkman" placeholder="请输入联系人姓名" class="gui-input" id="linkman"  >
+            </div>
+        </div>
+
+        <div class="gui-form-item">
+            <label class="gui-form-item-label">联系电话</label>
+            <div class="gui-form-item-content">
+                <div class=" gui-select-single">
+                    <input type="text" name="phone" placeholder="请输入机构联系电话" class="gui-input" value="" maxlength="11" id="phone">
+                </div>
+            </div>
+        </div>
+
+        <div class="gui-form-item"><label class="gui-form-item-label">备注信息</label>
+            <div class="gui-form-item-content">
+                <textarea placeholder="请输入..." rows="2" name="note" class="gui-textarea" id="note"></textarea>
+            </div>
+        </div>
+        <div class="line"></div>
+        <div class="gui-form-item">
+            <div class="gui-form-item-content" >
+                <button type="button" class="gui-btn gui-btn-normal" id="save"><i class="fa fa-save"></i><span>保存机构</span></button>
+                <button type="reset" class="gui-btn gui-btn-warm" id="clearform"><i class="fa fa fa-trash-o"></i><span>清空表单</span></button>
+                <button type="button" class="gui-btn gui-btn-primary" id="back"><i class="fa fa-angle-left"></i><span>返回列表</span></button>
+            </div>
+        </div>
+    </form>
+</div>
+<script type="text/javascript" src="plus/validate/jquery-validate.js"></script>
+<script>
+    $(function() {
+        //返回列表
+        $("#back").click(function(){
+            window.location.href="#f52";
+        });
+        //编辑则赋值
+        var nowCooperative_id=GetUrlParam("cooperative_id");
+
+        if(nowCooperative_id!==""){
+            if(sessionStorage.localCooperatives!==undefined){
+                var obj=JSON.parse(sessionStorage.localCooperatives)[nowCooperative_id];
+                $("#name").val(obj.name);
+                $("#linkman").val(obj.linkman);
+                $("#phone").val(obj.phone);
+                $("#note").val(obj.note);
+            }
+        }
+
+        //校验规则
+        $("#addc-form").validate({
+            rules: {
+                name: {
+                    required: true,
+                    rangelength: [2, 50]
+                },
+                clinkman: {
+                    required: $("#linkman").val()!=="",
+                    rangelength: [2, 10]
+                },
+                phone: {
+                    required: false
+                }
+            },
+            messages: {
+                name: {
+                    required: '请输入机构名称',
+                    rangelength: "机构名称2-50个字符"
+                },
+                clinkman: {
+                    required:'请输入机构联系人姓名',
+                    rangelength: "机构联系人姓名2-20个字符"
+
+                },
+                phone: {
+                    required: '请输入机构联系电话',
+                }
+            },
+            errorPlacement: function(error, element) {
+                error.appendTo(element.parent().after())
+            },
+            errorElement: 'span',
+            submitHandler: function(form) {
+                //保存合作机构
+                var saveOption = {
+                    parameter:{
+                        "org_id": option.org_id,
+                        "cooperative_id":GetUrlParam("cooperative_id"),
+                        "name" : $("#name").val(),
+                        "linkman" : $("#linkman").val(),
+                        "phone" : $("#phone").val(),
+                        "note" :$("#note").val()
+                    },
+                    url:domain+"/baseSet/cooperativeManage/createAndUpdateCooperativeInfo.json"
+                };
+
+                getData(saveOption.url,saveOption.parameter,function (data) {
+                    if(data.code==200 && data.success==true){
+                        myAlert("保存成功",1,data.code,function () {
+                            window.location.href="#f52"
+                        });
+                    }else {
+                        myAlert(data.message,2,data.code,null);
+                    }
+                },"POST",false);
+            }
+
+        });
+
+        $("#save").click(function () {
+            $("#addc-form").submit();
+        })
+
+
+    })
+</script>

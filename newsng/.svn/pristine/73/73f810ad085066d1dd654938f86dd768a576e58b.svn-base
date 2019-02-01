@@ -1,0 +1,382 @@
+<!--添加管理员-->
+<div style="padding: 40PX;">
+    <form class="gui-form gui-form-label-right" id="addRole-form" novalidate="novalidate">
+
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">角色名称</label>
+            <div class="gui-form-item-content">
+                <input id="roleName" type="text" name="roleName" placeholder="请输入角色名称" class="gui-input" value="" maxlength="20" >
+            </div>
+        </div>
+        <div class="line"></div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">校区范围</label>
+            <div id="campus" class="gui-form-item-content">
+            </div>
+        </div>
+
+        <div class="gui-form-item gui-form-item-required">
+            <label class="gui-form-item-label">功能权限</label>
+            <div id="roles" class="gui-form-item-content">
+                <div>
+                    <label class="form-label" for="allNav"><input type="checkbox" id="allNav" name="allNav" value="all">全部功能</label>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="line"></div>
+        <div class="gui-form-item">
+            <div class="gui-form-item-content" >
+                <button type="button" class="gui-btn gui-btn-normal" id="saveRole"><i class="fa fa-save"></i><span>保存角色</span></button>
+                <button type="reset" class="gui-btn gui-btn-warm" id="clearform"><i class="fa fa fa-trash-o"></i><span>清空表单</span></button>
+                <button type="button" class="gui-btn gui-btn-primary" id="back"><i class="fa fa-angle-left"></i><span>取消返回</span></button>
+            </div>
+        </div>
+    </form>
+    <script type="text/javascript" src="plus/validate/jquery-validate.js"></script>
+    <script>
+        $(function() {
+            var now_role_id = option.getUrlParam("role_id");
+            //首先获取校区
+            getData(domain+'/baseSet/campusManage/queryCampusListInfo.json',{
+                token:option.token,
+                org_id:option.org_id,
+                udid:option.udid,
+                version:0,
+                needCount:false
+            },function(res){
+                if(res.code == 200 && res.success == true){
+                    var d = res.data.data,
+                    camHtml = '';
+                    for(var i=0;i<d.length;i++){
+                        camHtml += '<label class="form-label" for="campus_'+ d[i].cam_id +'"><input type="checkbox" name="campus" value="'+ d[i].cam_id +'" id="campus_'+ d[i].cam_id +'">'+ d[i].cam_name +'</label>'
+                    }
+                    $("#campus").append(camHtml);
+
+                }else{
+                    myAlert(res.message,2);
+                }
+                //如果是编辑模式
+                if(now_role_id){
+                    getData(loginMain + '/esb/api/role/getSngRole',{
+                        token:option.token,
+                        udid:option.udid,
+                        version:0,
+                        org_id:option.org_id,
+                        roleId:now_role_id
+                    },function(res){
+                        if(res.code == 200 && res.success == true){
+                            var d = res.data;
+                            var cam_ids = d.cam_ids.split(",");
+                            var roles = JSON.parse(d.authorities);
+                            $("#roleName").val(d.role_name);
+
+                            //回显校区
+                            for(var n=0;n<cam_ids.length;n++){
+                                $("#campus_"+(cam_ids[n])).prop("checked",true);
+                            }
+
+                            //如果是全部权限
+                            if(roles.all == 262143){
+                                $("#allNav").trigger("click");
+                            }else{//遍历权限回显
+                                for(var i in roles){
+                                    var div = $("[data-code='"+ i +"']");
+                                    if(roles[i] == 262143){
+                                        div.find("input[value='all']").trigger("click");
+                                    }else{
+                                        var input = div.find("input[data-name='nav-child']");
+                                        input.each(function(index,ele){
+                                            if((+$(ele).val() | +roles[i]) == roles[i]){
+                                                $(ele).trigger("click");
+                                            }
+                                        })
+                                    }
+                                }
+                            }
+                        }
+                    },"POST")
+                }
+            })
+            //获取角色code
+            getData(loginMain+'/esb/api/role/getSngRoleCode',{
+                token:option.token,
+                org_id:option.org_id,
+                udid:option.udid,
+                version:0
+            },function(res){
+                if(res.code == 200 && res.success == true){
+                    var code = res.data.code;
+                    var navHtml = '';
+                    for(var i=0;i<code.length;i++){
+                        if(code[i].parent_id == 0){
+                            $('#roles').append('<div id="role_code_id_'+ code[i].role_code_id +'" data-code="'+ code[i].code +'"><label class="form-label"><input type="checkbox" name="nav" value="all">'+ code[i].name +'</label></div>')
+                        }else if($("#role_code_id_"+code[i].parent_id).length>0){
+                            $("#role_code_id_"+code[i].parent_id).append('<label class="form-label"><input type="checkbox" name="nav" data-name="nav-child" value="'+ code[i].value +'">'+ code[i].name +'</label>')
+                        }
+                    }
+                    $('#roles').on('click','input[value="all"]',function(){
+                        var label = $(this).parent();
+                        if($(this).prop("checked") == true){
+                            label.siblings().find("input").prop("checked",true);
+                        }else{
+                            label.siblings().find("input").prop("checked",false);
+                        }
+                    })
+                    $("#roles").on("click","input[data-name='nav-child']",function(){
+                        var div = $(this).parent().parent();
+                        var len = div.find("label").length - 1,
+                            check_num = 0;
+                        div.find("input[data-name='nav-child']").each(function(i,e){
+                            if($(e).prop("checked") == true){
+                                check_num += 1;
+                            }
+                        })
+                        if(check_num == len){
+                            div.find("input[value='all']").prop("checked",true);
+                        }else{
+                            div.find("input[value='all']").prop("checked",false);
+                        }
+                    })
+                }
+            })
+
+
+            //取消编辑返回列表
+            $("#back").click(function () {
+                window.history.back();
+            })
+
+            allSelect();
+
+            //选择全部
+            $("input[name=allNav]").click(function () {
+                //遍历是为了出发校验
+                if($(this).is(":checked")){
+                    $("input[name=nav]").each(function(){
+                        if(!$(this).is(":checked")){
+                            $(this).click();
+                        }
+                    })
+                }else{
+                    $("input[name=nav]").each(function(){
+                        if($(this).is(":checked")){
+                            $(this).click();
+                        }
+                    })
+                }
+            });
+
+            $("input[name=nav]").click(function () {
+                if($("input[name=nav]").length==$("input[name=nav]:checked").length){
+                    $("input[name=allNav]").prop("checked",true);
+                }else{
+                    $("input[name=allNav]").prop("checked",false);
+                }
+            });
+
+
+            //权限管理
+            $("input[name=allRole]").click(function () {
+                 //遍历是为了出发校验
+                 if($(this).is(":checked")){
+                     $("input[data-name=role]").each(function(){
+                         if(!$(this).is(":checked")){
+                           $(this).click();
+                         }
+                     })
+                 }else{
+                     $("input[data-name=role]").each(function(){
+                         if($(this).is(":checked")){
+                             $(this).click();
+                         }
+                     })
+                 }
+            });
+
+            $("input[data-name=role]").click(function () {
+                 if($("input[data-name=role]").length==$("input[data-name=role]:checked").length){
+                     $("input[name=allRole]").prop("checked",true);
+                 }else{
+                     $("input[name=allRole]").prop("checked",false);
+                 }
+            });
+
+
+            //基础设置
+            $("input[name=allBase]").click(function () {
+                if($(this).is(":checked")){
+                    $("input[data-name=base]").each(function(){
+                        if(!$(this).is(":checked")){
+                            $(this).click();
+                        }
+                    })
+                }else{
+                    $("input[data-name=base]").each(function(){
+                        if($(this).is(":checked")){
+                            $(this).click();
+                        }
+                    })
+                }
+            });
+
+            $("input[data-name=base]").click(function () {
+                if($("input[data-name=base]").length==$("input[data-name=base]:checked").length){
+                    $("input[name=allBase]").prop("checked",true);
+                }else{
+                    $("input[name=allBase]").prop("checked",false);
+                }
+            });
+
+           //班级管理
+            $("input[name=allFinance]").click(function () {
+                if($(this).is(":checked")){
+                    //$("input[data-name=finance]").prop("checked",true).change();
+                    $("input[data-name=finance]").each(function(){
+                        if(!$(this).is(":checked")){
+                            $(this).click();
+                        }
+                    })
+                }else{
+                    //$("input[data-name=finance]").prop("checked",false).change();
+                    $("input[data-name=finance]").each(function(){
+                        if($(this).is(":checked")){
+                            $(this).click();
+                        }
+                    })
+                }
+            });
+
+            $("input[data-name=finance]").click(function () {
+                if($("input[data-name=finance]").length==$("input[data-name=finance]:checked").length){
+                    $("input[name=allFinance]").prop("checked",true);
+                }else{
+                    $("input[name=allFinance]").prop("checked",false);
+                }
+            });
+
+            //财务管理
+            $("input[name=allClassMC]").click(function () {
+                if($(this).is(":checked")){
+                    $("input[data-name=classMC]").each(function(){
+                        if(!$(this).is(":checked")){
+                            $(this).click();
+                        }
+                    })
+                }else{
+                    $("input[data-name=classMC]").each(function(){
+                        if($(this).is(":checked")){
+                            $(this).click();
+                        }
+                    })
+                }
+            });
+
+            $("input[data-name=classMC]").click(function () {
+                if($("input[data-name=classMC]").length==$("input[data-name=classMC]:checked").length){
+                    $("input[name=allClassMC]").prop("checked",true).change();
+                }else{
+                    $("input[name=allClassMC]").prop("checked",false).change();
+                }
+            });
+
+            $("#addRole-form").validate({
+                rules: {
+                    roleName: {
+                        required: true
+                    },
+                    campus: {
+                        required: true,
+                    },
+                    nav: {
+                        required: true,
+                    }
+                },
+                messages: {
+                    roleName: {
+                        required: "请输入角色名称"
+                    },
+                    campus: {
+                        required: "请选择校区"
+                    },
+                    nav: {
+                        required: "管理员至少管理一项功能权限",
+                    }
+                },
+                errorPlacement: function(error, element) {
+                    error.appendTo(element.closest(".gui-form-item-content").after());
+                },
+                errorClass: 'gui-form-item-error',
+                errorElement: 'span',
+                submitHandler: function(form) {
+                    var authorities = {};
+                    if($("#allNav").prop("checked") == true){
+                        authorities = {"all":262143};
+                    }else{
+                        $("div[data-code]").each(function(i,e){
+                            if($(e).find("input[value='all']").prop("checked")==true){
+                                authorities[$(e).attr("data-code")] = 262143;
+                            }else{
+                                var code_num;
+                                $(e).find("input[data-name='nav-child']").each(function(index,ele){
+                                    if($(ele).prop("checked") == true){
+                                        if(code_num){
+                                            code_num = code_num|$(ele).val();
+                                        }else{
+                                            code_num = $(ele).val();
+                                        }
+                                    }
+                                })
+                                authorities[$(e).attr("data-code")] = code_num;
+                            }
+                        })
+                    }
+                    var cam_ids = '';
+                    $("#campus").find("input").each(function(i,e){
+                        if($(e).prop("checked") == true){
+                            cam_ids += $(e).val() + ",";
+                        }
+                    })
+                    cam_ids = cam_ids.substring(0,cam_ids.length-1);
+                    //保存或者更新管理员信息
+                    var cam={
+                        "parameter":{
+                            "org_id":option.org_id,
+                            "roleName":$("#roleName").val(),
+                            "cam_ids":cam_ids,
+                            "authorities":JSON.stringify(authorities)
+                        },
+                        "url":loginMain+"/esb/api/role/addSngRole"
+                    };
+                    if(now_role_id){
+                        cam["parameter"]["roleId"] = now_role_id;
+                        cam["url"] = loginMain+"/esb/api/role/updateSngRole";
+                    }
+                    //判断校区是否全选
+                    debugger
+                    if($("#campus").find("input:checked").length == $("#campus").find("input").length){
+                        cam["parameter"]["is_all"] = 1;
+                    }else{
+                        cam["parameter"]["is_all"] = 0;
+                    };
+
+                    //保存或者更新校区
+                    getData(cam.url,cam.parameter,function (data) {
+                        if(data.code==200 && data.success==true){
+                            myAlert("操作成功",1,data.code,function () {
+                                window.location.href="#g22";
+                            });
+                        }else {
+                            myAlert(data.message,2,data.code,null);
+                        }
+                    },"POST",false)
+                }
+            });
+
+            //提交
+            $("#saveRole").click(function () {
+                $("#addRole-form").submit();
+            });
+
+        })
+    </script>
+</div>

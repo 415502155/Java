@@ -1,0 +1,932 @@
+package sng.controller.web;
+
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import sng.pojo.Result;
+import sng.pojo.StudentPojo;
+import sng.service.ChargeDetailService;
+import sng.service.ChargeRecordService;
+import sng.service.ChargeService;
+import sng.service.ClassService;
+import sng.service.MQService;
+import sng.service.StudentClassService;
+import sng.service.StudentService;
+import sng.service.TokenService;
+import sng.service.impl.ApplyServiceImpl;
+import sng.util.Constant;
+import sng.util.EnumLog;
+import sng.util.ExcelUtil;
+import sng.util.HttpClientUtil;
+import sng.util.JsonUtil;
+import sng.util.LoggerUtil;
+import sng.util.MoneyUtil;
+import sng.constant.Consts;
+import sng.controller.common.BaseAction;
+import sng.entity.Charge;
+import sng.entity.ChargeDetail;
+import sng.entity.ChargeRecord;
+import sng.entity.Classes;
+import sng.entity.StudentClass;
+import sng.exception.EnumException;
+import sng.pojo.base.Parent;
+import sng.pojo.base.Teacher;
+import unionpay.acp.sdk.LogUtil;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+
+@Controller
+@RequestMapping("/portal/charge")
+public class ChargeWebController extends BaseAction{
+	
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	@Autowired
+	private StudentService studentService;
+	@Autowired
+	private StudentClassService studentClassService;
+	@Autowired
+	private ChargeService chargeService;
+	@Autowired
+	private ChargeDetailService chargeDetailService;
+	@Autowired
+	private ChargeRecordService chargeRecordService;
+	@Autowired
+	private MQService mqService;
+	@Autowired
+	private TokenService tokenService;
+	@Resource
+	private ApplyServiceImpl applyServiceImpl;
+	@Autowired
+	private ClassService classService;
+	
+	
+	/**
+	 * 预约缴费
+	 */
+	@RequestMapping(value = "/orderPay.json")
+	@ResponseBody
+	public Result<String> orderPay(HttpServletRequest request,
+			@RequestParam(name = "stu_clas_id") Integer stu_clas_id,
+			@RequestParam(name = "cd_id") Integer cd_id,
+			HttpServletResponse response, HttpSession session) throws Exception {
+		Result<String> result = new Result<String>();
+		StudentClass sc = studentClassService.getById(stu_clas_id);
+		if(sc.getStuStatus().equals(Consts.STUD_STATUS_3SIGNUP_TO_PAY)){
+			sc.setStuStatus(Consts.STUD_STATUS_2QUOTA_RESERVED);
+			studentClassService.update(sc);
+			ChargeDetail cd = chargeDetailService.getById(cd_id);
+			Charge c = chargeService.getById(cd.getCid());
+			cd.setEnd_time(c.getEnd_time());
+			chargeDetailService.update(cd);
+			result.setSuccess(true);
+		}else{
+			result.setMessage("学员状态不符合要求，预约失败！");
+			result.setSuccess(false);
+		}
+		return result;
+	}
+
+	/**
+	 * 线下缴费，教师线下收费后确认已代收代缴
+	 */
+	@RequestMapping(value = "/paid.json")
+	@ResponseBody
+	public Result<String> paid(HttpServletRequest request, 
+			@RequestParam(name = "stu_class_id") Integer stu_class_id,
+			@RequestParam(name = "cd_id") Integer cd_id,
+			@RequestParam(name = "money") String money,
+			@RequestParam(name = "pay_method",defaultValue="2") Integer pay_method,
+			HttpServletResponse response, HttpSession session) throws Exception {
+		Result<String> result = new Result<String>();
+		String teacherId = "";
+		String teacherName = "";
+		String orgUserId = "";
+		try {		
+			orgUserId = request.getAttribute("user_id").toString();
+			Teacher teacher = this.getTechByUId(orgUserId);
+			teacherId = teacher.getTech_id().toString();
+			teacherName = teacher.getTech_name();
+		} catch (Exception e) {
+			result.setMessage("获取登录信息不完整！");
+			result.setSuccess(false);
+			return result;
+		}
+		if (!NumberUtils.isParsable(money)) {
+			result.setMessage("输入的缴费金额不是数字！");
+			result.setSuccess(false);
+		}else if(money.contains(".")&&money.split("\\.")[1].length()>2){
+			result.setMessage("输入的缴费金额只能精确到分！");
+			result.setSuccess(false);
+		}else if(new BigDecimal(MoneyUtil.fromYUANtoFEN(money)).compareTo(new BigDecimal(Constant.MAX_MONEY))>0){
+			result.setMessage("输入的缴费金额过大！");
+			result.setSuccess(false);
+		}else if(new BigDecimal(MoneyUtil.fromYUANtoFEN(money)).compareTo(new BigDecimal(Constant.MIN_MONEY))<0){
+			result.setMessage("输入的缴费金额错误！");
+			result.setSuccess(false);
+		}else{
+			StudentClass sc = studentClassService.getInfosById(stu_class_id);
+			if(sc.getStuStatus().equals(Consts.STUD_STATUS_2QUOTA_RESERVED)
+				||sc.getStuStatus().equals(Consts.STUD_STATUS_3SIGNUP_TO_PAY)){
+				ChargeDetail chargeDetail = chargeDetailService.getById(cd_id);
+				if(new BigDecimal(money).compareTo(new BigDecimal(chargeDetail.getMoney()))>0){
+					result.setMessage("输入的缴费金额超过了应收金额！");
+					result.setSuccess(false);
+					return result;
+				}
+				if(chargeDetail.getStatus()==Constant.CHARGE_DETAIL_STATUS_NEVER){
+					try {
+						ChargeDetail temp = new ChargeDetail();
+						temp.setCd_id(chargeDetail.getCd_id());
+						ChargeDetail cd = chargeDetailService.getById(chargeDetail.getCd_id());
+						if(cd.getOffline_pay().equals(Constant.CHARGE_DETAIL_STATUS_NEVER)
+								&&cd.getOnline_pay().equals(Constant.CHARGE_DETAIL_STATUS_NEVER)
+								&&cd.getStatus().equals(Constant.CHARGE_DETAIL_STATUS_NEVER)){
+							//开始支付
+							cd.setOffline_pay(Constant.CHARGE_DETAIL_STATUS_OK);
+							cd.setStatus(Constant.CHARGE_DETAIL_STATUS_OK);
+							cd.setTxnAmt(MoneyUtil.fromYUANtoFEN(cd.getMoney()));
+							cd.setTxnTime(new Date());
+							Date payDate = new Date();
+							cd.setModify_time(payDate);
+							cd.setPay_method(pay_method);
+							Integer pay = chargeDetailService.update(cd);
+							//创建支付记录
+							if(pay==1){
+								//添加支付记录
+								ChargeRecord cr = new ChargeRecord();
+								cr.setTxnType(Constant.TXNTYPE_SJWY_OFFLINE_PAY);
+								cr.setCid(cd.getCid());
+								cr.setCd_id(cd.getCd_id());
+								cr.setTxnAmt(cd.getTxnAmt());
+								cr.setTxnTime(payDate);
+								cr.setInsert_time(new Date());
+								cr.setOrg_user_id(Integer.parseInt(orgUserId));
+								cr.setUser_identify(Constant.IDENTITY_TEACHER);
+								cr.setUser_type_id(Integer.parseInt(teacherId));
+								cr.setUser_type_name(teacherName);
+								cr.setIs_del(Constant.IS_DEL_NO);
+								cr.setIs_show(Constant.YES);
+								//更新支付总表
+								Charge charge = chargeService.getById(cd.getCid());
+								chargeService.chargeFinally(charge, cd, cr, Consts.STUD_STATUS_5PAID, Constant.YES, true);
+								result.setMessage("缴费成功！");
+								result.setSuccess(true);
+								sendSuccessMessage(sc,cd,charge);
+								logger.info("【线下支付成功】支付ChargeDetail主键:"+cd.getCd_id());
+								LoggerUtil.save(cd.getOrg_id(), charge.getCam_id(), cd.getStud_id(), EnumLog.TARGET_TYPE_STU.getKey(), cd.getStud_name(), EnumLog.OPERATION_STU_PAID_SUCCESS.getKey(), EnumLog.OPERATION_STU_PAID_SUCCESS.getValue(), Constant.IDENTITY_TEACHER, cr.getUser_type_id(), cr.getUser_type_name(), null);
+							}else{
+								logger.error("【线下支付失败】校验账单乐观锁时失败。ChargeDetail主键:"+chargeDetail.getCd_id());
+								result.setSuccess(false);
+								result.setMessage("请求失败！原因：账单状态变动，请确认后重试！");
+							}
+						}else{
+							result.setMessage("请求失败！原因：账单状态变动，请确认后重试！");
+							result.setSuccess(false);
+						}
+					} catch (Exception e) {
+						logger.error("【线下支付错误】支付订单时发生错误。ChargeDetail主键:"+chargeDetail.getCd_id());
+						result.setSuccess(false);
+						result.setMessage("请求失败！原因：数据库异常，请稍候重试！");
+					}
+				}else{
+					result.setMessage("学员状态不符合要求，缴费失败！");
+					result.setSuccess(false);
+				}
+			}else{
+				result.setMessage("学员状态不符合要求，预约失败！");
+				result.setSuccess(false);
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 发送支付成功通知
+	 */
+	private void sendSuccessMessage(StudentClass sc,ChargeDetail cd,Charge charge){
+		Map<String, Object> documentMap = new HashMap<String, Object>();
+		documentMap.put("stud_id", sc.getStudId());
+		List<Parent> parents = new ArrayList<Parent>();
+		try {
+			String documentResult = HttpClientUtil.post(ESB_REQUEST_URL+"getParentPhone","stud_id="+sc.getStudId(), "application/x-www-form-urlencoded");
+			Result<List<Parent>> pResult = JsonUtil.getObjectFromJson(documentResult, new TypeReference<Result<List<Parent>>>() { });
+			parents = pResult.getData();
+			String template_id = "";
+			try {
+				template_id = tokenService.getSNGWXTemplateId(cd.getOrg_id().toString(), Constant.TEMPLATE_NAME_CHARGE_SUCCESS_NOTICE);
+			} catch (Exception e) {
+			}
+			if(null!=parents&&parents.size()!=0){
+				for (Parent p : parents) {
+					Map<String, Object> map = new HashMap<String, Object>();
+					if(StringUtils.isNotBlank(p.getMobile())){//SMS
+						map.put("cd_id", cd.getCd_id());
+						map.put("mobile", p.getMobile());
+						map.put("content", String.format(Constant.MOBILE_MESSAGE_CHARGE_SUCCESS_FOR_PARENT,sc.getStud_name(),cd.getItem()));
+					}
+					if(StringUtils.isNotBlank(p.getOpenid())&&StringUtils.isNotBlank(template_id)){//WX
+						map.put("open_id", p.getOpenid());
+						map.put("templateId", template_id);
+						map.put("cd_id", cd.getCd_id());
+						map.put("org_id", cd.getOrg_id());
+						map.put("first", "尊敬的家长，您已支付成功！");
+						map.put("keyword1", cd.getItem());
+						map.put("keyword2", p.getParent_name());
+						map.put("keyword3", cd.getMoney()+"元");
+						map.put("keyword4", Constant.sdf.format(cd.getTxnTime()));
+						map.put("remark", "您可以在“我的凭证”中查看您的“电子学员凭证”");
+					}
+					mqService.sendMessage("send_message_exchange", null, map);
+				}
+			}
+		} catch (Exception e) {
+			LogUtil.writeErrorLog("【错误】发送支付提醒时发生异常，未能向stud_id="+sc.getStuClassId()+"的学生家长发送任何缴费提醒!");
+		}
+	}
+
+	/**
+	 * 发送催缴学费通知
+	 */
+	@RequestMapping(value="/remind.json")
+	@ResponseBody
+	public Result<String> remind(HttpServletRequest request, 
+			@RequestParam(name = "ids") String ids, 
+			HttpServletResponse response, HttpSession session) throws Exception {
+		Map<String,Object> map = new HashMap<String,Object>();
+		String cd_ids = chargeDetailService.getIdsBySCIds(ids);
+		map.put("cd_ids",cd_ids);
+		map.put("org_id",request.getAttribute("org_id").toString());
+		mqService.sendMessage("charge_remind_exchange", null, map);
+		Result<String> result = new Result<String>();
+		result.setSuccess(true);
+		return result;
+	}
+	
+	/**
+	 * WEB申请退费（忽略招生计划的状态）
+	 * 教师发起为学生申请退款
+	 * cd_id：收费详情表主键
+	 * money：要退费的金额
+	 */
+	@RequestMapping(value = "/refund.json")
+	@ResponseBody
+	public Result<String> refund(HttpServletRequest request,
+			@RequestParam(name = "cd_id") String cd_id, 
+			@RequestParam(name = "stu_class_id") Integer stu_class_id, 
+			@RequestParam(name = "money") String money, 
+			HttpServletResponse response, HttpSession session) throws Exception {
+		Result<String> result = new Result<String>();
+		Boolean autoPass = false;
+		String teacherId = "";
+		String teacherName = "";
+		String orgUserId = "";
+		String org_id = "";
+		StudentClass sc = studentClassService.getById(stu_class_id);
+		if(!sc.getStuStatus().equals(Consts.STUD_STATUS_5PAID)){
+			result.setMessage("当前学员状态不允许退费！");
+			result.setSuccess(false);
+			return result;
+		}
+		try {		
+			orgUserId = request.getAttribute("user_id").toString();
+			org_id = request.getAttribute("org_id").toString();
+			Teacher teacher = this.getTechByUId(orgUserId);
+			teacherId = teacher.getTech_id().toString();
+			teacherName = teacher.getTech_name();
+		} catch (Exception e) {
+			result.setMessage("获取登录信息不完整！");
+			result.setSuccess(false);
+			return result;
+		}
+		String refundMoney = "";
+		if(!NumberUtils.isParsable(money)){
+			result.setMessage("请求失败！原因：输入金额格式异常！");
+			result.setSuccess(false);
+			return result;
+		}else if(money.contains(".")&&money.split("\\.")[1].length()>2){
+			result.setMessage("请求失败！原因：输入金额只能精确到分！");
+			result.setSuccess(false);
+			return result;
+		}else if(new BigDecimal(MoneyUtil.fromYUANtoFEN(money)).compareTo(new BigDecimal(Constant.MAX_MONEY))>0){
+			result.setMessage("请求失败！原因：输入金额过大！");
+			result.setSuccess(false);
+			return result;
+		}else if(new BigDecimal(MoneyUtil.fromYUANtoFEN(money)).compareTo(new BigDecimal(Constant.MIN_MONEY))<0){
+			result.setMessage("请求失败！原因：输入金额有误！");
+			result.setSuccess(false);
+			return result;
+		}else{
+			refundMoney = MoneyUtil.fromYUANtoFEN(money);
+		}
+		try {
+			ChargeDetail temp = new ChargeDetail();
+			temp.setCd_id(Integer.parseInt(cd_id));
+			ChargeDetail cd = chargeDetailService.getByIdForRefund(temp.getCd_id());
+			//验证退款条件
+			if(MoneyUtil.isFirstLarger(refundMoney,cd.getTxnAmt())){
+				result.setMessage("请求失败！原因：可退金额不足，请确认后重试！");
+				result.setSuccess(false);
+			}else if(cd.getRefund().equals(Constant.NO)){
+				result.setMessage("请求失败！原因：该项收费已经关闭退费入口！");
+				result.setSuccess(false);
+			}else if(!Constant.CHARGE_DETAIL_STATUS_OK.equals(cd.getStatus())){
+				result.setMessage("请求失败！原因：订单状态错误，请刷新后重试！");
+				result.setSuccess(false);
+			}else{
+				ChargeRecord cr = new ChargeRecord();
+				//开始退款线上
+				if(cd.getOnline_pay().equals(Constant.CHARGE_DETAIL_STATUS_OK)&&cd.getStatus().equals(Constant.CHARGE_DETAIL_STATUS_OK)){
+					if(Constant.NO.equals(cd.getAudit_switch())){
+						autoPass = true;//审核关闭，不需要审核，系统自动提交退费审核
+						cd.setOnline_pay(Constant.CHARGE_DETAIL_STATUS_REFUND_APPLY);
+						cr.setTxnType(Constant.TXNTYPE_SJWY_ONLINE_REFUND_APPLY);
+					}else{
+						//开启了退费审核，先进入教务人员预审状态
+						//autoPass = false;
+						cd.setOnline_pay(Constant.CHARGE_DETAIL_STATUS_REFUND_PREVIEW);
+						cr.setTxnType(Constant.TXNTYPE_SJWY_OFFLINE_REFUND_PREVIEW);
+					}
+				}else if(cd.getOffline_pay().equals(Constant.CHARGE_DETAIL_STATUS_OK)&&cd.getStatus().equals(Constant.CHARGE_DETAIL_STATUS_OK)){
+					cd.setOffline_pay(Constant.CHARGE_DETAIL_STATUS_REFUND_APPLY);
+					cr.setTxnType(Constant.TXNTYPE_SJWY_OFFLINE_REFUND_APPLY);
+					autoPass = true;
+				}else{
+					result.setMessage("请求失败！原因：订单状态错误！");
+					result.setSuccess(false);
+					return result;
+				}
+				cd.setStatus(Constant.CHARGE_DETAIL_STATUS_REFUND_APPLY);
+				Date refundDate = new Date();
+				cd.setModify_time(refundDate);
+				Integer refund = chargeDetailService.update(cd);
+				//创建退款记录
+				if(refund==1){
+					if(Constant.YES.equals(cd.getAudit_switch())){
+						sc.setStuStatus(Consts.STUD_STATUS_6REFUND_TO_AUDIT);
+					}else{
+						sc.setStuStatus(Consts.STUD_STATUS_7REFUND_AUDITED);
+					}
+					studentClassService.update(sc);
+					cr.setCid(cd.getCid());
+					cr.setCd_id(cd.getCd_id());
+					cr.setTxnAmt(refundMoney);
+					cr.setTxnTime(refundDate);
+					cr.setInsert_time(new Date());
+					cr.setOrg_user_id(Integer.parseInt(orgUserId));
+					cr.setUser_identify(Constant.IDENTITY_TEACHER);
+					cr.setUser_type_id(Integer.parseInt(teacherId));
+					cr.setUser_type_name(teacherName);
+					cr.setIs_del(Constant.IS_DEL_NO);
+					cr.setIs_show(Constant.YES);
+					chargeRecordService.save(cr);
+					result.setSuccess(true);
+					result.setMessage("申请成功！");
+					logger.info("【申请退款】教师tech_id"+teacherId+"于"+new SimpleDateFormat("yyyyMMddHHmmss").format(new Date().getTime())+"发起了对订单cd_id"+cd_id+"的退费申请");
+					Map<String, Object> documentMap = new HashMap<String, Object>();
+					documentMap.put("stud_id", cd.getStud_id());
+					List<Parent> parents = new ArrayList<Parent>();
+					try {
+						String documentResult = HttpClientUtil.post(ESB_REQUEST_URL+"getParentPhone","stud_id="+sc.getStudId(), "application/x-www-form-urlencoded");
+						Result<List<Parent>> pResult = JsonUtil.getObjectFromJson(documentResult, new TypeReference<Result<List<Parent>>>() { });
+						parents = pResult.getData();
+						String template_id = "";
+						try {
+							template_id = tokenService.getSNGWXTemplateId(cd.getOrg_id().toString(), Constant.TEMPLATE_NAME_CHARGE_AUDIT_RESULT_NOTICE);
+						} catch (Exception e) {
+						}
+						if(null!=parents&&parents.size()!=0){
+							for (Parent p : parents) {
+								Map<String, Object> map = new HashMap<String, Object>();
+								if(StringUtils.isNotBlank(p.getOpenid())&&StringUtils.isNotBlank(template_id)){//WX
+									map.put("open_id", p.getOpenid());
+									map.put("templateId", template_id);
+									map.put("cd_id", cd.getCd_id());
+									map.put("org_id", cd.getOrg_id());
+									map.put("first", "退款申请结果");
+									map.put("keyword1", cd.getStud_name());
+									try {
+										map.put("keyword2", MoneyUtil.fromFENtoYUAN(cr.getTxnAmt())+"元");
+									} catch (Exception e) {
+										map.put("keyword2", cr.getTxnAmt()+"分");
+									}
+									map.put("keyword3", Constant.ymd.format(cr.getTxnTime()));
+									map.put("keyword4", cd.getItem()+"退款申请提交成功！");
+									map.put("remark", "您的退费申请已提交审核。审核一般3个工作日，请关注微信通知。");
+								}
+								mqService.sendMessage("send_message_exchange", null, map);
+							}
+						}
+						String[] openids = cd.getOpenids().split(",");
+						if(StringUtils.isNotBlank(template_id)){//WX
+							for (String openid : openids) {
+								Map<String, Object> map = new HashMap<String, Object>();
+								map.put("open_id", openid);
+								map.put("templateId", template_id);
+								map.put("cd_id", cd.getCd_id());
+								map.put("org_id", cd.getOrg_id());
+								map.put("first", "退款申请通知");
+								map.put("keyword1", cd.getStud_name());
+								try {
+									map.put("keyword2", MoneyUtil.fromFENtoYUAN(cr.getTxnAmt())+"元");
+								} catch (Exception e) {
+									map.put("keyword2", cr.getTxnAmt()+"分");
+								}
+								map.put("keyword3", Constant.ymd.format(cr.getTxnTime()));
+								map.put("keyword4", cd.getItem()+"退费申请");
+								map.put("remark", "您的班级有学生发起了退费，您可以在学费统计中进行查看。");
+								mqService.sendMessage("send_message_exchange", null, map);
+							}
+						}
+					} catch (Exception e) {
+						LogUtil.writeErrorLog("【错误】发送支付提醒时发生异常，未能向stud_id="+sc.getStuClassId()+"的学生家长发送任何缴费提醒!");
+					}
+				}else{
+					logger.error("【退款失败】校验账单乐观锁时失败。ChargeDetail主键:"+cd_id);
+					result.setMessage("请求失败！原因：账单状态变动，请确认后重试！");
+					result.setSuccess(false);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error("【退款错误】退款时发生异常。ChargeDetail主键:"+cd_id);
+			result.setMessage("请求失败！原因：数据库异常，请稍候重试！");
+			result.setSuccess(false);
+		}
+		if(autoPass){
+			Map<String, Object> messageMap = new HashMap<String, Object>();
+			messageMap.put("data", "[{\"money\":"+MoneyUtil.fromFENtoYUAN(refundMoney)+",\"cd_id\":"+cd_id+"}]");
+			messageMap.put("org_user_id", orgUserId);
+			messageMap.put("tech_id", 0);
+			messageMap.put("tech_name", "系统自动审核");
+			messageMap.put("org_id", org_id);
+			messageMap.put("autoPass", Constant.YES);
+			mqService.sendMessage("charge_refund_exchange", null, messageMap);
+		}
+		if(result.isSuccess()){
+			//如果提交退费申请成功，调用随机时间释放名额方法
+			applyServiceImpl.addQuotaHoldMq(sc.getCamId(), sc.getClasId(), sc.getStudId());
+		}
+		return result;
+	}
+
+	/**
+	 * 财务人员查询退费申请列表
+	 */
+	@RequestMapping(value="/getRefundApplyList.json")
+	@ResponseBody
+	public Result<Map<String, Object>> getRefundApplyList(HttpServletRequest request, 
+			@RequestParam(name = "starttime", defaultValue="") String starttime,  
+			@RequestParam(name = "endtime", defaultValue="") String endtime,  
+			@RequestParam(name = "category_id", defaultValue="") String category_id,  
+			@RequestParam(name = "subject_id", defaultValue="") String subject_id,  
+			@RequestParam(name = "class_type", defaultValue="") String class_type,  
+			@RequestParam(name = "cam_id") String cam_id,  
+			@RequestParam(name = "term_id", defaultValue="") String term_id,  
+			@RequestParam(name = "keywords", defaultValue="") String keywords,  
+			@RequestParam(name = "currentPageNum", defaultValue="1") Integer currentPageNum, 
+			@RequestParam(name = "pageSize", defaultValue=Constant.NUM_PER_PCPAGE_STRING) Integer pageSize, 
+			HttpServletResponse response, HttpSession session) throws Exception {
+		Result<Map<String, Object>> result = new Result<Map<String, Object>>();
+		Map<String, Object> map = studentService.getRefundApplyList(starttime,endtime,category_id,subject_id,class_type,cam_id,term_id,keywords,currentPageNum,pageSize);
+		result.setData(map);
+		result.setSuccess(true);
+		return result;
+	}
+	
+	/**
+	 * 财务人员查询退费申请选择全部分页数据
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@RequestMapping(value="/getAllPageIds.json")
+	@ResponseBody
+	public Result getRefundApplyAllPageIds(HttpServletRequest request, 
+			@RequestParam(name = "starttime", defaultValue="") String starttime,  
+			@RequestParam(name = "endtime", defaultValue="") String endtime,  
+			@RequestParam(name = "category_id", defaultValue="") String category_id,  
+			@RequestParam(name = "subject_id", defaultValue="") String subject_id,  
+			@RequestParam(name = "class_type", defaultValue="") String class_type,  
+			@RequestParam(name = "cam_id") String cam_id,
+			@RequestParam(name = "term_id", defaultValue="") String term_id,  
+			@RequestParam(name = "keywords", defaultValue="") String keywords, 
+			HttpServletResponse response, HttpSession session) throws Exception {
+		Result result = new Result();
+		List list = studentService.getRefundApplyAllPageIds(starttime, endtime, category_id, subject_id, class_type, cam_id, term_id, keywords);
+		Map<String,String> map =new HashMap<String,String>();
+		getDataInfos(list,map);
+		result.setData(map);
+		result.setSuccess(true);
+		return result;
+	}
+	
+	/**
+	 * 返回前端想要的数据
+	 * @param list
+	 * @param map
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private void  getDataInfos(List list,Map<String,String> map){
+		StringBuffer cd_id = new StringBuffer();
+		StringBuffer stu_class_id = new StringBuffer();
+		if(list!=null && !list.isEmpty()) {
+			for(int i=0;i<list.size();i++) {
+				Map<String, Object> map_ = (Map<String, Object>) list.get(i);
+				String cdId = String.valueOf(map_.get("cd_id"));
+				String stuClassId = String.valueOf(map_.get("stu_class_id"));
+				if(i == list.size()-1) {
+					cd_id.append(cdId);
+					stu_class_id.append(stuClassId);
+				}else {
+					cd_id.append(cdId+",");
+					stu_class_id.append(stuClassId+",");
+				}
+			}
+			map.put("cd_id",cd_id.toString());
+			map.put("stu_class_id",stu_class_id.toString());
+		}
+		
+	}
+
+	/**
+	 * 导出财务人员查询退费申请列表
+	 */
+	@RequestMapping(value="/downloadRefundApplyList.htm")
+	@ResponseBody
+	public void downloadRefundApplyList(HttpServletRequest request, 
+			@RequestParam(name = "ids", defaultValue="") String ids,  
+			HttpServletResponse response, HttpSession session) throws Exception {
+		try{
+        	List<StudentPojo> list = new ArrayList<StudentPojo>();
+        	if(StringUtils.isNoneBlank(ids)){
+        		list = studentService.getRefundApplyList(ids);
+        	}
+			if ( null != list && list.size() > 0) {
+				List<String[]> excelList = new ArrayList<String[]>();
+				int index = 1;
+				for (StudentPojo s : list) {
+					String[] exampleValue = new String[10];
+					exampleValue[0] = (index++)+"";
+					exampleValue[1] = s.getStud_name();
+					exampleValue[2] = s.getUser_idnumber();
+					exampleValue[3] = s.getClas_name();
+					exampleValue[4] = s.getTech_name();
+					exampleValue[5] = s.getTuition_fees();
+					exampleValue[6] = Consts.PAY_TYPE_MAP.get(s.getPay_method().toString());
+					exampleValue[7] = s.getTxnAmt();
+					exampleValue[8] = s.getTf_money();
+					exampleValue[9] = Constant.sdf.format(s.getInsert_time());
+					excelList.add(exampleValue);
+				}
+				Workbook wb = ExcelUtil.makeWorkbook("学员退费申请列表", Constant.STUDENT_REFUND_APPLY_EXCEL_COLUMN, excelList, "xls");
+				ExcelUtil.makeAndOutExcelFile(request, response, wb, "学员退费申请信息.xls");
+			} else {
+				Workbook wb = ExcelUtil.makeWorkbook("学员退费申请列表", Constant.STUDENT_REFUND_APPLY_EXCEL_COLUMN, null, "xls");
+				ExcelUtil.makeAndOutExcelFile(request, response, wb, "学员退费申请信息.xls");
+			}
+        }catch(Exception e){
+        	e.printStackTrace();
+        }
+	}
+
+	/**
+	 * 财务通过退款申请
+	 */
+	@RequestMapping(value = "/cpassRefund.json")
+	@ResponseBody
+	public Result<String> cpassRefund(HttpServletRequest request,
+			@RequestParam(name = "ids") String ids,  
+			HttpServletResponse response, HttpSession session) throws Exception {
+		Result<String> result = new Result<String>();
+		result = validHandler(request,result);
+		if(!result.isSuccess()){
+			return result;
+		}
+		Teacher teacher = this.getTechByUId(request.getAttribute("user_id").toString());			
+		Map<String, Object> messageMap = new HashMap<String, Object>();
+		List<ChargeRecord> list = chargeRecordService.getRefundByCdids(ids);
+		StringBuffer sb = new StringBuffer("[");
+		for (ChargeRecord cr : list) {
+			sb.append("{\"money\":"+MoneyUtil.fromFENtoYUAN(cr.getTxnAmt())+",\"cd_id\":"+cr.getCd_id()+"},");
+		}
+		String data = sb.toString();
+		messageMap.put("data", data.substring(0, data.length()-1)+"]");
+		messageMap.put("org_user_id", request.getAttribute("user_id").toString());
+		messageMap.put("tech_id", teacher.getTech_id());
+		messageMap.put("tech_name", teacher.getTech_name());
+		messageMap.put("org_id", request.getAttribute("org_id").toString());
+		mqService.sendMessage("charge_refund_exchange", null, messageMap);
+		result.setSuccess(true);
+		result.setMessage("审核已提交！");
+		return result;
+	}
+
+	/**
+	 * 教务通过退款申请 
+	 */
+	@RequestMapping(value = "/jpassRefund.json")
+	@ResponseBody
+	public Result<String> jpassRefund(HttpServletRequest request, 
+			@RequestParam(name = "ids") String ids,  
+			HttpServletResponse response, HttpSession session) throws Exception {
+		Result<String> result = new Result<String>();
+		StringBuffer sb = new StringBuffer();
+		Teacher teacher = this.getTechByUId(request.getAttribute("user_id").toString());
+		result = validHandler(request,result);
+		if(!result.isSuccess()){
+			return result;
+		}
+		List<StudentPojo> list = studentService.getRefundList(ids);
+		if(list.size()==0){
+			result.setSuccess(false);
+			result.setMessage("没有符合条件的学生！");
+			return result;
+		}
+		if(ids.split(",").length>list.size()){
+			sb.append(ids.split(",").length-list.size()).append("名学生退费申请提交失败，请确认后重新提交；");
+		}
+		for (StudentPojo sp : list) {
+			if(MoneyUtil.isFirstLarger(sp.getTf_money(),sp.getTxnAmt())||MoneyUtil.isFirstLarger(sp.getTf_money(),MoneyUtil.fromYUANtoFEN(sp.getMoney()))){
+				sb.append(sp.getStud_name()).append("当前余额为").append(MoneyUtil.fromFENtoYUAN(sp.getTxnAmt())).append("元，不足以支付退款").append(MoneyUtil.fromFENtoYUAN(sp.getTf_money())).append("元；</br>");
+				list.remove(sp);
+			}
+			if(!sp.getStu_status().equals(Constant.CHARGE_DETAIL_STATUS_REFUND_PREVIEW)||(!sp.getOnline_pay().equals(Constant.CHARGE_DETAIL_STATUS_REFUND_PREVIEW)&&!sp.getOffline_pay().equals(Constant.CHARGE_DETAIL_STATUS_REFUND_PREVIEW))){
+				sb.append(sp.getStud_name()).append("当前支付状态不符合教务审核条件；</br>");
+				list.remove(sp);
+			}
+			if(!sp.getStu_status().equals(Consts.STUD_STATUS_6REFUND_TO_AUDIT)){
+				sb.append(sp.getStud_name()).append("当前学生状态不符合教务审核条件；</br>");
+				list.remove(sp);
+			}
+		}
+		for (StudentPojo sp : list) {
+			ChargeRecord cr = new ChargeRecord();
+			ChargeDetail cd = new ChargeDetail();
+			cd.setCd_id(sp.getCd_id());
+			cd.setOnline_pay(Constant.CHARGE_DETAIL_STATUS_REFUND_APPLY);
+			cd.setStatus(Constant.CHARGE_DETAIL_STATUS_REFUND_APPLY);
+			Date refundDate = new Date();
+			cd.setModify_time(refundDate);
+			Integer refund = chargeDetailService.update(cd);
+			//创建退款记录
+			if(refund==1){
+				cr.setTxnType(Constant.TXNTYPE_SJWY_ONLINE_REFUND_APPLY);
+				cr.setCid(sp.getCid());
+				cr.setCd_id(cd.getCd_id());
+				cr.setTxnAmt(sp.getTf_money());
+				cr.setTxnTime(refundDate);
+				cr.setInsert_time(new Date());
+				cr.setOrg_user_id(teacher.getUser_id());
+				cr.setUser_identify(Constant.IDENTITY_TEACHER);
+				cr.setUser_type_id(teacher.getTech_id());
+				cr.setUser_type_name(teacher.getTech_name());
+				cr.setIs_del(Constant.IS_DEL_NO);
+				cr.setIs_show(Constant.YES);
+				chargeRecordService.save(cr);
+				logger.info("【申请退款】教师tech_id"+teacher.getTech_id()+"于"+new SimpleDateFormat("yyyyMMddHHmmss").format(new Date().getTime())+"发起了对订单cd_id"+cd.getCd_id()+"的退费申请");
+			}else{
+				logger.error("【退款失败】校验账单乐观锁时失败。ChargeDetail主键:"+cd.getCd_id());
+				sb.append(sp.getStud_name()).append("退费时发生异常，请稍候重试；</br>");
+			}
+			StudentClass sc = new StudentClass();
+			sc.setStuClassId(sp.getStu_class_id());
+			sc.setStuStatus(Consts.STUD_STATUS_7REFUND_AUDITED);
+			studentClassService.updateStatus(sc);
+		}
+		if(StringUtils.isBlank(sb.toString())){
+			result.setSuccess(true);
+			result.setMessage("审核已提交！");
+		}else{
+			result.setSuccess(false);
+			result.setMessage(sb.toString());
+		}
+		return result;
+	}
+
+	/**
+	 * 教务人员尝试撤销退款申请
+	 */
+	@RequestMapping(value = "/tryCancelRefund.json")
+	@ResponseBody
+	public Result<String> tryCancelRefund(HttpServletRequest request, 
+			@RequestParam(name = "confirmed" , defaultValue="0") String confirmed,  
+			@RequestParam(name = "stu_class_id") String stu_class_id,  
+			HttpServletResponse response, HttpSession session) throws Exception {
+		Result<String> result = new Result<String>();
+		//判断是否经过用户确认，如未确认班容量，先判断是否需要确认
+		if((Constant.NO+"").equals(confirmed)){
+			Classes cla = classService.getBySCId(stu_class_id);
+			if(cla.getUsable_num().intValue()<=0){
+				result.setSuccess(false);
+				result.setCode(EnumException.cancel_refund_alarm.getValue());
+				result.setMessage("班级默认容量为"+cla.getSize()+"人，当前学员人数为"+(cla.getSize()-cla.getUsable_num())+"人，继续撤销操作会使学员人数超过班容量，是否继续撤销？");
+				return result;
+			}
+		}
+		//查询待财务审核的记录
+		List<StudentPojo> list = studentService.getRefundList(stu_class_id);
+		if(null==list||list.size()==0){
+			result.setSuccess(false);
+			result.setMessage("没有查询到对应记录！");
+			return result;
+		}else if(list.size()>1){
+			result.setSuccess(false);
+			result.setMessage("记录数量错误！");
+			return result;
+		}
+		//撤销支付详情表
+		StudentPojo sp = list.get(0);
+		ChargeRecord cr = new ChargeRecord();
+		ChargeDetail cd = new ChargeDetail();
+		cd.setCd_id(sp.getCd_id());
+		cd.setOnline_pay(Constant.CHARGE_DETAIL_STATUS_OK);
+		cd.setStatus(Constant.CHARGE_DETAIL_STATUS_OK);
+		Date refundDate = new Date();
+		cd.setModify_time(refundDate);
+		chargeDetailService.update(cd);
+		//保存撤销退款记录
+		cr.setCr_id(sp.getCr_id());
+		cr.setDel_time(refundDate);
+		cr.setDel_user_id(Integer.parseInt(request.getAttribute("user_id").toString()));
+		cr.setIs_del(Constant.IS_DEL_YES);
+		chargeRecordService.cancel(cr);
+		logger.info("【撤销退款】教师user_id"+request.getAttribute("user_id").toString()+"于"+new SimpleDateFormat("yyyyMMddHHmmss").format(new Date().getTime())+"发起了对订单cd_id"+cd.getCd_id()+"的退费申请");
+		//还原学员状态
+		StudentClass sc = new StudentClass();
+		sc.setStuClassId(sp.getStu_class_id());
+		sc.setStuStatus(Consts.STUD_STATUS_5PAID);
+		sc.setQuotaHold(Constant.IS_QUOTA_HOLD_YES);
+		studentClassService.updateStatus(sc);
+		//还原班级可用名额
+		applyServiceImpl.doUsableNum(sc.getClasId());
+		result.setSuccess(true);
+		result.setMessage("审核完成！");
+		return result;
+	}
+	
+	/**
+	 * @Title : validHandler 
+	 * @功能描述: 校验验证码
+	 * @返回类型：Result<String> 
+	 * @throws ：
+	 */
+	private Result<String> validHandler(HttpServletRequest request,Result<String> result){
+//		String audit_id = request.getParameter("audit_id");
+//		String code = request.getParameter("code");
+//		String phone = "";
+//		Integer org_id = 0;
+//		try {			
+//			org_id = Integer.parseInt(request.getAttribute("org_id").toString());
+//		} catch (Exception e) {
+//			logger.error("获取登录信息不完整！");
+//			result.setMessage("获取登录信息不完整！");
+//			result.setSuccess(false);
+//			return result;
+//		}
+//		Map<String, Object> paramMap = new HashMap<String, Object>();
+//		paramMap.put("org_id", org_id);
+//		try {
+//			String resultManagerStr = this.callUrl(request, "api/tech/getTechsOfRlId", paramMap);
+//			Result<Map<String,List<Teacher>>> managerResult = JsonUtil.getObjectFromJson(resultManagerStr, new TypeReference<Result<Map<String,List<Teacher>>>>() { });
+//			for (Teacher t : managerResult.getData().get("techs")) {
+//				if(t.getTech_id().toString().equals(audit_id)){
+//					phone = t.getUser_mobile();
+//					break;
+//				}
+//			}
+//			String validResult = HttpClientUtil.post(ESB_REQUEST_URL+"validCode", "phone="+phone+"&code="+code, "application/x-www-form-urlencoded");
+//			Result<String> vResult = JsonUtil.getObjectFromJson(validResult, new TypeReference<Result<String>>() {});
+//			if(200!=vResult.getCode()){
+//				result.setSuccess(false);
+//				result.setMessage("验证码错误！");
+//				return result;
+//			}
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			result.setSuccess(false);
+//			result.setMessage("验证码校验异常！");
+//			return result;
+//		}
+		result.setSuccess(true);
+		return result;
+	}
+
+	/**
+	 * 财务人员查询交易统计列表
+	 * @param txn_type 1缴费2退费
+	 */
+	@RequestMapping(value="/getRecordList.json")
+	@ResponseBody
+	public Result<Map<String, Object>> getRecordList(HttpServletRequest request, 
+			@RequestParam(name = "starttime", defaultValue="") String starttime,  
+			@RequestParam(name = "endtime", defaultValue="") String endtime,  
+			@RequestParam(name = "category_id", defaultValue="") String category_id,  
+			@RequestParam(name = "subject_id", defaultValue="") String subject_id,  
+			@RequestParam(name = "class_type", defaultValue="") String class_type,  
+			@RequestParam(name = "cam_id") String cam_id,  
+			@RequestParam(name = "term_id", defaultValue="") String term_id,  
+			@RequestParam(name = "pay_method", defaultValue="") String pay_method,  
+			@RequestParam(name = "txn_type", defaultValue="") String txn_type,  
+			@RequestParam(name = "keywords", defaultValue="") String keywords,  
+			@RequestParam(name = "currentPageNum", defaultValue="1") Integer currentPageNum, 
+			@RequestParam(name = "pageSize", defaultValue=Constant.NUM_PER_PCPAGE_STRING) Integer pageSize, 
+			HttpServletResponse response, HttpSession session) throws Exception {
+		Result<Map<String, Object>> result = new Result<Map<String, Object>>();
+		Map<String, Object> map = studentService.getRecordList(starttime,endtime,category_id,subject_id,class_type,cam_id,term_id,pay_method,txn_type,keywords,currentPageNum,pageSize);
+		result.setData(map);
+		result.setSuccess(true);
+		return result;
+	}
+	
+	/**
+	 * 财务统计全部分页IDS
+	 * @param txn_type 1缴费2退费
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@RequestMapping(value="/getRecordIdsList.json")
+	@ResponseBody
+	public Result<Map<String, Object>> getRecordIdsList(HttpServletRequest request, 
+			@RequestParam(name = "starttime", defaultValue="") String starttime,  
+			@RequestParam(name = "endtime", defaultValue="") String endtime,  
+			@RequestParam(name = "category_id", defaultValue="") String category_id,  
+			@RequestParam(name = "subject_id", defaultValue="") String subject_id,  
+			@RequestParam(name = "class_type", defaultValue="") String class_type,  
+			@RequestParam(name = "cam_id") String cam_id,
+			@RequestParam(name = "term_id", defaultValue="") String term_id,  
+			@RequestParam(name = "pay_method", defaultValue="") String pay_method,  
+			@RequestParam(name = "txn_type", defaultValue="") String txn_type,  
+			@RequestParam(name = "keywords", defaultValue="") String keywords,  
+			@RequestParam(name = "currentPageNum", defaultValue="1") Integer currentPageNum, 
+			@RequestParam(name = "pageSize", defaultValue=Constant.NUM_PER_PCPAGE_STRING) Integer pageSize, 
+			HttpServletResponse response, HttpSession session) throws Exception {
+		Result result = new Result();
+		List list = studentService.getRecordIdsList(starttime,endtime,category_id,subject_id,class_type,cam_id,term_id,pay_method,txn_type,keywords,currentPageNum,pageSize);
+		Map<String,String> map =new HashMap<>();
+		getDataInfos(list,map);
+		result.setData(map);
+		result.setSuccess(true);
+		return result;
+	}
+
+	/**
+	 * 财务人员导出交易统计列表
+	 */
+	@RequestMapping(value="/downloadRecordList.htm")
+	@ResponseBody
+	public void downloadRecordList(HttpServletRequest request, 
+			@RequestParam(name = "ids") String ids,  
+			HttpServletResponse response, HttpSession session) throws Exception {
+		try{
+        	List<StudentPojo> list = new ArrayList<StudentPojo>();
+        	if(StringUtils.isNoneBlank(ids)){
+        		list = studentService.getRecordList(ids);
+        	}
+			if ( null != list && list.size() > 0) {
+				List<String[]> excelList = new ArrayList<String[]>();
+				int index = 1;
+				for (StudentPojo s : list) { 
+					String[] exampleValue = new String[11];
+					exampleValue[0] = (index++)+"";
+					exampleValue[1] = s.getStud_name();
+					exampleValue[2] = s.getUser_idnumber();
+					exampleValue[3] = s.getClas_name();
+					exampleValue[4] = s.getTech_name();
+					exampleValue[5] = s.getTuition_fees();
+					exampleValue[6] = Consts.TXN_TYPE_MAP.get(s.getTxnType());
+					exampleValue[7] = Consts.PAY_TYPE_MAP.get(s.getPay_method());
+					exampleValue[8] = MoneyUtil.fromFENtoYUAN(s.getTxnAmt());
+					exampleValue[9] = s.getQueryId();
+					exampleValue[10] = Constant.sdf.format(s.getTxnTime());
+					excelList.add(exampleValue);
+				}
+				Workbook wb = ExcelUtil.makeWorkbook("学员财务统计列表", Constant.STUDENT_RECORD_EXCEL_COLUMN, excelList, "xls");
+				ExcelUtil.makeAndOutExcelFile(request, response, wb, "财务统计信息.xls");
+			} else {
+				Workbook wb = ExcelUtil.makeWorkbook("学员财务统计列表", Constant.STUDENT_RECORD_EXCEL_COLUMN, null, "xls");
+				ExcelUtil.makeAndOutExcelFile(request, response, wb, "财务统计信息.xls");
+			}
+        }catch(Exception e){
+        	e.printStackTrace();
+        }
+	}
+
+}

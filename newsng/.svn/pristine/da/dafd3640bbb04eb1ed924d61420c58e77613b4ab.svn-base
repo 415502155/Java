@@ -1,0 +1,452 @@
+package sng.entity;
+
+import java.io.Serializable;
+import java.util.Date;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+/**
+ * 支付记录
+ * Title: ChargeRecord
+ * Description: 记录关于支付的所有操作，此表不能修改
+ * Company: 世纪伟业
+ * @author Liuyang
+ * @date 2018年1月17日下午1:49:01
+ */
+@Entity
+@Table(name = "charge_record")
+public class ChargeRecord implements Serializable{
+
+	/**
+	 *@Fields serialVersionUID : 
+	 */
+	private static final long serialVersionUID = 2141483547521189201L;
+	/**
+	 * 主键
+	 */
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private	Integer	cr_id;	
+	/**
+	 * 缴费主表主键
+	 */
+	private	Integer	cid;
+	/**
+	 * 缴费明细表主键
+	 */
+	private	Integer	cd_id;	
+	/**
+	 * 【银联】交易类型
+	 * 银联：01银联缴费04银联退费
+	 * 自定义：SQYLTF申请银联退费TYYLTF同意银联退费YYTFSB银联退费失败BHYLTF驳回银联退费XXJF线下缴费SQXXTF申请线下退费TYXXTF同意线下退费BHXXTF驳回线下退费JWTYSQ教务同意申请SQZJTG申请直接通过
+	 */
+	private	String txnType;	
+	/**
+	 * 【银联】操作金额（单位：分）
+	 */
+	private	String txnAmt;	
+	/**
+	 * 【银联】操作时间
+	 */
+	private	Date txnTime;	
+	/**
+	 * 【银联】交费流水号
+	 */
+	private	String queryId;	
+	/**
+	 * 【银联】银联结算金额
+	 */
+	private	String settleAmt;	
+	/**
+	 * 【银联】银联结算日期
+	 */
+	private	String settleDate;	
+	/**
+	 * 【银联】系统跟踪号
+	 */
+	private	String traceNo;	
+	/**
+	 * 【银联】交易传输时间
+	 */
+	private	String traceTime;	
+	/**
+	 * 【银联】帐号
+	 */
+	private	String accNo;	
+	/**
+	 * 【银联】原始交易流水号（退款时使用）
+	 */
+	private	String origQryId;	
+	/**
+	 * 【银联】响应码
+	 */
+	private	String respCode;	
+	/**
+	 * 【银联】响应信息
+	 */
+	private	String respMsg;	
+	/**
+	 * 创建时间
+	 */
+	private	Date insert_time;
+	/**
+	 * 机构用户主键
+	 */
+	private Integer org_user_id;
+	/**
+	 * 显示标记
+	 */
+	private Integer is_show;
+	/**
+	 * 删除标记
+	 */
+	@JsonIgnore
+	private Integer is_del;
+	/**
+	 * 删除时间
+	 */
+	@JsonIgnore
+	@Transient
+	private Date del_time;
+	/**
+	 * 删除用户主键
+	 */
+	@JsonIgnore
+	@Transient
+	private Integer del_user_id;
+	/**
+	 * 用户角色【1教师 0家长 2学生】
+	 */
+	@JsonIgnore
+	private Integer user_identify;
+	/**
+	 * 用户角色主键【学生主键或家长主键或教师主键】
+	 */
+	@JsonIgnore
+	private Integer user_type_id;
+	/**
+	 * 用户名称【学生姓名或家长姓名或教师姓名】
+	 */
+	@JsonIgnore
+	private String user_type_name;
+	/**
+	 * 应收金额（单位：分）
+	 */
+	@Transient
+	private	String money;
+	/** 
+	 * 主键  
+	 */
+	public Integer getCr_id() {
+		return cr_id;
+	}
+	/** 
+	 * 主键  
+	 */
+	public void setCr_id(Integer cr_id) {
+		this.cr_id = cr_id;
+	}
+	/** 
+	 * 缴费主表主键  
+	 */
+	public Integer getCid() {
+		return cid;
+	}
+	/** 
+	 * 缴费主表主键  
+	 */
+	public void setCid(Integer cid) {
+		this.cid = cid;
+	}
+	/** 
+	 * 缴费明细表主键  
+	 */
+	public Integer getCd_id() {
+		return cd_id;
+	}
+	/** 
+	 * 缴费明细表主键  
+	 */
+	public void setCd_id(Integer cd_id) {
+		this.cd_id = cd_id;
+	}
+	/** 
+	 * 【银联】交易类型
+	 * 银联：01银联缴费04银联退费
+	 * 自定义：SQYLTF申请银联退费TYYLTF同意银联退费YYTFSB银联退费失败BHYLTF驳回银联退费XXJF线下缴费SQXXTF申请线下退费TYXXTF同意线下退费BHXXTF驳回线下退费  
+	 */
+	public String getTxnType() {
+		return txnType;
+	}
+	/** 
+	 * 【银联】交易类型
+	 * 银联：01银联缴费04银联退费
+	 * 自定义：SQYLTF申请银联退费TYYLTF同意银联退费YYTFSB银联退费失败BHYLTF驳回银联退费XXJF线下缴费SQXXTF申请线下退费TYXXTF同意线下退费BHXXTF驳回线下退费  
+	 */
+	public void setTxnType(String txnType) {
+		this.txnType = txnType;
+	}
+	/** 
+	 * 【银联】操作金额（单位：分）  
+	 */
+	public String getTxnAmt() {
+		return txnAmt;
+	}
+	/** 
+	 * 【银联】操作金额（单位：分）  
+	 */
+	public void setTxnAmt(String txnAmt) {
+		this.txnAmt = txnAmt;
+	}
+	/** 
+	 * 【银联】操作时间  
+	 */	
+	@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+	public Date getTxnTime() {
+		return txnTime;
+	}
+	/** 
+	 * 【银联】操作时间  
+	 */
+	public void setTxnTime(Date txnTime) {
+		this.txnTime = txnTime;
+	}
+	/** 
+	 * 【银联】交费流水号  
+	 */
+	public String getQueryId() {
+		return queryId;
+	}
+	/** 
+	 * 【银联】交费流水号  
+	 */
+	public void setQueryId(String queryId) {
+		this.queryId = queryId;
+	}
+	/** 
+	 * 【银联】银联结算金额  
+	 */
+	public String getSettleAmt() {
+		return settleAmt;
+	}
+	/** 
+	 * 【银联】银联结算金额  
+	 */
+	public void setSettleAmt(String settleAmt) {
+		this.settleAmt = settleAmt;
+	}
+	/** 
+	 * 【银联】银联结算日期  
+	 */	
+	public String getSettleDate() {
+		return settleDate;
+	}
+	/** 
+	 * 【银联】银联结算日期  
+	 */
+	public void setSettleDate(String settleDate) {
+		this.settleDate = settleDate;
+	}
+	/** 
+	 * 【银联】系统跟踪号  
+	 */
+	public String getTraceNo() {
+		return traceNo;
+	}
+	/** 
+	 * 【银联】系统跟踪号  
+	 */
+	public void setTraceNo(String traceNo) {
+		this.traceNo = traceNo;
+	}
+	/** 
+	 * 【银联】交易传输时间  
+	 */	
+	public String getTraceTime() {
+		return traceTime;
+	}
+	/** 
+	 * 【银联】交易传输时间  
+	 */
+	public void setTraceTime(String traceTime) {
+		this.traceTime = traceTime;
+	}
+	/** 
+	 * 【银联】帐号  
+	 */
+	public String getAccNo() {
+		return accNo;
+	}
+	/** 
+	 * 【银联】帐号  
+	 */
+	public void setAccNo(String accNo) {
+		this.accNo = accNo;
+	}
+	/** 
+	 * 【银联】原始交易流水号（退款时使用）  
+	 */
+	public String getOrigQryId() {
+		return origQryId;
+	}
+	/** 
+	 * 【银联】原始交易流水号（退款时使用）  
+	 */
+	public void setOrigQryId(String origQryId) {
+		this.origQryId = origQryId;
+	}
+	/** 
+	 * 【银联】响应码  
+	 */
+	public String getRespCode() {
+		return respCode;
+	}
+	/** 
+	 * 【银联】响应码  
+	 */
+	public void setRespCode(String respCode) {
+		this.respCode = respCode;
+	}
+	/** 
+	 * 【银联】响应信息  
+	 */
+	public String getRespMsg() {
+		return respMsg;
+	}
+	/** 
+	 * 【银联】响应信息  
+	 */
+	public void setRespMsg(String respMsg) {
+		this.respMsg = respMsg;
+	}
+	/** 
+	 * 创建时间  
+	 */	
+	@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+	public Date getInsert_time() {
+		return insert_time;
+	}
+	/** 
+	 * 创建时间  
+	 */
+	public void setInsert_time(Date insert_time) {
+		this.insert_time = insert_time;
+	}
+	/** 
+	 * 机构用户主键  
+	 */
+	public Integer getOrg_user_id() {
+		return org_user_id;
+	}
+	/** 
+	 * 机构用户主键  
+	 */
+	public void setOrg_user_id(Integer org_user_id) {
+		this.org_user_id = org_user_id;
+	}
+	/** 
+	 * 用户角色【1教师0家长2学生】  
+	 */
+	public Integer getUser_identify() {
+		return user_identify;
+	}
+	/** 
+	 * 用户角色【1教师0家长2学生】  
+	 */
+	public void setUser_identify(Integer user_identify) {
+		this.user_identify = user_identify;
+	}
+	/** 
+	 * 用户角色主键【学生主键或家长主键或教师主键】  
+	 */
+	public Integer getUser_type_id() {
+		return user_type_id;
+	}
+	/** 
+	 * 用户角色主键【学生主键或家长主键或教师主键】  
+	 */
+	public void setUser_type_id(Integer user_type_id) {
+		this.user_type_id = user_type_id;
+	}
+	/** 
+	 * 用户名称【学生姓名或家长姓名或教师姓名】  
+	 */
+	public String getUser_type_name() {
+		return user_type_name;
+	}
+	/** 
+	 * 用户名称【学生姓名或家长姓名或教师姓名】  
+	 */
+	public void setUser_type_name(String user_type_name) {
+		this.user_type_name = user_type_name;
+	}
+	/** 
+	 * 应收金额（单位：分）  
+	 */
+	public String getMoney() {
+		return money;
+	}
+	/** 
+	 * 应收金额（单位：分）  
+	 */
+	public void setMoney(String money) {
+		this.money = money;
+	}
+	/** 
+	 * 显示标记  
+	 */
+	public Integer getIs_show() {
+		return is_show;
+	}
+	/** 
+	 * 显示标记  
+	 */
+	public void setIs_show(Integer is_show) {
+		this.is_show = is_show;
+	}
+	/** 
+	 * 删除标记  
+	 */
+	public Integer getIs_del() {
+		return is_del;
+	}
+	/** 
+	 * 删除标记  
+	 */
+	public void setIs_del(Integer is_del) {
+		this.is_del = is_del;
+	}
+	/** 
+	 * 删除时间  
+	 */
+	public Date getDel_time() {
+		return del_time;
+	}
+	/** 
+	 * 删除时间  
+	 */
+	public void setDel_time(Date del_time) {
+		this.del_time = del_time;
+	}
+	/** 
+	 * 删除用户主键  
+	 */
+	public Integer getDel_user_id() {
+		return del_user_id;
+	}
+	/** 
+	 * 删除用户主键  
+	 */
+	public void setDel_user_id(Integer del_user_id) {
+		this.del_user_id = del_user_id;
+	}
+	
+}

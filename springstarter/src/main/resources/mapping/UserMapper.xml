@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.shihy.springboot.dao.UserMapper" >
+  <resultMap id="BaseResultMap" type="com.shihy.springboot.entity.User" >
+    <id column="user_id" property="user_id" jdbcType="INTEGER" />
+    <result column="user_name" property="user_name" jdbcType="VARCHAR" />
+    <result column="user_pass" property="user_pass" jdbcType="VARCHAR" />
+    <result column="sex" property="sex" jdbcType="INTEGER" />
+    <result column="birthday" property="birthday" jdbcType="TIMESTAMP" />
+    <result column="is_del" property="is_del" jdbcType="INTEGER" />
+    <result column="create_time" property="create_time" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="update_time" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    user_id, user_name, user_pass, sex, birthday, is_del, create_time, update_time
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.shihy.springboot.entity.UserExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from t_user
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_user
+    where user_id = #{user_id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_user
+    where user_id = #{user_id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.shihy.springboot.entity.UserExample" >
+    delete from t_user
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.shihy.springboot.entity.User" >
+    insert into t_user (user_id, user_name, user_pass, 
+      sex, birthday, is_del, 
+      create_time, update_time)
+    values (#{user_id,jdbcType=INTEGER}, #{user_name,jdbcType=VARCHAR}, #{user_pass,jdbcType=VARCHAR}, 
+      #{sex,jdbcType=INTEGER}, #{birthday,jdbcType=TIMESTAMP}, #{is_del,jdbcType=INTEGER}, 
+      #{create_time,jdbcType=TIMESTAMP}, #{update_time,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.shihy.springboot.entity.User" >
+    insert into t_user
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="user_id != null" >
+        user_id,
+      </if>
+      <if test="user_name != null" >
+        user_name,
+      </if>
+      <if test="user_pass != null" >
+        user_pass,
+      </if>
+      <if test="sex != null" >
+        sex,
+      </if>
+      <if test="birthday != null" >
+        birthday,
+      </if>
+      <if test="is_del != null" >
+        is_del,
+      </if>
+      <if test="create_time != null" >
+        create_time,
+      </if>
+      <if test="update_time != null" >
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="user_id != null" >
+        #{user_id,jdbcType=INTEGER},
+      </if>
+      <if test="user_name != null" >
+        #{user_name,jdbcType=VARCHAR},
+      </if>
+      <if test="user_pass != null" >
+        #{user_pass,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null" >
+        #{sex,jdbcType=INTEGER},
+      </if>
+      <if test="birthday != null" >
+        #{birthday,jdbcType=TIMESTAMP},
+      </if>
+      <if test="is_del != null" >
+        #{is_del,jdbcType=INTEGER},
+      </if>
+      <if test="create_time != null" >
+        #{create_time,jdbcType=TIMESTAMP},
+      </if>
+      <if test="update_time != null" >
+        #{update_time,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.shihy.springboot.entity.UserExample" resultType="java.lang.Integer" >
+    select count(*) from t_user
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update t_user
+    <set >
+      <if test="record.user_id != null" >
+        user_id = #{record.user_id,jdbcType=INTEGER},
+      </if>
+      <if test="record.user_name != null" >
+        user_name = #{record.user_name,jdbcType=VARCHAR},
+      </if>
+      <if test="record.user_pass != null" >
+        user_pass = #{record.user_pass,jdbcType=VARCHAR},
+      </if>
+      <if test="record.sex != null" >
+        sex = #{record.sex,jdbcType=INTEGER},
+      </if>
+      <if test="record.birthday != null" >
+        birthday = #{record.birthday,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.is_del != null" >
+        is_del = #{record.is_del,jdbcType=INTEGER},
+      </if>
+      <if test="record.create_time != null" >
+        create_time = #{record.create_time,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.update_time != null" >
+        update_time = #{record.update_time,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update t_user
+    set user_id = #{record.user_id,jdbcType=INTEGER},
+      user_name = #{record.user_name,jdbcType=VARCHAR},
+      user_pass = #{record.user_pass,jdbcType=VARCHAR},
+      sex = #{record.sex,jdbcType=INTEGER},
+      birthday = #{record.birthday,jdbcType=TIMESTAMP},
+      is_del = #{record.is_del,jdbcType=INTEGER},
+      create_time = #{record.create_time,jdbcType=TIMESTAMP},
+      update_time = #{record.update_time,jdbcType=TIMESTAMP}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.shihy.springboot.entity.User" >
+    update t_user
+    <set >
+      <if test="user_name != null" >
+        user_name = #{user_name,jdbcType=VARCHAR},
+      </if>
+      <if test="user_pass != null" >
+        user_pass = #{user_pass,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null" >
+        sex = #{sex,jdbcType=INTEGER},
+      </if>
+      <if test="birthday != null" >
+        birthday = #{birthday,jdbcType=TIMESTAMP},
+      </if>
+      <if test="is_del != null" >
+        is_del = #{is_del,jdbcType=INTEGER},
+      </if>
+      <if test="create_time != null" >
+        create_time = #{create_time,jdbcType=TIMESTAMP},
+      </if>
+      <if test="update_time != null" >
+        update_time = #{update_time,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where user_id = #{user_id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.shihy.springboot.entity.User" >
+    update t_user
+    set user_name = #{user_name,jdbcType=VARCHAR},
+      user_pass = #{user_pass,jdbcType=VARCHAR},
+      sex = #{sex,jdbcType=INTEGER},
+      birthday = #{birthday,jdbcType=TIMESTAMP},
+      is_del = #{is_del,jdbcType=INTEGER},
+      create_time = #{create_time,jdbcType=TIMESTAMP},
+      update_time = #{update_time,jdbcType=TIMESTAMP},
+      token = #{token,jdbcType=VARCHAR}
+    where user_id = #{user_id,jdbcType=INTEGER}
+  </update>
+  <select resultMap="BaseResultMap" parameterType="com.shihy.springboot.entity.UserExample" id="selectByExampleWithRowbounds" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from t_user
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+
+	<select id="getUserListByPage" resultMap="BaseResultMap">
+		select user_id, user_name, user_pass, DATE_FORMAT(birthday,'%Y-%m-%d') birthday, sex, (CASE WHEN sex = 1 THEN '男' WHEN sex = 2 THEN '女'  END) sexStr from t_user
+		<if test="order != null">
+			order by #{order}
+		</if>
+		limit #{pageStartSize},#{pageSize}
+	</select>
+	<select id="getUserInfoByUserId" resultType="java.util.HashMap">
+		select user_id, user_name, user_pass, DATE_FORMAT(birthday,'%Y-%m-%d')
+		birthday, sex, (CASE WHEN sex = 1 THEN '男' WHEN sex = 2 THEN '女' END)
+		sexStr, token from t_user
+		<if test="user_id != null">
+			where user_id = #{user_id,jdbcType=INTEGER}
+		</if>
+	</select>
+	
+	<select id="getUserInfoByMap" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		select user_id, user_name, user_pass, DATE_FORMAT(birthday,'%Y-%m-%d')
+		birthday, sex, (CASE WHEN sex = 1 THEN '男' WHEN sex = 2 THEN '女' END)
+		sexStr, token from t_user
+		<if test="user_id != null">
+			where user_id = #{user_id,jdbcType=INTEGER}
+		</if>
+	</select>
+	<select id="getUserRoleMenuInfo" resultType="java.util.HashMap" parameterType="java.lang.Integer">
+		select u.user_id, u.user_name, DATE_FORMAT(u.birthday, '%Y-%m-%d') birthday, u.token #, r.role_id, r.role_name, m.menu_id, m.menu_name
+		,GROUP_CONCAT(DISTINCT r.role_id) role_id, GROUP_CONCAT(DISTINCT r.role_name) role_name, GROUP_CONCAT(m.menu_id) menu_id, GROUP_CONCAT(m.menu_name) menu_name 
+		from t_user u 
+		INNER JOIN t_user_role ur on u.user_id = ur.user_id and ur.is_del = 0
+		INNER JOIN t_role r on r.role_id = ur.role_id and r.is_del = 0
+		INNER JOIN t_role_menu rm on rm.role_id = r.role_id and  rm.is_del = 0
+		INNER JOIN t_menu m on m.menu_id = rm.menu_id and m.is_del = 0
+		where u.is_del = 0
+		<if test="user_id != null">
+			and u.user_id = #{user_id,jdbcType=INTEGER}
+		</if>
+		GROUP BY u.user_id
+	</select>
+	<select id="getList" resultType="java.util.HashMap" parameterType="java.lang.String">
+		select user_id, user_name, user_pass, DATE_FORMAT(birthday,'%Y-%m-%d')
+		birthday, sex, (CASE WHEN sex = 1 THEN '男' WHEN sex = 2 THEN '女' END)
+		sexStr, token from t_user where is_del = 0
+		<if test="user_name != null">
+			and user_name LIKE #{user_name}
+		</if>
+	</select>
+	<insert id="insertByBatch" parameterType="java.util.List">
+        insert into t_user (user_name, user_pass, sex, birthday, is_del, create_time)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.user_name}, #{item.user_pass}, #{item.sex}, #{item.birthday}, #{item.is_del} ,#{item.create_time})
+        </foreach>
+    </insert>
+</mapper>

@@ -1,0 +1,653 @@
+package sng.pojo;
+import java.util.Date;
+
+import javax.persistence.Transient;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+/**
+ * @类 名： StudentList
+ * @功能描述：学员 
+ * @作者信息： LiuYang
+ * @创建时间： 2018年11月21日上午10:38:46
+ */
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class StudentPojo implements java.io.Serializable {
+	/**
+	 *@Fields serialVersionUID : 
+	 */
+	private static final long serialVersionUID = 7928597668103770659L;
+	/**
+	 * 学生主键
+	 */
+	private Integer stud_id;
+	/**
+	 * 机构ID
+	 */
+	private Integer org_id;
+	/**
+	 * 校区ID
+	 */
+	private Integer cam_id;
+	/**
+	 * 上课时间
+	 */
+	private String class_start_date;
+	
+	/**
+	 * 学生姓名
+	 */
+	private String stud_name;
+	/**
+	 * 学生证件号码
+	 */
+	private String user_idnumber;
+	/**
+	 * 班级主键
+	 */
+	private Integer clas_id;
+	/**
+	 * 班级名称
+	 */
+	private String clas_name;
+	/**
+	 * 教师的userId
+	 */
+	private Integer teacher_user_id;
+	/**
+	 * 教师主键
+	 */
+	private Integer tech_id;
+	/**
+	 * 教师姓名（多个用逗号连接）
+	 */
+	private String tech_name;
+	/**
+	 * 家长的userId
+	 */
+	private Integer parent_user_id;
+	/**
+	 * 家长主键
+	 */
+	private Integer parent_id;
+	/**
+	 * 家长姓名（多个用逗号连接）
+	 */
+	private String parent_name;
+	/**
+	 * 学员状态
+	 */
+	private Integer stu_status;
+	/**
+	 * 班级收费标准
+	 */
+	private String tuition_fees;
+	/**
+	 * 学费支付方式
+	 */
+	private Integer pay_method;
+	/**
+	 * 支付详情主键
+	 */
+	private Integer cd_id;
+	/**
+	 * 班级学费支付项目主键
+	 */
+	private Integer cid;
+	/**
+	 * 学费支付状态
+	 */
+	private Integer status;
+	/**
+	 * 线上缴费支付状态
+	 */
+	private Integer online_pay;
+	/**
+	 * 线下缴费支付状态
+	 */
+	private Integer offline_pay;
+	/**
+	 * 学费应付总额
+	 */
+	private String money;
+	/**
+	 * 学费当前余额
+	 */
+	private String txnAmt;
+	/**
+	 * 学费退费总额
+	 */
+	private String tf_money;
+	/**
+	 * 学生班级关系主键
+	 */
+	private Integer stu_class_id;
+	/**
+	 * 科目名称
+	 */
+	private String subject_name;
+	/**
+	 * 类目名称
+	 */
+	private String category_name;
+	/**
+	 * 凭证打印状态
+	 */
+	private Integer is_print;
+	/**
+	 * 支付记录表主键
+	 */
+	private Integer cr_id;
+	/**
+	 * 申请时间
+	 */
+	@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+	private Date insert_time;
+	/**
+	 * 操作类型编码
+	 */
+	private String txnType;
+	/**
+	 * 操作类型名称
+	 */
+	private String txnMethod;
+	/**
+	 * 流水号
+	 */
+	private String queryId;
+	/**
+	 * 交易时间
+	 */
+	@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+	private Date txnTime;
+
+	/**
+	 * 临时字段，用于临时存放退费总额
+	 */
+	@Transient
+	@JsonIgnore
+	private Double tf_sum;
+	/**
+	 * 临时字段，用于临时存放缴费总额
+	 */
+	@Transient
+	@JsonIgnore
+	private Double ss_sum;
+	/**
+	 * 招生计划是否开启
+	 */
+	private Integer plan_switch;
+
+
+	/**
+	 * 临时字段，用于临时存放
+	 */
+	@Transient
+	@JsonIgnore
+	private Double dtf_money;
+
+	@Transient
+	@JsonIgnore
+	private Double dtxnAmt;
+
+	public Double getDtxnAmt() {
+		return dtxnAmt;
+	}
+
+	public void setDtxnAmt(Double dtxnAmt) {
+		this.dtxnAmt = dtxnAmt;
+	}
+
+	public Double getDtf_money() {
+		return dtf_money;
+	}
+
+	public void setDtf_money(Double dtf_money) {
+		this.dtf_money = dtf_money;
+	}
+
+	public String getClass_start_date() {
+		return class_start_date;
+	}
+	public void setClass_start_date(String class_start_date) {
+		this.class_start_date = class_start_date;
+	}
+	public Integer getOrg_id() {
+		return org_id;
+	}
+	public void setOrg_id(Integer org_id) {
+		this.org_id = org_id;
+	}
+	public Integer getCam_id() {
+		return cam_id;
+	}
+	public void setCam_id(Integer cam_id) {
+		this.cam_id = cam_id;
+	}
+	/** 
+	 * 学生姓名  
+	 */
+	public String getStud_name() {
+		return stud_name;
+	}
+	/** 
+	 * 学生姓名  
+	 */
+	public void setStud_name(String stud_name) {
+		this.stud_name = stud_name;
+	}
+	/** 
+	 * 学生证件号码  
+	 */
+	public String getUser_idnumber() {
+		return user_idnumber;
+	}
+	/** 
+	 * 学生证件号码  
+	 */
+	public void setUser_idnumber(String user_idnumber) {
+		this.user_idnumber = user_idnumber;
+	}
+	/** 
+	 * 班级名称  
+	 */
+	public String getClas_name() {
+		return clas_name;
+	}
+	/** 
+	 * 班级名称  
+	 */
+	public void setClas_name(String clas_name) {
+		this.clas_name = clas_name;
+	}
+	/** 
+	 * 教师姓名（多个用逗号连接）  
+	 */
+	public String getTech_name() {
+		return tech_name;
+	}
+	/** 
+	 * 教师姓名（多个用逗号连接）  
+	 */
+	public void setTech_name(String tech_name) {
+		this.tech_name = tech_name;
+	}
+	/** 
+	 * 学员状态  
+	 */
+	public Integer getStu_status() {
+		return stu_status;
+	}
+	/** 
+	 * 学员状态  
+	 */
+	public void setStu_status(Integer stu_status) {
+		this.stu_status = stu_status;
+	}
+	/** 
+	 * 班级收费标准  
+	 */
+	public String getTuition_fees() {
+		return tuition_fees;
+	}
+	/** 
+	 * 班级收费标准  
+	 */
+	public void setTuition_fees(String tuition_fees) {
+		this.tuition_fees = tuition_fees;
+	}
+	/** 
+	 * 学费支付方式  
+	 */
+	public Integer getPay_method() {
+		return pay_method;
+	}
+	/** 
+	 * 学费支付方式  
+	 */
+	public void setPay_method(Integer pay_method) {
+		this.pay_method = pay_method;
+	}
+	/** 
+	 * 学费支付状态  
+	 */
+	public Integer getStatus() {
+		return status;
+	}
+	/** 
+	 * 学费支付状态  
+	 */
+	public void setStatus(Integer status) {
+		this.status = status;
+	}
+	/** 
+	 * 学费应付总额  
+	 */
+	public String getMoney() {
+		return money;
+	}
+	/** 
+	 * 学费应付总额  
+	 */
+	public void setMoney(String money) {
+		this.money = money;
+	}
+	/** 
+	 * 学费当前余额  
+	 */
+	public String getTxnAmt() {
+		return txnAmt;
+	}
+	/** 
+	 * 学费当前余额  
+	 */
+	public void setTxnAmt(String txnAmt) {
+		this.txnAmt = txnAmt;
+	}
+	/** 
+	 * 学费退费总额  
+	 */
+	public String getTf_money() {
+		return tf_money;
+	}
+	/** 
+	 * 学费退费总额  
+	 */
+	public void setTf_money(String tf_money) {
+		this.tf_money = tf_money;
+	}
+	/** 
+	 * 学生主键  
+	 */
+	public Integer getStud_id() {
+		return stud_id;
+	}
+	/** 
+	 * 学生主键  
+	 */
+	public void setStud_id(Integer stud_id) {
+		this.stud_id = stud_id;
+	}
+	/** 
+	 * 班级主键  
+	 */
+	public Integer getClas_id() {
+		return clas_id;
+	}
+	/** 
+	 * 班级主键  
+	 */
+	public void setClas_id(Integer clas_id) {
+		this.clas_id = clas_id;
+	}
+	/** 
+	 * 支付详情主键  
+	 */
+	public Integer getCd_id() {
+		return cd_id;
+	}
+	/** 
+	 * 支付详情主键  
+	 */
+	public void setCd_id(Integer cd_id) {
+		this.cd_id = cd_id;
+	}
+	/** 
+	 * 班级学费支付项目主键  
+	 */
+	public Integer getCid() {
+		return cid;
+	}
+	/** 
+	 * 班级学费支付项目主键  
+	 */
+	public void setCid(Integer cid) {
+		this.cid = cid;
+	}
+	/** 
+	 * 学生班级关系主键  
+	 */
+	public void setStu_class_id(Integer stu_class_id) {
+		this.stu_class_id = stu_class_id;
+	}
+	/** 
+	 * 学生班级关系主键  
+	 */
+	
+	public Integer getStu_class_id() {
+		return stu_class_id;
+	}
+	/** 
+	 * 教师的userId  
+	 */
+	public Integer getTeacher_user_id() {
+		return teacher_user_id;
+	}
+	/** 
+	 * 教师的userId  
+	 */
+	public void setTeacher_user_id(Integer teacher_user_id) {
+		this.teacher_user_id = teacher_user_id;
+	}
+	/** 
+	 * 教师主键  
+	 */
+	public Integer getTech_id() {
+		return tech_id;
+	}
+	/** 
+	 * 教师主键  
+	 */
+	public void setTech_id(Integer tech_id) {
+		this.tech_id = tech_id;
+	}
+	/** 
+	 * 家长的userId  
+	 */
+	public Integer getParent_user_id() {
+		return parent_user_id;
+	}
+	/** 
+	 * 家长的userId  
+	 */
+	public void setParent_user_id(Integer parent_user_id) {
+		this.parent_user_id = parent_user_id;
+	}
+	/** 
+	 * 家长主键  
+	 */
+	public Integer getParent_id() {
+		return parent_id;
+	}
+	/** 
+	 * 家长主键  
+	 */
+	public void setParent_id(Integer parent_id) {
+		this.parent_id = parent_id;
+	}
+	/** 
+	 * 家长姓名（多个用逗号连接）  
+	 */
+	public String getParent_name() {
+		return parent_name;
+	}
+	/** 
+	 * 家长姓名（多个用逗号连接）  
+	 */
+	public void setParent_name(String parent_name) {
+		this.parent_name = parent_name;
+	}
+	/** 
+	 * 科目名称  
+	 */
+	public String getSubject_name() {
+		return subject_name;
+	}
+	/** 
+	 * 科目名称  
+	 */
+	public void setSubject_name(String subject_name) {
+		this.subject_name = subject_name;
+	}
+	/** 
+	 * 类目名称  
+	 */
+	public String getCategory_name() {
+		return category_name;
+	}
+	/** 
+	 * 类目名称  
+	 */
+	public void setCategory_name(String category_name) {
+		this.category_name = category_name;
+	}
+	/** 
+	 * 凭证打印状态  
+	 */
+	public Integer getIs_print() {
+		return is_print;
+	}
+	/** 
+	 * 凭证打印状态  
+	 */
+	public void setIs_print(Integer is_print) {
+		this.is_print = is_print;
+	}
+	/** 
+	 * 线上缴费支付状态  
+	 */
+	public Integer getOnline_pay() {
+		return online_pay;
+	}
+	/** 
+	 * 线上缴费支付状态  
+	 */
+	public void setOnline_pay(Integer online_pay) {
+		this.online_pay = online_pay;
+	}
+	/** 
+	 * 支付记录表主键  
+	 */
+	public Integer getCr_id() {
+		return cr_id;
+	}
+	/** 
+	 * 支付记录表主键  
+	 */
+	public void setCr_id(Integer cr_id) {
+		this.cr_id = cr_id;
+	}
+	/** 
+	 * 申请时间  
+	 */
+	public Date getInsert_time() {
+		return insert_time;
+	}
+	/** 
+	 * 申请时间  
+	 */
+	public void setInsert_time(Date insert_time) {
+		this.insert_time = insert_time;
+	}
+	/** 
+	 * 操作类型编码  
+	 */
+	public String getTxnType() {
+		return txnType;
+	}
+	/** 
+	 * 操作类型编码  
+	 */
+	public void setTxnType(String txnType) {
+		this.txnType = txnType;
+	}
+	/** 
+	 * 操作类型名称  
+	 */
+	public String getTxnMethod() {
+		return txnMethod;
+	}
+	/** 
+	 * 操作类型名称  
+	 */
+	public void setTxnMethod(String txnMethod) {
+		this.txnMethod = txnMethod;
+	}
+	/** 
+	 * 流水号  
+	 */
+	public String getQueryId() {
+		return queryId;
+	}
+	/** 
+	 * 流水号  
+	 */
+	public void setQueryId(String queryId) {
+		this.queryId = queryId;
+	}
+	/** 
+	 * 交易时间  
+	 */
+	public Date getTxnTime() {
+		return txnTime;
+	}
+	/** 
+	 * 交易时间  
+	 */
+	public void setTxnTime(Date txnTime) {
+		this.txnTime = txnTime;
+	}
+	/** 
+	 * 临时字段，用于临时存放退费总额  
+	 */
+	public Double getTf_sum() {
+		return tf_sum;
+	}
+	/** 
+	 * 临时字段，用于临时存放退费总额  
+	 */
+	public void setTf_sum(Double tf_sum) {
+		this.tf_sum = tf_sum;
+	}
+	/** 
+	 * 临时字段，用于临时存放缴费总额  
+	 */
+	public Double getSs_sum() {
+		return ss_sum;
+	}
+	/** 
+	 * 临时字段，用于临时存放缴费总额  
+	 */
+	public void setSs_sum(Double ss_sum) {
+		this.ss_sum = ss_sum;
+	}
+	/** 
+	 * 线下缴费支付状态  
+	 */
+	public Integer getOffline_pay() {
+		return offline_pay;
+	}
+	/** 
+	 * 线下缴费支付状态  
+	 */
+	public void setOffline_pay(Integer offline_pay) {
+		this.offline_pay = offline_pay;
+	}
+
+	/** 
+	 * 招生计划是否开启  
+	 */
+	public Integer getPlan_switch() {
+		return plan_switch;
+	}
+
+	/** 
+	 * 招生计划是否开启  
+	 */
+	public void setPlan_switch(Integer plan_switch) {
+		this.plan_switch = plan_switch;
+	}
+	
+}

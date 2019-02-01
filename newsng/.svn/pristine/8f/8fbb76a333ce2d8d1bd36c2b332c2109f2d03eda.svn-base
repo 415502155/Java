@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title>听课凭证</title>
+		<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+		<link rel="shortcut icon" href="/favicon.ico">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<!--ui包-->
+		<link rel="stylesheet" href="../../../css/sm.css">
+		<link rel="stylesheet" href="../../../css/layout.css">
+		<style>
+			p{text-indent: 0}
+			.child-name{font-weight:bold;font-size:1rem}
+		</style>
+	</head>
+	<body>
+		<div class="page-group">
+			<div class="page page-current">
+ 		     <!--我的听课证列表-->
+ 		     <div class="content native-scroll " >
+				 <div class="permit_list">
+					  <ul style="padding:0;">
+				      	 
+				      </ul>
+				   </div>
+			 </div>
+			 <!--我的听课证列表 End-->	
+			</div>
+		</div>
+	</body>
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script>
+	$(function(){
+		var baseUser = JSON.parse(sessionStorage.baseUser);
+	    var data = {
+	    		token:baseUser.token,
+				org_id:baseUser.orguser.org_id,
+				udid:baseUser.udid,
+				version:3,
+				identity:baseUser.orguser.identity,
+				phone:baseUser.orguser.user_mobile
+			};
+    	//获取报名列表
+		getData(domainName + "/voucher/model/vocher/vlist.htm",data,function(res){
+			if(res.code == 200 && res.success == true){
+				var d = res.data;
+				if(d.length>0){
+					var classhtml = '',
+					week = ["占位符","周一","周二","周三","周四","周五","周六","周日"];
+					for(var i=0;i<d.length;i++){
+						var res=d[i],
+						dateHtml = '';
+						if(res.class_unset_time !== null){
+							dateHtml = '<div>'+ res.class_unset_time +'<br>'+ res.cam_name + " " + res.classroom_name +'</div>';
+						}else{
+							dateHtml = '<div>每'+ week[res.class_week] + '（'+ res.class_begin_time1 +'-'+ res.class_over_time1 +'）<br>' + res.cam_name + " " + res.classroom_name + '</div>';
+						}
+						classhtml += '<li>'+
+									'<div class="permit_title">'+
+											'<span>学员证</span>'+
+											'<span class="permit_time pull-right">'+res.term_name+'</span>'+
+										'</div>'+
+										'<div class="permit_info" style="line-height:1.5rem">'+
+											// '<div style="text-align:right;color:#ff821d">凭证编号：'+res.voucher_no+'</div>'+
+											'<div class="permit-child">'+
+												'<p class="child-name">'+ res.stud_name +'</p>'+
+												'<p class="child-idnum">'+ res.user_idnumber +'</p>'+
+												'<p>实缴学费：'+ res.tuition_fees +'元</p>'+
+											'</div>'+
+											'<div class="permit_className">'+res.subject_name+'('+res.clas_name+') '+ (res.tech_names!==null ? (res.tech_names + '老师') : "教师待定") + '</div>'+
+											'<div>'+ res.class_start_date +' 开课 共'+ res.total_hours +'课时</div>'+ dateHtml +
+											'</div>'+
+									'</li>';
+									
+					}
+					$(".permit_list ul").html(classhtml); 
+				}else{
+					$(".permit_list ul").html('<div class="noData noData_line">'+
+				         						'<span class="noData__tips">您还没有报名，暂无凭证</span>'+
+				         					'</div>')
+				}
+
+			}else{
+				$.alert(res.message);
+			}
+		});
+	});
+</script>
+ 

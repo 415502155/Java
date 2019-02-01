@@ -1,0 +1,150 @@
+package sng.dao;
+
+import java.util.Date;
+import java.util.List;
+
+import sng.entity.ChargeDetail;
+
+/**
+ * 支付明细DAO
+ * Title: ChargeDetailDao
+ * Description:支付明细表DAO接口 
+ * Company: 世纪伟业
+ * @author Liuyang
+ * @date 2018年1月17日下午3:37:09
+ */
+public interface ChargeDetailDao extends BaseDao<ChargeDetail>{
+
+	/**
+	 * 获取需要提醒的信息列表
+	 * @param cid
+	 * @param classIds
+	 * @return
+	 */
+	List<ChargeDetail> getListForRemind(Integer cid, String classIds, String cd_ids);
+	
+	/**
+	 * 更新支付记录
+	 * @param cd
+	 * @return 成功更新条数
+	 */
+	Integer update(ChargeDetail cd);
+
+	/**
+	 * 为待支付订单加上乐观锁
+	 * @param lockDate
+	 * @param cd
+	 * @return
+	 */
+	Integer lockChargeDetail(Date lockDate, ChargeDetail cd);
+
+	/**
+	 * 支付
+	 * @param cd
+	 * @param lockDate
+	 * @return
+	 */
+	Integer updateWithLock(ChargeDetail cd, Date lockDate);
+
+	/**
+	 * 根据主键获取可退款账单
+	 * @param cd_id
+	 * @return
+	 */
+	ChargeDetail getByIdForRefund(Integer cd_id);
+
+	/**
+	 * 根据主键查询可支付的账单
+	 * @param cd_id
+	 * @return
+	 */
+	ChargeDetail getByIdForPay(Integer cd_id);
+
+	/**
+	 * 查询未支付的订单总数
+	 * @param cid
+	 * @return
+	 */
+	Integer countNoPay(Integer cid);
+
+	/**
+	 * 根据订单编号获取支付详情
+	 * @param order_id
+	 * @return
+	 */
+	ChargeDetail getByOrderId(String order_id);
+
+	/**
+	 * 查询
+	 * @param cd_id
+	 * @return
+	 */
+	ChargeDetail getById(Integer cd_id);
+
+	/**
+	 * 更新消息发送状态
+	 * @param cd
+	 */
+	void updateSendStatus(ChargeDetail cd);
+
+	/**
+	 * 根据订单号查询已支付的订单详情
+	 * @param orderId
+	 * @return
+	 */
+	ChargeDetail getByOrderIdForQuery(String orderId);
+	
+	/**
+	 * 获取支付信息（用于纠正错误的支付信息）
+	 * @param cd_id
+	 * @return
+	 */
+	ChargeDetail getByIdForCorrect(Integer cd_id);
+
+	/**
+	 * @Title : getByIdForPayWithCEBUrl 
+	 * @功能描述: 
+	 * @返回类型：ChargeDetail 
+	 * @throws ：
+	 */
+	ChargeDetail getByIdForPayWithCEBUrl(Integer cd_id);
+	
+	/**
+	 * @Title : getRecordList 
+	 * @功能描述: 获取当前日期的所有支付记录（光大支付记录）
+	 * @返回类型：List<ChargeDetail> 
+	 * @throws ：
+	 */
+	List<ChargeDetail> getRecordList(Integer accType, String date, String txnType);
+
+	/**
+	 * 用学生班级关系表主键查询支付详情表主键
+	 */
+	String getIdsBySCIds(String ids);
+
+	/**
+	 * 根据学生主键获取所有支付详情
+	 */
+	List<ChargeDetail> getDetailByStudId(String stud_id);
+
+	/**
+	 * 获取支付详情列表
+	 */
+	List<ChargeDetail> getDetailByStuStatus(Integer cid,int stu_status);
+
+	/**
+	 * 根据学员班级关系主键删除支付详情表信息
+	 */
+	int deleteByCdIds(String cd_ids);
+
+	/**
+	 * 根据班级主键获取班级下学生的支付记录列表
+	 */
+	List<ChargeDetail> getByClasId(Integer clas_id);
+
+	/**
+	 * 查询尚未支付的记录
+	 */
+	ChargeDetail getToFinish(int studId, int classId, int camId);
+
+}

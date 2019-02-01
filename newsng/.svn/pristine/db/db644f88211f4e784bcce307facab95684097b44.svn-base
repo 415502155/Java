@@ -1,0 +1,39 @@
+package sng.util;
+
+import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import sng.pojo.SessionInfo;
+import sng.service.LoggerService;
+@Component
+public class LoggerUtil {
+	
+	@Autowired
+	private LoggerService loggerService;
+	private static LoggerUtil logUtil;
+    @PostConstruct 
+	public void init() {       
+		 logUtil= this; 
+		 logUtil.loggerService= this.loggerService; 
+	} 
+    
+	/***
+	 *  @Description: 添加操作日志
+	 *  @param orgId 机构id
+	 *  @param camId 校区id
+	 *  @param targetId 班级id/学生id
+	 *  @param targetType 操作对象类型EnumLog.TARGET_TYPE_***
+	 *  @param targetName 【必须】班级名称/学生姓名
+	 *  @param action 操作动作 EnumLog.****.getKey()
+	 *  @param content 操作内容 EnumLog.****.getValue()
+	 *  @param userType 用户身份Constant.IDENTITY_***
+	 *  @param userTypeId 老师id/家长id
+	 *  @param userTypeName 【必须】老师名称/家长名称 
+	 */
+	public static void save(Integer orgId, Integer camId, Integer targetId, Integer targetType, String targetName, Integer action,
+			String content, Integer userType, Integer userTypeId, String userTypeName, SessionInfo sessionInfo) {
+		logUtil.loggerService.save(orgId, camId, targetId, targetType, targetName, action, content, userType, userTypeId, userTypeName, sessionInfo);
+	}
+}

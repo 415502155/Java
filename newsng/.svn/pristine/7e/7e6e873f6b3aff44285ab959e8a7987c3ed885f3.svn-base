@@ -1,0 +1,823 @@
+<!--发布通知-->
+
+<div class="content-wrap" id="sub_loadBox">
+
+    <div id="step_no1">
+        <div class="search">
+            <select class="gui-input" id="allTerm">
+                <option value="">选择学期</option>
+            </select>
+            <select class="gui-input" id="classType">
+                <option value="">班级类型</option>
+            </select>
+            <select class="gui-input" id="allCategory">
+                <option value="">选择类目</option>
+            </select>
+            <select class="gui-input" id="subject" disabled>
+                <option value="">选择科目</option>
+            </select>
+            <select class="gui-input" id="allCampus"></select>
+            <select class="gui-input" id="allTime">
+                <option value="">上课时间</option>
+            </select>
+
+            <div class="gui-input-group">
+                <input type="text" class="gui-input" id="searchKeyword" placeholder="请输入班级名称" style="width: 120px"/>
+                <button type="button"  class="gui-btn  gui-btn-normal" id="toSearch"><i class="fa fa-search"></i>搜索</button>
+            </div>
+
+        </div>
+        <div class="bod-con-fer-form">
+            <table align="center" class="tab tablesorter-blue">
+                <thead>
+                <tr>
+                    <th><input type="checkbox" name="allClass" onclick="all_click(this,'class',changeLocal(this))"></th>
+                    <th>序号</th>
+                    <th>科目（班级名称）</th>
+                    <th>类型</th>
+                    <th>校区</th>
+                    <th>教室</th>
+                    <th>开课日期</th>
+                    <th>上课时间</th>
+                    <th>教师</th>
+                    <th>学费</th>
+                    <th>人数</th>
+                </tr>
+                </thead>
+                <tbody id="classList">
+                <!--<tr>
+                    <td><input type="checkbox" name="class"></td>
+                    <td>1</td>
+                    <td>儿童画（儿162-1-2B）</td>
+                    <td>老生班</td>
+                    <td>东马路</td>
+                    <td>主教学406室</td>
+                    <td>18-12-03</td>
+                    <td>周日 9:00-10：00</td>
+                    <td>刘丽</td>
+                    <td>750</td>
+                    <td>20/20</td>
+                </tr>-->
+                    <tr>
+                        <td colspan="11" class="noData"><i class="fa fa-warning" aria-hidden="true"></i>获取不到班级数据</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- 分页 -->
+        <div class="gui-page-wapper" style="margin:20px 0;line-height: 28px;" id="pageContent">
+            <ul class="gui-page" id="limitUi">
+                <span class="gui-page-total">共<span id="allPage" class="numberShow">0</span>页 <span id="allTotal" class="numberShow">0</span>数据</span>
+                <span id="creatPage">
+            </span>
+            </ul>
+            <span class="gui-page-options-elevator" style="padding-left: 10px;">
+                每页条数：
+                <select id="limit" >
+                     <option value="20">20</option>
+                     <option value="50">50</option>
+                     <option value="100">100</option>
+                </select>
+            </span>
+
+            <span class="gui-page-options">
+            <span class="gui-page-options-elevator">跳至第
+            <input id="page" class="gui-input" data-onlyNumber="true">
+             页</span>
+           </span>
+        </div>
+        <!--分页END-->
+
+        <!--统计查询-->
+        <div class="dataStatistics">
+            <i class="fa fa-bar-chart"></i>: 班级数：<span class="numberShow" id="sum_classes"><i
+                class="fa fa-circle-o-notch fa-spin"></i></span> 学生数：<span class="numberShow"id="sum_students"><i
+                class="fa fa-circle-o-notch fa-spin"></i></span>
+        </div>
+        <!--统计查询 END-->
+
+        <!-- 数据操作-->
+        <div class="dataTool" >
+            <div class="pull-left">
+                <label for="isAll">
+                    <input type="checkbox" id="isAll" name="allSubClass">选择全部分页数据
+                </label>
+            </div>
+            <div class="pull-right">
+                <button type="button" class="gui-btn  gui-btn-normal" id="addPlan" disabled><i class="fa fa-plus-square-o"></i>创建招生（<span>0</span>班）</button>
+                <button type="button" class="gui-btn  gui-btn-warm" id="delChanged" disabled title="还没有选择班级"><i class="fa fa-trash-o"></i>清空所选</button>
+                <button type="button" class="gui-btn  gui-btn-primary" id="cancel"><i class="fa fa-close"></i>取消</button>
+            </div>
+        </div>
+        <!-- 数据操作 END-->
+
+    </div>
+
+    <div id="step_no2" style="padding-top:20px;display: none">
+        <form class="gui-form gui-form-label-right" id="add-form" novalidate="novalidate">
+            <div class="line"></div>
+            <div class="gui-form-item"><label class="gui-form-item-label">招生范围</label>
+                <div class="gui-form-item-content">
+                    <span style="padding: 0 6px;" id="changedTermId"></span>/<span style="padding: 0 6px;" id="changedClassType"></span>(<span class="numberShow" id="changedClasses">0</span>个班级)
+                    <span class="formlink" title="修改从招生计划已选择班级" style="margin-left: 20px" id="backFirst">修改选择班级<em></em></span>
+                </div>
+            </div>
+            <div class="line"></div>
+            <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">招生名称</label>
+                <div class="gui-form-item-content">
+                    <input type="text" name="planTitle" id="planTitle" placeholder="请输入招生名称" class="gui-input" style="width: 240px" maxlength="20">
+                </div>
+            </div>
+
+            <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">开始日期</label>
+                <div class="gui-form-item-content">
+                    <input type="text" name="planStart" id="planStart" placeholder="选择日期" data-date="YYYY-MM-DD hh:mm:ss" readonly class="gui-input">
+                </div>
+            </div>
+            <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">结束日期</label>
+                <div class="gui-form-item-content">
+                    <input type="text" name="planEnd" id="planEnd" placeholder="选择日期" data-date="YYYY-MM-DD hh:mm:ss" readonly class="gui-input" >
+                </div>
+            </div>
+
+            <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">招生须知</label>
+                <div class="gui-form-item-content">
+                    <textarea placeholder="请输入招生须知..." name="planContent" id="planContent" rows="2" class="gui-textarea" maxlength="100"></textarea>
+                </div>
+            </div>
+            <div class="gui-form-item topBorder">
+                <label class="gui-form-item-label">是否开启</label>
+                <div class="gui-form-item-content">
+                    <div class="gui-checkbox-group" style="padding-top: 6px;">
+                        <span class="switch-off" themeColor="#86b7ea" id="planSwitch"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="line"></div>
+            <div class="gui-form-item">
+                <div class="gui-form-item-content">
+                    <button type="button" class="gui-btn gui-btn-normal" id="save"><i class="fa fa-save"></i><span>保存发布</span></button>
+                   <!-- <button type="button" class="gui-btn gui-btn-primary" id="back"><i class="fa fa-angle-left"></i><span>取消返回</span></button>-->
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<script type="text/javascript" src="plus/validate/jquery-validate.js"></script>
+<script src="js/countUp.js"></script>
+<script>
+
+    var search_list={
+        "parameter":{
+            "org_id":option.org_id,
+            "token":option.token,
+
+            "termId":$("#allTerm").val(),
+            "classType":$("#classType").val()==""?"1":$("#classType").val(),
+            "categoryId":"",
+            "subjectId":"",
+            "classWeek":"",
+            "keyword":"",
+            "planId":"",
+            "camId":"all",
+            "limit":20,
+            "page":1,
+        },
+        "url":domain+"/plan/selectCampusClass.json"
+    };
+
+    //第一步 获取的数据,学期id 班级类型 已选择班级列表  已保存班级列表（编辑的时候用）
+    var firstData={
+        "termId":"",
+        "classType":"",
+        "classIds":[],
+        "selectClassIds":[],
+    };
+
+    $(function () {
+
+
+        //当学期变化或者班级类型变化清空所选数据
+        $("#allTerm").change(function () {
+            firstData.classIds=[];
+            search_list.parameter.termId=$(this).val();
+            firstData.termId=$(this).val();
+            resetBtn();
+        });
+        $("#classType").change(function () {
+            search_list.parameter.classType=$(this).val();
+            firstData.classType=$(this).val();
+            firstData.classIds=[];
+            resetBtn();
+        });
+
+        //校区、科目、类目、上课时间
+        $("#allCampus").change(function(){
+            search_list.parameter.camId=$("#allCampus").val();
+            search_list.parameter.limit=$("#limit").val();
+            search_list.parameter.page=1;
+            showHtml();
+        });
+        $("#allCategory").change(function(){
+            search_list.parameter.categoryId=$("#allCategory").val();
+            search_list.parameter.limit=$("#limit").val();
+            search_list.parameter.page=1;
+            showHtml();
+        });
+        $("#subject").change(function(){
+            search_list.parameter.subjectId=$("#subject").val();
+            search_list.parameter.limit=$("#limit").val();
+            search_list.parameter.page=1;
+            showHtml();
+        });
+
+        $("#allTime").change(function(){
+            search_list.parameter.classWeek=$("#allTime").val();
+            search_list.parameter.limit=$("#limit").val();
+            search_list.parameter.page=1;
+            showHtml();
+        });
+
+
+        /**
+         * 重置
+         * 当学期和班级类型变化的时候触发重新选择
+         */
+        function resetBtn() {
+            $("#allCategory").val("").change();
+            $("#allTime").val("");
+            $("#allCampus").val("");
+             $("#delChanged").prop({"disabled":true,"title":"暂未选择班级"});
+             $("#addPlan").prop({"disabled":true,"title":"请先选择班级"});
+             $("#addPlan span").text("0");
+             firstData.classIds=[];
+        }
+
+        /**
+         * 清空所选
+         * 包括 清除选中和清空 及触发统计和页面更新
+         */
+        $("#delChanged").click(function(){
+
+            //界面更新
+            for(var n=0,m=firstData.classIds.length;n<m;n++){
+                var obj=firstData.classIds[n];
+
+                if($("#"+obj).length==1){
+                    $("[name=\"allClass\"]").prop("checked",false);
+                    $("#"+obj).prop("checked",false);
+                }
+            }
+            $("#delChanged").prop({"disabled":true,"title":"暂未选择班级"});
+            $("#addPlan").prop({"disabled":true,"title":"请先选择班级"});
+            $("#addPlan span").text("0");
+            firstData.classIds=[];
+
+            //清空备选班级
+            firstData.classIds=[];
+        });
+
+
+
+        //点击查询
+        $("#toSearch").click(function(){
+
+            if($("#allTerm").val()==""){
+                myAlert("请选择学期！",2,null,function () {
+                    $("#allTerm").focus().addClass('animated shake');;
+                });
+                return false
+            }
+            if($("#classType").val()==""){
+                myAlert("请班级类型！",2,null,function () {
+                    $("#classType").focus().addClass('animated shake');;
+                });
+                return false
+            }
+            search_list.parameter.termId=$("#allTerm").val();
+            search_list.parameter.classType=$("#classType").val();
+            search_list.parameter.categoryId=$("#allCategory").val();
+            search_list.parameter.subjectId=$("#subject").val();
+            search_list.parameter.classWeek=$("#allTime").val();
+            search_list.parameter.keyword=$("#searchKeyword").val();
+            search_list.parameter.limit=$("#limit").val();
+            search_list.parameter.page=1;
+            showHtml();
+        });
+
+
+        //第一步--执行下拉生成
+        allSelect();
+        //开关--是否开启招生
+        honeySwitch.init();
+
+
+        //判断是编辑还是创建
+        //创建显示被选班级（第一步） 编辑直接显示表单信息（第二步）
+
+        var planId=option.getUrlParam("planId");
+        if(planId!==""){
+             $("#save span").text("编辑招生")
+            //界面更新--编辑
+            $("#step_no1").slideUp(300);
+            $("#step_no2").slideDown(300);
+            $("#cancel").show();
+
+            //数据更新--编辑招生计划的时候获取招生信息
+            var plan={
+                "parameter":{
+                    "org_id":option.org_id,
+                    "planId":planId
+                },
+                "url":domain+"/plan/info.json"
+            };
+
+            getData(plan.url,plan.parameter,function (data) {
+
+                if(data.code==200 && data.success==true){
+
+                    var planObj=data.data;
+                    $("#cam_name").val(planObj.cam_name);
+                    //计划--学期
+                    $("#changedTermId").text(planObj.termName).attr("data-id",planObj.termId);
+                    //计划--班级类型
+                    $("#changedClassType").text(option.classType[planObj.classType]).attr("data-id",planObj.classType);
+
+
+                    firstData.termId=planObj.termId;
+                    firstData.classType=planObj.classType;
+
+                    setTimeout(function () {
+                        $("#allTerm").val(planObj.termId);
+                        $("#classType").val(planObj.classType);
+
+                        search_list.parameter.termId=planObj.termId;
+                        search_list.parameter.classType=planObj.classType;
+
+                    },300);
+
+
+                    //计划--标题、开始时间、结束时间、招生须知、是否开启
+                    $("#planTitle").val(planObj.title);
+                    $("#planStart").val(planObj.beginTimeStr);
+                    $("#planEnd").val(planObj.endTimeStr);
+                    $("#planContent").val(planObj.content);
+
+                    option.switchShow("planSwitch",planObj.planSwitch);
+
+                    if(planObj.classIds!==""){
+
+                        //计划--所选班级数
+                        countup("changedClasses",planObj.classIds.split(",").length);
+
+                        var classesArray=planObj.classIds.split(",");
+
+                        for(var x=0,y=classesArray.length;x<y;x++){
+                            firstData.classIds.push(classesArray[x]);
+                            firstData.selectClassIds.push(classesArray[x]);
+                        }
+                    }
+                    /*$("#addPlan span").text(firstData.classIds.length);
+                    $("#delChanged").prop({"disabled":false,"title":"清空已选择班级（"+firstData.classIds.length+"）"});
+                    $("#addPlan").prop({"disabled":false,"title":"已选中"+firstData.classIds.length+"个班级"});*/
+                    //更新数据
+                    addData();
+
+                }else {
+                    myAlert(data.message,2,data.code,null);
+                }
+            },"POST",false)
+
+        }else {
+
+
+            //界面更新--创建
+            $("#step_no2").slideUp(300);
+            $("#step_no1").slideDown(300);
+            $("#cancel").hide();
+
+            //默认选择当前学期，班级类型的第一个
+            $("#classType option:eq(1)").prop("selected","true");
+            search_list.parameter.classType=$("#classType option:eq(1)").val();
+            firstData.termId=$("#allTerm").val();
+            firstData.classType=$("#classType option:eq(1)").val();
+
+            search_list.parameter.termId=$("#allTerm").val();
+            //获取被选班级列表
+            showHtml();
+        }
+
+
+
+
+        //单选班级：如果选中插入到备选，否则从已选删除
+        //编辑的时候会后渲染，所以得绑定事件
+        $("#classList").on("click","input[name=\"class\"]",function (e) {
+            var classID=$(this).attr("id");
+            //选中
+            if($(this).is(":checked")){
+                firstData.classIds.push(classID);
+                if($("input[name=class]").length==$("input[name=class]:checked").length){
+                    $("input[name=allClass]").prop("checked",true);
+                }
+                //更新数据
+                addData();
+
+            }else{  //取消
+                firstData.classIds.removeByValue(classID);
+                $("#isAll").prop("checked",false);
+                $("input[name=allClass]").prop("checked",false);
+                //更新数据
+                addData();
+            }
+            e.stopPropagation();
+        });
+
+        $("#classList").on("click","tr",function (e) {
+            var obj=$(this).find("input[name=\"class\"]");
+            var classID=obj.attr("id");
+            if(classID==undefined){
+                return false
+            }
+
+            if(!obj.is(":checked")){//选中
+                obj.prop("checked",true);
+                firstData.classIds.push(classID);
+                if($("input[name=class]").length==$("input[name=class]:checked").length){
+                    $("input[name=allClass]").prop("checked",true);
+                }
+                //更新数据
+                addData();
+            }else{  //取消
+                obj.prop("checked",false);
+                firstData.classIds.removeByValue(classID);
+                $("#isAll").prop("checked",false);
+                $("input[name=allClass]").prop("checked",false);
+                //更新数据
+                addData();
+            }
+            e.stopPropagation();
+        });
+
+
+        //创建计划，选择完班级到第二步
+        $("#addPlan").click(function () {
+
+            if(firstData.termId ==""){
+                myAlert("请先选择学期！",2,null,function(){
+                    $("#allTerm").focus().addClass('animated shake');
+                });
+                return false
+            }
+
+            if(firstData.classType==""){
+                myAlert("请先选择班级类型！",2,null,function(){
+                    $("#classType").focus().addClass('animated shake');
+                });
+                return false
+            }
+
+
+            if(firstData.classIds.length==0){
+                myAlert("至少选择一个班级！",2,null,null);
+                return false
+            }
+
+            $("#changedClassType").text(option.classType[firstData.classType]);
+            //界面更新
+            $("#step_no1").slideUp(300);
+            $("#step_no2").slideDown(300);
+
+            $("#changedClasses").text(firstData.classIds.length)
+
+        });
+
+        //编辑计划的时候----取消编辑发送班级到第二步
+        $("#cancel").click(function () {
+            //界面更新
+            $("#step_no1").slideUp(300);
+            $("#step_no2").slideDown(300);
+            //还原默认选择
+            $("#allTerm").val(firstData.termId);
+            firstData.classIds=firstData.selectClassIds;
+            $("#classType").val(firstData.classType);
+
+        });
+
+
+        //获取分页全部数据
+        $("#isAll").click(function () {
+            var isChecked=$(this).is(":checked");
+            //获取该搜索条件下的所有班级
+            getData(domain+"/plan/selectAllClass.json",search_list.parameter,function (res) {
+                if(res.code==200 && res.success==true){
+                    var allclassIds=res.data;
+                    var m=allclassIds.length;
+
+                    if(allclassIds.length>0){
+
+                            if(isChecked){
+                                //添加到已选
+                                for(var i=0;i<m;i++){
+                                    firstData.classIds.push(allclassIds[i]);
+
+                                    $("#"+allclassIds[i]).prop("checked","checked");
+                                    $("input[name=allClass]").prop("checked",true);
+                                }
+                            }else{
+                                //从已选删除
+                                for(var i=0;i<m;i++){
+                                    firstData.classIds.removeByValue(allclassIds[i]);
+                                    $("#"+allclassIds[i]).removeAttr("checked");
+                                    $("input[name=allClass]").prop("checked",false);
+                                }
+                            }
+                        //更新数据
+                        addData();
+                    }else{
+                        myAlert("该条件下没有任何班级，请切换条件从新筛选！",2,res.code,null);
+                    }
+                }else {
+                    myAlert("获取分页数据失败，请稍后再试",2,res.code,null);
+                }
+            },"POST",false);
+
+        });
+
+
+
+        //返回到第一步
+        $("#backFirst").click(function () {
+            //界面更新
+            $("#step_no2").slideUp(300);
+            $("#step_no1").slideDown(300);
+
+
+            $("#allTerm").val(firstData.termId);
+            $("#classType").val(firstData.classType);
+            if(firstData.selectClassIds.length==0){
+                firstData.classIds==firstData.selectClassIds;
+            }
+            addData();
+            //获取被选班级列表
+            search_list.parameter.planId=option.getUrlParam("planId")
+            showHtml();
+
+        });
+
+        //创建招生计划校验
+        $("#add-form").validate({
+            rules: {
+                planTitle: {
+                    required: true,
+                    minlength:2,
+                    maxlength:20
+                },
+                planStart: {
+                    required: true
+                },
+                planEnd: {
+                    required: true
+                },
+                planContent: {
+                    required: true
+                }
+            },
+            messages: {
+                planTitle: {
+                    required: '请输入招生名称',
+                    minlength:'教室名称最少2个字符',
+                    maxlength:'教室名称不能超过20个字'
+                },
+                planStart: {
+                    required: '请选择开始时间'
+                },
+                planEnd: {
+                    required: '请选择结束时间'
+                },
+                planContent: {
+                    required: '请输入招生须知'
+                }
+            },
+            errorPlacement: function(error, element) {
+                error.appendTo(element.parent().after())
+            },
+            errorClass: 'gui-form-item-error',
+            errorElement: 'span',
+            submitHandler: function(form) {
+
+                //保存或者更新校区信息
+                var save={
+                    "parameter":{
+                        "org_id":option.org_id,
+                        "token":option.token,
+
+                        "termId":firstData.termId,
+                        "classType":firstData.classType,
+                        "classIds":firstData.classIds.join(","),
+
+                        //计划--标题、开始时间、结束时间、招生须知、是否开启
+                        "title":$("#planTitle").val(),
+                        "planSwitch":$("#planSwitch").hasClass("switch-off")?"0":"1",
+                        "beginTimeStr":$("#planStart").val(),
+                        "endTimeStr":$("#planEnd").val(),
+                        "content":$("#planContent").val(),
+                        "planId":option.getUrlParam("planId")
+                    },
+                    "url":domain+"/plan/save.json"
+                };
+
+                //保存或者更新校区
+                getData(save.url,save.parameter,function (data) {
+                    if(data.code==200 && data.success==true){
+                        myAlert("保存成功",1,data.code,function () {
+                            window.location.href="#42"
+                        });
+                    }else {
+                        myAlert(data.message,2,data.code,null);
+                    }
+                },"POST",false)
+            }
+        });
+
+        //提交
+        $("#save").click(function () {
+            var termYear=new Date($("#planStart").val().replace(/\-/g, "/")).getTime();
+            var start=new Date($("#planEnd").val().replace(/\-/g, "/")).getTime();
+            if(termYear!==0 && start!==0 && termYear > start){
+                myAlert("计划开始日期应早于计划结束日期！",2,null,null);
+                return false
+            }
+
+            $("#add-form").submit();
+        });
+
+
+    });
+
+    /**
+     * 单页全选
+     * 包括 清除选中和清空 及触发统计和页面更新
+     */
+    function changeLocal(obj){
+        //遍历本地数据
+        if($(obj).is(":checked")){
+            $("input[name=class]").each(function () {
+                var nowClass=$(this).attr("id");
+                firstData.classIds.push(nowClass);
+            });
+        }else{
+            $("input[name=class]").each(function () {
+                var nowClass=$(this).attr("id");
+                firstData.classIds.removeByValue(nowClass);
+            });
+        }
+        addData();
+    }
+    /**
+     * 触发页面更新
+     * 包括 统计和页面更新（能否触发发送）
+     */
+    function addData() {
+        if(firstData.classIds.length>0){
+            firstData.classIds=firstData.classIds.unique();
+            var sum=firstData.classIds.length;
+            $("#delChanged").prop({"disabled":false,"title":"清空已选择班级（"+sum+"）"});
+            $("#addPlan").prop({"disabled":false,"title":"已选中"+sum+"个班级"});
+            $("#addPlan span").text(sum);
+        }else{
+            $("#delChanged").prop({"disabled":true,"title":"暂未选择班级"});
+            $("#addPlan").prop({"disabled":true,"title":"请先选择班级"});
+            $("#addPlan span").text("0");
+        }
+    }
+
+    //列表
+    function showHtml(limit,page) {
+
+        search_list.parameter.limit=limit==undefined?20:limit;
+        search_list.parameter.page=page==undefined?1:page;
+
+        getData(search_list.url,search_list.parameter,function (res) {
+            if(res.code==200 && res.success==true){
+                var data=res.data,html="";
+                //如果当前页是第一页从新渲染
+                if(data.page==1){
+                    //生成页数(总条数，总页数，)
+                    $("#creatPage").createPage({
+                        pageCount:data.totalPage,
+                        current:data.page,
+                        url:search_list.url,
+                        backFn:function(page){
+                            var limit=$("#limit").val();
+                            showHtml(limit,page)
+                        }
+                    });
+                }
+                //总页数
+                $("#allPage").text(data.size);
+
+                //总条数
+                $("#allTotal").text(data.total);
+                countup("sum_classes", data.total);//统计班级数（班级数==总记录数）
+
+                if(data.data.length > 0){
+                    for(var n=0,m=data.data.length;n<m;n++){
+                        var toShow=(parseInt(data.page)-1)*parseInt(data.limit);
+                        var classObj=data.data[n];
+                        if(classObj.teachers==""){
+                            var teacherStr="暂未设置";
+                        }else{
+                            var teachers=classObj.teachers.split(",");
+
+                            if(teachers.length>1){
+                                var teacherStr="多人";
+                            }else {
+                                var teacherStr=classObj.teachers;
+                            }
+                        }
+
+                        if($.inArray(classObj.classId.toString(), firstData.classIds)>=0){
+                            var checkedhtml="checked='checked'"
+                        }else{
+                            var checkedhtml=""
+                        }
+
+
+                        if(classObj.classWeek !== 8){
+                            var clasTimeHtml = classObj.classWeekStr+" "+classObj.classBeginTimeStr+"-"+classObj.classOverTimeStr;
+                        }else{
+                            var clasTimeHtml = classObj.classUnsetTime + '';
+                        }
+
+                        html+=" <tr>" +
+                                    "<td><input type='checkbox' name='class' "+checkedhtml+" id='"+classObj.classId+"'></td>" +
+                                    "<td>"+(n+toShow+1)+"</td>" +
+                                    "<td>"+classObj.subjectName+"("+classObj.className+")</td>" +
+                                    "<td>"+option.classType[Number(classObj.classType)]+"</td>" +
+                                    "<td>"+classObj.camName+"</td>" +
+                                    "<td>"+(classObj.building==null?"":classObj.building)+(classObj.floor==null?"":classObj.floor+"层")+classObj.classroomName+"</td>" +
+                                    "<td>"+classObj.classStartDateStr+"</td>" +
+                                    "<td>"+clasTimeHtml+"</td>" +
+                                    "<td title='"+classObj.teachers+"老师'>"+teacherStr+"</td>" +
+                                    "<td class='money' title='学费"+Number(classObj.tuitionFees).toFixed(2)+"元'>"+Number(classObj.tuitionFees).toFixed(2)+"</td>" +
+                                    "<td>"+classObj.applyCount+"/"+classObj.classSize+"</td>" +
+                              "</tr>";
+                    }
+
+                }else{
+                    html+=" <tr>" +
+                          "    <td colspan='11' class='noData' title='没有找到数据'><i class=\"fa fa-warning\" aria-hidden=\"true\"></i>该条件下没有找到任何班级</td>" +
+                          "</tr>";
+                }
+
+                $("#classList").html(html);
+
+                if($("[name=class]:checked").length !==0 && $("[name=class]:checked").length==$("[name=class]").length){
+                    $("[name=allClass]").prop("checked",true);
+                }
+
+            }else {
+                myAlert(res.message,2,res.code,null);
+            }
+
+            //发起统计查询
+            sumMoneyandStudent();
+
+        },"POST",false);
+
+    }
+
+    /**
+     * 查询分页所有班级,统计学员数
+     * sumMoneyandStudent
+     */
+    function sumMoneyandStudent() {
+        getData(domain+"/plan/selectAllClass.json",search_list.parameter,function (res) {
+            if(res.code==200 && res.success==true){
+                var sumStu=res.data.ss_num;
+                var sumTuition=res.data.sjs_money;
+                countup("sum_tuition",sumTuition);
+                countup("sum_student",sumStu);
+                //存入本地
+                allclassIds=res.data.join(",");
+
+            }else {
+                myAlert("获取统计信息失败",2,res.code,null);
+            }
+        },"POST",false);
+
+        //统计个数
+        getData(domain+"/plan/classData.json",search_list.parameter,function (res) {
+
+            if(res.code==200 && res.success==true){
+                countup("sum_students", res.data.studCount);//统计所有班级学生数
+            }else {
+                myAlert(res.message,2,res.code,null);
+            }
+        },"POST",false);
+    }
+</script>
+
+
+

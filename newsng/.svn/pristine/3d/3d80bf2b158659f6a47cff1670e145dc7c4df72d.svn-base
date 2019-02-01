@@ -1,0 +1,223 @@
+package sng.dao.impl;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.transform.Transformers;
+import org.hibernate.type.StandardBasicTypes;
+import org.springframework.stereotype.Repository;
+
+import sng.dao.TeacherDao;
+import sng.pojo.base.Teacher;
+import sng.util.CommonUtils;
+import sng.util.Constant;
+import sng.util.MoneyUtil;
+
+/**
+ * @类 名： TeacherDaoImpl
+ * @功能描述：教师Dao实现类 
+ * @作者信息： LiuYang
+ * @创建时间： 2018年12月16日下午4:21:09
+ */
+@Repository
+public class TeacherDaoImpl extends BaseDaoImpl<Teacher> implements TeacherDao {
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Teacher> regRateDetail(Integer cur_term_id, String cur_cam_id, Integer pre_term_id) {
+		Session session = this.factory.getCurrentSession();
+		String sql = " SELECT IFNULL(a.cur_num,0) AS cur_num,IFNULL(b.pre_num,0) AS pre_num,a.tech_id,a.tech_name,IFNULL(ROUND(a.cur_num/b.pre_num*100,2),0) AS rate FROM (SELECT t.tech_id,t.tech_name,SUM(cl.ss_num-cl.st_num) AS cur_num FROM edugate_base.teacher t LEFT JOIN teacher_class tc ON tc.tech_id=t.tech_id AND tc.is_del=0 LEFT JOIN classes cl ON cl.clas_id=tc.clas_id AND cl.is_del=0";
+		if(cur_cam_id.indexOf(",")>0){
+			sql += " AND cl.cam_id in ( :cam_id ) ";	
+		}else if(!Constant.ALL_CAMPUS.equals(cur_cam_id)){
+			sql += " AND cl.cam_id=:cam_id ";	
+		}
+		sql += " AND cl.term_id=:cur_term_id AND cl.clas_type=:clas_type WHERE t.is_del=0 GROUP BY t.tech_id) a LEFT JOIN (SELECT t.tech_id,SUM(cl.ss_num-cl.st_num) AS pre_num FROM edugate_base.teacher t LEFT JOIN teacher_class tc ON tc.tech_id=t.tech_id AND tc.is_del=0 LEFT JOIN classes cl ON cl.clas_id=tc.clas_id AND cl.is_del=0 ";
+		if(cur_cam_id.indexOf(",")>0){
+			sql += " AND cl.cam_id in ( :cam_id ) ";	
+		}else if(!Constant.ALL_CAMPUS.equals(cur_cam_id)){
+			sql += " AND cl.cam_id=:cam_id ";	
+		}	
+		sql += " AND cl.term_id=:pre_term_id WHERE t.is_del=0 GROUP BY t.tech_id ) b ON a.tech_id=b.tech_id ORDER BY rate DESC ";
+		Query query = session.createSQLQuery(sql).addScalar("cur_num", StandardBasicTypes.BIG_INTEGER).addScalar("pre_num", StandardBasicTypes.BIG_INTEGER).addScalar("tech_id", StandardBasicTypes.INTEGER).addScalar("tech_name", StandardBasicTypes.STRING).addScalar("rate", StandardBasicTypes.DOUBLE);
+		query.setResultTransformer(Transformers.aliasToBean(Teacher.class));
+		query.setInteger("clas_type", Constant.CLASS_TYPE_OLD);
+		query.setInteger("cur_term_id", cur_term_id);
+		if(cur_cam_id.indexOf(",")>0){
+			query.setParameterList("cam_id", cur_cam_id.split(","));
+		}else if(!Constant.ALL_CAMPUS.equals(cur_cam_id)){
+			query.setString("cam_id", cur_cam_id);
+		}
+		query.setInteger("pre_term_id", pre_term_id);
+		return query.list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Teacher> wastageRateDetail(Integer term_id,String cam_id) {
+		Session session = this.factory.getCurrentSession();
+		String sql = " SELECT a.tech_id,a.tech_name,a.cur_num,a.pre_num, IFNULL(ROUND(a.pre_num / a.cur_num * 100, 2),0) AS rate FROM ( SELECT t.tech_id, t.tech_name, IFNULL(SUM(cl.ss_num),0) AS cur_num, IFNULL(SUM(cl.st_num),0) AS pre_num FROM edugate_base.teacher t LEFT JOIN teacher_class tc ON tc.tech_id = t.tech_id AND tc.is_del = 0 LEFT JOIN classes cl ON cl.clas_id = tc.clas_id AND cl.org_id = t.org_id WHERE cl.term_id=:term_id ";
+		if(cam_id.indexOf(",")>0){
+			sql += " AND cl.cam_id in ( :cam_id ) ";	
+		}else if(!Constant.ALL_CAMPUS.equals(cam_id)){
+			sql += " AND cl.cam_id=:cam_id ";	
+		}
+		sql += " GROUP BY t.tech_id ) a ORDER BY rate DESC ";
+		Query query = session.createSQLQuery(sql).addScalar("cur_num", StandardBasicTypes.BIG_INTEGER).addScalar("pre_num", StandardBasicTypes.BIG_INTEGER).addScalar("tech_id", StandardBasicTypes.INTEGER).addScalar("tech_name", StandardBasicTypes.STRING).addScalar("rate", StandardBasicTypes.DOUBLE);;
+		query.setResultTransformer(Transformers.aliasToBean(Teacher.class));
+		query.setInteger("term_id", term_id);
+		if(cam_id.indexOf(",")>0){
+			query.setParameterList("cam_id", cam_id.split(","));
+		}else if(!Constant.ALL_CAMPUS.equals(cam_id)){
+			query.setString("cam_id", cam_id);
+		}
+		return query.list();
+	}
+	
+	
+	public List<Map<String, Object>> reportTecherTop10(int orgId,int termId,String camId) throws Exception {
+		Map<String,Object> params=new HashMap<>();
+		params.put("termId", termId);
+		params.put("orgId", orgId);
+		
+		StringBuffer sb=new StringBuffer();
+		sb.append(" SELECT a.tech_id as techId,a.tech_name as techName,ifnull(sum(b.ssMoney),0) as ssMoney,ifnull(sum(b.stMoney),0) as stMoney from edugate_base.teacher a ");
+		sb.append(" left join (select t2.teacher_class_id,t1.term_id,t1.cam_id,t2.tech_id,ifnull(t1.ss_money,0) as ssMoney,ifnull(t1.st_money,0) as stMoney from classes t1,teacher_class t2 where t1.clas_id=t2.clas_id and t1.is_del=0 and t2.is_del=0 and t1.term_id=:termId  ");
+		if(!Constant.ALL_CAMPUS.equals(camId)) {
+			params.put("camId", camId);
+			if(camId.indexOf(",")>-1) {
+				sb.append(" and t1.cam_id in (:camId) ");
+			}else {
+				sb.append(" and t1.cam_id = :camId ");
+			}
+			
+		}
+		sb.append(" ) b on a.tech_id=b.tech_id ");
+		sb.append(" where a.is_del=0 and a.org_id=:orgId group by a.tech_id,a.tech_name ");
+//		sb.append(" order by totalMoney desc ");
+//		sb.append(" limit 0,10");
+		
+		List<Map<String, Object>> list=super.queryListBySql(sb.toString(), params);
+		List<Map<String, Object>> relist=new ArrayList<>();
+		for(Map<String, Object> map : list) {
+			Double ssMoney=(Double)map.get("ssMoney");
+			Double stMoney=(Double)map.get("stMoney");
+			BigDecimal totalMoney=CommonUtils.jian(ssMoney, stMoney);
+			map.put("totalMoney", MoneyUtil.fromFENtoYUAN(totalMoney.toString()));
+			relist.add(map);
+		}
+		
+		Collections.sort(relist, new Comparator<Map<String, Object>>() {
+			@Override
+			public int compare(Map<String, Object> o1, Map<String, Object> o2) {
+				BigDecimal money1=new BigDecimal((String)o1.get("totalMoney"));
+				BigDecimal money2=new BigDecimal((String)o2.get("totalMoney"));
+				return (money2.subtract(money1)).intValue();
+			}
+		});
+		if(relist.size()>10) {
+			relist=relist.subList(0, 10);
+		}
+		return relist;
+	}
+	
+	
+	public List<Map<String, Object>> reportTecherAll(int orgId,int termId,String camId,String techName) throws Exception {
+		Map<String,Object> params=new HashMap<>();
+		params.put("termId", termId);
+		params.put("orgId", orgId);
+
+		StringBuffer sb=new StringBuffer();
+		sb.append(" select v1.tech_id as techId,v1.tech_name as techName,v1.classCount,v2.studCount,v3.ssMoney,v3.stMoney from ");
+		sb.append(" (SELECT a.tech_id,a.tech_name,count(b.teacher_class_id) as classCount from edugate_base.teacher a ");
+		sb.append(" left join (select t2.teacher_class_id,t1.term_id,t1.cam_id,t2.tech_id from classes t1,teacher_class t2 where t1.clas_id=t2.clas_id and t1.is_del=0 and t2.is_del=0 and t1.term_id=:termId ");
+		if(!Constant.ALL_CAMPUS.equals(camId)) {
+			params.put("camId", camId);
+			if(camId.indexOf(",")>-1) {
+				sb.append(" and t1.cam_id in (:camId) ");
+			}else {
+				sb.append(" and t1.cam_id=:camId ");
+			}
+			
+		}
+		sb.append(" ) b on a.tech_id=b.tech_id ");
+		sb.append(" where a.is_del=0 and a.org_id=:orgId group by a.tech_id,a.tech_name) v1, ");
+		
+		sb.append(" (SELECT a.tech_id,a.tech_name,count(b.stu_class_id) as studCount from edugate_base.teacher a ");
+		sb.append(" left join (select t3.stu_class_id,t1.term_id,t1.cam_id,t2.tech_id from classes t1,teacher_class t2,student_class t3 where t1.clas_id=t2.clas_id and t1.clas_id=t3.clas_id and t2.clas_id=t3.clas_id and t1.is_del=0 and t2.is_del=0 and t3.is_del=0 and t3.stu_status in(5,6,7) and t1.term_id=:termId ");
+		if(!Constant.ALL_CAMPUS.equals(camId)) {
+			if(camId.indexOf(",")>-1) {
+				sb.append(" and t1.cam_id in (:camId) ");
+			}else {
+				sb.append(" and t1.cam_id=:camId ");
+			}
+			
+		}
+		sb.append(" ) b on a.tech_id=b.tech_id ");
+		sb.append(" where a.is_del=0 and a.org_id=:orgId group by a.tech_id,a.tech_name) v2, ");
+		
+		sb.append(" (SELECT a.tech_id,a.tech_name,ifnull(sum(b.ssMoney),0) as ssMoney,ifnull(sum(b.stMoney),0) as stMoney from edugate_base.teacher a ");
+		sb.append(" left join (select t2.teacher_class_id,t1.term_id,t1.cam_id,t2.tech_id,ifnull(t1.ss_money,0) as ssMoney,ifnull(t1.st_money,0) as stMoney from classes t1,teacher_class t2 where t1.clas_id=t2.clas_id and t1.is_del=0 and t2.is_del=0 and t1.term_id=:termId ");
+		if(!Constant.ALL_CAMPUS.equals(camId)) {
+			if(camId.indexOf(",")>-1) {
+				sb.append(" and t1.cam_id in (:camId) ");
+			}else {
+				sb.append(" and t1.cam_id=:camId ");
+			}
+			
+		}
+		sb.append(" ) b on a.tech_id=b.tech_id ");
+		sb.append(" where a.is_del=0 and a.org_id=:orgId group by a.tech_id,a.tech_name) v3 ");
+		sb.append(" where v1.tech_id=v2.tech_id and v2.tech_id=v3.tech_id and v1.tech_id=v3.tech_id ");
+		if(!StringUtils.isBlank(techName)) {
+			sb.append(" and v1.tech_name like :techName ");
+			params.put("techName", "%"+techName+"%");
+		}
+//		sb.append(" order by v3.totalMoney desc ");
+		
+		List<Map<String, Object>> list=super.queryListBySql(sb.toString(), params);
+		List<Map<String, Object>> relist=new ArrayList<>();
+		for(Map<String, Object> map : list) {
+			Double ssMoney=(Double)map.get("ssMoney");
+			Double stMoney=(Double)map.get("stMoney");
+			BigDecimal totalMoney=CommonUtils.jian(ssMoney, stMoney);
+			map.put("totalMoney", MoneyUtil.fromFENtoYUAN(totalMoney.toString()));
+			relist.add(map);
+		}
+		Collections.sort(relist, new Comparator<Map<String, Object>>() {
+			@Override
+			public int compare(Map<String, Object> o1, Map<String, Object> o2) {
+				BigDecimal money1=new BigDecimal((String)o1.get("totalMoney"));
+				BigDecimal money2=new BigDecimal((String)o2.get("totalMoney"));
+				return (money2.subtract(money1)).intValue();
+			}
+		});
+		return list;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Map<String, Object>> getTecherInfoList(Integer techerId) {
+		String sql = " SELECT tc.tech_id, tc.clas_id FROM teacher_class tc WHERE tc.tech_id = ? ";
+		List<Object> params = new ArrayList<Object>();
+		params.add(techerId);
+		Session session = this.factory.getCurrentSession();
+		Query query = session.createSQLQuery(sql.toString());
+		for (int i = 0; i < params.size(); i++) {
+			query.setParameter(i, params.get(i));
+		}
+		query.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+		List<Map<String, Object>> list = query.list();
+		return list;
+	}
+	
+
+}

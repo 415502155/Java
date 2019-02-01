@@ -1,0 +1,627 @@
+package sng.pojo;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Transient;
+
+import org.bouncycastle.crypto.DigestDerivationFunction;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class Clas2Student implements java.io.Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4135641097326938100L;
+
+	List<Clas2Student> list = new ArrayList<>();
+
+	// 班级2用户ID
+	private Integer clas2stud_id;
+	// 用户ID
+	private Integer stud_id;
+	// 班级ID
+	private Integer clas_id;
+
+	private Integer org_id;
+
+	private String stud_name;
+
+	private String clas_name;
+
+	private Integer grade_id;
+
+	private String grade_name;
+
+	private Integer user_id;
+
+	private Integer term_id;
+	private Integer plan_id;
+	private Integer category_id;
+
+	private Integer subject_id;
+	
+	private Integer stu_class_id;
+	
+
+	private String  moneyCount;
+	private BigDecimal money;
+
+	public String getMoneyCount() {
+		return moneyCount;
+	}
+
+	public void setMoneyCount(String moneyCount) {
+		this.moneyCount = moneyCount;
+	}
+
+	public BigDecimal getMoney() {
+		return money;
+	}
+
+	public void setMoney(BigDecimal money) {
+		this.money = money;
+	}
+
+	private Integer quota_hold;
+	private Date pay_expired_time;
+	private Integer is_print;
+	private String voucher_no;
+	private String creater;
+
+	public String getCreater() {
+		return creater;
+	}
+
+	public void setCreater(String creater) {
+		this.creater = creater;
+	}
+
+	public Integer getQuota_hold() {
+		return quota_hold;
+	}
+
+	public void setQuota_hold(Integer quota_hold) {
+		this.quota_hold = quota_hold;
+	}
+
+	public Date getPay_expired_time() {
+		return pay_expired_time;
+	}
+
+	public void setPay_expired_time(Date pay_expired_time) {
+		this.pay_expired_time = pay_expired_time;
+	}
+
+	public Integer getIs_print() {
+		return is_print;
+	}
+
+	public void setIs_print(Integer is_print) {
+		this.is_print = is_print;
+	}
+
+	public String getVoucher_no() {
+		return voucher_no;
+	}
+
+	public void setVoucher_no(String voucher_no) {
+		this.voucher_no = voucher_no;
+	}
+
+	/**
+	 * 班级类型
+	 */
+	private Integer clas_type;
+
+	/**
+	 * 校区id
+	 */
+	private Integer cam_id;
+	/**
+	 * 教室id
+	 */
+	private Integer classroom_id;
+	/**
+	 * 班容量
+	 */
+	private Integer size;
+	/**
+	 * 年龄范围
+	 */
+	private String age_range;
+	/**
+	 * 开始生日
+	 */
+	private String start_birthday;
+	/**
+	 * 结束生日
+	 */
+	private String end_birthday;
+
+	private String class_start_date;
+	/**
+	 * 周几
+	 */
+	private Integer class_week;
+	/**
+	 * 上课时间
+	 */
+	private String class_begin_time;
+	/**
+	 * 上课结束时间
+	 */
+	private String class_over_time;
+	/**
+	 * 学费标准
+	 */
+	private String tuition_fees;
+	/**
+	 * 学员状态
+	 */
+	private Integer stu_status;
+	/**
+	 * 老师ID
+	 */
+	private String tech_id;
+	/**
+	 * 老师名称
+	 */
+	private String tech_name;
+	/**
+	 * 校区名称
+	 */
+	private String cam_name;
+
+	/**
+	 * 点击转班弹出页面接收查询的属性
+	 */
+	private String queryContext;
+	/**
+	 * 消息提示
+	 */
+	private String errorMessage;
+	/**
+	 * 可用名额
+	 */
+	private Integer usable_num;
+	/**
+	 * 电话号码
+	 */
+	private String user_mobile;
+	/**
+	 * 判断当前学员在当前班级中是否存在 1 存在 0不存在
+	 */
+	private Integer isExist;
+	/**
+	 * 身份证号
+	 */
+	private String user_idnumber;
+	/**
+	 * 不固定时间
+	 */
+	private String class_unset_time;
+	/**
+	 * 生日
+	 */
+	private Date birthday;
+	/**
+	 * 类目
+	 */
+	private String category_name;
+	/**
+	 * 科目
+	 */
+	private String subject_name;
+	/**
+	 * 是否主家长 0否 1是
+	 */
+	private Integer is_main;
+	/**
+	 * 亲子关系（0：父亲，1：母亲，2：爷爷，3：奶奶，4：外公，5：外婆，6：其他）
+	 */
+	private Integer relation;
+	/**
+	 * 家长名字
+	 */
+	private String parent_name;
+	/**
+	 * 支付详情表id
+	 */
+	private Integer cd_id;
+	
+	
+
+	public Integer getStu_class_id() {
+		return stu_class_id;
+	}
+
+	public void setStu_class_id(Integer stu_class_id) {
+		this.stu_class_id = stu_class_id;
+	}
+
+	public Integer getClas_type() {
+		return clas_type;
+	}
+
+	public void setClas_type(Integer clas_type) {
+		this.clas_type = clas_type;
+	}
+
+	public Integer getCd_id() {
+		return cd_id;
+	}
+
+	public void setCd_id(Integer cd_id) {
+		this.cd_id = cd_id;
+	}
+
+	public String getParent_name() {
+		return parent_name;
+	}
+
+	public void setParent_name(String parent_name) {
+		this.parent_name = parent_name;
+	}
+
+	public Integer getRelation() {
+		return relation;
+	}
+
+	public void setRelation(Integer relation) {
+		this.relation = relation;
+	}
+
+	public Integer getIs_main() {
+		return is_main;
+	}
+
+	public void setIs_main(Integer is_main) {
+		this.is_main = is_main;
+	}
+
+	public String getCategory_name() {
+		return category_name;
+	}
+
+	public void setCategory_name(String category_name) {
+		this.category_name = category_name;
+	}
+
+	public String getSubject_name() {
+		return subject_name;
+	}
+
+	public void setSubject_name(String subject_name) {
+		this.subject_name = subject_name;
+	}
+
+	public List<Clas2Student> getList() {
+		return list;
+	}
+
+	public void setList(List<Clas2Student> list) {
+		this.list = list;
+	}
+
+	public Date getBirthday() {
+		return birthday;
+	}
+
+	public void setBirthday(Date birthday) {
+		this.birthday = birthday;
+	}
+
+	public String getClass_unset_time() {
+		return class_unset_time;
+	}
+
+	public void setClass_unset_time(String class_unset_time) {
+		this.class_unset_time = class_unset_time;
+	}
+
+	public String getUser_idnumber() {
+		return user_idnumber;
+	}
+
+	public void setUser_idnumber(String user_idnumber) {
+		this.user_idnumber = user_idnumber;
+	}
+
+	public String getUser_mobile() {
+		return user_mobile;
+	}
+
+	public void setUser_mobile(String user_mobile) {
+		this.user_mobile = user_mobile;
+	}
+
+	public Integer getIsExist() {
+		if (isExist == null) {
+			isExist = 0;
+		}
+		return isExist;
+	}
+
+	public void setIsExist(Integer isExist) {
+		this.isExist = isExist;
+
+	}
+
+	public Integer getUsable_num() {
+		return usable_num;
+	}
+
+	public void setUsable_num(Integer usable_num) {
+		this.usable_num = usable_num;
+	}
+
+	public String getErrorMessage() {
+		return errorMessage;
+	}
+
+	public void setErrorMessage(String errorMessage) {
+		this.errorMessage = errorMessage;
+	}
+
+	public String getQueryContext() {
+		return queryContext;
+	}
+
+	public void setQueryContext(String queryContext) {
+		this.queryContext = queryContext;
+	}
+
+	public String getCam_name() {
+		return cam_name;
+	}
+
+	public void setCam_name(String cam_name) {
+		this.cam_name = cam_name;
+	}
+
+	public String getTech_id() {
+		return tech_id;
+	}
+
+	public void setTech_id(String tech_id) {
+		this.tech_id = tech_id;
+	}
+
+	public String getTech_name() {
+		return tech_name;
+	}
+
+	public void setTech_name(String tech_name) {
+		this.tech_name = tech_name;
+	}
+
+	public Integer getTerm_id() {
+		return term_id;
+	}
+
+	public void setTerm_id(Integer term_id) {
+		this.term_id = term_id;
+	}
+
+	public Integer getPlan_id() {
+		return plan_id;
+	}
+
+	public void setPlan_id(Integer plan_id) {
+		this.plan_id = plan_id;
+	}
+
+	public Integer getCategory_id() {
+		return category_id;
+	}
+
+	public void setCategory_id(Integer category_id) {
+		this.category_id = category_id;
+	}
+
+	public Integer getSubject_id() {
+		return subject_id;
+	}
+
+	public void setSubject_id(Integer subject_id) {
+		this.subject_id = subject_id;
+	}
+
+	public Integer getCam_id() {
+		return cam_id;
+	}
+
+	public void setCam_id(Integer cam_id) {
+		this.cam_id = cam_id;
+	}
+
+	public Integer getClassroom_id() {
+		return classroom_id;
+	}
+
+	public void setClassroom_id(Integer classroom_id) {
+		this.classroom_id = classroom_id;
+	}
+
+	public Integer getSize() {
+		return size;
+	}
+
+	public void setSize(Integer size) {
+		this.size = size;
+	}
+
+	public String getAge_range() {
+		return age_range;
+	}
+
+	public void setAge_range(String age_range) {
+		this.age_range = age_range;
+	}
+
+	public String getStart_birthday() {
+		return start_birthday;
+	}
+
+	public void setStart_birthday(String start_birthday) {
+		this.start_birthday = start_birthday;
+	}
+
+	public String getEnd_birthday() {
+		return end_birthday;
+	}
+
+	public void setEnd_birthday(String end_birthday) {
+		this.end_birthday = end_birthday;
+	}
+
+	public String getClass_start_date() {
+		return class_start_date;
+	}
+
+	public void setClass_start_date(String class_start_date) {
+		this.class_start_date = class_start_date;
+	}
+
+	public Integer getClass_week() {
+		return class_week;
+	}
+
+	public void setClass_week(Integer class_week) {
+		this.class_week = class_week;
+	}
+
+	public String getClass_begin_time() {
+		return class_begin_time;
+	}
+
+	public void setClass_begin_time(String class_begin_time) {
+		this.class_begin_time = class_begin_time;
+	}
+
+	public String getClass_over_time() {
+		return class_over_time;
+	}
+
+	public void setClass_over_time(String class_over_time) {
+		this.class_over_time = class_over_time;
+	}
+
+	public String getTuition_fees() {
+		return tuition_fees;
+	}
+
+	public void setTuition_fees(String tuition_fees) {
+		this.tuition_fees = tuition_fees;
+	}
+
+	public Integer getStu_status() {
+		return stu_status;
+	}
+
+	public void setStu_status(Integer stu_status) {
+		this.stu_status = stu_status;
+	}
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	public Integer getClas2stud_id() {
+		return clas2stud_id;
+	}
+
+	public void setClas2stud_id(Integer clas2stud_id) {
+		this.clas2stud_id = clas2stud_id;
+	}
+
+	public Integer getStud_id() {
+		return stud_id;
+	}
+
+	public void setStud_id(Integer stud_id) {
+		this.stud_id = stud_id;
+	}
+
+	public Integer getClas_id() {
+		return clas_id;
+	}
+
+	public void setClas_id(Integer clas_id) {
+		this.clas_id = clas_id;
+	}
+
+	@Transient
+	public String getStud_name() {
+		return stud_name;
+	}
+
+	public void setStud_name(String stud_name) {
+		this.stud_name = stud_name;
+	}
+
+	@Transient
+	public String getClas_name() {
+		return clas_name;
+	}
+
+	public void setClas_name(String clas_name) {
+		this.clas_name = clas_name;
+	}
+
+	@Transient
+	public Integer getGrade_id() {
+		return grade_id;
+	}
+
+	public void setGrade_id(Integer grade_id) {
+		this.grade_id = grade_id;
+	}
+
+	@Transient
+	public String getGrade_name() {
+		return grade_name;
+	}
+
+	public void setGrade_name(String grade_name) {
+		this.grade_name = grade_name;
+	}
+
+	@Transient
+	public Integer getUser_id() {
+		return user_id;
+	}
+
+	public void setUser_id(Integer user_id) {
+		this.user_id = user_id;
+	}
+
+	public Integer getOrg_id() {
+		return org_id;
+	}
+
+	public void setOrg_id(Integer org_id) {
+		this.org_id = org_id;
+	}
+
+	@Override
+	public String toString() {
+		return "Clas2Student [clas2stud_id=" + clas2stud_id + ", stud_id=" + stud_id + ", clas_id=" + clas_id
+				+ ", org_id=" + org_id + ", stud_name=" + stud_name + ", clas_name=" + clas_name + ", grade_id="
+				+ grade_id + ", grade_name=" + grade_name + ", user_id=" + user_id + ", term_id=" + term_id
+				+ ", plan_id=" + plan_id + ", category_id=" + category_id + ", subject_id=" + subject_id + ", cam_id="
+				+ cam_id + ", classroom_id=" + classroom_id + ", size=" + size + ", age_range=" + age_range
+				+ ", start_birthday=" + start_birthday + ", end_birthday=" + end_birthday + ", class_start_date="
+				+ class_start_date + ", class_week=" + class_week + ", class_begin_time=" + class_begin_time
+				+ ", class_over_time=" + class_over_time + ", tuition_fees=" + tuition_fees + ", stu_status="
+				+ stu_status + "]";
+	}
+
+}

@@ -1,0 +1,467 @@
+package sng.api;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang3.StringUtils;
+import org.json.JSONObject;
+import org.json.XML;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+
+import sng.constant.Consts;
+import sng.constant.ErrorConstant;
+import sng.controller.common.BaseAction;
+import sng.entity.Charge;
+import sng.entity.ChargeDetail;
+import sng.entity.ChargeRecord;
+import sng.pojo.Result;
+import sng.pojo.base.Parent;
+import sng.service.ChargeDetailService;
+import sng.service.ChargeManagementService;
+import sng.service.ChargeRecordService;
+import sng.service.ChargeService;
+import sng.service.MQService;
+import sng.service.TokenService;
+import sng.util.CebUtils;
+import sng.util.Constant;
+import sng.util.PropertyReader;
+import sng.util.HttpClientUtil;
+import sng.util.JsonUtil;
+import sng.util.MoneyUtil;
+import unionpay.acp.sdk.LogUtil;
+
+@Controller
+@RequestMapping("/sng/ceb")
+public class SngPayController extends BaseAction {
+	
+	@Autowired
+	private ChargeService chargeService;
+	@Autowired
+	private ChargeDetailService chargeDetailService;
+	@Autowired
+	private TokenService tokenService;
+	@Autowired
+	private MQService mqService;
+	@Autowired
+	private ChargeRecordService chargeRecordService;
+	@Autowired
+	private ChargeManagementService chargeManagementService;
+	
+	private static String CEB_QUERY_PAY_URL = PropertyReader.getProperty("cebQueryPay");
+	private static int SJWY_ORG_ID = Integer.parseInt(PropertyReader.getProperty("sjwy_org_id").toString());
+	private static String ERROR_NOTICE_API = PropertyReader.getProperty("errorNoticeAPI").toString();
+	
+	/**
+	 * 光大银行查缴模式查询请求
+	 * @param request
+	 * @param response
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/query.htm",method=RequestMethod.POST)
+	public void query(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		JSONObject json = getJSONfromXML(request);
+		String cd_id = json.getJSONObject("In").getJSONObject("Body").get("billKey").toString().replace(Constant.PAYMENT_PROJECT_SNG, "");
+		ChargeDetail cd = chargeDetailService.getByIdForPayWithCEBUrl(Integer.parseInt(cd_id));
+		String xml = "";
+		if(null==cd){
+			//无相应记录:未出账或已经缴纳,暂时无需缴费！			
+			xml = getXML(Constant.CEB_TYPE_QUERY,null,Constant.CEB_ANSCODE_ERROR02,json);
+		}else{
+			//如果尝试支付时间不为空，即不是首次进入支付页面，则先调用光大接口查询支付状态
+			if(StringUtils.isNotBlank(cd.getBillNum())&&null!=cd.getTry_time()){
+				cd.setTry_time(new Date());
+				chargeDetailService.update(cd);
+				try {
+					if(null==cd.getTxnTime()){
+						cd.setTxnTime(new Date());
+					}
+					xml = CebUtils.getXML(Constant.CEB_TYPE_QUERY_PAY, cd, null);
+					org.json.JSONObject data = CebUtils.getJSONObjectByPostXML(CEB_QUERY_PAY_URL, xml);
+					//如果已经支付成功则终止本次支付，返回错误提示
+					if(data.has("Out")&&data.getJSONObject("Out").has("Body")&&data.getJSONObject("Out").has("Head")){
+						if(data.getJSONObject("Out").getJSONObject("Body").has("ErrorCode")&&data.getJSONObject("Out").getJSONObject("Body").get("ErrorCode").toString().equals(Constant.CEB_ANSCODE_LJTK012)){
+							//如果光大银行没有返回支付记录，则继续查询世纪伟业数据库，查看账单对应的状态和信息
+							xml = getXmlForQuery(cd,json);
+						} else if((data.getJSONObject("Out").getJSONObject("Head").has("AnsCode")&&data.getJSONObject("Out").getJSONObject("Head").get("AnsCode").toString().equals(Constant.CEB_ANSCODE_SUCCESS))||
+								(data.getJSONObject("Out").getJSONObject("Body").has("tranStat")&&data.getJSONObject("Out").getJSONObject("Body").get("tranStat").toString().equals(Constant.CEB_ANSCODE_TRANSTAT_UNKNOWN))||
+								(data.getJSONObject("Out").getJSONObject("Body").has("tranStat")&&data.getJSONObject("Out").getJSONObject("Body").get("tranStat").toString().equals(Constant.CEB_ANSCODE_TRANSTAT_SUCCESS))){
+							//即刻调用支付更新，如果返回失败信息，可以暂不做处理，等待15分钟查询结果进行再次矫正
+							chargeManagementService.reviewPayStatus(data);
+							xml = getXML(Constant.CEB_TYPE_QUERY,null,Constant.CEB_ANSCODE_ERROR01,json);
+						}else{
+							xml = getXML(Constant.CEB_TYPE_QUERY,null,Constant.CEB_ANSCODE_ERROR01,json);
+						}
+					}else{
+						xml = getXML(Constant.CEB_TYPE_QUERY,null,Constant.CEB_ANSCODE_ERROR01,json);
+						HttpClientUtil.post(ERROR_NOTICE_API,"errorType="+ErrorConstant.ERROR_TYPE_CEB_PAY_ERROR+"&targetType="+ErrorConstant.EXCEPTION_TARGET_PROGRAMMER_PAY+"&content="+"[SNG]B光大支付查询时异常，导致用户支付页面跳转超时异常，cd_id:"+cd.getCd_id().toString()+"&org_id="+SJWY_ORG_ID+"&level="+ErrorConstant.EXCEPTION_LEVEL_NOT_NIGHT+"&interval=0", "application/x-www-form-urlencoded");
+					}
+				} catch (Exception e) {
+					xml = getXML(Constant.CEB_TYPE_QUERY,null,Constant.CEB_ANSCODE_ERROR01,json);
+					HttpClientUtil.post(ERROR_NOTICE_API,"errorType="+ErrorConstant.ERROR_TYPE_CEB_PAY_ERROR+"&targetType="+ErrorConstant.EXCEPTION_TARGET_PROGRAMMER_PAY+"&content="+"[SNG]A光大支付查询时异常，导致用户支付页面跳转超时异常，cd_id:"+cd.getCd_id().toString()+"&org_id="+SJWY_ORG_ID+"&level="+ErrorConstant.EXCEPTION_LEVEL_NOT_NIGHT+"&interval=0", "application/x-www-form-urlencoded");
+				}
+			}else{
+				cd.setTry_time(new Date());
+				chargeDetailService.update(cd);
+				//如果是首次进入支付页面，则直接查询世纪伟业数据库，查看账单对应的状态和信息
+				xml = getXmlForQuery(cd,json);
+			}
+		}
+		LogUtil.writeLog("返给光大的查缴报文："+xml);
+		sendXML(response, xml);
+	}
+
+	private String getXmlForQuery(ChargeDetail cd,JSONObject json){
+		String xml = "";
+		if(!cd.getStatus().equals(Constant.CHARGE_DETAIL_STATUS_NEVER)||
+				!cd.getOnline_pay().equals(Constant.CHARGE_DETAIL_STATUS_NEVER)||
+				!cd.getOffline_pay().equals(Constant.CHARGE_DETAIL_STATUS_NEVER)){
+			//无相应记录:未出账或已经缴纳,暂时无需缴费！		
+			xml = getXML(Constant.CEB_TYPE_QUERY,null,Constant.CEB_ANSCODE_ERROR01,json);
+		}else if(cd.getStart_time().getTime()>(new Date()).getTime()){
+			//无相应记录:未出账或已经缴纳,暂时无需缴费！			
+			xml = getXML(Constant.CEB_TYPE_QUERY,null,Constant.CEB_ANSCODE_ERROR02,json);
+		}else if(cd.getEnd_time().getTime()<(new Date()).getTime()){
+			//超过缴费时间:超过公共事业单位受理时间，请在有效时间段内缴费！			
+			xml = getXML(Constant.CEB_TYPE_QUERY,null,Constant.CEB_ANSCODE_ERROR05,json);
+		}else if(null!=cd.getTxnAmt()&&!cd.getTxnAmt().equals("0")){
+			//超过限定金额			
+			xml = getXML(Constant.CEB_TYPE_QUERY,null,Constant.CEB_ANSCODE_ERROR09,json);
+		}else if(cd.getC_status()!=Constant.CHARGE_STATUS_PUSH_OK){
+			//未出账或已经缴纳,暂时无需缴费			
+			xml = getXML(Constant.CEB_TYPE_QUERY,null,Constant.CEB_ANSCODE_ERROR02,json);
+		}else{
+			xml = getXML(Constant.CEB_TYPE_QUERY,cd,null,json);
+			// 小于0表示该逻辑块关闭，不进行查询验证
+			if(Constant.CHARGE_QUERY_TIMEOUT_MILLISECONDS>=0){
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+				Calendar c = Calendar.getInstance();
+				Date clickTime = c.getTime();
+				c.add(Calendar.MILLISECOND, Constant.CHARGE_QUERY_TIMEOUT_MILLISECONDS);
+				Date queryTime = c.getTime();
+				Map<String, Object> map = new HashMap<String, Object>();
+				map.put("orderId", cd.getOrder_id());
+				map.put("merId", cd.getMerId());
+				map.put("clickTime", new SimpleDateFormat("yyyyMMddHHmmss").format(clickTime));
+				if(!sdf.format(clickTime).equals(sdf.format(queryTime))){
+					map.put("queryTime", new SimpleDateFormat("yyyyMMddHHmmss").format(queryTime));
+				}
+				mqService.sendMessage("charge_query_delay_exchange", null, map);
+			}
+		}
+		return xml;
+	}
+	
+	/**
+	 * 光大银行销账请求
+	 * @param request
+	 * @param response
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/pay.htm",method=RequestMethod.POST)
+	public void pay(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		JSONObject json = getJSONfromXML(request);
+		JSONObject body = json.getJSONObject("In").getJSONObject("Body");
+		LogUtil.writeLog("光大发来的销账报文："+json.toString());
+		ChargeRecord cr = new ChargeRecord();
+		String txnType = Constant.TXNTYPE_UNIONPAY_PAY;
+		String txnTime = body.get("payDate").toString() + body.get("jfFiled4").toString();
+		String txnAmt = MoneyUtil.fromYUANtoFEN(body.get("payAmount").toString());
+		String queryId = body.get("bankBillNo").toString();
+		String respMsg = Constant.CEB_RESPMSG_SUCCESS;
+		String settleAmt = txnAmt;
+		String settleDate = body.get("payDate").toString().substring(4);
+		String traceTime = settleDate + body.get("jfFiled4").toString();
+		String cd_id = body.get("billKey").toString();
+		String user_id = body.get("reserve9").toString();
+		String parent_id = body.get("reserve6").toString();
+		String parent_name = body.get("reserve5").toString();
+		String org_name = body.get("reserve13").toString();
+		String identity = body.get("reserve1").toString();
+		
+		String xml = "";
+		ChargeDetail cd = chargeDetailService.getById(Integer.parseInt(cd_id));
+		if(null!=cd&&null!=cd.getCid()){
+			if(MoneyUtil.fromYUANtoFEN(cd.getMoney()).equals(txnAmt)){
+				Charge charge = chargeService.getById(cd.getCid());
+				cd.setOnline_pay(Constant.CHARGE_DETAIL_STATUS_OK);
+				cd.setStatus(Constant.CHARGE_DETAIL_STATUS_OK);
+				cd.setTxnAmt(txnAmt);
+				String time = txnTime.substring(0,4)+"-"+txnTime.substring(4,6)+"-"+txnTime.substring(6,8)+" "+txnTime.substring(8,10)+":"+txnTime.substring(10,12)+":"+txnTime.substring(12,14);
+
+				try {
+					cd.setTxnTime(Constant.sdf.parse(time));
+				} catch (ParseException e) {
+					cd.setTxnTime(new Date());
+				}
+				cd.setModify_time(new Date());
+				cd.setOrderDesc(charge.getItem()+"【来自"+org_name+cd.getClas_name()+"学生"+cd.getStud_name()+"的家长"+parent_name+"】");
+				cd.setPay_method(Constant.PAY_METHOD_WX);
+				cr.setCid(cd.getCid());
+				cr.setCd_id(cd.getCd_id());
+				cr.setRespMsg(respMsg);
+				cr.setRespCode(Constant.CEB_ANSCODE_SUCCESS);
+				cr.setSettleAmt(settleAmt);
+				cr.setQueryId(queryId);
+				cr.setTxnAmt(txnAmt);
+				cr.setTxnType(txnType);
+				cr.setTraceTime(traceTime);
+				cr.setSettleDate(settleDate);
+				try {
+					cr.setTxnTime(Constant.sdf.parse(time));
+				} catch (ParseException e) {
+					cr.setTxnTime(new Date());
+				}
+				cr.setOrg_user_id(Integer.parseInt(user_id));
+				cr.setUser_identify(Integer.parseInt(identity));
+				cr.setUser_type_id(Integer.parseInt(parent_id));
+				cr.setUser_type_name(parent_name);
+				cr.setInsert_time(new Date());
+				cr.setIs_del(Constant.IS_DEL_NO);
+				cr.setIs_show(Constant.YES);
+				
+				Boolean isSuccess = chargeService.chargeFinally(charge,cd,cr,Consts.STUD_STATUS_5PAID,Constant.YES,true);
+				if(isSuccess){
+					
+					Map<String, Object> documentMap = new HashMap<String, Object>();
+					documentMap.put("stud_id", cd.getStud_id());
+					List<Parent> parents = new ArrayList<Parent>();
+					
+					try {
+						String documentResult = HttpClientUtil.post(ESB_REQUEST_URL+"getParentPhone","stud_id="+cd.getStud_id(), "application/x-www-form-urlencoded");
+						Result<List<Parent>> pResult = JsonUtil.getObjectFromJson(documentResult, new TypeReference<Result<List<Parent>>>() { });
+						parents = pResult.getData();
+						String template_id = "";
+						try {
+							template_id = tokenService.getWxTemplateId(cd.getOrg_id().toString(), Constant.TEMPLATE_NAME_CHARGE_SUCCESS_NOTICE);
+						} catch (Exception e) {
+							HttpClientUtil.post(ERROR_NOTICE_API,"errorType="+ErrorConstant.ERROR_TYPE_TEMP_NOTEMP+"&targetType="+ErrorConstant.EXCEPTION_TARGET_PROGRAMMER_WX+"&content="+"[SNG]获取微信模板异常，请检查org_id"+charge.getOrg_id()+"的模板："+Constant.TEMPLATE_NAME_CHARGE_SUCCESS_NOTICE+"&org_id="+charge.getOrg_id()+"&level="+ErrorConstant.EXCEPTION_LEVEL_NOT_NIGHT+"&interval=5", "application/x-www-form-urlencoded");
+						}
+						if(null!=parents&&parents.size()!=0){
+							for (Parent p : parents) {
+								Map<String, Object> map = new HashMap<String, Object>();
+								if(StringUtils.isNotBlank(p.getMobile())){//SMS
+									map.put("cd_id", cd.getCd_id());
+									map.put("mobile", p.getMobile());
+									map.put("content", String.format(Constant.MOBILE_MESSAGE_CHARGE_SUCCESS_FOR_PARENT,cd.getStud_name(),cd.getItem()));
+								}
+								if(StringUtils.isNotBlank(p.getOpenid())&&StringUtils.isNotBlank(template_id)){//WX
+									map.put("open_id", p.getOpenid());
+									map.put("templateId", template_id);
+									map.put("cd_id", cd.getCd_id());
+									map.put("org_id", cd.getOrg_id());
+									map.put("first", "尊敬的家长，您已支付成功！");
+									map.put("keyword1", cd.getItem());
+									map.put("keyword2", parent_name);
+									map.put("keyword3", cd.getMoney()+"元");
+									map.put("keyword4", time);
+									map.put("remark", "感谢您的使用！");
+								}
+								mqService.sendMessage("send_message_exchange", null, map);
+							}
+						}
+					} catch (Exception e) {
+						LogUtil.writeErrorLog("【光大错误】发送支付通知时发生异常，未能向stud_id="+cd.getStud_id()+"的学生家长发送支付成功通知!");
+					}
+					LogUtil.writeLog("【光大支付成功】支付ChargeDetail主键:"+cd.getCd_id());
+					xml = getXML(Constant.CEB_TYPE_PAY, cd, null, json);
+				}else{
+					LogUtil.writeErrorLog("【光大支付异常】:"+cd_id);
+					xml = getXML(Constant.CEB_TYPE_PAY, cd, Constant.CEB_ANSCODE_ERROR06, json);
+				}
+			}else{
+				LogUtil.writeErrorLog("【光大支付异常】支付金额与原订单金额不符:"+cd_id);
+				xml = getXML(Constant.CEB_TYPE_PAY, cd, Constant.CEB_ANSCODE_ERROR00, json);
+			}
+		}else{
+			LogUtil.writeErrorLog("【光大支付异常】:"+cd_id);
+			xml = getXML(Constant.CEB_TYPE_PAY, cd, Constant.CEB_ANSCODE_ERROR06, json);
+		}
+		sendXML(response, xml);
+	}
+	
+	/**
+	 * 销账对账
+	 * @param request
+	 * @param response
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/checkBill.htm",method=RequestMethod.POST)
+	public void checkBill(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		JSONObject json = getJSONfromXML(request);
+		String date = json.getJSONObject("In").getJSONObject("Head").get("Date").toString();
+		String type = json.getJSONObject("In").getJSONObject("Head").get("Type").toString();
+		if(!Constant.ceb.format(new Date()).equals(date)||(!Constant.CEB_TYPE_PAY_BILL.equals(type)&&!Constant.CEB_TYPE_REFUND_BILL.equals(type))){
+			type = Constant.CEB_ANSCODE_ERROR;
+		}
+		String xml = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?><Out><Head><Type>"+type+"</Type><Date>"+date+"</Date></Head><Body></Body></Out>";
+		sendXML(response, xml);
+		chargeManagementService.checkBill(type);
+	}
+
+	/**
+	 * 从请求中读取XML并转化为JSONObject
+	 * @param request
+	 * @return
+	 */
+	private JSONObject getJSONfromXML(HttpServletRequest request){
+		String inputLine = null;
+		StringBuffer recieveData = new StringBuffer();
+		BufferedReader in = null;
+		try {
+			in = new BufferedReader(new InputStreamReader(request.getInputStream(), "GBK"));
+			while ((inputLine = in.readLine()) != null) {
+				recieveData.append(inputLine);
+			}
+		} catch (IOException e) {
+			return new JSONObject();
+		} finally {
+			try {
+				if (null != in) {
+					in.close();
+				}
+			} catch (IOException e) {
+			}
+		}
+		JSONObject xmlJSONObj = XML.toJSONObject(recieveData.toString());
+		return xmlJSONObj;
+	}
+	
+	/**
+	 * 获取xml字符串
+	 * @param type
+	 * @param cd
+	 * @param errorCode
+	 * @param obj
+	 * @param parent
+	 * @return
+	 */
+	private String getXML(String type,ChargeDetail cd, String errorCode, JSONObject obj){
+		String xml = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?>";
+		switch (type) {
+		case Constant.CEB_TYPE_QUERY:
+			xml += "<Out><Head><FTranCode>"+type+"</FTranCode><InstID>"
+					+ obj.getJSONObject("In").getJSONObject("Head").get("InstID").toString() + "</InstID><TranDateTime>"
+					+ obj.getJSONObject("In").getJSONObject("Head").get("TranDateTime").toString()+"</TranDateTime><BankNum>"
+					+ obj.getJSONObject("In").getJSONObject("Head").get("BankNum").toString()+"</BankNum><AnsCode>";
+			if(StringUtils.isNotBlank(errorCode)){
+				xml += Constant.CEB_ANSCODE_ERROR+"</AnsCode></Head><Body><ErrorCode>"+errorCode+"</ErrorCode><ErrorInfo>没有返回正确的支付信息</ErrorInfo></Body></Out>";
+			}else{
+				String org_name = "";
+				Parent parent = new Parent();
+				try {					
+					parent = getParentByUId(obj.getJSONObject("In").getJSONObject("Body").get("filed1").toString());
+					org_name = this.getOrgByUId(obj.getJSONObject("In").getJSONObject("Head").get("InstID").toString()).getOrg_name_cn();
+				} catch (Exception e) {
+				}
+				xml += Constant.CEB_ANSCODE_SUCCESS+"</AnsCode></Head><Body><companyNo>"
+					+ UUID.randomUUID()+ "</companyNo><billKey>"
+					+ Constant.PAYMENT_PROJECT_SNG+cd.getCd_id() + "</billKey><item1></item1><item2></item2><item3></item3><item4></item4><item5></item5><item6></item6><item7></item7><reserve1>"
+					+ Constant.IDENTITY_PARENT + "</reserve1><reserve2>"
+					+ obj.getJSONObject("In").getJSONObject("Head").get("InstID").toString() + "</reserve2><reserve3>"
+					+ cd.getStud_name()+ "</reserve3><reserve4>"
+					+ cd.getStud_id() + "</reserve4><reserve5>"
+					+ parent.getParent_name() + "</reserve5><reserve6>"
+					+ parent.getParent_id() + "</reserve6><reserve7></reserve7><reserve8>"
+					+ cd.getClas_name() + "</reserve8><reserve9>"
+					+ parent.getUser_id() + "</reserve9><reserve10>"
+					+ cd.getCid() + "</reserve10><reserve11>"
+					+ cd.getOrder_id() + "</reserve11><reserve12></reserve12><reserve13>"
+					+ org_name + "</reserve13><reserve14></reserve14><reserve15></reserve15><reserve16></reserve16><reserve17></reserve17><reserve18></reserve18><totalNum>1</totalNum><Frame><contractNo>"
+					+ Constant.PAYMENT_PROJECT_SNG+cd.getCd_id() + "</contractNo><customerName>"
+					+ cd.getStud_name() + "</customerName><balance>0</balance><payAmount>"
+					+ cd.getMoney() + "</payAmount><beginDate>"
+					+ Constant.date.format(cd.getStart_time()) + "</beginDate><endDate>"
+					+ Constant.date.format(cd.getEnd_time()) + "</endDate><detailFiled1></detailFiled1><detailFiled2></detailFiled2><detailFiled3></detailFiled3><detailFiled4>"
+					+ cd.getItem() + "</detailFiled4><detailFiled5>"
+					+ cd.getOrder_id() + "</detailFiled5></Frame></Body></Out>";
+			}	
+			break;
+		case Constant.CEB_TYPE_PAY:
+			if(StringUtils.isNotBlank(errorCode)){
+				xml += "<Out><Head><FTranCode>"+type+"</FTranCode><InstID>"
+						+ obj.getJSONObject("In").getJSONObject("Head").get("InstID").toString() + "</InstID><TranDateTime>"
+						+ obj.getJSONObject("In").getJSONObject("Head").get("TranDateTime").toString()+"</TranDateTime><BankNum>"
+						+ obj.getJSONObject("In").getJSONObject("Head").get("BankNum").toString()+"</BankNum><AnsCode>" 
+						+ Constant.CEB_ANSCODE_ERROR+"</AnsCode></Head><Body><ErrorCode>";
+				if(Constant.CEB_ANSCODE_ERROR00.equals(errorCode)){
+					xml += Constant.CEB_ANSCODE_ERROR00+"</ErrorCode><ErrorInfo>缴费金额不符</ErrorInfo></Body></Out>";
+				}else{
+					xml += Constant.CEB_ANSCODE_ERROR06+"</ErrorCode><ErrorInfo>没有返回正确的支付信息</ErrorInfo></Body></Out>";
+				}
+			}else{				
+				xml += "<Out><Head><FTranCode>BJ02</FTranCode><InstID>"
+						+ cd.getOrg_id() + "</InstID><TranDateTime>"
+						+ obj.getJSONObject("In").getJSONObject("Head").get("TranDateTime").toString()+"</TranDateTime><BankNum>"
+						+ obj.getJSONObject("In").getJSONObject("Head").get("BankNum").toString()+"</BankNum><AnsCode>"+Constant.CEB_ANSCODE_SUCCESS+"</AnsCode></Head><Body><companyNo>"
+						+ obj.getJSONObject("In").getJSONObject("Body").get("bankBillNo").toString()+"</companyNo><billKey>"
+						+ cd.getCd_id() + "</billKey><payAmount>"
+						+ cd.getMoney() + "</payAmount><receiptNo></receiptNo><reserve1></reserve1><reserve2></reserve2><reserve3></reserve3><reserve4></reserve4><reserve5></reserve5><reserve6></reserve6><reserve7></reserve7><reserve8></reserve8><reserve9></reserve9><reserve10></reserve10><reserve11></reserve11><reserve12></reserve12><reserve13></reserve13><reserve14></reserve14><reserve15></reserve15><reserve16></reserve16><reserve17></reserve17><reserve18></reserve18></Body></Out>";
+			}
+			break;
+		default:
+			break;
+		}
+		return xml;
+	}
+	
+	/**
+	 * 向response返回xml数据
+	 * @param response
+	 * @param obj
+	 * @param type
+	 */
+	private void sendXML(HttpServletResponse response,String xml){
+		BufferedWriter out = null;
+		try{
+			out = new BufferedWriter(new OutputStreamWriter(response.getOutputStream(), "GBK"));
+			out.write(xml);
+			out.flush();
+		} catch (Exception e) {
+			LogUtil.writeErrorLog(e.getMessage());
+		} finally {
+			try {
+				if (out != null) {
+					out.close();
+					out = null;
+				}
+			} catch (IOException e) {
+				out = null;
+			}
+		}
+	}
+	
+	/**
+	 * 销账对账
+	 * @param request
+	 * @param response
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/test.htm")
+	public void test(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("mobile", "13512959854");
+		map.put("content", "asdasdasdasdadadas");
+		mqService.sendMessage("send_message_exchange", null, map);
+	}
+
+}

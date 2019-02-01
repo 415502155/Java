@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>课程列表</title>
+<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+<link rel="shortcut icon" href="/favicon.ico">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<!--ui包-->
+<link rel="stylesheet" href="../../../css/sm.css">
+<link rel="stylesheet" href="../../../css/layout.css">
+<style>
+	pre{
+		white-space: pre-wrap;
+		white-space: -moz-pre-wrap;
+		white-space: -pre-wrap;
+		white-space: -o-pre-wrap;
+		word-wrap: break-word;
+	}
+	.signClassTitle{line-height:1.2rem}
+	.class_basic .class_info{line-height:1rem}
+	.infinite-scroll-preloader {margin-top:-2rem;margin-bottom: 3rem}
+	.class-teacher{padding:0.2rem}
+	.hideCard{display: none}
+	.dischange{background: #f5f4f4;color: #c7c7c7;display: initial;padding: .3rem .5rem;border-radius: .2rem;margin-top: .4rem;font-size: .7rem;opacity:0.6}
+	.tool .select{padding:0;-webkit-appearance: menulist;-moz-appearance:menulist;-ms-appearance: menulist;appearance: menulist;font-size: .6rem}
+	/* #firstTip .content{background: url(../../../images/sign_bg.jpg);background-size:100%}
+	#firstTip .text{padding: 0 2rem;line-height: 1.5rem;font-size: .7rem;overflow-y: scroll;height: 18rem;margin-top: 7rem} */
+</style>
+</head>
+<body>
+	<div class="page-group" id="touch">
+		<div class="page page-current" id="sign_class_list">
+			<!--顶部-->
+			<div class="signClassTitle bar bar-nav">
+				<div style="padding-top: .3rem;" id="signTitle"></div>
+				<div class="color-gray class-timeTip" id="timeTip"></div>
+				<div class="signNotice open-signNotice" >
+					<img src="../../../images/warning.png" width="30" height="30" style="margin-top: -3px;" />
+					<div class="signTipTitle">报名须知</div>
+				</div>
+			</div>
+			<!--顶部 End-->
+			
+			<!--操作：报名/认证 -->
+			<div class='list_bottom_tool'>
+				<div class="tool_tipText" id="tool_tipText">暂未选择班级！</div>
+				<div class="tool_toDo" id="tool_toDo">续费</div>
+			</div>
+			<!--操作	end-->
+
+			<div class="content native-scroll infinite-scroll" data-distance="100" style="top:3.5rem">
+				<div class="list-block class-list" style="margin-top: 0; margin-bottom: 3rem;">
+					<ul id="allClass" class="list-container" style="border:none;">
+					</ul>
+				</div>
+				<!-- 加载提示符 -->
+				<!-- <div class="infinite-scroll-preloader">
+					<div class="preloader"></div>
+				</div> -->
+			</div>
+			<!--班级列表 End-->
+		</div>
+	</div>
+	<!--须知-->
+	<div class="popup popup-signNotice modal-in" id="firstTip" style="display:block;">
+		<header class="bar bar-nav">
+			<a class="button button-link button-nav pull-right close-popup" id="closeFirst">
+				关闭 </a>
+			<h1 class="title">报名须知</h1>
+		</header>
+		<div class="content native-scroll">
+			<div class="content-inner">
+				<div class="content-block">
+					<pre class="text" id="shouldKnow" style="line-height: 1.5rem">
+					</pre>
+					<a class="button button-fill close-popup" style="margin-top:5rem">确 定</a>
+				</div>
+				<!-- <div class="content-block">
+					<a class="button button-fill close-popup" id="first">查看课程列表</a>
+				</div> -->
+			</div>
+		</div>
+	</div>
+	<!-- 须知 End-->
+	<!--筛选数据-->
+	<div class="page" id='selectSubject'>
+		<header class="bar bar-nav">
+			<a class="button button-link button-nav pull-left back" href="/docs-demos/router"> <span class="icon icon-left"></span>
+				返回
+			</a>
+			<a class="button button-link button-nav pull-left" href="" id="clearBtn" style="padding-left:3rem">重置</a>
+			<a class="button button-link button-nav pull-right close-popup"
+				id="saveChanged"> 确定 </a>
+		</header>
+		<div class="content native-scroll" style="background: #fff;">
+			<div class="allCategory pull-left list-block" id="allCategory"
+				style="width:40%; height:100%;margin:0;">
+				<ul style="border-bottom:0;"></ul>
+			</div>
+			<div class="allCourse pull-right list-block" id="allCourse"
+				style="width:60%; min-height:100%;margin:0;border-left:1px #e0e0e0 dashed;">
+				<ul style="border-bottom: 0;"></ul>
+			</div>
+		</div>
+	</div>
+	<!-- 筛选数据 End-->
+</body>
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script>
+	sessionStorage.sign_class_list = 1;//设置标识,回到计划列表刷新
+	var baseUser = JSON.parse(sessionStorage.baseUser);
+	var now_child;
+	var isAuthentication = false;//是否认证
+	if(sessionStorage.certification == 1){
+		isAuthentication = true;
+		now_child = JSON.parse(sessionStorage.now_child);
+	}
+	var planId = GetUrlParam("planId"),//计划id
+		planData;//存储当前计划详情
+	//每秒刷新报名状态
+	function judgeTime(st,bt,et){
+		if(st<bt){
+			var str = "距离报名开始还有:"+formatDuring(bt-st);
+			$("#tool_toDo").hide();
+			$("#tool_tipText").text(str);
+			$("#timeTip").text(str);
+			$(".unchange").removeClass("unchange").addClass("dischange");
+
+		}else if(st>=bt&&st<=et){
+			var str = "距离报名结束还有:"+formatDuring(et-st);
+			$("#tool_toDo").show();
+			$("#timeTip").text(str);
+			$(".dischange").addClass("unchange").removeClass("dischange");
+		}else if(st>et){
+			var str = "报名已结束";
+			$("#tool_toDo").hide();
+			$("#tool_tipText").text(str);
+			$("#timeTip").text(str);
+			$(".unchange").removeClass("unchange").addClass("dischange");
+			$(".changed").removeClass("changed").addClass("dischange").text("选择");
+		}
+	}
+	$(function(){
+		if(sessionStorage.sign_back == 1){//如果从报名成功页返回,返回计划列表
+			$.router.back();
+			return false;
+		}
+		if(typeof sessionStorage.signResult !== "undefined"){
+			sessionStorage.removeItem("signResult");//清除上一次报名结果
+			window.location.reload();
+			return false;
+		}
+		var params = {
+			org_id: baseUser.orguser.org_id,
+			planId: planId,
+			version: 3,
+			identity: 0
+		};
+		if(isAuthentication == true){//已认证添加参数
+			params["token"] = baseUser.token,
+			params["udid"] = baseUser.udid,
+			params["user_id"] = baseUser.orguser.user_id
+		}
+		//先获取当前招生计划详细内容,方便获取列表显示简章,标题等
+		getData(domainName + '/apply/plan/info.json',{
+			token:baseUser.token,
+			org_id:baseUser.orguser.org_id,
+			planId:planId,
+			version:3
+		},function(res){
+			if(res.code == 200 && res.success == true){
+				planData = res.data;
+				$("#shouldKnow").text(planData.content);
+				$("#signTitle").text(planData.title);
+				addItems();
+			}else{
+				$.alert(res.message);
+				return false;
+			}
+		},"GET",false)
+		 //无限滚动
+		// $(document).on("pageInit", "#sign_class_list", function (e, id, page) {
+			var loading = false;
+			// 每次加载添加多少条目
+			var itemsPerLoad = 10000;
+			// 最多可加载的条目
+			var maxItems = 100;
+			var lastIndex = $('.list-container li').length;
+			//获取报名班级列表
+			function addItems(subject, page) {
+				var port = domainName + '/apply/class/list.json';
+				var param = {
+					org_id: baseUser.orguser.org_id,
+					planId: planId,
+					subjectId: subject||"",
+					page: page||1,
+					limit: 10000,
+					version: 3,
+					identity: 0,
+					classType: 1
+				}
+				if(isAuthentication == true){//已认证添加参数
+					param["token"] = baseUser.token,
+					param["udid"] = baseUser.udid,
+					param["user_id"] = baseUser.orguser.user_id
+				}
+				getData(port,param,function(res){
+					if(res.code == 200 && res.success == true){
+						// 生成新条目的HTML
+						var html = '';
+						var d = res.data.data;
+							for (var i = 0; i < d.length; i++) {
+								//判断是否认证,班级是否满员
+								var isFull = '',sele = '选择',canChange = 'data-week=' + d[i].classWeek,thisClass = 'unchange';
+								if(d[i].usableNum == 0){
+									isFull = '<div class="isfull"></div>';
+									sele = '已满';
+									canChange = '';
+								}else{//未满员
+									if(d[i].isApply === null){
+										sele = '选择';
+										canChange = '';
+									}else{//如已认证,判断是否报名过
+										if(d[i].isApply == 1){
+											sele = '已报名';
+											thisClass = 'changed is-apply';
+										}else if(d[i].isApply == 0){
+											sele = '选择';
+										}
+									}
+								}
+								if(d[i].classWeek !== 8){
+									var clasTimeHtml = d[i].classWeekStr+" "+d[i].classBeginTimeStr+"-"+d[i].classOverTimeStr;
+								}else{
+									var clasTimeHtml = d[i].classUnsetTime + '';
+								}
+								// html += `<li data-sub=${d[i].subjectId} data-id=${d[i].classId} data-date=${d[i].classWeek} >
+								// 			${isFull}
+								// 			<div class="class_basic">
+								// 				<div class="class_title">${d[i].subjectName+"("+d[i].className+")"}</div>
+								// 				<div class="class_info">
+								// 					<div>招收学段:${d[i].ageRange}  名额：${d[i].classSize}人</div>
+								// 					<div>费用：${d[i].tuitionFees}元/${d[i].totalHours}课时</div>
+								// 					<div>开课：${d[i].classStartDateStr}  ${clasTimeHtml}</div>
+								// 					<div>上课校区：${d[i].camName} /${d[i].building?d[i].building:' '} ${d[i].classroomName}</div>
+								// 				</div>
+								// 			</div>
+								// 			<div class="class_operation">
+								// 				<div class="ADD">
+								// 					<div class="class-teacher">${(d[i].teachers === '' || d[i].teachers === null) ? '教师待定' : d[i].teachers}</div>
+								// 					<div class="class_operation_box">
+								// 						<div ${canChange} data-start=${d[i].classBeginTimeStr} data-apply="${d[i].isApply}" data-end=${d[i].classOverTimeStr} data-tuitionFees="${d[i].tuitionFees}" class="${thisClass}">${sele}</div>
+								// 					</div>
+								// 				</div>
+								// 			</div>
+								// 		</li>`;
+								html += "<li data-sub=".concat(d[i].subjectId, " data-id=").concat(d[i].classId, " data-date=").concat(d[i].classWeek, " >\n\t\t\t\t\t\t\t\t\t\t\t").concat(isFull, "\n\t\t\t\t\t\t\t\t\t\t\t<div class=\"class_basic\">\n\t\t\t\t\t\t\t\t\t\t\t\t<div class=\"class_title\">").concat(d[i].subjectName + "(" + d[i].className + ")", "</div>\n\t\t\t\t\t\t\t\t\t\t\t\t<div class=\"class_info\">\n\t\t\t\t\t\t\t\t\t\t\t\t\t<div>\u62DB\u6536\u5B66\u6BB5:").concat(d[i].ageRange, "  \u540D\u989D\uFF1A").concat(d[i].classSize, "\u4EBA</div>\n\t\t\t\t\t\t\t\t\t\t\t\t\t<div>\u8D39\u7528\uFF1A").concat(d[i].tuitionFees, "\u5143/").concat(d[i].totalHours, "\u8BFE\u65F6</div>\n\t\t\t\t\t\t\t\t\t\t\t\t\t<div>\u5F00\u8BFE\uFF1A").concat(d[i].classStartDateStr, "  ").concat(clasTimeHtml, "</div>\n\t\t\t\t\t\t\t\t\t\t\t\t\t<div>\u4E0A\u8BFE\u6821\u533A\uFF1A").concat(d[i].camName, " /").concat(d[i].building ? d[i].building : ' ', " ").concat(d[i].classroomName, "</div>\n\t\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t\t<div class=\"class_operation\">\n\t\t\t\t\t\t\t\t\t\t\t\t<div class=\"ADD\">\n\t\t\t\t\t\t\t\t\t\t\t\t\t<div class=\"class-teacher\">").concat(d[i].teachers === '' || d[i].teachers === null ? '教师待定' : d[i].teachers, "</div>\n\t\t\t\t\t\t\t\t\t\t\t\t\t<div class=\"class_operation_box\">\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t<div ").concat(canChange, " data-start=").concat(d[i].classBeginTimeStr, " data-apply=\"").concat(d[i].isApply, "\" data-end=").concat(d[i].classOverTimeStr, " data-tuitionFees=\"").concat(d[i].tuitionFees, "\" class=\"").concat(thisClass, "\">").concat(sele, "</div>\n\t\t\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t</li>");
+						}
+						$('.infinite-scroll .list-container').append(html);// 添加新条目
+						judgeTime(transformTime(planData.serverTime),planData.beginTime,planData.endTime);//先加载一次时间显示
+						if(!isAuthentication){//未认证状态
+							$("#tool_tipText").text("您需要完成认证方可进行报名");
+							$("#tool_toDo").text("这就去认证").attr("no-authentication",1);
+							$(".unchange").removeClass("unchange").addClass("dischange").removeAttr("data-week");
+							$("#tool_toDo").on("click",function(){
+								location.href = "../certification/authentication.html";
+							})
+						}else{
+							//每一秒刷新根据服务器时间对比更新状态
+							var st = transformTime(planData.serverTime),
+								bt = planData.beginTime,
+								et = planData.endTime;
+							setTimeout(function(){
+								if(!(st>et+2000)){
+									st += 1000;
+									judgeTime(st,bt,et);
+									if(st === bt){
+										$("#tool_tipText").text("暂未选择班级!");
+									}
+									setTimeout(arguments.callee,1000);
+								}else{
+									judgeTime(st,bt,et);
+								}
+							},1000)
+							$("#tool_toDo").on("click",function(){//报名按钮
+								var clas_ids = [];								
+								$(".changed").each(function(i,e){
+									if(!$(e).hasClass("is-apply")){//过滤掉已报名班级
+										clas_ids.push(+$(e).parents("li").attr("data-id"))//将选择的班级id添加到clas_ids中
+									}
+								})
+								if(clas_ids.length>0){
+									clas_ids = clas_ids.join(",");
+								}else{
+									$.alert("暂未选择班级!");
+									return false;
+								}
+								$.showPreloader("排队提交中");
+								getData(domainName + "/apply/parent/doApply.json",{
+									token: baseUser.token,
+									udid: baseUser.udid,
+									version: 3,
+									identity: 0,
+									org_id: baseUser.orguser.org_id,
+									classIds: clas_ids,
+									studId: now_child.stud_id,
+									parentId: baseUser.orguser.parent.parent_id,
+									classType: 1
+								},function(res){
+									$.hidePreloader();
+									if(res.code == 200 && res.success == true){
+										$("#tool_toDo").css("visibility","hidden");
+										$.toast("已提交,请在规定时间内支付报名费用!");
+										sessionStorage.signResult = JSON.stringify(res.data);//将报名成功结果加入缓存
+										setTimeout(function(){
+											location.href = 'sign_result_success.html';
+										},2000)
+									}else{
+										$.alert(res.message);
+									}
+								},"POST",true,"排队提交中")
+							})
+						}
+						$("#allClass").find("li").each(function(i,e){
+							if($(e).find(".unchange").attr("data-apply") == 1){//如果已经报名,显示已报名
+								$(e).find(".isfull").remove();
+								$(e).find(".unchange").removeClass(".unchange").addClass("changed").removeAttr("data-week").text("已报名");
+							}
+						})
+					}else{
+						$.alert(res.message);
+						return false;
+					}
+				})
+			}
+		// 	$(page).on('infinite', function () {
+		// 		// 如果正在加载，则退出
+		// 		if (loading) return;
+		// 		// 设置flag
+		// 		loading = true;
+		// 		// 模拟1s的加载过程
+		// 		setTimeout(function () {
+		// 			// 重置加载flag
+		// 			loading = false;
+		// 			if (lastIndex >= maxItems) {
+		// 				// 加载完毕，则注销无限加载事件，以防不必要的加载
+		// 				$.detachInfiniteScroll($('.infinite-scroll'));
+		// 				// 删除加载提示符
+		// 				$('.infinite-scroll-preloader').remove();
+		// 				return;
+		// 			}
+		// 			addItems(itemsPerLoad, lastIndex);
+		// 			// 更新最后加载的序号
+		// 			lastIndex = $('.list-container li').length;
+		// 			$.refreshScroller();
+		// 		}, 1000);
+		// 	});
+		// });	
+		$(".list-container").on("click","[data-week]",function(){//选择课程
+			if($(this).hasClass("dischange") || $(this).hasClass("is-apply")){
+				return false;
+				throw new Error("报名尚未开始或已结束或人数已满或已报名!");
+			}
+			var cChanged = function(sele){
+				sele.toggleClass("unchange");
+				sele.toggleClass("changed");
+				sele.text()=='选择'?sele.text("已选择"):sele.text("选择");
+				var num = 0,clas_num = 0;
+				if($(".changed").length>0){
+					$(".changed").each(function (i, e) {//获取已选择课程费用总和
+						if(!$(e).hasClass("is-apply")){
+							num += +$(e).attr("data-tuitionFees");
+							clas_num += 1;
+						}
+					})
+					if(clas_num>0){
+						$("#tool_tipText").text("已选择"+clas_num+"个班级,费用合计"+ num +"元");
+					}else{
+						$("#tool_tipText").text("暂未选择班级");	
+					}
+				}else{
+					$("#tool_tipText").text("暂未选择班级");
+				}
+			}
+			var $this = $(this);
+			if($this.attr("data-week")!=8){//判断所选课程是否时间重叠
+				if($this.hasClass("unchange")&&$(".changed").length>0){//未选择
+					$(".changed").each(function(){
+						var week = $(this).attr("data-week");
+						var thisWeek = $this.attr("data-week");
+						if(week == thisWeek){
+							var startTime = new Date("1970/1/1 "+$this.attr("data-start")).getTime();
+							var endTime = new Date("1970/1/1 "+$this.attr("data-end")).getTime();
+							var nowStartTime = new Date("1970/1/1 "+$(this).attr("data-start")).getTime();
+							var nowEndTime = new Date("1970/1/1 "+$(this).attr("data-end")).getTime();
+							if(startTime > nowStartTime){
+								if(nowEndTime > startTime){
+									$.alert("上课时间重叠,请重新选择!");
+									throw new Error("上课时间重叠");
+								}
+							}else if(startTime < nowStartTime){
+								if(endTime > nowStartTime){
+									$.alert("上课时间重叠,请重新选择!");
+									throw new Error("上课时间重叠");
+								}
+							}else if(startTime == nowStartTime){
+								$.alert("上课时间重叠,请重新选择!");
+								throw new Error("上课时间重叠");
+							}
+						}
+					})
+					cChanged($this);
+				}else{
+					cChanged($this);
+				}
+			}else{
+				cChanged($this);
+			}
+		})
+		// $.init();
+	})
+	// //查看报名须知
+	$(document).on('click', '.open-signNotice', function() {
+		$.popup('.popup-signNotice');
+	});
+</script>

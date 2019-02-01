@@ -1,0 +1,176 @@
+<!--添加管理员-->
+<style>
+    .gui-form .gui-form-item-label {
+        width: 120px;
+    }
+</style>
+<div style="padding: 40PX;">
+    <form class="gui-form gui-form-label-right" id="addRole-form" novalidate="novalidate">
+
+        <div class="gui-form-item"><label class="gui-form-item-label">设置管理员</label>
+            <div class="gui-form-item-content">
+                <div id="changedTeachers" style="line-height: 34px;color:#2d8cf0; float: left; cursor: pointer" title="选择教师">
+                    <span>选择教师</span>
+                    <input type="text" name="techIds" style="width: 1px;overflow: hidden;border:none;background:none;box-shadow:none;">
+                </div>
+            </div>
+        </div>
+        <div class="line"></div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">选择角色</label>
+            <div class="gui-form-item-content">
+                <select class="gui-input" name="roleId">
+                    <option value="">请选择角色</option>
+                    <!-- <option value="1">管理员</option>
+                    <option value="2">财务管理员</option>
+                    <option value="3">保山道管理员</option> -->
+                </select>
+            </div>
+        </div>
+        <div class="gui-form-item gui-form-item-required">
+            <div class="gui-form-item-content">
+                每个教师只能有一个角色，如果选择一个新角色，旧的角色就会自动消失
+            </div>
+        </div>
+        <div class="line"></div>
+        <div class="gui-form-item">
+            <div class="gui-form-item-content" >
+                <button type="button" class="gui-btn gui-btn-normal" id="saveRole"><i class="fa fa-save"></i><span>保存角色</span></button>
+               <!-- <button type="reset" class="gui-btn gui-btn-warm" id="clearform"><i class="fa fa fa-trash-o"></i><span>清空表单</span></button>-->
+                <button type="button" class="gui-btn gui-btn-primary" id="back"><i class="fa fa-angle-left"></i><span>取消返回</span></button>
+            </div>
+        </div>
+    </form>
+</div>
+<script type="text/javascript" src="plus/validate/jquery-validate.js"></script>
+<script>
+    var user_id = GetUrlParam("id"),role_id = null;
+    var changedResulst={
+        changedTea:[],
+        teachertName:[]
+    };
+
+    //如果是编辑,先获取编辑教师的角色信息
+    if(user_id){
+        getData(loginMain + '/esb/api/role/getSngTeacherRole',{
+            token:option.token,
+            user_id:user_id,
+            udid:option.udid,
+            version:0,
+            org_id:option.org_id
+        },function(res){
+            if(res.code == 200 && res.success == true){
+                if(res.data !== null){
+                    changedResulst.changedTea.push(user_id);
+                    changedResulst.teachertName.push(res.data.tech_name);
+                    role_id = res.data.role_id;
+                    $("#changedTeachers").addClass("toEdit").css({"color":"#ccc","cursor": "not-allowed"}).attr("title","不可编辑");
+                    $("#clearform").hide();
+                }
+            }
+        },"GET",false)
+    }
+
+    $(function() {
+
+        //先获取可更改的角色选项
+        getData(loginMain+'/esb/api/role/getSngRoles',{
+            org_id:option.org_id,
+            token:option.token,
+            udid:option.udid,
+            version:0,
+            identity:1
+        },function(res){
+            if(res.code == 200 && res.success == true){
+                console.log(res);
+                var d = res.data;
+                for(var i=0;i<d.length;i++){
+                    $("select[name='roleId']").append('<option value="'+ d[i].role_id +'">'+ d[i].role_name +'</option>')
+                }
+                //编辑回显
+                if(changedResulst.changedTea.length>0){
+                    $("#changedTeachers").find("span").text(changedResulst.teachertName[0]);
+                    $("select[name='roleId']").val(role_id);
+                    $("input[name='techIds']").val(changedResulst.changedTea[0]);
+                }
+            }
+        })
+
+        //取消编辑返回列表
+        $("#back").click(function () {
+            window.history.back();
+        })
+
+        //changedTeacher
+       $("#changedTeachers").click(function () {
+           if($(this).hasClass("toEdit")){
+               return false
+           }
+           //选择教师
+           changedTeacher(changedResulst.changedTea,changedResulst);
+        })
+
+        $("#addRole-form").validate({
+            rules: {
+                techIds: {
+                    required: true
+                },
+                roleId: {
+                    required: true,
+                }
+            },
+            messages: {
+                techIds: {
+                    required: "请选择管理员"
+                },
+                roleId: {
+                    required: "请选择角色"
+                }
+            },
+            errorPlacement: function(error, element) {
+                error.appendTo(element.parent().after())
+            },
+            errorClass: 'gui-form-item-error',
+            errorElement: 'span',
+            submitHandler: function(form) {
+
+                //保存或者更新管理员信息
+                var cam={
+                    "parameter":{
+                        "org_id":option.org_id,
+                        "user_ids":changedResulst.changedTea.join(","),
+                        "role_id":$("select[name='roleId']").val()
+                    },
+                    "url":loginMain+"/esb/api/role/addSngTeacherRole"
+                };
+
+                //保存或者更新校区
+                getData(cam.url,cam.parameter,function (data) {
+                    console.log(data)
+                    if(data.code==200 && data.success==true){
+                        var loginUser = JSON.parse(sessionStorage.loginUser);
+                        if(changedResulst.changedTea.indexOf(loginUser.user_id+"") !== -1){
+                            myAlert("保存成功,您修改了自己的角色,请重新登录",1,data.code,function () {
+                                sessionStorage.removeItem("loginUser");
+                                sessionStorage.removeItem("tech_roles");
+                                sessionStorage.removeItem("token");
+                                sessionStorage.removeItem("udid");
+                                window.location = "login.html";
+                            });
+                        }else{
+                            myAlert("保存成功",1,data.code,function () {
+                                window.location.href="#g12"
+                            });
+                        }
+                    }else {
+                        myAlert(data.message,2,data.code,null);
+                    }
+                },"POST",false)
+            }
+        });
+
+        //提交
+        $("#saveRole").click(function () {
+            $("#addRole-form").submit();
+        });
+    })
+</script>

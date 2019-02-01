@@ -1,0 +1,1373 @@
+<!--学员管理-->
+<style>
+    .tablesorter-blue tbody tr > td.operation span.diabled {
+        color: #ccc;
+        text-decoration: line-through;
+        cursor: not-allowed;
+    }
+    .searchMclasList .camName {
+        font-weight: bold;
+        line-height: 30px;
+    }
+    .searchMclasList .className { line-height: 24px; color: #0a8ddf;display: block;font-size: 14px; cursor: pointer}
+    .searchMclasList input { vertical-align: middle}
+    .searchMclasList span { margin-right: 15px;}
+</style>
+<div class="content-wrap" id="sub_loadBox"  >
+    <div class="search">
+        <select class="gui-input" id="allTerm">
+            <option value="">选择学期</option>
+        </select>
+        <select class="gui-input" id="classType">
+            <option value="">班级类型</option>
+        </select>
+        <select class="gui-input" id="allCategory">
+            <option value="">选择类目</option>
+        </select>
+        <select class="gui-input" id="subject" disabled>
+            <option value="">选择科目</option>
+        </select>
+        <select class="gui-input" id="allCampus"></select>
+        <select class="gui-input" style="width: 100px" id="stuStatus">
+            <option value="">学员状态</option>
+        </select>
+        <select class="gui-input" style="width: 100px" id="payType">
+            <option value="">缴费方式</option>
+        </select>
+        <select class="gui-input" style="width: 100px" id="printType">
+            <option value="">凭证状态</option>
+        </select>
+         <div class="gui-input-group">
+            <input type="text" class="gui-input" id="content" placeholder="请输入学员姓名、班级名称" style="width:180px" />
+            <button type="button" class="gui-btn  gui-btn-normal" id="sentSearch"><i class="fa fa-search"></i>搜索</button>
+            <!--<input type="text" id="sendInp" class="gui-input" placeholder="请输入收费主题关键字搜索"/>-->
+         </div>
+    </div>
+    <div class="bod-con-fer-form">
+        <table align="center" class="tab tablesorter-blue">
+            <thead>
+            <tr>
+                <th><input type="checkbox" name="allStudent" onclick="all_click(this,'student',changeLocal(this))"></th>
+                <th>序号</th>
+                <th>学员姓名</th>
+                <th>证件号码</th>
+                <th>科目（班级名称）</th>
+                <th>教师姓名</th>
+                <th>学员状态</th>
+                <th>学费标准</th>
+                <th>缴费方式</th>
+                <th>缴费金额</th>
+                <th>退费金额</th>
+                <th>纸质凭证</th>
+                <th style="width: 220px;">操作</th>
+            </tr>
+            </thead>
+            <tbody id="studentList">
+                 <tr>
+                    <td colspan="13" class="noData"><i class="fa fa-warning" aria-hidden="true"></i>获取不到学员数据</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <!-- 分页 -->
+    <div class="gui-page-wapper" style="margin:20px 0;line-height: 28px;" id="pageContent">
+        <ul class="gui-page" id="limitUi">
+            <span class="gui-page-total">共<span id="allPage" class="numberShow">0</span>页 <span id="allTotal" class="numberShow">0</span>数据</span>
+            <span id="creatPage">
+            </span>
+        </ul>
+        <span class="gui-page-options-elevator" style="padding-left: 10px;">
+                每页条数：
+                <select id="limit" >
+                     <option value="20">20</option>
+                     <option value="50">50</option>
+                     <option value="100">100</option>
+                </select>
+            </span>
+
+        <span class="gui-page-options">
+            <span class="gui-page-options-elevator">跳至第
+            <input id="page" class="gui-input" data-onlyNumber="true">
+             页</span>
+           </span>
+    </div>
+    <!--分页END-->
+
+    <div class="dataStatistics">
+        <i class="fa fa-bar-chart"></i>:   学员数：<span class="numberShow" id="sum_student"><i class="fa fa-circle-o-notch fa-spin" ></i></span>
+        学费数：<span  class="numberShow" id="sum_money" ><i class="fa fa-circle-o-notch fa-spin" ></i></span>
+    </div>
+
+    <!-- //数据操作-->
+    <div class="dataTool" >
+        <div class="pull-left">
+            <label for="isAll">
+                <input type="checkbox" id="isAll" name="allSubStudent" >选择全部分页数据
+            </label>
+        </div>
+        <div class="pull-right">
+            <span class="changeSum" >已选择<span id="changeSum" >0</span>个学员</span>
+            <button type="button" class="gui-btn  gui-btn-normal" id="batchDown" disabled><i class="fa fa-cloud-download"></i>批量导出</button>
+            <button type="button" class="gui-btn  gui-btn-normal" id="batchTip"  disabled><i class="fa fa-volume-up"></i>批量催款</button>
+            <button type="button" class="gui-btn gui-btn-danger btn-delete" id="batchDel" disabled><i class="fa fa fa-trash-o"></i>批量删除</button>
+            <button type="button" class="gui-btn  gui-btn-normal" id="batchPrint" disabled title="打印收费发票"><i class="fa fa-print"></i>批量打印凭证</button>
+            <button type="button" class="gui-btn  gui-btn-normal" id="batchCheck" disabled><i class="fa fa-sign-out"></i>批量退费审核</button>
+            <button type="button" class="gui-btn  gui-btn-warm" id="delChanged" title="清空已选择班级" disabled><i class="fa fa-trash-o"></i>清空所选</button>
+        </div>
+    </div>
+
+
+</div>
+<script src="js/countUp.js"></script>
+<script src="plus/toPrint/LodopFuncs.js"></script>
+<script>
+
+    var stu_list={
+        "parameter":{
+            "org_id":option.org_id,
+            "token":option.token,
+            "udid":option.udid,
+
+            "term_id":"",
+           // 学期ID
+            "category_id":"",
+            //类目ID
+            "subject_id":"",
+           // 科目ID
+            "clas_type":"",
+           // 班级类型（1老生2新生）
+            "cam_id":option.roleCam,
+            // 校区
+            "stu_status":"",
+            //八种学员状态
+            "pay_method":"",
+            // 支付方式（1现金2银行卡3手机）
+            "is_print":"",
+            //打印状态（0未打印1已打印）
+            "keyword":"",
+
+             //查询关键字（学生姓名、班级名称）
+            "currentPageNum":1,
+             //页码
+            "pageSize":20
+        },
+        "url":domain+"/student/getSutdentList.json"
+    };
+
+    var changedStudent=[],changedStudentCid=[],loacalData={};
+
+    var pageWidth=null,pageHeight=null;
+    var printData=[];
+    /**
+     * 单页全选回调
+     * 实现页面及数据的更新
+     *
+     */
+
+    function changeLocal(obj){
+        //遍历本地数据
+        if($(obj).is(":checked")){
+            $("input[name=student]").each(function () {
+                var nowStudent=$(this).attr("id");
+                changedStudent.push(nowStudent);
+            });
+        }else{
+            $("input[name=student]").each(function () {
+                var nowStudent=$(this).attr("id");
+                changedStudent.removeByValue(nowStudent);
+            });
+            $("#isAll").prop("checked",false);
+        }
+        counter();
+    }
+
+    /**
+     * 计数器
+     * 单选，复选，含分页选的情况下的界面更新
+     *
+     */
+    function counter(){
+        changedStudent=changedStudent.unique();
+
+        if(changedStudent.length==0){
+
+            $("#batchDown").attr("disabled",true);
+            $("#batchTip").attr("disabled",true);
+            $("#batchDel").attr("disabled",true);
+            $("#batchPrint").attr("disabled",true);
+            $("#batchCheck").attr("disabled",true);
+            $("#delChanged").attr("disabled",true);
+        }else {
+            $("#batchDown").attr("disabled",false);
+            $("#batchTip").attr("disabled",false);
+            $("#batchDel").attr("disabled",false);
+            $("#batchPrint").attr("disabled",false);
+            $("#batchCheck").attr("disabled",false);
+            $("#delChanged").attr("disabled",false);
+        }
+        countup("changeSum",changedStudent.length,$("#changeSum").text());
+
+        if($("input[name=student]:checked").length==$("input[name=student]").length && $("input[name=student]:checked").length!==0){
+            $("input[name=allStuednet]").prop("checked",true);
+        }
+
+    }
+
+    $(function () {
+
+        //生成下拉菜单
+        allSelect();
+
+        //默认加载学期
+        stu_list.parameter.term_id=$("#allTerm").val();
+        showHtml();
+
+        //变换查询条件触发查询
+        $("#allTerm").change(function(){
+            stu_list.parameter.term_id=$(this).val();
+            stu_list.parameter.pageSize=$("#limit").val();
+            stu_list.parameter.currentPageNum=1;
+            showHtml();
+        });
+        $("#classType").change(function(){
+            stu_list.parameter.clas_type=$(this).val();
+            stu_list.parameter.pageSize=$("#limit").val();
+            stu_list.parameter.currentPageNum=1;
+            showHtml();
+        });
+        $("#allCampus").change(function(){
+            stu_list.parameter.cam_id=$(this).val();
+            stu_list.parameter.pageSize=$("#limit").val();
+            stu_list.parameter.currentPageNum=1;
+            showHtml();
+        });
+        $("#allCategory").change(function(){
+            stu_list.parameter.category_id=$(this).val();
+            stu_list.parameter.pageSize=$("#limit").val();
+            stu_list.parameter.currentPageNum=1;
+            showHtml();
+        });
+        $("#subject").change(function(){
+            stu_list.parameter.subject_id=$(this).val();
+            stu_list.parameter.pageSize=$("#limit").val();
+            stu_list.parameter.currentPageNum=1;
+            showHtml();
+        });
+
+
+        //学员的状态
+        $("#stuStatus").change(function(){
+            stu_list.parameter.stu_status=$(this).val();
+            stu_list.parameter.pageSize=$("#limit").val();
+            stu_list.parameter.currentPageNum=1;
+            showHtml();
+        });
+
+        //支付方式
+        $("#payType").change(function(){
+            stu_list.parameter.pay_method=$(this).val();
+            stu_list.parameter.pageSize=$("#limit").val();
+            stu_list.parameter.currentPageNum=1;
+            showHtml();
+        });
+        //是否打印
+        $("#printType").change(function(){
+            stu_list.parameter.is_print=$(this).val();
+            stu_list.parameter.pageSize=$("#limit").val();
+            stu_list.parameter.currentPageNum=1;
+            showHtml();
+        });
+
+
+        //点击查询
+        $("#sentSearch").click(function(){
+
+            var keyword=$("#content").val();
+            if(keyword==""){
+                myAlert("请输入学员姓名、班级名称进行搜索",2,null,null);
+                return false
+            }
+            stu_list.parameter.keyword=keyword;
+            stu_list.parameter.pageSize=$("#limit").val();
+            stu_list.parameter.currentPageNum=1;
+            showHtml();
+        });
+
+
+        //单人催缴
+        $("#studentList").on("click", ".toPushPay", function(e) {
+            var $this=$(this);
+            var cdid=$(this).parent().attr("data-id"),stuName=$(this).closest("tr").find("td:eq(2)").text();
+
+            if($this.hasClass("diabled")){
+                return false
+            }
+            myConfirm("你确定要给 "+stuName+" 学员发送催缴信息吗？", function () {
+                var result= toPushPay(cdid,stuName);
+                if(result){
+                    $this.addClass("diabled").prop("title",stuName+"30分钟后可再次发送催缴提醒")
+                };
+            }, null, null,0);
+            e.stopPropagation();
+        });
+
+        //批量催缴
+        $("#batchTip").click(function() {
+            var cdids=changedStudent.join(",");
+            myConfirm("你确定要给选中的"+changedStudent.length+"个学员发送催缴信息吗？", function () {
+                 toPushPay(cdids);
+            }, null, null,0);
+        });
+
+        //单人删除
+        $("#studentList").on("click", ".toDel", function() {
+            var cdid=$(this).parent().attr("data-id"),stuName=$(this).closest("tr").find("td:eq(2)").text();
+            myConfirm("你确定要删除 "+stuName+" 学员吗？", function () {
+                toDelStudent(cdid,stuName);
+            }, null, null,0);
+        });
+
+        //批量删除学员
+        $("#batchDel").click(function() {
+            var cdids=changedStudent.join(",");
+            myConfirm("你确定要删除选中的"+changedStudent.length+"个学员吗？", function () {
+                toDelStudent(cdids);
+            }, null, null,0);
+        });
+
+        //单人审核
+        $("#studentList").on("click", ".toCheck", function(e) {
+            var cdid=$(this).parent().attr("data-id"),stuName=$(this).closest("tr").find("td:eq(2)").text();
+            myConfirm("你确定要通过 "+stuName+" 学员的退费申请吗？", function () {
+                passRefund(cdid,stuName);
+            }, null, null,0);
+            e.stopPropagation();
+        });
+
+
+        //批量退费审核
+        $("#batchCheck").click(function() {
+            var cdids=changedStudent.join(",");
+            myConfirm("你确定要通过选中的"+changedStudent.length+"个学员的退费申请吗？", function () {
+                passRefund(cdids);
+            }, null, null,0);
+        });
+
+        //撤销退费
+        $("#studentList").on("click", ".toCancel", function(e) {
+            var cdid=$(this).parent().attr("data-id"),stuName=$(this).closest("tr").find("td:eq(2)").text();
+            myConfirm("你确定要撤销 "+stuName+" 学员的退费申请吗？", function () {
+                cannelRefund(cdid,stuName);
+            }, null, null,0);
+            e.stopPropagation();
+        });
+
+        //转班
+        $("#studentList").on("click", ".toTransferring", function(e) {
+            var cdid=$(this).parent().attr("data-cid"),
+                id=$(this).parent().attr("data-id"),//stud_clas_id
+                classId=$(this).parent().attr("data-classid"),
+                stuName=$(this).closest("tr").find("td:eq(2)").text(),
+                payTypestr=$(this).closest("tr").find("td:eq(8)").text(),
+                refundMax=Number($(this).closest("tr").find("td:eq(9)").text()),
+                stuid=$(this).parent().attr("data-stuid");//stud_id
+
+            var htmltemplate="<div class=\"gui-form\" style='padding:15px 50px;'>" +
+                    "<div class=\"gui-form-item gui-form-item-required\">"+
+                        "<label class=\"gui-form-item-label\">搜索班级</label>" +
+                        "<div class=\"gui-form-item-content\">" +
+                        "<input type=\"text\" name=\"searchKey\" placeholder=\"请输入教师姓名、手机号或班级名称\" id=\"searchKey\" class=\"gui-input\" value=\"\" maxlength=\"50\" style='width: 300px'>" +
+                        "<button class=\"gui-btn  gui-btn-normal\" id=\"searchBtn\"><i class=\"fa fa-search\"></i>搜索</button>"+
+                        "</div>" +
+                    "</div>"+
+                    "<div id='searchMclasList' class='searchMclasList'></div>" +
+                "</div>";
+
+            mydialogForm(htmltemplate, "["+stuName+"] 转班", null, ['640px', '480px'], ["保存", "取消"], [function(t){
+
+
+                var moveId=$("#searchMclasList input:checked").attr("id");
+                var camId=$("#searchMclasList input:checked").attr("data-camid");
+                if(moveId==""||moveId==undefined){
+                   myAlert("请先查询要转的班级,然后选择要转的班级！",2,null,null);
+                   return false
+                }
+
+                var classObj=JSON.parse(sessionStorage.localMoveClassList)[camId]["list"][moveId]
+                //转班操作
+                var insert={
+                    "parameter":{
+                        "org_id":option.org_id,
+                        "token":option.token,
+
+                        "stud_id":id,
+                        "cam_id":classObj.cam_id,
+                        "cam_name":classObj.cam_name,
+                        "clas_id":classObj.clas_id,
+                        "clas_name":classObj.clas_name,
+                        "category_id":classObj.category_id,
+                        "category_name":classObj.category_name,
+                        "subject_id":classObj.subject_id,
+                        "subject_name":classObj.subject_name,
+                        "class_week":classObj.class_week,
+                        "class_begin_time":classObj.class_begin_time,
+                        "class_over_time":classObj.class_over_time,
+                        "class_unset_time":classObj.class_unset_time,
+                    },
+                    "url":domain+"/student/saveMoveClassStuInfo.json"
+                };
+
+                getData(insert.url,insert.parameter,function (res){
+
+                    if(res.code==200 && res.success==true){
+
+                        myAlert(stuName+"的转班申请提交成功！",1,null,null);
+
+                        layer.close(t);
+                    }else {
+                        myAlert(res.message,2,data.code,null);
+                    }
+                },"POST",false)
+
+
+
+            },null]);
+
+            $("#searchKey").focus(function(){
+                $(this).removeClass("gui-form-input-error");
+            });
+
+            //查询班级
+            $("#searchBtn").click(function () {
+
+                var key=$("#searchKey").val();
+
+                if(key==""){
+                    $("#searchKey").addClass("gui-form-input-error");
+                    return false
+                }
+                //插班操作d
+                var insert={
+                    "parameter":{
+                        "org_id":option.org_id,
+                        "token":option.token,
+
+                        "clas_id":classId,
+                        "stud_id":stuid,
+                        "queryContext":key
+                    },
+                    "url":domain+"/student/queryMoveClassListInfo.json"
+                };
+
+                getData(insert.url,insert.parameter,function (res){
+
+                    if(res.code==200 && res.success==true){
+                         var classHTML="";
+
+                          var all=res.data,loacalData={};
+                          if(all!==null){
+                              if(all.length>0){
+                                  var n=all.length;
+                                  for(var m=0;m<n;m++){
+                                      var camObj=all[m];
+                                      loacalData[camObj.cam_id]={}
+                                      loacalData[camObj.cam_id]["name"]=camObj.cam_name;
+                                      loacalData[camObj.cam_id]["list"]={};
+                                      classHTML+="<div class='camName'>"+camObj.cam_name+"</div>"
+                                      if(camObj.list.length>0){
+                                          for(var x=0;x<camObj.list.length;x++){
+                                              var classObj=camObj.list[x];
+
+                                              loacalData[camObj.cam_id]["list"][classObj.clas_id]={
+                                                  "cam_id":classObj.cam_id,
+                                                  "cam_name":classObj.cam_name,
+                                                  "clas_id":classObj.clas_id,
+                                                  "clas_name":classObj.clas_name,
+                                                  "category_id":classObj.category_id,
+                                                  "category_name":classObj.category_name,
+                                                  "subject_id":classObj.subject_id,
+                                                  "subject_name":classObj.subject_name,
+                                                  "class_week":classObj.class_week,
+                                                  "class_begin_time":classObj.class_begin_time,
+                                                  "class_over_time":classObj.class_over_time,
+                                                  "class_unset_time":classObj.class_unset_time,
+                                              };
+
+                                              classHTML+="<label   class='className' data-eMsg='"+classObj.errorMessage+"' title='选择"+classObj.subject_name+"("+classObj.clas_name+")'><input type='radio' name='moveclass' id='"+classObj.clas_id+"' data-camid='"+classObj.cam_id+"'><span>"+classObj.subject_name+"("+classObj.clas_name+")</span><span>"+option.allTime[classObj.class_week]+classObj.class_begin_time+"-"+classObj.class_over_time+"</span>"+classObj.tech_name+"老师</label>";
+                                          }
+                                      }
+                                  }
+
+                                  sessionStorage.localMoveClassList=JSON.stringify(loacalData)
+
+
+                              } else {
+                                  classHTML+="没有查询到班级！"
+                              }
+                          }else{
+                              classHTML+="没有查询到班级！"
+                          }
+
+
+                         $("#searchMclasList").html(classHTML);
+
+                    }else {
+                        myAlert(res.message,2,res.code,null);
+                    }
+                },"POST",false)
+
+            });
+
+            e.stopPropagation();
+        });
+
+
+        //批量导出
+        $("#batchDown").click(function() {
+            var stuids=changedStudent.join(",");
+             window.location.href=domain+"/student/download.htm?ids="+stuids+"&token="+option.token+"&udid="+option.udid
+        });
+
+
+        //退费
+        $("#studentList").on("click", ".toRefund", function(e) {
+
+            var cdid=$(this).parent().attr("data-cid"),id=$(this).parent().attr("data-id"),
+                stuName=$(this).closest("tr").find("td:eq(2)").text(),
+                payTypestr=$(this).closest("tr").find("td:eq(8)").text(),
+                refundMax=Number($(this).closest("tr").find("td:eq(9)").text());
+
+             var htmltemplate="<div class=\"gui-form\" style='padding:15px 50px;'>" +
+                             "<div class=\"gui-form-item \">"+
+                                 "<label class=\"gui-form-item-label\">缴费方式</label>" +
+                                 "<div class=\"gui-form-item-content\">" +
+                                    payTypestr +
+                                 "</div>" +
+                             "</div>" +
+                             "<div class=\"gui-form-item gui-form-item-required\">"+
+                                 "<label class=\"gui-form-item-label\">退费金额</label>" +
+                                 "<div class=\"gui-form-item-content\">" +
+                                 "     <input type=\"text\" name=\"stuId\" placeholder=\"退费金额\"  data-max='"+refundMax+"' id=\"refundMoney\" class=\"gui-input\" value=\"\" maxlength=\"50\" >" +
+                                 "</div>" +
+                             "</div>"+
+                        "</div>";
+
+            mydialogForm(htmltemplate, "["+stuName+"] 退费申请", null, ['640px', '240px'], ["保存", "取消"], [function(t){
+
+
+                var pay=Number($("#refundMoney").val());
+                var payMax=Number($("#refundMoney").attr("data-max"));
+                if(pay==""){
+                    $("#refundMoney").addClass("gui-form-input-error");
+                    $("#refundMoney").after("<span id=\"refundMoney-error\" class=\"gui-form-item-error\">请输入退费金额</span>");
+                    return false
+                }
+
+                if(payMax < pay){
+                    $("#refundMoney").addClass("gui-form-input-error");
+                    $("#refundMoney").after("<span id=\"refundMoney-error\" class=\"gui-form-item-error\">退费金额不能高于缴费金额（"+payMax.toFixed(2)+"）</span>");
+                    return false
+                }
+
+                //插班操作
+                var insert={
+                    "parameter":{
+                        "org_id":option.org_id,
+                        "token":option.token,
+
+                         "cd_id":cdid,
+                         "money":pay,
+                         "stu_class_id":id
+                    },
+                    "url":domain+"/portal/charge/refund.json"
+                };
+
+                getData(insert.url,insert.parameter,function (res){
+
+                    if(res.code==200 && res.success==true){
+
+                        myAlert(stuName+"的退费申请提交成功！",1,null,null);
+
+                        layer.close(t);
+                    }else {
+                        myAlert(res.message,2,res.code,null);
+                    }
+                },"POST",false)
+
+
+
+            },null]);
+
+            $("#refundMoney").focus(function () {
+                $("#refundMoney-error").remove();
+                $(this).removeClass("gui-form-input-error");
+            });
+
+            e.stopPropagation();
+        });
+
+
+        //单人打印
+        $("#studentList").on("click", ".toPrint", function(e) {
+            var cdid=$(this).parent().attr("data-id"),stuName=$(this).closest("tr").find("td:eq(2)").text();
+            myConfirm("你确定要打印 "+stuName+" 学员的缴费凭证吗？", function () {
+                printStu(cdid,stuName);
+            }, null, null,0);
+            e.stopPropagation();
+        });
+
+        //批量打印
+        $("#batchPrint").click(function() {
+            var cdids=changedStudent.join(",");
+            myConfirm("你确定要打印选中的"+changedStudent.length+"个学员的收费凭证吗？", function () {
+                printStu(cdids);
+            }, null, null,0);
+        });
+
+        //获取学生的电话
+        $("#studentList").on("click", ".getTel", function(e) {
+            var cdid=$(this).parent().attr("data-classid"),
+                stuName=$(this).closest("tr").find("td:eq(2)").text(),
+                studId=$(this).parent().attr("data-id");
+            getTel(cdid,stuName,studId);
+            e.stopPropagation();
+        });
+
+        //获取分页全部数据
+        $("#isAll").click(function () {
+
+            var isChecked=$(this).is(":checked");
+            //获取该搜索条件下的所有班级
+            var isAll=[];
+
+
+            getData(domain+"/student/queryStuIds.json",stu_list.parameter,function (res){
+
+                if(res.code==200 && res.success==true){
+
+                      var m=res.data.length;
+                      if(isChecked){
+                           //添加到已选
+                           for(var i=0;i<m;i++){
+                               var stuId=res.data[i];
+                               changedStudent.push(stuId);
+                               $("#"+stuId).prop("checked",true);
+                           }
+                          $("input[name=allStudent]").prop("checked",true);
+
+                       }else{
+                           //从已选删除
+                           for(var i=0;i<m;i++){
+                               var stuId=res.data[i]
+                               changedStudent.removeByValue(stuId);
+                               $("#"+stuId).prop("checked",false);
+                           }
+
+                           $("input[name=allStudent]").prop("checked",false);
+                           $("#isAll").prop("checked",false);
+                       }
+
+                      counter();
+
+                }else {
+                    myAlert(res.message,2,res.code,null);
+                }
+            },"POST",false)
+
+
+        });
+
+
+        /**
+         * 清空所选
+         * 包括 清除选中和清空 及触发统计和页面更新
+         */
+        $("#delChanged").click(function(){
+
+            //界面更新
+            for(var n=0,m=changedStudent.length;n<m;n++){
+                var obj=changedStudent[n];
+
+                if($("#"+obj).length==1){
+                    $("[name=\"allStudent\"]").prop("checked",false);
+                }
+
+                $("#"+obj).prop("checked",false);
+            }
+
+            $("#batchDown").attr("disabled",true);
+            $("#batchTip").attr("disabled",true);
+            $("#batchDel").attr("disabled",true);
+            $("#batchPrint").attr("disabled",true);
+            $("#batchCheck").attr("disabled",true);
+            $("#isAll").prop("checked",false);
+            $(this).prop("disabled",true);
+            //清空备选班级
+            changedStudent=[];
+
+            $("#changeSum").text("0");
+        });
+
+         //==========================================================================================================
+        //单选学生：如果选中插入到备选，否则从已选删除
+        //编辑的时候会后渲染，所以得绑定事件
+        $("#studentList").on("click","input[name=\"student\"]",function (e) {
+
+            var studentID=$(this).attr("id");
+
+            if($(this).is(":checked")){//选中
+                changedStudent.push(studentID);
+                if($("input[name=student]").length==$("input[name=student]:checked").length){
+                    $("input[name=allStudent]").prop("checked",true);
+                }
+            }else{ //取消
+                changedStudent.removeByValue(studentID);
+                $("#isAll").prop("checked",false);
+                $("input[name=allStudent]").prop("checked",false);
+            }
+            counter();
+            e.stopPropagation();
+        });
+
+        $("#studentList").on("click","tr",function (e) {
+            var obj=$(this).find("input[name=\"student\"]");
+            var studentID=obj.attr("id");
+            if(studentID==undefined){
+                return false
+            }
+            if(!obj.is(":checked")){//选中
+                obj.prop("checked",true);
+                changedStudent.push(studentID);
+                if($("input[name=student]").length==$("input[name=student]:checked").length){
+                    $("input[name=allStudent]").prop("checked",true);
+                }
+            }else{  //取消
+                obj.prop("checked",false);
+                changedStudent.removeByValue(studentID);
+                $("#isAll").prop("checked",false);
+                $("input[name=allStudent]").prop("checked",false);
+            }
+            counter()
+            e.stopPropagation();
+        });
+        //==========================================================================================================
+
+
+        //缴费
+        $("#studentList").on("click", ".toPay", function(e) {
+
+            var studentId=$(this).parent().attr("data-id");
+            var pay=$(this).closest("tr").find("td:eq(7)").text();
+            var studentName=$(this).closest("tr").find("td:eq(2)").text();
+            var classId=$(this).parent().attr("data-classid");
+            var cdid=$(this).parent().attr("data-cid");
+
+
+            var tipStr=$(this).closest("tr").find("td:eq(4)").text()+"   [ "+$(this).closest("tr").find("td:eq(5)").attr("title")+"老师 ]";
+
+
+
+
+            var searchHtml="<form class=\"gui-form\" id='payOperation-form' style='padding:20px 50px 10px;'>" +
+                            "<div class=\"gui-form-item \">"+
+                                "<label class=\"gui-form-item-label\">缴费班级</label>" +
+                                "<div class=\"gui-form-item-content\">" +
+                                tipStr +
+                                "</div>" +
+                            "</div>" +
+                            "<div class=\"gui-form-item gui-form-item-required\">"+
+                                "<label class=\"gui-form-item-label\">缴费操作</label>" +
+                                "<div class=\"gui-form-item-content\">" +
+                                    "<select type=\"text\" name=\"insertType\"  id=\"insertType\"  class=\"gui-input\" >" +
+                                        "<option value=\"\">选择缴费操作</option>" +
+                                        "<option value=\"1\">名额保留</option>" +
+                                        "<option value=\"2\">现金缴费</option>" +
+                                        "<option value=\"3\">刷卡缴费</option>" +
+                                    "</select>" +
+                                "</div>" +
+                            "</div>" +
+
+                            "<div class=\"gui-form-item gui-form-item-required\">"+
+                                "<label class=\"gui-form-item-label\">缴费金额</label>" +
+                                "<div class=\"gui-form-item-content\">" +
+                                "     <input type=\"text\" name=\"dialogPay\" placeholder=\"请输入学费金额\" data-max='"+pay+"'  id=\"dialogPay\"  class=\"gui-input\" value=\""+pay+"\" maxlength=\"20\">" +
+                                "</div>" +
+                            "</div>" +
+                            "</form>";
+
+
+            mydialogForm(searchHtml, studentName+"--学员缴费", null, ['600px', '300px'], ["保存", "取消"], [function(t){
+
+                var pay=Number($("#dialogPay").val());
+                var payMax=Number($("#dialogPay").attr("data-max"));
+
+                if(payMax < pay){
+                    dialogFormItemerrorTip("dialogPay","缴费金额不得高于学费"+payMax.toFixed(2)+"元");
+                    return false
+                }
+
+                var payType=$("#insertType").val();
+
+
+
+                if(payType==""){
+                    dialogFormItemerrorTip("insertType","请选择缴费操作类型");
+                    return false
+                }
+
+                if(payType==1){
+                    //名额保留
+                    var insert={
+                        "parameter":{
+                            "org_id":option.org_id,
+                            "token":option.token,
+                            "cd_id":cdid,
+                            "stu_clas_id":studentId
+                        },
+                        "url":domain+"/portal/charge/orderPay.json"
+                    };
+
+                    var tipMessage=studentName +"-名额保留成功！"
+                }else{
+                    //现金或者刷卡缴费
+                    var insert={
+                        "parameter":{
+                            "org_id":option.org_id,
+                            "token":option.token,
+
+                            "stu_class_id":studentId,
+                            "pay_method":$("#insertType").val(),
+                            "cd_id":cdid,
+                            "money":$("#dialogPay").val()
+
+                        },
+                        "url":domain+"/portal/charge/paid.json"
+                    };
+                    var tipMessage=studentName +"-缴费成功！"
+                }
+
+
+                getData(insert.url,insert.parameter,function (res){
+
+                    if(res.code==200 && res.success==true){
+
+                        myAlert(tipMessage,1,null,function(){
+                            window.location.reload();
+                        });
+
+                        layer.close(t);
+                    }else {
+                        myAlert(res.message,2,res.code,null);
+                    }
+                },"POST",false)
+
+            },null]);
+
+            //判断缴费状态
+            $("#insertType").change(function(){
+                var val=$(this).val();
+
+                if(val==1){
+                    $("#dialogPay").prop("disabled",true);
+                }else{
+                    $("#dialogPay").prop("disabled",false);
+                }
+            })
+
+            e.stopPropagation();
+        });
+
+
+    })
+
+
+    //列表
+    function showHtml(limit,page) {
+        stu_list.parameter.pageSize=limit?limit:20,
+        stu_list.parameter.currentPageNum=page?page:1,
+
+        getData(stu_list.url,stu_list.parameter,function (res) {
+
+            if(res.code==200 && res.success==true){
+
+                var listObj=res.data.page,html="";
+
+                //如果当前页是第一页从新渲染
+                if(listObj.page==1){
+                    //生成页数(总条数，总页数，)
+                    $("#creatPage").createPage({
+                        pageCount:listObj.totalPage,
+                        current:listObj.page,
+                        url:stu_list.url,
+                        backFn:function(page){
+                            var limit=$("#limit").val();
+                            showHtml(limit,page)
+                        }
+                    });
+                }
+
+                //总页数
+                $("#allPage").text(listObj.size);
+                //总条数
+                $("#allTotal").text(listObj.total);
+                countup("sum_student",listObj.total);
+                countup("sum_money",res.data.money);
+
+                if(listObj.data.length>0){
+                    for(var n=0,m=listObj.data.length;n<m;n++){
+                        var toShow=(parseInt(listObj.page)-1)*parseInt(listObj.limit);
+                        var obj=listObj.data[n];
+
+                        if(obj.tech_name!==null&& obj.tech_name!=="" && obj.tech_name!==undefined){
+                            //判断教师是否是多人
+                            var teachers=obj.tech_name.split(",");
+
+                            if(teachers.length>1){
+                                var teacherStr="多人";
+                            }else {
+                                var teacherStr=obj.tech_name;
+                            }
+
+                        }else {
+                            var teacherStr="--";
+                        }
+
+                        if(obj.plan_switch!==1){
+                            var signTip=Number(obj.stu_status);
+
+                            switch(signTip)
+                            {
+                                case 1: //老生待续费
+                                    var btnhtml="<span class=\"toTransferring\" title='给学员转班'>转班<em></em></span>"+
+                                        "<span class=\"toT\" title='给学员发催缴信息'>催缴<em></em></span>"+
+                                        "<span class=\"getTel\" title='查看学员家长联系方式'>电话<em></em></span>"+
+                                        "<span class=\"toDel\" title='删除学员'>删除<em></em></span>";
+                                    break;
+                                case 3://报名待缴费
+                                    var btnhtml="<span class=\"toPay\" title='给学员缴费'>缴费<em></em></span>"+
+                                        "<span class=\"getTel\" title='查看学员家长联系方式'>电话<em></em></span>";
+                                    break;
+                                case 2:  //名额保留中
+                                    var btnhtml="<span class=\"toPay\" title='给学员缴费'>缴费<em></em></span>"+
+                                        "<span class=\"toPushPay\" title='给学员发催缴信息'>催缴<em></em></span>"+
+                                        "<span class=\"getTel\" title='查看学员家长联系方式'>电话<em></em></span>"+
+                                        "<span class=\"toDel\" title='删除学员'>删除<em></em></span>";
+                                    break;
+                                case 4://报名已作废
+                                    var btnhtml="<span class=\"getTel\" title='查看学员家长联系方式'>电话<em></em></span>"+
+                                        "<span class=\"toDel\" title='删除学员'>删除<em></em></span>";
+                                    break;
+                                case 5: //缴费已完成
+                                    var btnhtml="<span class=\"toRefund\" title='给学员退费'>退费<em></em></span>"+
+                                        "<span class=\"toTransferring\" title='给学员转班'>转班<em></em></span>"+
+                                        "<span class=\"toPrint\" title='打印发票'>凭证<em></em></span>"+
+                                        "<span class=\"getTel\" title='查看家长联系方式'>电话<em></em></span>";
+                                    break;
+                                case 6: //退费待审核
+
+                                    var btnhtml="<span class=\"toCheck\" title='通过学员的退费申请'>审核<em></em></span>"+
+                                        "<span class=\"toCancel\" title='撤销学员的退费申请'>撤销<em></em></span>"+
+                                        "<span class=\"toPrint\" title='打印发票'>凭证<em></em></span>"+
+                                        "<span class=\"getTel\" title='查看家长联系方式'>电话<em></em></span>";
+                                    break;
+                                case 7: //退费已审核
+                                    var btnhtml="<span class=\"toPrint\" title='打印发票'>凭证<em></em></span>"+
+                                        "<span class=\"getTel\" title='查看学员家长联系方式'>电话<em></em></span>";
+                                    break;
+                                default: //退费已完成
+                                    var btnhtml="<span class=\"toPrint\" title='打印发票'>凭证<em></em></span>"+
+                                        "<span class=\"getTel\" title='查看家长联系方式'>电话<em></em></span>";
+                            }
+
+                        }else{
+                            var btnhtml="<span class=\"toPay\" title='给学员缴费'>缴费<em></em></span>"+
+                                "<span class=\"getTel\" title='查看学员家长联系方式'>电话<em></em></span>";
+                        }
+
+
+                        if($.inArray(obj.stud_id.toString(), changedStudent)>=0){
+                            var checkedHtml="checked='true'";
+                        }else {
+                            var checkedHtml="";
+                        }
+
+                        if(obj.money==null || obj.money=="--"){
+                            var moneyHtml="--";
+                        }else{
+                            var moneyHtml=Number(obj.money).toFixed(2);
+                        }
+
+                        if(obj.tf_money==null || obj.tf_money=="--"){
+                            var tf_moneyHtml="--";
+                        }else{
+                            var tf_moneyHtml=Number(obj.tf_money).toFixed(2);
+                        }
+
+                        if(obj.tuition_fees==null || obj.tuition_fees=="--"){
+                            var tuitionHtml="--";
+                        }else{
+                            var tuitionHtml=Number(obj.tuition_fees).toFixed(2);
+                        }
+
+                        var checkedhtml="";
+                        html += "<tr  data-cid='"+obj.cd_id+"' id='\"+obj.stu_class_id+\"' >" +
+                                    "<td><input type='checkbox' name='student' "+checkedhtml+" id='"+obj.stu_class_id+"'></td>" +
+                                    "<td>"+(n+toShow+1)+"</td>" +
+                                    "<td>"+obj.stud_name+"</td>" +
+                                    "<td>"+obj.user_idnumber+"</td>" +
+                                    "<td>"+obj.subject_name+"("+obj.clas_name+")</td>" +
+                                    "<td title='"+obj.tech_name+"'>"+teacherStr+"</td>" +
+                                    "<td>"+option.signStatus[obj.stu_status]+"</td>"+
+                                    "<td class='money'>"+tuitionHtml+"</td>" +
+                                    "<td>"+option.payType[obj.pay_method]+"</td>" +
+                                    "<td class='money'>"+moneyHtml+"</td>" +
+                                    "<td class='money'>"+tf_moneyHtml+"</td>" +
+                                    "<td class='"+(obj.is_print==0?"stu_status":"")+"'>"+(obj.is_print==0?"未打印":"已打印")+"</td>" +
+                                    "<td class=\"operation\" data-cid='"+obj.cd_id+"'   data-classid='"+obj.clas_id+"' data-id='"+obj.stu_class_id+"' data-stuid='"+obj.stud_id+"'>" +
+                                        btnhtml +
+                                    "</td>" +
+                                "</tr>";
+                    }
+                }else {
+                    html += "<tr>" +
+                        "<td colspan='13' class='noData' title='没有找到数据'><i class=\"fa fa-warning\" aria-hidden=\"true\"></i>该条件下没有找到任何班级</td>" +
+                        "</tr>";
+                }
+
+
+                $("#studentList").html(html)
+
+            }else {
+                myAlert(res.message,2,res.code,null);
+            }
+        },"POST",false)
+    }
+
+    /**
+     * 催缴
+     * @param cdids cdid的字符串（以逗号分隔）
+     *
+     */
+
+    function toPushPay(cdids,name){
+        //现金或者刷卡缴费
+        var insert={
+            "parameter":{
+                "org_id":option.org_id,
+                "token":option.token,
+                "ids":cdids
+            },
+            "url":domain+"/portal/charge/remind.json"
+        };
+        var nameHtml=name==undefined?"已选择的":"["+name+"] ";
+
+       var httpRes=null
+       getData(insert.url,insert.parameter,function (res){
+
+            if(res.code==200 && res.success==true){
+
+                httpRes=true
+                myAlert(nameHtml+"学员的催缴信息已成功发送！",1,null,null);
+
+       /*         var countDown = 180000;
+                var Time = setInterval(function () {
+                    countDown = countDown - 1000;
+                    if (countDown >= 1000) {
+                        $('#batchTip span').text(countDown / 1000 + "s后可催款").css({
+                            "color": "#fff",
+                            "background": "#aaa9b1",
+                            "pointer-events": "none"
+                        });
+                        TimeState = false;
+                    } else {
+                        $('#batchTip span').text("批量催款").css({
+                            "color": "",
+                            "background": "",
+                            "pointer-events": ""
+                        });
+                        clearInterval(Time);
+                        TimeState = true;
+                    }
+                }, 1000);*/
+
+
+            }else {
+                myAlert(res.message,2,res.code,null);
+
+                httpRes=true
+            }
+        },"POST",false)
+
+        return httpRes
+    }
+
+    /**
+     * 删除
+     * @param cdids cdid的字符串（以逗号分隔）
+     *
+     */
+    function toDelStudent(stuids,name){
+
+        //现金或者刷卡缴费
+        var insert={
+            "parameter":{
+                "org_id":option.org_id,
+                "token":option.token,
+                "ids":stuids,
+            },
+            "url":domain+"/student/batchDelStuInfo.json"
+        };
+
+        var nameHtml=name==undefined?"已选择的":"["+name+"] ";
+
+        getData(insert.url,insert.parameter,function (res){
+            if(res.code==200 && res.success==true){
+                myAlert(nameHtml+"学员删除成功！",1,null,null);
+            }else {
+                myAlert(res.message,2,res.code,null);
+            }
+        },"POST",false)
+
+    }
+
+    /**
+     * 退费审核(通过退费申请)
+     * @param cdids cdid的字符串（以逗号分隔）
+     *
+     */
+    function passRefund(stuids,name){
+
+        //现金或者刷卡缴费
+        var insert={
+            "parameter":{
+                "org_id":option.org_id,
+                "token":option.token,
+                "ids":stuids
+            },
+            "url":domain+"/portal/charge/jpassRefund.json"
+        };
+
+        var nameHtml=name==undefined?"已选择的":"["+name+"] ";
+
+        getData(insert.url,insert.parameter,function (res){
+            if(res.code==200 && res.success==true){
+                myAlert(nameHtml+"学员删除成功！",1,null,function(){
+                    window.location.reload();
+                });
+            }else {
+                myAlert(res.message,2,res.code,null);
+            }
+        },"POST",false)
+
+    }
+
+    /**
+     * 取消通过退费申请
+     * @param cdids cdid的字符串（以逗号分隔）
+     *
+     */
+    function cannelRefund(stuids,name){
+
+        //退費
+        var insert={
+            "parameter":{
+                "org_id":option.org_id,
+                "token":option.token,
+                "ids":stuids,
+            },
+            "url":domain+"/portal/charge/tryCancelRefund.json"
+        };
+        var nameHtml=name==undefined?"已选择的":"["+name+"] ";
+
+        getData(insert.url,insert.parameter,function (res){
+            if(res.code==200 && res.success==true){
+                myAlert(nameHtml+"学员已成功撤销退费申请！",1,null,null);
+            }else {
+
+                myAlert(res.message,2,res.code,null);
+
+
+            }
+        },"POST",false)
+
+    }
+
+
+    /**
+     * 获取用户的家长电话
+     * @param cdids cdid的字符串（以逗号分隔）
+     *
+     */
+    function getTel(classId,name,studId){
+
+        //获取电话
+        var insert={
+            "parameter":{
+                "clas_id":classId,
+                "stud_id":studId,
+            },
+            "url":domain+"/student/queryStuManageTelInfo.json"
+        };
+        var nameHtml=name==undefined?"已选择的":"["+name+"] ";
+
+        getData(insert.url,insert.parameter,function (res){
+            if(res.code==200 && res.success==true){
+                var list=res.data;
+                var str=""
+                if(list.length>0){
+                    for(var i=0;i<list.length;i++){
+
+                        var pobj=JSON.parse(list[i]),
+                            relationStr=(pobj.relation==6?"监护人":option.allRelation[pobj.relation-1]);
+                        str+=nameHtml+"的"+relationStr+"联系电话：<span class='formlink'>"+pobj.mob+"</span>";
+                    }
+                    myAlert(str,1,null,null);
+                }else{
+                    myAlert("没有获取到家长手机号！",0,null,null);
+                }
+            }else {
+                myAlert(res.message,2,res.code,null);
+            }
+        },"POST",false)
+
+    }
+
+
+    /**
+     * 打印凭证
+     * @param cdids cdid的字符串（以逗号分隔）
+     *
+     */
+    function printStu(stuids,name){
+
+        //现金或者刷卡缴费
+        var insert={
+            "parameter":{
+                "studClasIds":stuids,
+            },
+            "url":domain+"/voucher/model/batchVoucher.htm"
+        };
+
+        var nameHtml=name==undefined?"已选择的":"["+name+"] ";
+
+        getData(insert.url,insert.parameter,function (res){
+            if(res.code==200 && res.success==true){
+
+                    var printObj=res.data;
+
+
+                    if(printObj.length>0){
+
+                        for(var i=0,m=printObj.length;i<m;i++){
+                            printData=[];
+
+                            var stuObj=printObj[i];
+
+                            if(i==0){
+                                pageWidth=stuObj.bgLength;
+                                pageHeight=stuObj.bgWidth;
+                            }
+                            var addPrintData=JSON.parse(stuObj.content);
+                            for(var x in addPrintData){
+
+                                if(addPrintData[x].top!=="" && addPrintData[x].left!=="" && addPrintData[x].content!==""){
+                                    printData.push(addPrintData[x]);
+                                }
+                            }
+
+                            do_print();
+                        }
+                    }
+                    //var pageWidth=null,pageHeight=null;
+                    //打印信息
+               /*     printData=[
+                        //{"top":100,"left":600,"content":studentInfo.docNumber},//凭证编号---市少年宫已经打印上了··没有放开即可
+                        {"top":88,"left":66,"content":"1983-99-95"},         //开票日期
+                        {"top":88,"left":365,"content":"第二学期"},    //学期
+
+                        {"top":140,"left":62,"content":"天津市少年儿童艺术培训学校"},  //学员姓名
+                        //{"top":140,"left":236,"content":"SNG2017127"},          //学籍号---少年宫目前让先空着
+                        {"top":140,"left":418,"content":"天津市少年儿童艺术培训学校"}, //课程名
+                        {"top":140,"left":598,"content":"天津市少年儿童艺术培训学校"},    //班号
+
+                        {"top":208,"left":60,"content":"天津市少年儿童艺术培训学校"},   //教师姓名
+                        {"top":208,"left":236,"content":"天津市少年儿童艺术培训学校"},    //教室
+                        {"top":208,"left":418,"content":"天津市少年儿童艺术培训学校"},//开课日期
+                        {"top":208,"left":598,"content":"天津市少年儿童艺术培训学校"}, //上课时间classDate+classTimeStart+classTimeEnd
+
+                        {"top":280,"left":60,"content":"天津市少年儿童艺术培训学校"},     //学费标准
+                        {"top":280,"left":315,"content":"天津市少年儿童艺术培训学校"},  //实收学费
+                        {"top":280,"left":542,"content":"天津市少年儿童艺术培训学校"},//大写
+
+                        {"top":359,"left":250,"content":"2018 05  08"}, //发票获取-开始时间------目前是固定值
+                        {"top":359,"left":368,"content":"2018 05  13"}, //发票获取-结束时间------目前是固定值
+
+                        //{"top":476,"left":636,"content":"辛伟老师"},           //收款人---听辛伟的开票老师为空
+                        {"top":476,"left":66,"content":"天津市少年儿童艺术培训学校"}, //开票方------目前是固定值
+                    ];
+*/
+                   // do_print();
+
+            }else {
+                myAlert(res.message,2,res.code,null);
+            }
+        },"POST",false)
+
+    }
+
+
+    //<%--打印前判断打印WebSocket是否准备好--%>
+    function printReadyState(){
+        if (!LODOP.webskt || LODOP.webskt.readyState!=1){
+            printReadyState();
+        }
+    };
+
+    var do_print = function(){
+
+        LODOP = getLodop();
+
+        printReadyState();
+
+        LODOP.PRINT_INITA(0, 0,"216mm", "140mm", "打印预览");
+        LODOP.SET_PRINT_PAGESIZE(1, "216mm", "140mm", "CreateCustomPage");
+        LODOP.SET_PRINT_STYLE("FontSize", 12);
+        /*LODOP.ADD_PRINT_SETUP_BKIMG("<img border='0' src='images/print.jpg'   style='top:-0px'>");*/
+        LODOP.SET_SHOW_MODE("BKIMG_PRINT",1);
+
+
+        var unit = "px";
+        $.each(printData, function(i, item) {
+
+            var top = item.top + unit;
+            var left = item.left + unit;
+            //LODOP.ADD_PRINT_TEXT(top, left,"216mm","140mm", item.content);
+            LODOP.ADD_PRINT_TEXT(top, left,"216mm","140mm", item.content);
+        });
+
+        LODOP.PREVIEW();
+        //LODOP.PRINT();
+
+        /*LODOP = getLodop();
+        printReadyState();
+        LODOP.PRINT_INITA(0, 0,"216mm", "140mm", "打印预览");
+        LODOP.SET_PRINT_PAGESIZE(1, "216mm", "140mm", "CreateCustomPage");
+        LODOP.SET_PRINT_STYLE("FontSize", 12);
+        LODOP.ADD_PRINT_SETUP_BKIMG("<img border='0' src='images/print.jpg'   style='top:-0px'>");
+        LODOP.SET_SHOW_MODE("BKIMG_PRINT",1);
+
+        var unit = "px";
+        //遍历打印项
+        $.each(pp, function(i, item) {
+            console.info(item);
+            var top = item.top + unit;
+            var left = item.left + unit;
+            LODOP.ADD_PRINT_TEXT(top, left,"216mm", "140mm",item.content);
+        });
+
+        LODOP.PREVIEW();
+        LODOP.PRINT();*/
+    }
+</script>
+
+

@@ -1,0 +1,292 @@
+<!--教师列表管理-->
+<style>
+    .tablesorter-blue tbody td.stu_status {color: #e89090;}
+    .tablesorter-blue tbody tr > td.operation span.stop { color: #f30;}
+</style>
+<div class="content-wrap" id="sub_loadBox"  >
+    <div class="search">
+        <!--<button class="gui-btn  gui-btn-warm" id="clear" title="清空搜索条件" disabled=""><i class="fa fa-trash-o"></i>清空搜索</button>-->
+        <div class="gui-input-group">
+            <input type="text" class="gui-input" id="tech_name" placeholder="请输入教师姓名" style="width: 120px" />
+            <button type="button" class="gui-btn  gui-btn-normal" id="toSearch"><i class="fa fa-search"></i>搜索</button>
+        </div>
+    </div>
+    <div class="bod-con-fer-form">
+        <table align="center" class="tab tablesorter-blue">
+            <thead>
+            <tr>
+                <th>序号</th>
+                <th>教师姓名</th>
+                <th>手机号</th>
+                <th>教师类型</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody id="teachersList">
+                <tr>
+                    <td colspan="5" class="noData"><i class="fa fa-warning" aria-hidden="true"></i>获取不到教师数据</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 分页 -->
+    <div class="gui-page-wapper" style="margin:20px 0;line-height: 28px;" id="pageContent">
+        <ul class="gui-page" id="limitUi">
+            <span class="gui-page-total">共<span id="allPage" class="numberShow">0</span>页 <span id="allTotal" class="numberShow">0</span>数据</span>
+            <span id="creatPage">
+            </span>
+        </ul>
+        <span class="gui-page-options-elevator" style="padding-left: 10px;">
+                每页条数：
+                <select id="limit" >
+                     <option value="20">20</option>
+                     <option value="50">50</option>
+                     <option value="100">100</option>
+                </select>
+            </span>
+
+        <span class="gui-page-options">
+            <span class="gui-page-options-elevator">跳至第
+            <input id="page" class="gui-input" data-onlyNumber="true">
+             页</span>
+           </span>
+    </div>
+    <!--分页END-->
+
+    <div class="dataStatistics">
+        <i class="fa fa-bar-chart"></i>教师数：<span class="numberShow" id="sum_teacher"><i class="fa fa-circle-o-notch fa-spin" ></i></span> </span>
+    </div>
+
+</div>
+<script src="js/countUp.js"></script>
+<script>
+    var teche_list={
+        "parameter":{
+            "numPerPage":20,
+            "pageNum":1
+        },
+        "url":loginMain+"/esb/api/tech/getSngTechsOfOrgByPage"
+    };
+    $(function () {
+        //默认
+        showHtml();
+
+        //查看教师详情
+        $("#teachersList").on("click",".teacherDetail",function () {
+            var tech_id=$(this).attr("data-id");
+            window.location.href="#d1?tech_id="+tech_id;
+        });
+
+        //删除教师
+     /*   $("#teachersList").on("click",".delTeacher",function () {
+            var tech_id=$(this).attr("data-id");
+            var tech_name=$(this).closest("tr").find("td:eq(1)").text();
+
+            myConfirm("你确定要删除 ["+tech_name+"] 教师吗？",function () {
+                //删除操作
+                var delSubject = {
+                    parameter:{
+                        "tech_id":tech_id,
+                    },
+                    url:loginMain+"/esb/api/tech/deleteTeacher"
+                };
+                //protal/teacherManage/delTeacher.json
+                //保存或者更新类目
+                getData(delSubject.url,delSubject.parameter,function (data) {
+                    if(data.code==200 && data.success==true){
+                        myAlert("["+tech_name+"] 教师已删除",1,data.code,function () {
+                            window.location.reload()
+                        });
+                    }else {
+                        myAlert(data.message,2,data.code,null);
+                    }
+                },"POST",false)
+            },null,null,2)
+        });*/
+
+        $("#teachersList").on("click",".delTeacher",function () {
+            var tech_id=$(this).attr("data-id");
+            var tech_name=$(this).closest("tr").find("td:eq(1)").text();
+
+            myConfirm("你确定要删除 ["+tech_name+"] 教师吗？",function () {
+                //删除操作
+                var delSubject = {
+                    parameter:{
+                        "techId":tech_id,
+                        "version":"0"
+                    },
+                    url:domain+"/protal/teacherManage/delTeacher.json"
+                };
+                //保存或者更新类目
+                getData(delSubject.url,delSubject.parameter,function (data) {
+                    if(data.code==200 && data.success==true){
+                        myAlert("["+tech_name+"] 教师已删除",1,data.code,function () {
+                            window.location.reload()
+                        });
+                    }else {
+                        myAlert(data.message,2,data.code,null);
+                    }
+                },"POST",false)
+            },null,null,2)
+        });
+
+
+        //停用教师
+        $("#teachersList").on("click",".stopTeacher",function () {
+
+            var tech_id=$(this).attr("data-id");
+
+            var tip=$(this).attr("data-discontinue");
+            var str=tip==0?"已停用":"已启用";
+
+            //如果更新的是登录的教师，则更新本地缓存
+            if(tech_id==JSON.parse(sessionStorage.loginUser).tech_id){
+                var tech_name="自己"
+            }else{
+                var tech_name= " [" +$(this).closest("tr").find("td:eq(1)").text()+"] 教师";
+            }
+
+
+            myConfirm("你确定要"+str.substr(1,2)+tech_name+"吗？",function () {
+
+                //删除操作
+                var delSubject = {
+                    parameter:{
+                        "tech_id":tech_id,
+                        "org_id":option.org_id,
+                        "token":option.token,
+                        "is_discontinue":tip==0?"1":"0"
+                    },
+                    url:loginMain+"/esb/api/tech/setSngTechDiscontinue"
+                };
+
+                //保存或者更新类目
+                getData(delSubject.url,delSubject.parameter,function (data) {
+
+                    if(data.code==200 && data.success==true){
+
+                        if(tech_id==JSON.parse(sessionStorage.loginUser).tech_id){
+                            myAlert("您已经成功把自己停用了!",1,data.code,function () {
+                                window.location.href="login.html";
+                            });
+                        }else{
+                            myAlert("["+tech_name+"] 老师"+str+"!",1,data.code,function () {
+                                setTimeout(function(){
+                                    window.location.reload();
+                                },1000)
+                            });
+                        }
+
+                        if(tech_id==JSON.parse(sessionStorage.loginUser).tech_id){
+                             window.location.href="login.html";
+                        }else{
+                            setTimeout(function(){
+                                window.location.reload();
+                            },1000)
+                        }
+
+                    }else {
+                        myAlert(data.message,2,data.code,null);
+                    }
+                },"POST",false)
+
+            },null,null,2)
+
+        });
+
+        //按关键字查询
+        $("#toSearch").click(function () {
+            var key=$.trim($("#tech_name").val());
+            /*if(key==""){
+                myAlert("请输入教师姓名进行检索",2,null,null)
+                return false*/
+           // }else{
+                $("#clear").prop("disabled",false);
+                teche_list.parameter.seach_name=key;
+                showHtml()
+            //}
+        });
+        //按关键字查询
+        $("#clear").click(function () {
+               $("#clear").prop("disabled",true);
+                teche_list.parameter.seach_name="";
+                showHtml()
+        });
+
+    });
+
+    //生成列表
+    function showHtml(limit,page) {
+        teche_list.parameter.numPerPage=limit==undefined?20:limit;
+        teche_list.parameter.pageNum=page==undefined?1:page;
+        getData(teche_list.url,teche_list.parameter,function (res) {
+            if(res.code==200 && res.success==true){
+                var data=res.data,html="";
+                //如果当前页是第一页从新渲染
+                if(data.page==1){
+                    //生成页数(总条数，总页数，)
+                    $("#creatPage").createPage({
+                        pageCount:data.totalPage,
+                        current:data.page,
+                        url:teche_list.url,
+                        backFn:function(page){
+                            var limit=$("#limit").val();
+                            showHtml(limit,page)
+                        }
+                    });
+                }
+
+                //总页数
+                $("#allPage").text(data.totalPage);
+                //总条数
+                $("#allTotal").text(data.total);
+                 //统计教师数
+                countup("sum_teacher",data.total);
+
+                var localListTechers={};
+
+                if(data.data.length>0){
+
+                    for(var n=0,m=data.data.length;n<m;n++){
+                        var toShow=(parseInt(data.page)-1)*parseInt(data.limit);
+                        var obj=data.data[n];
+
+                        var stopTip=obj.is_discontinue==null||obj.is_discontinue=="0"?"0":"1";
+
+                        if(stopTip==1){
+                            var stopHtml="启用";
+                            var stopClass="stop"
+                        }else{
+                            var stopHtml="停用";
+                            var stopClass=""
+                        }
+
+
+                        html += "<tr>" +
+                            "   <td>"+(n+toShow+1)+"</td>" +
+                            "   <td>"+obj.tech_name+"</td>" +
+                            "   <td>"+obj.user_mobile+"</td>" +
+                            "   <td>"+option.teacherType[obj.tech_type==null?1:obj.tech_type]+"</td>" +
+                            "   <td class=\"operation\"  data-uid='"+obj.user_id+"'>" +
+                            "       <span  class=\"teacherDetail\" data-id=\""+obj.tech_id+"\" >编辑<em></em></span>" +
+                            "       <span  class=\"stopTeacher "+stopClass+"\" data-id=\""+obj.tech_id+"\" data-discontinue='"+stopTip+"' >"+stopHtml+"<em></em></span>" +
+                            "       <span  class=\"delTeacher\" data-id=\""+obj.tech_id+"\" >删除<em></em></span>" +
+                            "   </td>" +
+                            "</tr>";
+                        localListTechers[obj.tech_id]={mob:obj.user_mobile,type:obj.tech_type,name:obj.tech_name,cooperative_id:obj.cooperative_id,note:obj.tech_note,user_id:obj.user_id};
+                        sessionStorage.localListTechers=JSON.stringify(localListTechers);
+                    }
+
+                }else {
+                    html += "<tr>" +
+                              "<td colspan='6' class='noData' title='没有找到数据'><i class=\"fa fa-warning\" aria-hidden=\"true\"></i>没有找到教师</td>" +
+                            "</tr>";
+                }
+                $("#teachersList").html(html)
+            }else {
+                myAlert(res.message,2,res.code,null);
+            }
+        },"POST",false)
+    }
+</script>

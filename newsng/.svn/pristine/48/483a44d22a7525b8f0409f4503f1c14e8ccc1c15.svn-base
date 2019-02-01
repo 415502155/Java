@@ -1,0 +1,150 @@
+
+<div style="padding: 40PX;">
+    <form class="gui-form gui-form-label-right" id="my-form" novalidate="novalidate">
+
+        <div class="gui-form-item"><label class="gui-form-item-label">主标题</label>
+            <div class="gui-form-item-content">
+                <input type="text" name="temtext" placeholder="请输入主标题" class="gui-input" value=""   id="type_1" style="width: 360px;">
+            </div>
+        </div>
+        <div class="gui-form-item"><label class="gui-form-item-label">副标题</label>
+            <div class="gui-form-item-content">
+                <input type="text" name="temtext" placeholder="请输入副标题" class="gui-input" value="" maxlength="50" id="type_2" style="width: 360px;">
+            </div>
+        </div>
+        <div class="line"></div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">自定义1</label>
+            <div class="gui-form-item-content">
+                <textarea placeholder="请输入..." rows="2" name="temtext" class="gui-textarea" id="type_23"></textarea>
+            </div>
+        </div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">自定义2</label>
+            <div class="gui-form-item-content">
+                <textarea placeholder="请输入..." rows="2" name="temtext" class="gui-textarea" id="type_24"></textarea>
+            </div>
+        </div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">自定义3</label>
+            <div class="gui-form-item-content">
+                <textarea placeholder="请输入..." rows="2" name="temtext" class="gui-textarea" id="type_25"></textarea>
+            </div>
+        </div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">自定义4</label>
+            <div class="gui-form-item-content">
+                <textarea placeholder="请输入..." rows="2" name="temtext" class="gui-textarea" id="type_26"></textarea>
+            </div>
+        </div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">自定义5</label>
+            <div class="gui-form-item-content">
+                <textarea placeholder="请输入..." rows="2" name="temtext" class="gui-textarea" id="type_27"></textarea>
+            </div>
+        </div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">自定义6</label>
+            <div class="gui-form-item-content">
+                <textarea placeholder="请输入..." rows="2" name="temtext" class="gui-textarea" id="type_28"></textarea>
+            </div>
+        </div>
+
+        <div class="line"></div>
+        <div class="gui-form-item">
+            <div class="gui-form-item-content" >
+                <button type="button" id="save" class="gui-btn gui-btn-normal"><i class="fa fa-save"></i><span>保存提交</span></button>
+                <button type="reset" class="gui-btn gui-btn-warm" id="clearform"><i class="fa fa fa-trash-o"></i><span>清空表单</span></button>
+                <!--<button type="button" class="gui-btn gui-btn-primary" id="back"><i class="fa fa-angle-left"></i><span>取消返回</span></button>-->
+            </div>
+        </div>
+
+    </form>
+    <script type="text/javascript" src="plus/validate/jquery-validate.js"></script>
+    <script>
+        var updata={};
+
+        $(function() {
+
+            //取消编辑返回列表
+            $("#back").click(function () {
+                window.history.back();
+            })
+
+           //获取凭证信息
+            var get={
+                "parameter":{
+                    "org_id":option.org_id,
+                    "token":option.token,
+                    "udid":option.udid,
+
+                    "rule_id": $("#rule_id").val(),
+                },
+                "url":domain+"/voucher/model/info.htm"
+            };
+            getData(get.url,get.parameter,function (data) {
+                if(data.code==200 && data.success==true){
+                    if(data.data==null){
+                        return false
+                    }
+                    updata=eval('(' + data.data.voucher_content + ')');
+
+                    if(updata.type_1!==undefined){
+                        $("#type_1").val(updata.type_1.content);
+                    }
+                    if(updata.type_2!==undefined){
+                        $("#type_2").val(updata.type_2.content);
+                    }
+                    if(updata.type_23!==undefined){
+                        $("#type_23").val(updata.type_23.content);
+                    }
+                    if(updata.type_24!==undefined){
+                        $("#type_24").val(updata.type_24.content);
+                    }
+                    if(updata.type_25!==undefined){
+                        $("#type_25").val(updata.type_25.content);
+                    }
+                    if(updata.type_26!==undefined){
+                        $("#type_26").val(updata.type_26.content);
+                    }
+                    if(updata.type_27!==undefined){
+                        $("#type_27").val(updata.type_27.content);
+                    }
+                    if(updata.type_28!==undefined){
+                        $("#type_28").val(updata.type_28.content);
+                    }
+
+                }else {
+                    myAlert(data.message,2,data.code,null);
+                }
+            },"POST",false);
+
+            //保存
+            $("#save").click(function(){
+
+                var strJson={};
+
+                $("[name='temtext']").each(function(){
+
+                    var content=$(this).val();
+                    var id=$(this).attr("id");
+
+                    if(updata[id]==undefined){
+                        updata[id]={top:"",left:"",content:content};
+                    }else{
+                        updata[id]["content"]=content
+                    }
+                });
+
+               var telParameter = {
+                    "voucherContent":JSON.stringify(updata),
+                }
+
+               getData(domain+"/voucher/model/addOrUpdate.htm",telParameter,function (data) {
+
+                    if(data.code==200 && data.success==true){
+                        myAlert("模板内容保存成功",1,data.code,null);
+                    }else {
+                        myAlert(data.message,2,data.code,null);
+                    }
+                },"POST",false);
+            });
+
+        })
+    </script>
+
+</div>

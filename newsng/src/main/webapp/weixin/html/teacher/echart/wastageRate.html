@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title>流失率</title>
+		<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+		<link rel="shortcut icon" href="../../../favicon.ico">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<!--ui包-->
+		<link rel="stylesheet" href="../../../css/sm.css">
+		<link rel="stylesheet" href="../../../css/layout.css">
+        <link rel="stylesheet" href="../../../css/teacher.css">
+        <style>
+            table{width:100%}
+            tr{line-height:3rem}
+            th,td{text-align: center;font-size:.7rem}
+            tbody tr{border-bottom:1px dotted #ccc}
+            .bar-header-secondary{top:0}
+            .bar .searchbar .searchbar-cancel{color:#fff}
+            .content{background-color: #fff}
+            .icon{font-size:.5rem}
+            .rotated{transform: rotate(180deg)}
+        </style>
+	</head>
+	<body>
+		<div class="page-group">
+			<div class="page page-current">
+                <div class="bar bar-header-secondary">
+                    <div class="searchbar">
+                        <a class="searchbar-cancel">取消</a>
+                        <div class="search-input">
+                        <label class="icon icon-search" for="search"></label>
+                        <input type="search" id='search' placeholder='请输入教师姓名'/>
+                        </div>
+                    </div>
+                </div>
+		 		<div class="content native-scroll " style="top: 2.2rem;">
+					  <table>
+                            <thead>
+                                <th>序号</th>
+                                <th id="order_by_name">姓名<i class="icon icon-caret"></i></th>
+                                <th id="order_by_now">缴费总人数<i class="icon icon-caret"></i></th>
+                                <th id="order_by_last">退费总人数<i class="icon icon-caret"></i></th>
+                                <th id="order_by_regist">流失率<i class="icon icon-caret"></i></th>
+                            </thead>
+                          <tbody id="tech_list">
+                                
+                          </tbody>
+                      </table>
+				</div>
+			</div>
+ 		</div>
+	</body>
+</html>
+				 
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script>
+    var baseUser = JSON.parse(sessionStorage.baseUser);
+    var term_id = GetUrlParam("term_id"),cam_id = GetUrlParam("cam_id");
+    $(function(){
+        //获取信息
+        getData(domainName + '/wechat/portal/echart/wastageRateDetail.json',{
+            token:baseUser.token,
+            udid:baseUser.udid,
+            version: 3,
+            identity: 1,
+            term_id: term_id,
+            cam_id: "all"||cam_id
+        },function(res){
+            if(res.code == 200 && res.success == true){
+                if(res.data.length>0){
+                    var html = '';
+                    for(var i=0;i<res.data.length;i++){
+                        var d = res.data[i]
+                        // html += `<tr>
+                        //             <td>${i+1}</td>
+                        //             <td data-name="${d.tech_name}">${d.tech_name}</td>
+                        //             <td data-now="${d.cur_num}">${d.cur_num}</td>
+                        //             <td data-last="${d.pre_num}">${d.pre_num}</td>
+                        //             <td data-regist="${d.rate}">${d.rate}</td>
+                        //         </tr>`
+                        html += "<tr>\n                                    <td>".concat(i + 1, "</td>\n                                    <td data-name=\"").concat(d.tech_name, "\">").concat(d.tech_name, "</td>\n                                    <td data-now=\"").concat(d.cur_num, "\">").concat(d.cur_num, "</td>\n                                    <td data-last=\"").concat(d.pre_num, "\">").concat(d.pre_num, "</td>\n                                    <td data-regist=\"").concat(d.rate, "\">").concat(d.rate, "</td>\n                                </tr>");
+                    }
+                }else{
+
+                }
+                $("#tech_list").append(html);
+            }
+        })
+
+
+        //按教师名字搜索
+        $("#search").on("input propertychange",function(){
+            var name = $(this).val();
+            if(name.length>0){
+                $("#tech_list").find("tr").hide();
+                $("[data-name]").each(function(i,e){
+                    if($(this).attr("data-name").indexOf(name) !== -1){
+                        $(this).parents("tr").show();
+                    }
+                })
+            }else{
+                $("#tech_list").find("tr").show();
+            }
+            var index = 1;
+            $("#tech_list tr").each(function(i,e){
+                if($(e).css("display") != "none"){
+                    $(e).find("td").eq(0).text(index);
+                    index++;
+                }
+            })
+        })
+
+        //排序
+        $("thead th").on("click",function(){
+            var $this = $(this);
+            var type = $this.attr("id");
+            var tr = $("#tech_list tr");
+            var sortDom = function(selector){
+                tr.sort(function(a,b){
+                    var valueA = $(a).find("["+selector+"]").attr(selector),
+                        valueB = $(b).find("["+selector+"]").attr(selector);
+                    if($this.find("i").hasClass("rotated")){
+                        if(parseInt(valueA) < parseInt(valueB)){
+                            return 1;
+                        } 
+                        else{
+                            return -1;
+                        } 
+                    }else{
+                        if(parseInt(valueA) < parseInt(valueB)){
+                            return -1;
+                        } 
+                        else{
+                            return 1;
+                        } 
+                    }
+                })
+                var index = 1;
+                tr.each(function(i,e){
+                    if($(e).css("display") != "none"){
+                        $(e).find("td").eq(0).text(index);
+                        index++;
+                    }
+                })
+                tr.remove().appendTo('#tech_list');
+            }
+            var orders = function(type){
+                var obj = {
+                    "order_by_name":function(){
+
+                    },
+                    "order_by_now":function(){
+                        sortDom("data-now");
+                    },
+                    "order_by_last":function(){
+                        sortDom("data-last");
+                    },
+                    "order_by_regist":function(){
+                        sortDom("data-regist");
+                    }
+                }
+                return obj[type]();
+            }
+            orders(type);
+            $("thead th").each(function(i,e){
+                if($(e).attr("id")!==type){
+                    $(e).find("i").removeClass("rotated");
+                }else{
+                    $(e).find("i").toggleClass("rotated")
+                }
+            })
+        })
+        
+	 });
+</script>

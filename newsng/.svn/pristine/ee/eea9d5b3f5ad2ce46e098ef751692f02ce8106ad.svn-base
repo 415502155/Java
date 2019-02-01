@@ -1,0 +1,85 @@
+package sng.controller.web;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import sng.controller.common.BaseAction;
+import sng.entity.Plan;
+import sng.exception.EsbException;
+import sng.pojo.Result;
+import sng.pojo.ResultEx;
+import sng.pojo.SessionInfo;
+import sng.service.impl.ApplyServiceImpl;
+import sng.util.CommonUtils;
+import sng.util.Paging;
+
+/**
+ * 报名
+ * @author s
+ *
+ */
+@Controller
+@RequestMapping("/apply")
+public class ApplyController extends BaseAction{
+	@Resource
+	private ApplyServiceImpl applyServiceImpl;
+	
+	/**
+	 * 测试用
+	 */
+	private SessionInfo getSessionInfo() {
+		SessionInfo sessionInfo=new SessionInfo();
+		sessionInfo.setLoginName("user1");
+		sessionInfo.setOrgId(392);
+		sessionInfo.setUserId(2000001);
+		return sessionInfo;
+	}
+
+	
+	
+	/**
+	 * 根据计划id获取当前计划下的所有班级所属的科目列表
+	 * 此方法废弃
+	 * @param request
+	 * @return
+	 */
+//	@RequestMapping("/subject/list")
+//	@ResponseBody
+	public Result getSubjectList(HttpServletRequest request) {
+		SessionInfo sessionInfo=this.getSessionInfo(request);
+		Map<String,Object> paramMap=CommonUtils.doParameters(request);
+		List<Map<String, Object>>  subjectList=applyServiceImpl.getPlanSubject(sessionInfo, paramMap);
+		return ResultEx.success(subjectList);
+	}
+
+	/**
+	 * 报名
+	 */
+	@RequestMapping("/parent/doApply")
+	@ResponseBody
+	public Result doApply(HttpServletRequest request) {
+		SessionInfo sessionInfo=this.getSessionInfo(request);
+		try {
+			Map<String,Object> paramMap=CommonUtils.doParameters(request);
+			List<Map<String, Object>> rsList=applyServiceImpl.doApply(sessionInfo, paramMap);
+			return ResultEx.success(rsList);
+		}catch(EsbException ex) {
+			ex.printStackTrace();
+			return ResultEx.error(500, ex.getMessage(), null);
+		}catch(Exception ex) {
+			ex.printStackTrace();
+			return ResultEx.error(500, "服务器异常", null);
+		}
+		
+	}
+	
+}

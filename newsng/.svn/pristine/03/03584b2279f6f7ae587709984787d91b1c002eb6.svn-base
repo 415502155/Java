@@ -1,0 +1,848 @@
+/*
+ * 保存获取接口
+ * 参数说明：
+ * param:[url] 请求地址
+ * param:[data] 参数
+ * param:[okCallback] 回调函数
+ * param:[post|get]方法
+ * 使用方法：getData("dep/getAllTeachers.htm?a="+Math.random(),{},function(data){console.info(data);})
+ */
+function getData(url,data,okCallback,method,async,loadText) {
+  var ajaxmethod = method||"get";
+  var tipText = loadText||"加载中";
+
+  $.ajax({
+	    url : url,
+	    data : data,
+	    async : async||true,
+	    type:ajaxmethod,
+	    dataType:'json',
+	    beforeSend:function(){
+	    	$.showPreloader(tipText);
+	    },
+	    success : function(result,textStatus,jqXHR) {
+	      if(jqXHR.status==200){
+			//回调
+	        okCallback(result);
+	      }
+	    },
+	    error : function(XMLHttpRequest, textStatus, errorThrown) {
+	     alert(textStatus)
+	    },
+	    complete: function() {
+	    	$.hidePreloader();
+	    },
+	  });
+};
+
+function getDataShowLoad(url,data,okCallback,method,loadText) {
+	  var ajaxmethod = method||"get";
+	  var tipText = loadText||"加载中";
+	  $.ajax({
+		    url : url,
+		    data : data,
+		    async : true,
+		    type:ajaxmethod,
+		    dataType:'json',
+		    beforeSend:function(){
+		    	//$.showPreloader(tipText);
+		    },
+		    success : function(result,textStatus,jqXHR) {
+		      if(jqXHR.status==200){
+		        //回调
+		        okCallback(result);
+		      }
+		    },
+		    error : function(XMLHttpRequest, textStatus, errorThrown) {
+		     alert(textStatus)
+		    }
+		  });
+	};
+
+function getDataNoLoading (url,data,okCallback,method,async,upbtn,loadingNone) {
+  var ajaxmethod = method||"get";
+  $.ajax({
+	    url : url,
+	    data : data,
+	    async : async||true,
+		type : ajaxmethod,
+		/* contentType: "application/x-www-form-urlencoded;charset=utf-8", */
+		dataType : 'json',
+		success : function(result,textStatus,jqXHR) {
+		  if(jqXHR.status==200){
+		    //回调
+		    okCallback(result);
+		  }
+		},
+		error : function(XMLHttpRequest, textStatus, errorThrown) {
+	    }
+  });
+};
+
+
+/*
+ *函数： 获取cookie的值
+ *
+ */
+function getCookie(name) {
+    var cookies = document.cookie.split(";");
+    for (var i = 0; i < cookies.length; i++) {
+        var cookie = cookies[i];
+        var cookieStr = cookie.split("=");
+        if (cookieStr && cookieStr[0].trim() == name) {
+            return decodeURI(cookieStr[1]);
+        }
+    }
+}
+
+/**
+ * 兼容移动端Date.parse();
+ * @param {str} 日期 '年-月-日'
+ * @return {number} 返回时间戳数字
+ */
+function transformTime(str) {
+	str ? str = str.replace(/-/g, '/') : void(0);
+	var time = (new Date(str)).getTime();
+	return time;
+}
+
+
+function minScreenHeight(){
+    var allHeight=0,standardHeight=$("#wrapper").height();
+    $('#scroller ul li').each(function(){
+    	var height=$(this).height();
+    	allHeight=allHeight+height;
+    });
+
+    var html="";
+     if(allHeight<standardHeight){
+       	   var num=$('#scroller ul li').length;
+       	   var bHeight=(standardHeight-allHeight+4)/(5-num);
+       	   for(i=5-num;i>0;i--){
+       		    html+="<li style='height:"+bHeight+"px' class='minData'></li>";
+       	    }
+    }else{
+    	if($('#scroller ul li').length<5){
+    	 html+="<li style='height:40px;line-height:40px'></li>";
+    	}
+    }
+
+     $('#scroller .pullDown').next("ul").append(html);
+}
+
+//获取域名参数
+function GetUrlParam(paraName) {
+　　　　var url = document.location.toString();
+　　　　var arrObj = url.split("?");
+
+　　　　if (arrObj.length > 1) {
+　　　　　　var arrPara = arrObj[1].split("&");
+　　　　　　var arr;
+　　　　　　for (var i = 0; i < arrPara.length; i++) {
+　　　　　　　　arr = arrPara[i].split("=");
+　　　　　　　　if (arr != null && arr[0] == paraName) {
+　　　　　　　　　　return arr[1];
+　　　　　　　　}
+　　　　　　}
+　　　　　　return "";
+　　　　}
+　　　　else {
+　　　　　　return "";
+　　　　}
+　}
+
+/**
+ * @param参数 startDiffTime yyyy-mm-dd 需要转换的时间
+ * @returns {*} yyyy/mm/dd
+ * */
+function GetDateDiff(startDiffTime) {
+    startTime = startDiffTime.replace(/\-/g, "/");
+    return startTime
+};
+
+//删除数组指定值
+Array.prototype.removeByValue = function(val) {
+	  for(var i=0; i<this.length; i++) {
+	    if(this[i] == val) {
+	      this.splice(i, 1);
+	      break;
+	    }
+	  }
+	}
+/**
+ * 根据时长转换成天小时分钟秒
+ * @param参数 mss毫秒
+ * @returns {*} 格式化后的天、小时、分钟、秒
+ * */
+function formatDuring(mss) {
+    var days = parseInt(mss / (1000 * 60 * 60 * 24));
+    var hours = parseInt((mss % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    var minutes = parseInt((mss % (1000 * 60 * 60)) / (1000 * 60));
+    var seconds = parseInt((mss % (1000 * 60)) / 1000);
+    return (days<0?"0":days) + "天" + (hours<0?"0":hours) + "小时" + (minutes<0?"0":minutes) + "分钟" + (seconds<0?"0":seconds) + "秒";
+}
+
+/**
+ * 时分秒转秒
+ * @param time 格式化的时间
+ * @returns {*} 格式化后的秒
+ */
+var time_to_sec = function(time) {
+    var hour =parseInt(time.split(":")[0]*3600);
+    var min = parseInt(time.split(":")[1]*60);
+    var sec = parseInt(time.split(":")[2]==undefined?"00":time.split(":")[2]);
+    return hour+min+sec;
+}
+
+
+//滑动刷新
+function pullDownAction() {
+    load_content('refresh');
+    $('#wrapper > #scroller > ul').data('page', 1);
+    $('#wrapper > .scroller').css({top: 0});
+
+}
+function pullUpAction(callback) {
+
+    if ($('#wrapper > #scroller > ul').data('page')) {
+        var next_page = parseInt($('#wrapper > #scroller > ul').data('page'), 10) + 1;
+    } else {
+        var next_page = 2;
+    }
+    $('#wrapper > #scroller > ul').data('page', next_page);
+    load_content('refresh', next_page);
+    if (callback) {
+        callback();
+    }
+}
+function pullActionCallback() {
+    if (pullDownEl && pullDownEl.className.match('loading')) {
+        pullDownEl.className = 'pullDown';
+        pullDownEl.querySelector('.pullDownLabel').innerHTML = '下拉刷新';
+        //myScroll.scrollTo(0, parseInt(pullUpOffset) * (-1), 200);
+        myScroll.scrollTo(0, -40, 200);
+
+    } else if (pullUpEl && pullUpEl.className.match('loading')) {
+
+        $('.pullUp').removeClass('loading').html('');
+
+    }
+}
+
+var pullActionDetect = {
+    count: 0,
+    limit: 10,
+    check: function (count) {
+        if (count) {
+            pullActionDetect.count = 0;
+        }
+        setTimeout(function () {
+            if (myScroll.y <= (myScroll.maxScrollY + 200) && pullUpEl && !pullUpEl.className.match('loading')) {
+            	if($(".pullUp").hasClass("nodata")){
+            		var str=parseInt($("#scroller").css("transform").split(",")[1].split(")")[0].split("p")[0])+40;
+					return false
+				}else{
+					var str=parseInt($("#scroller").css("transform").split(",")[1].split(")")[0].split("p")[0])+40;
+				}
+            	$('.pullUp').addClass('loading').html('<span class="pullUpIcon">&nbsp;</span><span class="pullUpLabel">正在加载...</span>');
+            	if(str!==0){
+            		var strArr=$("#scroller").css("transform").split(",")
+                    strArr[5]=str+")";
+                // $("#scroller").css("transform",strArr.join(","));
+            	}
+            	 pullUpAction();
+            } else if (pullActionDetect.count < pullActionDetect.limit) {
+                pullActionDetect.check();
+                pullActionDetect.count++;
+            }
+        }, 200);
+    }
+}
+
+function trigger_myScroll(offset) {
+
+    pullDownEl = document.querySelector('#wrapper .pullDown');
+    if (pullDownEl) {
+        pullDownOffset = pullDownEl.offsetHeight;
+    } else {
+        pullDownOffset = 0;
+    }
+    pullUpEl = document.querySelector('#wrapper .pullUp');
+    if (pullUpEl) {
+        pullUpOffset = pullUpEl.offsetHeight;
+    } else {
+        pullUpOffset = 0;
+    }
+
+    if ($('#wrapper ul > li').length < items_per_page) {
+        $('#wrapper .pullDown').hide();
+        $('#wrapper .pullUp span').hide();
+        offset = 0;
+    } else if (!offset) {
+        offset = pullUpOffset;
+    }
+
+    myScroll = new IScroll('#wrapper', {
+        probeType: 1,
+        tap: true,
+        click: false,
+        preventDefaultException: {tagName: /.*/},
+        mouseWheel: true,
+        scrollbars: true,
+        fadeScrollbars: true,
+        interactiveScrollbars: false,
+        keyBindings: false,
+        deceleration: 0.0002,
+        startY: (parseInt(offset) * (-1))
+    });
+
+    myScroll.on('scrollStart', function () {
+        scroll_in_progress = true;
+    });
+    myScroll.on('scroll', function () {
+
+        scroll_in_progress = true;
+
+        if ($('#wrapper ul > li').length >= items_per_page) {
+            if (this.y >= 5 && pullDownEl && !pullDownEl.className.match('flip')) {
+                pullDownEl.className = 'pullDown flip';
+                pullDownEl.querySelector('.pullDownLabel').innerHTML = '下拉刷新';
+                this.minScrollY = 0;
+            } else if (this.y <= 5 && pullDownEl && pullDownEl.className.match('flip')) {
+                pullDownEl.className = 'pullDown';
+                pullDownEl.querySelector('.pullDownLabel').innerHTML = '下拉获取新通知';
+                this.minScrollY = -pullDownOffset;
+            }
+            pullActionDetect.check(0);
+
+        }
+    });
+    myScroll.on('scrollEnd', function () {
+    	if(this.y<=40&&this.y>=-40){
+            myScroll.scrollTo(0, -40, 200);
+          }
+        setTimeout(function () {
+            scroll_in_progress = false;
+        }, 100);
+        if ($('#wrapper ul > li').length >= items_per_page) {
+            if (pullDownEl && pullDownEl.className.match('flip')) {
+                pullDownEl.className = 'pullDown loading';
+                pullDownEl.querySelector('.pullDownLabel').innerHTML = '加载中...';
+                pullDownAction();
+            }
+            pullActionDetect.check(0);
+        }
+    });
+
+    setTimeout(function () {
+        $('#wrapper').css({left: 0});
+    }, 100);
+}
+
+//退出登录
+function userQuit(){
+	sessionStorage.removeItem("baseUser");
+}
+
+//数组去重
+Array.prototype.unique = function(){
+	var res = [];
+	var json = {};
+	for(var i = 0; i < this.length; i++){
+	  if(!json[this[i]]){
+	   res.push(this[i]);
+	   json[this[i]] = 1;
+	  }
+	}
+	return res;
+}
+
+//删除数组对象
+
+Array.prototype.removeByValue = function(val) {
+  for(var i=0; i<this.length; i++) {
+    if(this[i] == val) {
+      this.splice(i, 1);
+      break;
+    }
+  }
+}
+
+////isEqual：判断两个对象是否键值对应相等
+function isEqual(a,b){
+	  //如果a和b本来就全等
+	  if(a===b){
+	    //判断是否为0和-0
+	    return a !== 0 || 1/a ===1/b;
+	  }
+	  //判断是否为null和undefined
+	  if(a==null||b==null){
+	    return a===b;
+	  }
+	  //接下来判断a和b的数据类型
+	  var classNameA=toString.call(a),
+	    classNameB=toString.call(b);
+	  //如果数据类型不相等，则返回false
+	  if(classNameA !== classNameB){
+	    return false;
+	  }
+	  //如果数据类型相等，再根据不同数据类型分别判断
+	  switch(classNameA){
+	    case '[object RegExp]':
+	    case '[object String]':
+	    //进行字符串转换比较
+	    return '' + a ==='' + b;
+	    case '[object Number]':
+	    //进行数字转换比较,判断是否为NaN
+	    if(+a !== +a){
+	      return +b !== +b;
+	    }
+	    //判断是否为0或-0
+	    return +a === 0?1/ +a === 1/b : +a === +b;
+	    case '[object Date]':
+	    case '[object Boolean]':
+	    return +a === +b;
+	  }
+	  //如果是对象类型
+	  if(classNameA == '[object Object]'){
+	    //获取a和b的属性长度
+	    var propsA = Object.getOwnPropertyNames(a),
+	      propsB = Object.getOwnPropertyNames(b);
+	    if(propsA.length != propsB.length){
+	      return false;
+	    }
+	    for(var i=0;i<propsA.length;i++){
+	      var propName=propsA[i];
+	      //如果对应属性对应值不相等，则返回false
+	      if(a[propName] !== b[propName]){
+	        return false;
+	      }
+	    }
+	    return true;
+	  }
+	  //如果是数组类型
+	  if(classNameA == '[object Array]'){
+	    if(a.toString() == b.toString()){
+	      return true;
+	    }
+	    return false;
+	  }
+}
+
+//domain
+var domainName = "https://t.shijiwxy.5tree.cn/newsng";
+var loginMain = "https://t.shijiwxy.5tree.cn";
+
+var baseParameter = {
+	"openid": getCookie("openid"), //最后从cookie里去
+	"org_id": getCookie("org_id"), //最后从cookie里去
+	"identity": getCookie("identity"), //身份0家长1教师
+	"head_url": getCookie("headimgurl"),//用户头像
+	"nick_name": getCookie("nickname"),//用户姓名
+	"version": "3" //终端
+}
+
+//wo 13002288939  连枝校园机构
+// var baseParameter = {
+// 	"openid": "ohW4xw5nkFCKxpXq95t4IJs3wO4k", //最后从cookie里去
+// 	"org_id": 393, //最后从cookie里去
+// 	"identity": 0, //身份0家长1教师
+// 	"head_url": '../images/zkbg.png',//用户头像
+// 	"nick_name": '默认用户',//用户姓名
+// 	"version": "3" //终端
+// }
+
+//wo 13002288939  正式公众号机构
+// var baseParameter = {
+// 	"openid": "oxDDpspN_qeqhQMhbv86671RtP-Q", //最后从cookie里去
+// 	"org_id": 393, //最后从cookie里去
+// 	"identity": 0, //身份0家长1教师
+// 	// "head_url": '', //用户头像
+// 	"nick_name": '默认用户', //用户姓名
+// 	"version": "3" //终端
+// }
+
+
+
+//刘洋 13512959854 连枝机构
+// var baseParameter = {
+// 	"openid": "ohW4xw4-6o-9ZrEXxfDfOmshQzT4", //最后从cookie里去
+// 	"org_id": 393, //最后从cookie里去
+// 	"identity": 0, //身份0家长1教师
+// 	"head_url": getCookie("head_url"),//用户头像
+// 	"nick_name": getCookie("nick_name"),//用户姓名
+// 	"version": "3" //终端
+// }
+
+//刘洋 13512959854  正式公众号机构
+// var baseParameter = {
+// 	"openid": "oxDDpsro7hYYCUqOApXzr49jUih0", //最后从cookie里去
+// 	"org_id": 393, //最后从cookie里去
+// 	"identity": 1, //身份0家长1教师
+// 	"head_url": getCookie("head_url"),//用户头像
+// 	"nick_name": getCookie("nick_name"),//用户姓名
+// 	"version": "3" //终端
+// }
+
+
+/*
+ * 函数：图片大图浏览
+ * 使用场景：通知详情/作业详情/校园通知/博客
+ * 使用方法：initPhotoSwipeFromDOM('.my-gallery'); zepto对象
+ *
+ */
+var initPhotoSwipeFromDOM = function (gallerySelector) {
+
+	var parseThumbnailElements = function (el) {
+		var thumbElements = el.childNodes,
+			numNodes = thumbElements.length,
+			items = [],
+			figureEl,
+			linkEl,
+			size,
+			item;
+
+		for (var i = 0; i < numNodes; i++) {
+			figureEl = thumbElements[i]; // <figure> element
+			if (figureEl.nodeType !== 1) {
+				continue;
+			}
+			linkEl = figureEl.children[0]; // <a> element
+			size = linkEl.getAttribute('data-size').split('x');
+			item = {
+				src: linkEl.getAttribute('href'),
+				w: parseInt(size[0], 10),
+				h: parseInt(size[1], 10)
+			};
+
+			if (figureEl.children.length > 1) {
+				item.title = figureEl.children[1].innerHTML;
+			}
+			if (linkEl.children.length > 0) {
+				item.msrc = linkEl.children[0].getAttribute('src');
+			}
+			item.el = figureEl; // save link to element for getThumbBoundsFn
+			items.push(item);
+		}
+		return items;
+	};
+
+	// find nearest parent element
+	var closest = function closest(el, fn) {
+		return el && (fn(el) ? el : closest(el.parentNode, fn));
+	};
+
+	var onThumbnailsClick = function (e) {
+		e = e || window.event;
+		e.preventDefault ? e.preventDefault() : e.returnValue = false;
+		var eTarget = e.target || e.srcElement;
+		// find root element of slide
+		var clickedListItem = closest(eTarget, function (el) {
+			return (el.tagName && el.tagName.toUpperCase() === 'FIGURE');
+		});
+		if (!clickedListItem) {
+			return;
+		}
+		var clickedGallery = clickedListItem.parentNode,
+			childNodes = clickedListItem.parentNode.childNodes,
+			numChildNodes = childNodes.length,
+			nodeIndex = 0,
+			index;
+		for (var i = 0; i < numChildNodes; i++) {
+			if (childNodes[i].nodeType !== 1) {
+				continue;
+			}
+			if (childNodes[i] === clickedListItem) {
+				index = nodeIndex;
+				break;
+			}
+			nodeIndex++;
+		}
+		if (index >= 0) {
+			openPhotoSwipe(index, clickedGallery);
+		}
+		return false;
+	};
+
+	// parse picture index and gallery index from URL (#&pid=1&gid=2)
+	var photoswipeParseHash = function () {
+		var hash = window.location.hash.substring(1),
+			params = {};
+		if (hash.length < 5) {
+			return params;
+		}
+		var vars = hash.split('&');
+		for (var i = 0; i < vars.length; i++) {
+			if (!vars[i]) {
+				continue;
+			}
+			var pair = vars[i].split('=');
+			if (pair.length < 2) {
+				continue;
+			}
+			params[pair[0]] = pair[1];
+		}
+		if (params.gid) {
+			params.gid = parseInt(params.gid, 10);
+		}
+		return params;
+	};
+
+	var openPhotoSwipe = function (index, galleryElement, disableAnimation, fromURL) {
+		var pswpElement = document.querySelectorAll('.pswp')[0],
+			gallery,
+			options,
+			items;
+		items = parseThumbnailElements(galleryElement);
+		options = {
+			galleryUID: galleryElement.getAttribute('data-pswp-uid'),
+			getThumbBoundsFn: function (index) {
+				var thumbnail = items[index].el.getElementsByTagName('img')[0], // find thumbnail
+					pageYScroll = window.pageYOffset || document.documentElement.scrollTop,
+					rect = thumbnail.getBoundingClientRect();
+				return {
+					x: rect.left,
+					y: rect.top + pageYScroll,
+					w: rect.width
+				};
+			},
+			isClickableElement: function (el) {
+				return true;
+			}
+
+		};
+		if (fromURL) {
+			if (options.galleryPIDs) {
+				for (var j = 0; j < items.length; j++) {
+					if (items[j].pid == index) {
+						options.index = j;
+						break;
+					}
+				}
+			} else {
+				options.index = parseInt(index, 10) - 1;
+			}
+		} else {
+			options.index = parseInt(index, 10);
+		}
+		if (isNaN(options.index)) {
+			return;
+		}
+		if (disableAnimation) {
+			options.showAnimationDuration = 0;
+		}
+		gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, options);
+		gallery.init();
+	};
+
+	var galleryElements = document.querySelectorAll(gallerySelector);
+	for (var i = 0, l = galleryElements.length; i < l; i++) {
+		galleryElements[i].setAttribute('data-pswp-uid', i + 1);
+		galleryElements[i].onclick = onThumbnailsClick;
+	}
+	var hashData = photoswipeParseHash();
+	if (hashData.pid && hashData.gid) {
+		openPhotoSwipe(hashData.pid, galleryElements[hashData.gid - 1], true, true);
+	}
+};
+
+/*
+ * 函数：获取照片的原始尺寸
+ * 参数为dom对象
+ * 返回宽高
+ */
+
+function getNaturalSize(Domlement) {
+	var natureSize = {};
+	//检测图片的宽度
+	if (typeof Domlement.naturalWidth !== "undefined") {
+		natureSize.width = Domlement.naturalWidth;
+		natureSize.height = Domlement.naturalHeight;
+	} else {
+		var img = new Image();
+		img.src = Domlement.src;
+		natureSize.width = img.width;
+		natureSize.height = img.height;
+	}
+	return natureSize;
+}
+
+/*
+ *函数：判断图片是否完成并且获取原始尺寸
+ */
+function getWH(obj) {
+	var natural = getNaturalSize(obj);
+	$(obj).show();
+	if ($(obj).next().length > 0) {
+		$(obj).next().hide();
+	}
+	$(obj).parent().attr("data-size", natural.width + "x" + natural.height);
+}
+
+/**
+ * 预加载图片||加载无内容&网络请求错误显示图片
+ */
+function noContentImg(divId, imgurl) {
+	var getRootPath = function () {
+		//获取当前网址，如： http://localhost:8083/uim/********/meun.jsp
+		var curWwwPath = window.document.location.href;
+		//获取主机地址之后的目录，如： uim/******/meun.jsp
+		var pathName = window.document.location.pathname;
+		var pos = curWwwPath.indexOf(pathName);
+		//获取主机地址，如： http://localhost:8083
+		var localhostPaht = curWwwPath.substring(0, pos);
+		//获取带"/"的项目名，如：/uimcardprj
+		return localhostPaht;
+	}
+	/*预加载图片*/
+	// var url = getRootPath();
+	var url = '../../../';
+	var urlImg = url + imgurl; //警告图标路径
+	var imgPreLoadBox = [];
+	var preLoadImgs = function (i, url) {
+		imgPreLoadBox[i] = new Image(); //创建一个Image对象，实现图片的预下载
+		imgPreLoadBox[i].src = url;
+		return imgPreLoadBox[i];
+	}
+	var img = preLoadImgs(0, urlImg);
+	/*将预加载图片插入到div*/
+	var appendImgTo = function (divId, img) {
+		if (img.complete) { // 如果图片已经存在于浏览器缓存，直接调用回调函数
+			$(divId).before(img);
+			return; // 直接返回，不用再处理onload事件
+		}
+		img.onload = function () {
+			$(divId).before(img);
+		}
+	}
+	return {
+		preLoadImgs: img,
+		appendImgTo: appendImgTo(divId, img),
+	}
+}
+
+/*
+ * 清空输入框按钮&&输入手机号只能输入数字(在不改变当前dom结构的情况下)
+ * 使用场景:登录页,忘记密码等与手机号输入框相关页面
+ * 使用方法,定义selector[输入框1ID,2ID...]对selector进行forEach
+ * selector.forEach(function (item) {
+		$(item).after('<span class="clear-btn" style="display:none;">×</span>'); 循环遍历每个输入框后方添加清空按钮
+		$(item).on('input propertychange', function () {
+				clearInputText(item);
+			}).on('blur', function () {
+				$(item + '+.clear-btn').hide();
+			}).on('focus', function () {
+				clearInputText(item);
+			})
+	})
+ */
+function clearInputText(selector) {
+	var is_msg, is_tel, val = $.trim($(selector).val());
+	var span = $(selector + '+.clear-btn');
+	$(selector).siblings().length > 1 ? is_msg = 1 : is_msg = 0;
+	$(selector).attr('type') == 'tel' ? is_tel = 1 : is_tel = 0;
+	is_tel != 0 ? $(selector).val($(selector)[0].value.replace(/\D/g, "")) : '';
+	if (val.length > 0) {
+		var btnHeight = $(selector).height() / 2 + 'px';
+		span.show();
+		$(selector).css({
+			'background': 'url(../../../images/delBtn.png)  no-repeat right',
+			'background-size': btnHeight
+		})
+	} else {
+		span.hide();
+		$(selector).css('background', 'none');
+	}
+	if (is_msg != 0) {
+		var rightWidth = window.getComputedStyle($(selector).siblings()[1], null)['width'];
+		rightWidth = 10 + (+rightWidth.substring(0, rightWidth.length - 2)) + 'px';
+		span.css('right', rightWidth);
+		$(selector).parent().css('margin-right', rightWidth);
+	}
+	span.css('top', '50%');
+	span.css('margin-top', -(span[0].offsetHeight / 2));
+	$(selector + '+.clear-btn').on('touchstart', function (e) {
+		e.preventDefault();
+		$(selector).val('');
+		$(this).hide();
+		$(selector).css('background', 'none');
+	}).on('click', function () {
+		$(selector).focus();
+	})
+}
+
+
+/*
+ *统计代码
+ */
+var _mtac = {};
+(function () {
+	var mta = document.createElement("script");
+	mta.src = "https://pingjs.qq.com/h5/stats.js?v2.0.2";
+	mta.setAttribute("name", "MTAH5");
+	mta.setAttribute("sid", "500592445");
+	var s = document.getElementsByTagName("script")[0];
+	s.parentNode.insertBefore(mta, s);
+})();
+
+//处理url地址获取图片的路径
+function changeImgUrl(url) {
+	var imgName = url.split(".")[0];
+	imgName = domainName + "/esb/res/pic/" + Math.floor(+imgName / 10000) + "/" + Math.floor(+imgName / 100) + "/" + url;
+	return imgName;
+}
+
+
+/** 兼容indexOf **/
+// Production steps of ECMA-262, Edition 5, 15.4.4.14
+// Reference: http://es5.github.io/#x15.4.4.14
+if (!Array.prototype.indexOf) {
+  Array.prototype.indexOf = function(searchElement, fromIndex) {
+    var k;
+    // 1. Let o be the result of calling ToObject passing
+    //    the this value as the argument.
+    if (this == null) {
+      throw new TypeError('"this" is null or not defined');
+    }
+    var o = Object(this);
+    // 2. Let lenValue be the result of calling the Get
+    //    internal method of o with the argument "length".
+    // 3. Let len be ToUint32(lenValue).
+    var len = o.length >>> 0;
+    // 4. If len is 0, return -1.
+    if (len === 0) {
+      return -1;
+    }
+    // 5. If argument fromIndex was passed let n be
+    //    ToInteger(fromIndex); else let n be 0.
+    var n = fromIndex | 0;
+    // 6. If n >= len, return -1.
+    if (n >= len) {
+      return -1;
+    }
+    // 7. If n >= 0, then Let k be n.
+    // 8. Else, n<0, Let k be len - abs(n).
+    //    If k is less than 0, then let k be 0.
+    k = Math.max(n >= 0 ? n : len - Math.abs(n), 0);
+    // 9. Repeat, while k < len
+    while (k < len) {
+      // a. Let Pk be ToString(k).
+      //   This is implicit for LHS operands of the in operator
+      // b. Let kPresent be the result of calling the
+      //    HasProperty internal method of o with argument Pk.
+      //   This step can be combined with c
+      // c. If kPresent is true, then
+      //    i.  Let elementK be the result of calling the Get
+      //        internal method of o with the argument ToString(k).
+      //   ii.  Let same be the result of applying the
+      //        Strict Equality Comparison Algorithm to
+      //        searchElement and elementK.
+      //  iii.  If same is true, return k.
+      if (k in o && o[k] === searchElement) {
+        return k;
+      }
+      k++;
+    }
+    return -1;
+  };
+}

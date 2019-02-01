@@ -1,0 +1,476 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="copyright" content="5tree.com">
+    <meta name="referrer" content="always">
+    <title>天津市少年宫智慧管理云平台</title>
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/ggui.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <!--图标库-->
+    <link rel="stylesheet" href="css/font-awesome.min.css" media="all">
+    <!--地址栏ico图标-->
+    <link rel="shortcut icon" href="images/favicon.ico"/>
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <!-- 对话框 -->
+    <script type="text/javascript" src="plus/layer/layer.min.js"></script>
+    <!--时间控件-->
+    <link rel="stylesheet" href="plus/jedate/skin/jedate.css">
+    <script type="text/javascript" src="plus/jedate/jquery.jedate.min.js"></script>
+
+    <script src="js/vector.js"></script>
+
+    <style>
+        .appIcon {
+            font-size: 18px;
+            position: absolute;
+            top: 10px;
+            left: 20px;
+            font-size: 18px;
+        }
+        .header-set {
+            position: absolute;
+            background: #fff;
+            width: 120px;
+            margin-top: 0px;
+            box-shadow: 5px 0 5px rgba(150, 150, 150, 0.64);
+            display: none
+        }
+
+        .header-set div {
+            height: 36px;
+            line-height: 36px;
+            border-bottom: 1px #eaeaea solid
+        }
+
+        #loadbox {
+            min-width: 960px
+        }
+
+        .imgBox_wrap {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 100001;
+            filter: progid:DXImageTransform.Microsoft.gradient(enabled='true', startColorstr='#B2000000', endColorstr='#B2000000');
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        .first_screen_main {
+            position: relative;
+            min-width: 1228px;
+            height: 400px;
+        }
+
+        .imgBox_wrap .imgBox_pic {
+            position: absolute;
+            /* top: 50%;
+             left: 50%;*/
+            /* transform: translate(-50%,-50%);
+             -webkit-transform: translate(-50%,-50%);
+             -moz-transform: translate(-50%,-50%);
+             -ms-transform: translate(-50%,-50%);
+             -o-transform: translate(-50%,-50%);*/
+        }
+
+        .imgBox_wrap .imgBox_close {
+            width: 30px;
+            height: 30px;
+            position: absolute;
+            top: 50px;
+            right: 70px;
+            background: url(images/close.png) no-repeat center center;
+            border-radius: 50%;
+            cursor: pointer
+        }
+
+        img {
+            border: 0 none;
+            vertical-align: top
+        }
+
+        pre {
+            white-space: pre-wrap;
+            white-space: -moz-pre-wrap;
+            white-space: -pre-wrap;
+            white-space: -o-pre-wrap;
+            word-wrap: break-word
+
+        }
+         /*子菜单*/
+        .sub_nav {display: none}
+        .sub_nav i { left: 30px }
+        .leftNav .sub_nav li {
+            display: block;
+            height: 36px;
+            font-size: 14px;
+            display: block;
+            line-height: 36px;
+            border-left: 2px #fff solid;
+            background:none;
+            padding-left: 20px;border-bottom: 1px #dfdfdf solid;
+        }
+        .leftNav .sub_nav li span.appName-text { box-shadow: none}
+        .leftNav .sub_nav  li.active {
+            background: #dbe3ed;
+            color: #597a96;
+        }
+
+        /*面包屑生成*/
+        #secondlMenu:before{
+            content: "/";
+            margin: 0 10px;
+        }
+        .subCrumbstext a { color: #5a728a}
+        #output {
+            position: absolute;
+            top: 0;
+            z-index: -1;
+        }
+        .letter { text-shadow: 2px 2px 2px #0857aa;}
+
+        .logobox {text-align: center; color: #fff;font-size: 24px;line-height: 55px;letter-spacing: -2px;}
+        .logobox .smallfont { font-size: 21px}
+        .logobox i {margin-left: 5px; margin-top: -5px}
+
+
+        /*
+        ======
+        小树叶动画
+        ======
+        */
+
+        .wiggle{
+            animation-name: wiggle;
+            -webkit-animation-name: wiggle;
+            transform-origin:left bottom;
+            animation-duration: 2.5s;
+            -webkit-animation-duration: 2.5s;
+            animation-iteration-count: infinite;
+            -webkit-animation-iteration-count: infinite;
+            visibility: visible !important;
+        }
+
+        @keyframes wiggle {
+            0% {
+                transform: rotate(-2deg);
+            }
+            50% {
+                transform: rotate(2deg);
+            }
+            100% {
+                transform: rotate(-2deg);
+            }
+        }
+
+        @-webkit-keyframes wiggle {
+            0% {
+                -webkit-transform: rotate(-2deg);
+            }
+            50% {
+                -webkit-transform: rotate(2deg);
+            }
+            100% {
+                -webkit-transform: rotate(-2deg);
+            }
+        }
+
+    </style>
+</head>
+<body class="viewFramework-sidebar-full" style="overflow: hidden">
+<div class="imgBox_wrap" id="newUserPopup" style="display: none;">
+    <div class="imgBox_pic">
+        <img src=""/>
+    </div>
+    <div class="imgBox_close" id="close">
+    </div>
+</div>
+<!--top-->
+<div class="topbar">
+    <!--系统名称-->
+    <div class="logobox pull-left" id="logoShow" >
+        <span class="letter">连</span>
+        <span class="letter">知</span>
+        <span class="letter smallfont">少</span>
+        <span class="letter smallfont">年</span>
+        <span class="letter smallfont">宫</span>
+        <i class="fa fa-leaf wiggle" aria-hidden="true"></i>
+        <div id="output"></div>
+    </div>
+    <div class="schoolName pull-left">
+        <span class="h4" id="nowADD" style="color:#4caf50;margin-left:6px;"><span id="orgName"></span>智慧教育云平台</span>
+    </div>
+    <!--系统名称End-->
+    <!--管理员信息-->
+    <div class="userInfo pull-right">
+        <ul>
+            <li>
+                <span class="userHead"><img src="images/user_head.jpg" alt=""/></span>
+                <span class="userName" id="teacherName"></span>
+            </li>
+            <li title="个人设置" id="toSeeNews">
+                <i class="fa fa-cog fa-fw" style="font-size: 16px;"></i>
+                <div class="header-set" id="header-set">
+                    <div title="去修改密码" id="resetPSW">修改密码</div>
+                </div>
+            </li>
+            <li title="退出登录" id="quit">
+                <i class="fa fa-power-off" style="font-size: 16px;"></i>
+            </li>
+        </ul>
+    </div>
+</div>
+<!--top End-->
+
+<!--left-->
+<div class="viewFramework-sidebar" id="left">
+    <!--左侧菜单-->
+    <div class="leftNav" id="leftNav">
+        <ul></ul>
+    </div>
+    <!--左侧菜单 End-->
+</div>
+<!--left end-->
+<!--right-->
+<div class="viewFramework-product" >
+    <!--<div class="subCrumbs">
+        <i class="fa fa-home fa-fw"></i> 当前位置：<span><a href="#">首页<em></em></a></span>/<span><a href="#">基础数据<em></em></a></span>/<span>模块一</span>
+    </div>-->
+    <div class="categoryTxt" id="topNav">
+        <div class="subCrumbstext">
+            <i class="fa fa-home fa-fw"></i> 当前位置：
+            <span><a href="#" id="firstlMenu"><em></em></a></span><span id="secondlMenu"></span>
+        </div>
+        <!--<li class="nLeftTitle"><a class="cateParentALL" href="#11" >创建招生</a></li>
+        <li class="cateParentLi"><a class="cateParentA" href="#12">招生记录</a></li>-->
+    </div>
+    <div id="loadbox"> </div>
+</div>
+<!--right end-->
+<!--foot-->
+<div class="fold_swith" id="fold_swith" title="折叠菜单">
+    <div class="rightbottom">
+        <span>版权所有 <span id="org"></span></span>
+    </div>
+</div>
+<!--foot end-->
+<!--数据加载提示-->
+<div class="loading-bg" loading-id="loadbg" style=" display: none;"></div>
+<div class="loadingimg" loading-id="loadimg" style=" display: none;"><img src="images/loading-2.gif">
+    <div>数据加载中，请稍后...</div>
+</div>
+<div id="allBack" class="backIcon" title="点击可后退" onclick="option.goBack()"><i class="fa fa-arrow-circle-left" aria-hidden="true"></i></div>
+</body>
+</html>
+<!-- 公用控件封装-->
+<script type="text/javascript" src="js/base.js"></script>
+<script type="text/javascript" src="js/menu.js"></script>
+<!--演示用-->
+<!--<script type="text/javascript" src="js/mock.js"></script>
+<script type="text/javascript" src="js/mockjsons.js"></script>-->
+<script>
+
+    //监控hash值变化
+    window.onhashchange = function () {
+        var hash = window.location.hash;
+        var id = hash.substr(1);
+        if (id == "NaN") {
+            id = 1;
+        }
+        changeHash(id);
+    };
+
+    var Nav = $('#leftNav').children('ul');
+
+    $(function () {
+        //赋值
+        if(sessionStorage.loginUser==undefined){
+            sessionStorage.error="未获取到您的登录信息，请重新登录";
+            window.location.href="login.html";
+            return false
+        }
+        var loginObj=JSON.parse(sessionStorage.loginUser);
+
+        $("#orgName,#org").text(loginObj.orgName);
+        $("#teacherName").text(loginObj.useName + " 老师");
+
+        //logo显示
+        var victor = new Victor("logoShow", "output");
+
+        //退出登录
+        $("#quit").click(function () {
+            myConfirm("你确定要退出登录吗？", function () {
+                sessionStorage.clear();
+                window.location.href = 'login.html';
+            }, null, null);
+        });
+
+        //个人设置
+      /*  $("#toSeeNews").hover(function () {
+            $("#header-set").fadeToggle();
+        });
+*/
+        //修改密码
+        $("#toSeeNews").on("click", function () {
+
+            var str = '<div class="gui-form" style="padding: 0 20px;">' +
+                            '<div class="gui-form-item gui-form-item-required" style="margin-top: 30px;">' +
+                            '<label class="gui-form-item-label" style="width: 130px">旧密码</label>' +
+                            '<div class="gui-form-item-content">'+
+                            '<input type="password" id="oldpasswd" class="gui-input gui-unselect " placeholder="请输入旧密码">' +
+                            '</div>' +
+                            '</div>' +
+                          '<div class="gui-form-item gui-form-item-required" style="margin-top: 10px;">' +
+                                '<label class="gui-form-item-label" style="width: 130px">新密码</label>' +
+                                '<div class="gui-form-item-content">'+
+                                    '<input type="password" id="passwd" class="gui-input gui-unselect " placeholder="请输入新密码">' +
+                                 '</div>' +
+                            '</div>' +
+                            '<div class="gui-form-item gui-form-item-required">' +
+                                '<label class="gui-form-item-label" style="width: 130px">确认新密码</label>' +
+                                '<div class="gui-form-item-content" style="margin-left: 100px">'+
+                                    '<input type="password" placeholder="再次输入密码" class="gui-input"  id="code">' +
+                                 '</div>' +
+                            '</div>' +
+                        '</div>' ;
+
+            mydialogForm(str, "修改密码", null, ["480px", "300px"], ["确认修改", "取消"], [function (y) {
+                var code = $('#code').val();
+                var passwd = $('#passwd').val();
+                if (passwd.length < 6) {
+                    myAlert('密码长度不能小于6位',2,code,null);
+                    return false;
+                }
+                if (!code) {
+                    myAlert('请输入验证码',2,code,null);
+                } else if (!passwd) {
+                    myAlert('请输入新密码',2,code,null);
+                } else {
+                    //验证验证码
+
+                    getData(
+                        loginMain + '/esb/api/student/updateSngPassword',
+                        {
+                            "token": option.token,
+                            "udid":option. udid,
+                            "version": 0,
+                            "user_mobile":JSON.parse(sessionStorage.loginUser).Phone,
+                            "identity":1,
+                            "password": code,
+                            "oldpassword":$("#oldpasswd").val()
+                        },
+                        function successfn(d) {
+                            if (d.code == "200" && d.success == true) {
+
+                                        if (d.code == "200" && d.success == true) {
+                                            myAlert('密码设置成功',1, null,null);
+                                        } else {
+                                            var code = d.code;
+                                            myAlert(d.message, 2, null,null);
+                                        }
+                            } else {
+                                var code = d.code;
+                                myAlert(d.message, 2, code);
+                            }
+                            ;
+                        }, 'POST');
+                    layer.close(y);
+                }
+                ;
+            }, null]);
+
+            //获取短信验证码
+            $('#obtain').on("click", function () {
+                var passwd = $('#passwd').val();
+                if (passwd) {
+                    getData(
+                        domain + '/esb/sendValidCodeWX',
+                        {"token": token, "udid": udid, "version": 0, "phone": Phone},
+                        function successfn(d) {
+                            if (d.code == "200" && d.success == true) {
+                                myAlert('短信发送成功', 1, null);
+
+                                var countDown = 30000;
+                                var Time = setInterval(function () {
+                                    countDown = countDown - 1000;
+                                    if (countDown >= 1000) {
+                                        $('#obtain').text(countDown / 1000 + "s后可发送").css({
+                                            "color": "#fff",
+                                            "background": "#aaa9b1",
+                                            "pointer-events": "none"
+                                        });
+                                        TimeState = false;
+                                    } else {
+                                        $('#obtain').text("获取短信验证码").css({
+                                            "color": "",
+                                            "background": "",
+                                            "pointer-events": ""
+                                        });
+                                        clearInterval(Time);
+                                        TimeState = true;
+                                    }
+                                }, 1000);
+
+                            } else {
+                                var code = d.code;
+                                myAlert(d.message, 2, code);
+                            }
+                            ;
+                        }, 'GET'
+                    );
+                } else {
+                    myAlert('请输入新的密码', 2, code);
+                }
+            });
+        });
+
+        //刷新
+        var hash = window.location.hash;
+        var id = hash.substr(1);
+        if (id == "NaN") {
+            //id = 1;
+            //默认加载显示菜单的第一项
+            changeHash($("#leftNav ul li:visible:eq(0)").attr("data-id"));
+
+        } else {
+            changeHash(id);
+        }
+
+        //加载栏目
+        $("#leftNav li").click(function () {
+            debugger
+            var loadId = $(this).attr("data-id");
+
+            if($("#leftNav li.active").next().is("ul.sub_nav") && $("#leftNav li.active").parent().is("ul.sub_nav")){
+                $("#leftNav li.active").next("ul.sub_nav").slideUp();
+            }
+
+            if($("#leftNav li.active").next().is("ul.sub_nav") && !$("#leftNav li.active").parent().is("ul.sub_nav")){
+                $("#leftNav li.active").next("ul.sub_nav").slideUp();
+            }
+
+            if($("#leftNav li.active").next().is("ul.sub_nav") && $(this).hasClass("active")){
+                $("#leftNav li.active").next("ul.sub_nav").slideUp();
+            }
+            if($("#leftNav li.active").next().is("ul.sub_nav") && !$(this).hasClass("active")){
+                $("#leftNav li.active").next("ul.sub_nav").slideUp();
+            }
+
+            if($(this).next().is("ul.sub_nav")){
+               /* $("ul.sub_nav").slideUp();*/
+                if($(this).next().is(":hidden")){
+                    $(this).next().slideDown();
+                }else{
+                    $(this).next().slideUp();
+                }
+            }
+            toPage(loadId);
+        });
+
+    });
+</script>

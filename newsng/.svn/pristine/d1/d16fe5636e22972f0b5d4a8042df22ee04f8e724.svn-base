@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title>支付列表</title>
+		<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+		<link rel="shortcut icon" href="/favicon.ico">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<!--ui包-->
+		<link rel="stylesheet" href="../../../css/sm.css">
+		<link rel="stylesheet" href="../../../css/layout.css">
+		<style>
+			.tab .content{top:2.2rem}
+			.class_basic .class_info,.class_operation .ADD{line-height:1rem}
+			.bar{line-height: 2.2rem;position:static;color:#fff;border-radius:.4rem .4rem 0 0}
+			.list-block{margin:0 .5rem}
+			.class-teacher{text-overflow: ellipsis;overflow: hidden;white-space: nowrap;margin: 0 .2rem;font-size:.7rem}
+		</style>
+	</head>
+	<body>
+		<div class="page-group">
+			<div class="page page-current">
+ 				<div class="content native-scroll">
+			    <div class="buttons-tab">
+			      <a href="#tab1" class="tab-link active button">待支付</a>
+			      <a href="#tab2" class="tab-link button">已支付</a>
+			      <a href="#tab3" class="tab-link button">已作废</a>
+			      <a href="#tab4" class="tab-link button">已退费</a>
+			    </div>
+			    <div class="tabs">
+			      <div id="tab1" class="tab active">
+			        <div class="content-block">
+			    		<!--班级列表-->
+						<div class="content native-scroll ">
+							<div id="allNoPay" class="list-block class-list" style="margin-top: 0;">
+								
+							</div>
+						</div>
+						<!--班级列表 End-->
+			        </div>
+			      </div>
+			      <div id="tab2" class="tab">
+			        <div class="content-block">
+			                <!--班级列表-->
+							<div class="content native-scroll ">
+								<div id="allPayed" class="list-block class-list" style="margin-top: 0;">
+									
+								</div>
+							</div>
+							<!--班级列表 End-->
+			        </div>
+			      </div>
+			      <div id="tab3" class="tab">
+			        <div class="content-block">
+		          		<!--班级列表-->
+						<div class="content native-scroll ">
+							<div id="allVoid" class="list-block class-list" style="margin-top: 0;">
+								
+							</div>
+						</div>
+						<!--班级列表 End-->
+			        </div>
+			      </div>
+			      <div id="tab4" class="tab">
+			        <div class="content-block">
+			          <!--班级列表-->
+						<div class="content native-scroll ">
+							<div id="allRefund" class="list-block class-list" style="margin-top: 0;">
+								
+							</div>
+						</div>
+						<!--班级列表 End-->
+			        </div>
+			      </div>
+			  </div>
+			</div>
+		</div>
+</body>
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script>
+//系统时间
+var paySysTime="",nowTime="";
+var baseUser = JSON.parse(sessionStorage.baseUser),//获取用户信息
+	now_child = JSON.parse(sessionStorage.now_child);//获取当前孩子信息
+$(function(){
+	// if(sessionStorage.token==undefined){
+	// 	sessionStorage.token=GetUrlParam("token");
+	// 	/*赋值*/
+	// 	var token=GetUrlParam("token");;
+	// 	//根据token获取微信信息
+	// 	 getData("../../../api/userInfo", {token:token,da:Math.random()},function(result){
+	// 			if(result.code=="0"){
+	// 				sessionStorage.baseUser=JSON.stringify(result.baseUser);
+	// 				sessionStorage.baseInfo=JSON.stringify(result.baseWeixinInfo);
+	// 				sessionStorage.baseWeixinInfoId=result.baseWeixinInfo.id;
+	// 			}else{
+	// 				$.alert(result.msg);
+	// 			}
+	// 	 }); 
+	// }
+	//获取支付列表
+	getData(domainName + '/wechat/portal/charge/getSList.json',{
+		token: baseUser.token,
+		udid: baseUser.udid,
+		org_id: baseUser.orguser.org_id,
+		version: 3,
+		identity: baseUser.orguser.identity||0,
+		stud_id: now_child.stud_id
+	},function(res){
+		if(res.code == 200 && res.success == true){
+			var topay_data = res.data.topay_data,//待支付
+				paid_data = res.data.paid_data,//已支付
+				cancel_data = res.data.cancel_data,//已作废
+				refund_data = res.data.refund_data;//已退费
+				var html1 = '',
+					html2 = '',
+					html3 = '',
+					html4 = '';
+			for(var i in topay_data){
+				html1 += '<header class="bar bar-nav">'+ i +'</header>'+
+							'<ul style="border:none;padding:.5rem 0;background-color:#fff">';
+				for(var j=0;j<topay_data[i].length;j++){
+					var d = topay_data[i][j];
+						// html1 += `<li>
+						// 			<div class="class_basic">
+						// 				<div class="class_title">${d.subject_name+"("+d.clas_name+")"}</div>
+						// 				<div class="class_info">
+						// 					<div>招收学段：${d.age_range}岁  名额：${d.size}人</div>
+						// 					<div>费用：${d.tuition_fees}元/${d.total_hours}课时</div>
+						// 					<div>开课：${d.class_time} </div>
+						// 					<div>上课校区：${d.cam_name} /教室：${d.classroom_name} </div>
+						// 				</div>
+						// 			</div>
+						// 			<div class="class_operation" id="${d.cd_id}"  data-number=""  data-refund="" data-open=""  data-payment="">
+						// 				<div class="ADD">
+						// 					<div class="class-teacher">${d.tech_name !== null ? d.tech_name : '教师待定'}</div>
+						// 					<div class="class_operation_box">
+						// 						<div class="changed">支付</div>
+						// 					</div>
+						// 					<div class="payTimeTip" data-time="${transformTime(d.end_time) - res.data.sysTime}">剩余：${formatDuring((transformTime(d.end_time) - res.data.sysTime))}</div>
+						// 				</div>
+						// 			</div>
+						// 		</li>`
+						html1 += "<li>\n\t\t\t\t\t\t\t\t\t<div class=\"class_basic\">\n\t\t\t\t\t\t\t\t\t\t<div class=\"class_title\">".concat(d.subject_name + "(" + d.clas_name + ")", "</div>\n\t\t\t\t\t\t\t\t\t\t<div class=\"class_info\">\n\t\t\t\t\t\t\t\t\t\t\t<div>\u62DB\u6536\u5B66\u6BB5\uFF1A").concat(d.age_range, "\u5C81  \u540D\u989D\uFF1A").concat(d.size, "\u4EBA</div>\n\t\t\t\t\t\t\t\t\t\t\t<div>\u8D39\u7528\uFF1A").concat(d.tuition_fees, "\u5143/").concat(d.total_hours, "\u8BFE\u65F6</div>\n\t\t\t\t\t\t\t\t\t\t\t<div>\u5F00\u8BFE\uFF1A").concat(d.class_time, " </div>\n\t\t\t\t\t\t\t\t\t\t\t<div>\u4E0A\u8BFE\u6821\u533A\uFF1A").concat(d.cam_name, " /\u6559\u5BA4\uFF1A").concat(d.classroom_name, " </div>\n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t<div class=\"class_operation\" id=\"").concat(d.cd_id, "\"  data-number=\"\"  data-refund=\"\" data-open=\"\"  data-payment=\"\">\n\t\t\t\t\t\t\t\t\t\t<div class=\"ADD\">\n\t\t\t\t\t\t\t\t\t\t\t<div class=\"class-teacher\">").concat(d.tech_name !== null ? d.tech_name : '教师待定', "</div>\n\t\t\t\t\t\t\t\t\t\t\t<div class=\"class_operation_box\">\n\t\t\t\t\t\t\t\t\t\t\t\t<div class=\"changed\">\u652F\u4ED8</div>\n\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t\t<div class=\"payTimeTip\" data-time=\"").concat(transformTime(d.end_time) - res.data.sysTime, "\">\u5269\u4F59\uFF1A").concat(formatDuring(transformTime(d.end_time) - res.data.sysTime), "</div>\n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t</li>");
+				}
+				html1 += '</ul>'
+			}
+			for(var h in paid_data){
+				html2 += '<header class="bar bar-nav">'+ h +'</header>'+
+							'<ul style="border:none;padding:.5rem 0;background-color:#fff">';
+				for(var k=0;k<paid_data[h].length;k++){
+					var d = paid_data[h][k];
+							// html2 += `<li>
+							// 			<div class="class_basic">
+							// 				<div class="class_title">${d.subject_name+"("+d.clas_name+")"}</div>
+							// 				<div class="class_info">
+							// 					<div>招收学段：${d.age_range}岁  名额：${d.size}人</div>
+							// 					<div>费用：${d.tuition_fees}元/${d.total_hours}课时</div>
+							// 					<div>开课：${d.class_time} </div>
+							// 					<div>上课校区：${d.cam_name} /教室：${d.classroom_name} </div>
+							// 				</div>
+							// 			</div>
+							// 			<div class="class_operation" id="${d.cd_id}" data-stu="${d.stu_class_id}"  data-number=""  data-refund="" data-open=""  data-payment="">
+							// 				<div class="ADD">
+							// 					<div class="class-teacher">${d.tech_name !== null ? d.tech_name : '教师待定'}</div>
+							// 					<div class="class_operation_box">
+							// 						<div class="changed">退费</div>
+							// 					</div>
+							// 				</div>
+							// 			</div>
+							// 		</li>`
+							html2 += "<li>\n\t\t\t\t\t\t\t\t\t\t<div class=\"class_basic\">\n\t\t\t\t\t\t\t\t\t\t\t<div class=\"class_title\">".concat(d.subject_name + "(" + d.clas_name + ")", "</div>\n\t\t\t\t\t\t\t\t\t\t\t<div class=\"class_info\">\n\t\t\t\t\t\t\t\t\t\t\t\t<div>\u62DB\u6536\u5B66\u6BB5\uFF1A").concat(d.age_range, "\u5C81  \u540D\u989D\uFF1A").concat(d.size, "\u4EBA</div>\n\t\t\t\t\t\t\t\t\t\t\t\t<div>\u8D39\u7528\uFF1A").concat(d.tuition_fees, "\u5143/").concat(d.total_hours, "\u8BFE\u65F6</div>\n\t\t\t\t\t\t\t\t\t\t\t\t<div>\u5F00\u8BFE\uFF1A").concat(d.class_time, " </div>\n\t\t\t\t\t\t\t\t\t\t\t\t<div>\u4E0A\u8BFE\u6821\u533A\uFF1A").concat(d.cam_name, " /\u6559\u5BA4\uFF1A").concat(d.classroom_name, " </div>\n\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t<div class=\"class_operation\" id=\"").concat(d.cd_id, "\" data-stu=\"").concat(d.stu_class_id, "\"  data-number=\"\"  data-refund=\"\" data-open=\"\"  data-payment=\"\">\n\t\t\t\t\t\t\t\t\t\t\t<div class=\"ADD\">\n\t\t\t\t\t\t\t\t\t\t\t\t<div class=\"class-teacher\">").concat(d.tech_name !== null ? d.tech_name : '教师待定', "</div>\n\t\t\t\t\t\t\t\t\t\t\t\t<div class=\"class_operation_box\">\n\t\t\t\t\t\t\t\t\t\t\t\t\t<div class=\"changed\">\u9000\u8D39</div>\n\t\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t</li>");
+				}
+				html2 += '</ul>'
+			}
+			for(var g in cancel_data){
+				html3 += '<header class="bar bar-nav">'+ g +'</header>'+
+							'<ul style="border:none;padding:.5rem 0;background-color:#fff">';
+				for(var l=0;l<cancel_data[g].length;l++){
+					var d = cancel_data[g][l];
+						// html3 += `<li>
+						// 			<div class="class_basic">
+						// 				<div class="class_title">${d.subject_name+"("+d.clas_name+")"}</div>
+						// 				<div class="class_info">
+						// 					<div>招收学段：${d.age_range}岁  名额：${d.size}人</div>
+						// 					<div>费用：${d.tuition_fees}元/${d.total_hours}课时</div>
+						// 					<div>开课：${d.class_time} </div>
+						// 					<div>上课校区：${d.cam_name} /教室：${d.classroom_name} </div>
+						// 				</div>
+						// 			</div>
+						// 			<div class="class_operation" id="${d.cd_id}"  data-number=""  data-refund="" data-open=""  data-payment="">
+						// 				<div class="ADD">
+						// 					<div class="class-teacher">${d.tech_name !== null ? d.tech_name : '教师待定'}</div>
+						// 					<div class="class_operation_box">
+						// 						<div class="unchange">作废</div>
+						// 					</div>
+						// 					<div class="payTimeTip" data-time="end">该名额已作废</div>
+						// 				</div>
+						// 			</div>
+						// 		</li>`
+						html3 += "<li>\n\t\t\t\t\t\t\t\t\t<div class=\"class_basic\">\n\t\t\t\t\t\t\t\t\t\t<div class=\"class_title\">".concat(d.subject_name + "(" + d.clas_name + ")", "</div>\n\t\t\t\t\t\t\t\t\t\t<div class=\"class_info\">\n\t\t\t\t\t\t\t\t\t\t\t<div>\u62DB\u6536\u5B66\u6BB5\uFF1A").concat(d.age_range, "\u5C81  \u540D\u989D\uFF1A").concat(d.size, "\u4EBA</div>\n\t\t\t\t\t\t\t\t\t\t\t<div>\u8D39\u7528\uFF1A").concat(d.tuition_fees, "\u5143/").concat(d.total_hours, "\u8BFE\u65F6</div>\n\t\t\t\t\t\t\t\t\t\t\t<div>\u5F00\u8BFE\uFF1A").concat(d.class_time, " </div>\n\t\t\t\t\t\t\t\t\t\t\t<div>\u4E0A\u8BFE\u6821\u533A\uFF1A").concat(d.cam_name, " /\u6559\u5BA4\uFF1A").concat(d.classroom_name, " </div>\n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t<div class=\"class_operation\" id=\"").concat(d.cd_id, "\"  data-number=\"\"  data-refund=\"\" data-open=\"\"  data-payment=\"\">\n\t\t\t\t\t\t\t\t\t\t<div class=\"ADD\">\n\t\t\t\t\t\t\t\t\t\t\t<div class=\"class-teacher\">").concat(d.tech_name !== null ? d.tech_name : '教师待定', "</div>\n\t\t\t\t\t\t\t\t\t\t\t<div class=\"class_operation_box\">\n\t\t\t\t\t\t\t\t\t\t\t\t<div class=\"unchange\">\u4F5C\u5E9F</div>\n\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t\t<div class=\"payTimeTip\" data-time=\"end\">\u8BE5\u540D\u989D\u5DF2\u4F5C\u5E9F</div>\n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t</li>");
+				}
+				html3 += '</ul>'
+			}
+			for(var f in refund_data){
+				html4 += '<header class="bar bar-nav">'+ f +'</header>'+
+							'<ul style="border:none;padding:.5rem 0;background-color:#fff">';
+				for(var m=0;m<refund_data[f].length;m++){
+					var d = refund_data[f][m];
+						// html4 += `<li>
+						// 			<div class="class_basic">
+						// 				<div class="class_title">${d.subject_name+"("+d.clas_name+")"}</div>
+						// 				<div class="class_info">
+						// 					<div>招收学段：${d.age_range}岁  名额：${d.size}人</div>
+						// 					<div>费用：${d.tuition_fees}元/${d.total_hours}课时</div>
+						// 					<div>开课：${d.class_time} </div>
+						// 					<div>上课校区：${d.cam_name} /教室：${d.classroom_name} </div>
+						// 				</div>
+						// 			</div>
+						// 			<div class="class_operation" id="${d.cd_id}"  data-number=""  data-refund="" data-open=""  data-payment="">
+						// 				<div class="ADD">
+						// 					<div class="class-teacher">${d.tech_name !== null ? d.tech_name : '教师待定'}</div>
+						// 					<div class="class_operation_box">
+						// 						<div class="unchange">已退费</div>
+						// 					</div>
+						// 				</div>
+						// 			</div>
+						// 		</li>`
+						html4 += "<li>\n\t\t\t\t\t\t\t\t\t<div class=\"class_basic\">\n\t\t\t\t\t\t\t\t\t\t<div class=\"class_title\">".concat(d.subject_name + "(" + d.clas_name + ")", "</div>\n\t\t\t\t\t\t\t\t\t\t<div class=\"class_info\">\n\t\t\t\t\t\t\t\t\t\t\t<div>\u62DB\u6536\u5B66\u6BB5\uFF1A").concat(d.age_range, "\u5C81  \u540D\u989D\uFF1A").concat(d.size, "\u4EBA</div>\n\t\t\t\t\t\t\t\t\t\t\t<div>\u8D39\u7528\uFF1A").concat(d.tuition_fees, "\u5143/").concat(d.total_hours, "\u8BFE\u65F6</div>\n\t\t\t\t\t\t\t\t\t\t\t<div>\u5F00\u8BFE\uFF1A").concat(d.class_time, " </div>\n\t\t\t\t\t\t\t\t\t\t\t<div>\u4E0A\u8BFE\u6821\u533A\uFF1A").concat(d.cam_name, " /\u6559\u5BA4\uFF1A").concat(d.classroom_name, " </div>\n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t<div class=\"class_operation\" id=\"").concat(d.cd_id, "\"  data-number=\"\"  data-refund=\"\" data-open=\"\"  data-payment=\"\">\n\t\t\t\t\t\t\t\t\t\t<div class=\"ADD\">\n\t\t\t\t\t\t\t\t\t\t\t<div class=\"class-teacher\">").concat(d.tech_name !== null ? d.tech_name : '教师待定', "</div>\n\t\t\t\t\t\t\t\t\t\t\t<div class=\"class_operation_box\">\n\t\t\t\t\t\t\t\t\t\t\t\t<div class=\"unchange\">\u5DF2\u9000\u8D39</div>\n\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t</li>");
+				}
+				html4 += '</ul>'
+			}
+			html1 != '' ? $("#allNoPay").html(html1) : $("#allNoPay").html('<div class="noData noData_line"><span class="noData__tips">暂无待支付记录</span></div>');
+			html2 != '' ? $("#allPayed").html(html2) : $("#allPayed").html('<div class="noData noData_line"><span class="noData__tips">暂无支付记录</span></div>');
+			html3 != '' ? $("#allVoid").html(html3) : $("#allVoid").html('<div class="noData noData_line"><span class="noData__tips">暂无作废记录</span></div>');
+			html4 != '' ? $("#allRefund").html(html4) : $("#allRefund").html('<div class="noData noData_line"><span class="noData__tips">暂无退费记录</span></div>');
+			$(".buttons-tab").find("a").eq(0).text("待支付("+ res.data.topay_num +")")
+			$(".buttons-tab").find("a").eq(1).text("已支付("+ res.data.paid_num +")")
+			$(".buttons-tab").find("a").eq(2).text("已作废("+ res.data.cancel_num +")")
+			$(".buttons-tab").find("a").eq(3).text("已退费("+ res.data.refund_num +")")
+
+			//去支付
+			$("#allNoPay").on("click",".class_operation",function(){
+				var $this = $(this);
+				if($this.find(".unchange").length>0){
+					return false;
+				}else{
+					window.location.href = domainName + '/wechat/portal/charge/pay.htm?'+
+					'cd_id=' + $this.attr("id") +
+					'&token=' + baseUser.token +
+					'&udid=' + baseUser.udid +
+					'&version=3&identity=0';
+				}
+			})
+			//退费
+			$("#allPayed").on("click",".class_operation",function(){
+				var $this = $(this);
+				if($this.find(".unchange").length>0){
+					return false;
+				}
+				$.confirm("确认退费后,该班级名额将立即作废,是否确认提交退费申请？","退费申请",function(){
+					//添加is-send类 防止重复点击
+					if($this.hasClass("is-send")){
+						return false;
+					}
+					$this.addClass("is-send");
+					//调取退费接口
+					getData(domainName + '/wechat/portal/charge/refund.json',{
+						token: baseUser.token,
+						udid: baseUser.udid,
+						version: 3,
+						identity: 0,
+						org_id: baseUser.orguser.org_id,
+						cd_id: $this.attr("id"),
+						stu_class_id: $this.attr("data-stu"),
+						openid: baseParameter.openid
+					},function(res){
+						$this.removeClass("is-send");
+						if(res.code == 200 && res.success == true){
+							//如果退费成功,刷新页面更新所有支付状态数据
+							$.alert(res.message,function(){
+								location.reload();
+							});
+							setTimeout(function(){
+								location.reload();
+							},2000)
+						}else{
+							$.alert(res.message);
+						}
+					})				
+				},null,"立即退费","我再想想")
+			})
+		}
+	})
+
+	 //倒计时
+    var dd=setInterval(function(){
+    	nowTime=nowTime-1000;
+    	//每个报名单独倒计时
+	    $("[data-time]").each(function(){
+	    	var timeM=parseInt($(this).attr("data-time"))-1000;
+	    	if(timeM>=0){
+		    	$(this).attr("data-time",timeM);
+		        if(timeM==0){
+		        	window.history.go(0);
+		        }else{
+		        	$(this).html("剩余："+formatDuring(timeM));
+		        }
+	    	}else{
+	    		  $(this).html("该名额已作废").next().find("div").addClass("unchange").removeClass("changed");
+	    	}
+	    });
+	    //设置10:30-11:30不能支付
+	    //   var start=new Date(paySysTime.substring(0,10)+" 22:29:59").getTime();
+	    //    end=new Date(paySysTime.substring(0,10)+" 23:29:59").getTime();
+	       
+		//   if(start<nowTime&&nowTime<end){
+		// 	$(".class_operation_box").each(function(){
+		// 		   $(this).find("div").removeAttr("class").addClass("unchange pause");
+		// 	   });
+		// 	 return false
+		//    }
+    }, 1000);
+});  
+</script>
+ 

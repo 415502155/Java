@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title>缴费统计</title>
+		<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+		<link rel="shortcut icon" href="../../../favicon.ico">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<!--ui包-->
+		<link rel="stylesheet" href="../../../css/sm.css">
+		<link rel="stylesheet" href="../../../css/layout.css">
+		<link rel="stylesheet" href="../../../css/teacher.css">
+		<style>
+			#termName{margin-left:0.6rem;background-color:transparent;border:0}
+			.list-block li.media-item .item-title-row, .list-block.media-list .item-title-row{margin-bottom:1rem}
+			/* .moneyTextColor{position:absolute;top:2.2rem;right:1.5rem} */
+			.item-text p{text-indent: 0;width: 80%;word-break: break-all;height: auto}
+		</style>
+	</head>
+	<body>
+		<div class="page-group">
+			<div class="page page-current">
+				<header class="bar bar-nav">
+					<div class="title pull-left" style="text-align: left;margin-left:.5rem;font-size:.7rem">
+						<span style="vertical-align: top">当前展示：</span> <span class="grade-info"></span>
+						<!-- <input id="termName" type="text" value="2018年 第一学期" readonly> -->
+						<div class="picker-div">
+							<input id="gradeYear" type="text" value="2018年" readonly style="display: none">
+							<input id="gradeLession" type="text" value="第一学期" readonly style="display: none">
+						</div>
+					</div>
+					<i id="changeTerm" class="icon icon-menu" style="position: absolute;right:1rem;color:#fff"></i>
+				</header>
+				 <div class="content native-scroll " id="allClass">
+					<div class="card">
+						<div class="card-content">
+							<div class="list-block media-list">
+								<ul>
+									
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+ 		</div>
+	</body>
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script>
+	var baseUser = JSON.parse(sessionStorage.baseUser),
+		parameter = JSON.stringify({
+			token: baseUser.token,
+			udid: baseUser.udid,
+			version: 3,
+			identity: baseUser.orguser.identity || 1,
+			org_id: baseUser.orguser.org_id
+		}),
+	    yearArr = [],
+		termArr = [],
+		now_year = '',
+		now_term = '',
+		now_term_id = '';
+	$(function(){
+		var cam_param = JSON.parse(parameter);
+		cam_param["cam_ids"] = sessionStorage.cam_ids;
+		if(typeof sessionStorage.money_term === "undefined"){//判断是否有学期缓存
+			getData(domainName + '/baseSet/termManage/queryTermAndOldTerminfo.json',JSON.parse(parameter),function(res){//获取最近的学期和上一个学期
+				if(res.code == 200 && res.success == true){
+					var this_term = res.data[0];
+					now_year = this_term.cur_year;
+					now_term = this_term.term_name;
+					now_term_id = this_term.term_id;
+					// $(".grade-info").text("("+this_term.cur_year+")"+this_term.term_name);
+					$(".grade-info").text(this_term.term_name);
+					var param = JSON.parse(parameter);
+						param["term_id"] = now_term_id;
+					getList(param);
+					console.log(now_year);
+					console.log(now_term);
+				}else{
+					$.alert(res.message);
+				}
+			},"GET",false)
+		}else{//如果有,使用缓存获取上次学期数据
+			var last_term = JSON.parse(sessionStorage.money_term);
+			$(".grade-info").text(last_term.term_name);
+			var param = JSON.parse(parameter);
+				param["term_id"] = last_term.term_id;
+			getList(param);
+		}
+
+		getData(domainName + '/baseSet/termManage/queryTermByOrgIdAndCamIds.json',cam_param,function(res){
+			if(res.code == 200 && res.success == true){
+				var d = res.data;
+				for(var i=0;i<d.length;i++){
+					var t = d[i];
+					if(yearArr.indexOf(t.cur_year)<0){
+						yearArr.push(t.cur_year+"年");
+						var terms = [];
+						for(var j=0;j<t.list.length;j++){
+							terms.push({
+								term_name:t.list[j].term_name,
+								term_id:t.list[j].term_id
+							})
+						}
+						termArr.push(terms);
+					}
+				}
+				console.log(yearArr)
+				console.log(termArr)
+				
+			}
+		})
+			
+		var arr_ids = [],
+			arr_names = [];
+		$("#changeTerm").on("click",function(e){
+			$(".picker-div").html('');
+			$(".picker-div").html('<input id="gradeYear" type="text" value="" readonly style="display: none"><input id="gradeLession" type="text" value="" readonly style="display: none">');
+			$("#gradeYear").picker({
+				toolbarTemplate: '<header class="bar bar-nav">\
+				<button  class="button button-link pull-left close-picker">取消</button>\
+				<button id="termChangeYear" class="button button-link pull-right close-picker">确定</button>\
+				<h1 class="title">请选择学年</h1>\
+				</header>',
+				cols: [
+					{
+						textAlign: 'center',
+						values: yearArr
+					}
+				],
+				onOpen:function(){
+					$("#termChangeYear").off("click").on("click",function(){
+						arr_ids = [];
+						arr_names = [];
+						var index = yearArr.indexOf($("#gradeYear").val());
+						now_year = $("#gradeYear").val();
+						for(var i=0;i<termArr[index].length;i++){
+							arr_ids.push(termArr[index][i].term_id);
+							arr_names.push(termArr[index][i].term_name);
+						}
+						console.log(arr_ids);
+						console.log(arr_names);
+						//根据学年获取学期
+						$("#gradeLession").picker({
+							toolbarTemplate: '<header class="bar bar-nav">\
+							<button class="button button-link pull-left close-picker">取消</button>\
+							<button id="termChange" class="button button-link pull-right close-picker">确定</button>\
+							<h1 class="title">请选择学期</h1>\
+							</header>',
+							cols:[
+								{
+									textAlign: 'center',
+									values: arr_names
+								}
+							],
+							onOpen:function(picker){
+								setTimeout(function(){
+									$(".modal-in").find(".picker-item").first().trigger("click");
+								},100)
+								$("#termChange").off("click").on("click",function(){
+									now_term_id = arr_ids[arr_names.indexOf($("#gradeLession").val())];
+									now_term = $("#gradeLession").val();
+									var param = JSON.parse(parameter);
+									param["term_id"] = now_term_id;
+									// $(".grade-info").text("("+ now_year +")"+now_term);
+									$(".grade-info").text(now_term);
+									getList(param);
+									//添加本次学期缓存
+									var temp_obj = {};
+									temp_obj["term_name"] = now_term;
+									temp_obj["term_id"] = now_term_id;
+									sessionStorage.money_term = JSON.stringify(temp_obj);//将选择的学期存入缓存,以便下次回到此页面继续查看上次学期数据
+								})
+							},
+							onClose:function(){
+							}
+						})
+					})
+				},
+				onClose:function(){
+					$("#gradeLession").picker("open");
+					setTimeout(function(){
+						$(".modal-in").find(".picker-item").first().trigger("click");
+					},100)
+				}
+			})
+			e.stopPropagation();
+			$("#gradeYear").picker("open");
+		})
+
+		var first_term = [],first_picker = 0;
+		if(termArr.length>0){
+			for(var i=0;i<termArr[0].length;i++){
+				first_term.push(termArr[0][i].term_name);
+			}
+		}
+		
+		//获取列表
+		function getList(param){
+			getData(domainName + '/wechat/portal/charge/getTList.json',param,function(res){
+				if(res.code == 200 && res.success == true){
+					var list = res.data.list,html = '';
+					if(list.length>0){
+						for(var i=0;i<list.length;i++){
+							var d = list[i];
+							// html += `<div class="card">
+							// 			<div class="card-content">
+							// 				<div class="list-block media-list">
+							// 					<ul>
+							// 						<li>
+							// 							<a href="pay_list_class.html?cid=${d.cid}&className=${d.clas_name}"	class="item-link item-content external">
+							// 								<div class="item-inner">
+							// 									<div class="item-title-row">
+							// 										<div class="item-title">
+							// 											${d.clas_name}
+							// 										</div>
+							// 										<div class="item-after moneyTextColor">
+							// 											￥${d.ss_money}
+							// 										</div>
+							// 									</div>
+							// 									<div class="item-text">
+							// 										<p>${d.class_info}</p> 
+							// 									</div>
+							// 								</div>
+							// 							</a> 
+							// 						</li>
+							// 					</ul>
+							// 				</div>
+							// 			</div>
+							// 		</div>`
+							html += "<div class=\"card\">\n\t\t\t\t\t\t\t\t\t\t<div class=\"card-content\">\n\t\t\t\t\t\t\t\t\t\t\t<div class=\"list-block media-list\">\n\t\t\t\t\t\t\t\t\t\t\t\t<ul>\n\t\t\t\t\t\t\t\t\t\t\t\t\t<li>\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t<a href=\"pay_list_class.html?cid=".concat(d.cid, "&className=").concat(d.clas_name, "\"\tclass=\"item-link item-content external\">\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<div class=\"item-inner\">\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<div class=\"item-title-row\">\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<div class=\"item-title\">\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t").concat(d.clas_name, "\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<div class=\"item-after moneyTextColor\">\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\uFFE5").concat(d.ss_money, "\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<div class=\"item-text\">\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<p>").concat(d.class_info, "</p> \n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t</a> \n\t\t\t\t\t\t\t\t\t\t\t\t\t</li>\n\t\t\t\t\t\t\t\t\t\t\t\t</ul>\n\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t</div>");
+						}
+					}else{
+						html += '<div class="noData noData_line"><span class="noData__tips">暂无数据</span></div>';
+					}
+					$("#allClass").html(html);
+				}
+			})
+		}
+		// $("#termName").picker({
+		// 	toolbarTemplate: '<header class="bar bar-nav">\
+		// 	<button id="select_term" class="button button-link pull-right close-picker">确定</button>\
+		// 	<h1 class="title">标题</h1>\
+		// 	</header>',
+		// 	cols: [
+		// 		{
+		// 			textAlign: 'center',
+		// 			values: yearArr
+		// 		},
+		// 		{
+		// 			textAlign: 'center',
+		// 			values: first_term
+		// 		}
+		// 	],
+		// 	onOpen: function(){
+		// 		var cols = this.cols;
+		// 		var last_index = 0;//记住上一次学期选的第几个?
+		// 		$("#termName").off("change").on("change",function(){
+
+		// 			var arr_ids = [],arr_names = [];
+		// 			var index = cols[0].values.indexOf(cols[0].value),index1 = cols[1].values.indexOf(cols[1].value);
+		// 			for(var i=0;i<termArr[index].length;i++){
+		// 				arr_ids.push(termArr[index][i].term_id);
+		// 				arr_names.push(termArr[index][i].term_name);
+		// 			}
+		// 			cols[1].values = arr_names;
+		// 			console.log(arr_ids);
+		// 			console.log(cols);
+		// 			cols[1].items.length = arr_names.length;
+		// 			cols[1].items.forEach(function(e,i){
+		// 				if(i<arr_names.length){
+		// 					e.setAttribute("data-picker-value",arr_names[i]);
+		// 					e.innerText = arr_names[i];
+		// 				}
+		// 			})
+					
+		// 			if(arr_names.indexOf(cols[1].value)<0){
+		// 				if(arr_ids.length-1<last_index){
+		// 					now_term_id = arr_ids[arr_ids.length-1];
+		// 				}else{
+		// 					now_term_id = arr_ids[last_index];
+		// 				}
+		// 			}else{
+		// 				now_term_id = arr_ids[arr_names.indexOf(cols[1].value)];
+		// 				last_index = arr_names.indexOf(cols[1].value);
+		// 			}
+		// 			console.log(now_term_id)
+		// 			$.toast(now_term_id);
+		// 		})
+		// 		if(first_picker === 0){
+		// 			setTimeout(function(){
+		// 				$(".picker-items-col").eq(1).find(".picker-item").eq(0).addClass("picker-selected");
+		// 				first_picker = 1;
+		// 			},10)
+		// 		}
+		// 	},
+		// 	onClose: function(){
+		// 		var cols = this.cols;
+		// 		$("#select_term").off("click").on("click",function(){
+		// 			getData(domainName + '',{
+		// 				org_id: baseUser.org_id,
+		// 				cam_ids: baseUser.cam_ids,
+		// 				term_id: now_term_id
+		// 			},function(res){
+		// 				//TODO
+		// 			})
+		// 		})
+		// 	}
+		// })
+		
+		//避免第一次点击选择切换年份无效的情况  *重要!
+		// $("#changeTerm").trigger("click");
+		// $("body").trigger("click");
+		  
+	});
+</script>

@@ -1,0 +1,376 @@
+package sng.dao.impl;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import org.apache.commons.lang3.StringUtils;
+import org.codehaus.groovy.runtime.dgmimpl.arrays.ObjectArrayPutAtMetaMethod;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.transform.Transformers;
+import org.hibernate.type.StandardBasicTypes;
+import org.springframework.stereotype.Repository;
+
+import sng.dao.AppTeacherDao;
+import sng.pojo.Clas2Student;
+import sng.pojo.ParamObj;
+import sng.pojo.base.Parent;
+import sng.util.Constant;
+import sng.util.MoneyUtil;
+
+/**
+ * @desc 移动端---教师dao接口实现
+ * @author magq
+ * @data 2018-11-2
+ * @version 1.0
+ */
+@Repository
+public class AppTeacherDaoImpl extends BaseDaoImpl<Parent> implements AppTeacherDao {
+
+	/*
+	 * 根据学员信息查询家长信息 (non-Javadoc)
+	 * 
+	 * @see sng.dao.AppTeacherDao#queryParentInfoByStu(sng.pojo.ParamObj)
+	 */
+	@Override
+	public List queryParentInfoByStu(ParamObj paramObj) {
+		StringBuffer sql = new StringBuffer();
+		List<Object> paramList = new ArrayList<>();
+
+		sql.append("select s.stud_id,s.org_id,s.stud_name,p.parent_id,p.parent_name,");
+		sql.append("u.user_id,u.identity,u.user_loginname,u.user_mobile from edugate_base.student s");
+		sql.append(" left join edugate_base.student2parent sp on s.stud_id = sp.stud_id and sp.is_del=0 ");
+		sql.append(" left JOIN edugate_base.parent p on sp.parent_id = p.parent_id and p.is_del=0");
+		sql.append(" left JOIN edugate_base.org_user u on p.user_id = u.user_id and u.is_del=0");
+		sql.append(
+				" where  s.is_del=0 and sp.stud_id is not null and p.user_id is not null and s.org_id=u.org_id and p.org_id=u.org_id");
+		sql.append(" and u.identity=0 ");
+
+		if (StringUtils.isNotBlank(paramObj.getStud_id())) {
+			String[] splitStrs = paramObj.getStud_id().split(",");
+			if (splitStrs != null && splitStrs.length > 0) {
+				sql.append(" and s.stud_id in(");
+				for (int i = 0; i < splitStrs.length; i++) {
+					if (i == splitStrs.length - 1) {
+						sql.append("?");
+						paramList.add(Integer.parseInt(splitStrs[i]));
+					} else {
+						sql.append("?");
+						sql.append(",");
+						paramList.add(Integer.parseInt(splitStrs[i]));
+					}
+				}
+				sql.append(")");
+			}
+		}
+		if (paramObj.getOrg_id() != null) {
+			sql.append(" and s.org_id =?");
+			paramList.add(paramObj.getOrg_id());
+		}
+
+		if (paramObj.getIs_main() != null) {
+			sql.append(" and sp.is_main =?");
+			paramList.add(paramObj.getIs_main());
+		}
+
+		Session session = this.factory.getCurrentSession();
+		Query query = null;
+		query = session.createSQLQuery(sql.toString());
+		for (int i = 0; i < paramList.size(); i++) {
+			query.setParameter(i, paramList.get(i));
+		}
+		query.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+		List list = query.list();
+		return list;
+	}
+
+	
+	private List filterData(List<Object[]> list,String type) {
+		Map<Integer,Clas2Student> map = map = new HashMap<>();
+		List<Clas2Student> returnList = null;
+		if(list!=null && !list.isEmpty()){
+			for(Object[] obj : list) {
+				BigDecimal ss_money=(BigDecimal) obj[4];
+				BigDecimal st_money=(BigDecimal) obj[5];
+				if ("subject".equals(type)) {
+					Integer subject_id = (Integer) obj[0];
+					String subject_name = obj[1].toString();
+					if(subject_id!=null) {
+						if(!map.containsKey(subject_id)) {
+							Clas2Student cs = new Clas2Student();
+							cs.setSubject_id(subject_id);
+							if(subject_name!=null) {
+								cs.setSubject_name(subject_name);
+							}
+							if(ss_money!=null && st_money!=null) {
+								cs.setMoney(ss_money.subtract(st_money));
+							}
+					
+							
+							map.put(subject_id, cs);
+						}else {
+							
+							Clas2Student cs = map.get(subject_id);
+							if(ss_money!=null && st_money!=null) {
+								BigDecimal temp = ss_money.subtract(st_money);
+								cs.setMoney(cs.getMoney().add(temp));
+							}
+						}
+					}
+				}else if("category".equals(type)) {
+					Integer category_id = (Integer) obj[2];
+					String category_name = obj[3].toString();
+					if(category_id!=null) {
+						if(!map.containsKey(category_id)) {
+							Clas2Student cs = new Clas2Student();
+							cs.setSubject_id(category_id);
+							if(category_name!=null) {
+								cs.setSubject_name(category_name);
+							}
+							if(ss_money!=null && st_money!=null) {
+								cs.setMoney(ss_money.subtract(st_money));
+							}
+							map.put(category_id, cs);
+						}else {
+							
+							Clas2Student cs = map.get(category_id);
+							if(ss_money!=null && st_money!=null) {
+								BigDecimal temp = ss_money.subtract(st_money);
+								cs.setMoney(cs.getMoney().add(temp));
+							}
+						}
+					}
+				}
+			}
+		}
+		if(!map.isEmpty()) {
+			returnList = new ArrayList<>();
+			try {
+				for(Iterator iterator = map.entrySet().iterator();iterator.hasNext();) {
+					Map.Entry<Integer, Clas2Student> entry = (Entry<Integer, Clas2Student>) iterator.next();
+					Clas2Student cs = entry.getValue();
+					cs.setMoneyCount(MoneyUtil.fromFENtoYUAN(cs.getMoney().toString()));
+					returnList.add(cs);
+			}
+			}catch (Exception e) {
+				logger.error("filterData data error:",e);
+			}
+			
+		}
+		return returnList;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see sng.dao.AppTeacherDao#echartInfo(sng.pojo.ParamObj)
+	 */
+	@Override
+	public List echartInfo(ParamObj paramObj) {
+		List<Object> paramList = new ArrayList<>();
+		String sql = sql(paramList, paramObj);
+		Session session = this.factory.getCurrentSession();
+		List list = null;
+
+		if (Constant.CLASS_MONEY == paramObj.getEchartType()) {
+			Query query = session.createSQLQuery(sql) 
+					.addScalar("subject_id", StandardBasicTypes.INTEGER)
+					.addScalar("subject_name", StandardBasicTypes.STRING)
+					.addScalar("category_id", StandardBasicTypes.INTEGER) 
+					.addScalar("category_name", StandardBasicTypes.STRING)
+					.addScalar("ss_money", StandardBasicTypes.BIG_DECIMAL) 
+					.addScalar("st_money", StandardBasicTypes.BIG_DECIMAL); 
+			for (int i = 0; i < paramList.size(); i++) {
+				query.setParameter(i, paramList.get(i));
+			}
+			List<Object[]> list_ = query.list();
+			list = filterData(list_, paramObj.getType());
+		} else {
+			Query query = session.createSQLQuery(sql);
+			query.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+			for (int i = 0; i < paramList.size(); i++) {
+				query.setParameter(i, paramList.get(i));
+			}
+			
+			list = query.list();
+		}
+		return list;
+	}
+
+	private String sql(List<Object> paramList, ParamObj paramObj) {
+		StringBuffer sql = new StringBuffer();
+		if (Constant.CLASS_MONEY == paramObj.getEchartType()) {
+			sql.append("select c.ss_money,c.st_money,cn.category_id,cn.category_name,s.subject_id,s.subject_name");
+			sql.append(" from newsng.classes c");
+			sql.append(" left JOIN newsng.campus nc on c.cam_id=nc.cam_id and nc.is_del=0");
+			sql.append(" left join newsng.term t on c.term_id=t.term_id and t.is_del=0");
+			sql.append(" left JOIN newsng.category cn on c.category_id=cn.category_id and cn.is_del=0");
+			sql.append(" left join newsng.`subject` s on c.subject_id=s.subject_id and s.is_del=0");
+			sql.append(" where c.is_del=0 ");
+			if (paramObj != null) {
+				if (paramObj.getTerm_id() != null) {
+					sql.append(" and c.term_id=?");
+					paramList.add(paramObj.getTerm_id());
+				}
+				String sql_ = pjSql(paramList, paramObj.getCam_ids());
+				if (sql_ != null && StringUtils.isNotBlank(sql_)) {
+					sql.append(sql_);
+				}
+			}
+
+		} else if (Constant.CLASS_NUM == paramObj.getEchartType() || Constant.STU_NUM == paramObj.getEchartType()) { // 3
+			sql.append(
+					"select c.clas_id,c.org_id,c.term_id,c.cam_id,c.plan_id,c.clas_name,c.clas_type,c.category_id,c.subject_id,");
+			sql.append("count(c.clas_id) clasCount,sum(c.ss_num-st_num) stuCount,");
+			sql.append("c.classroom_id,cn.category_name,s.subject_name ");
+			sql.append(" from newsng.classes c");
+			sql.append(" left JOIN newsng.campus nc on c.cam_id=nc.cam_id and nc.is_del=0");
+			sql.append(" left join newsng.term t on c.term_id=t.term_id and t.is_del=0");
+			sql.append(" left JOIN newsng.category cn on c.category_id=cn.category_id and cn.is_del=0");
+			sql.append(" left join newsng.`subject` s on c.subject_id=s.subject_id and s.is_del=0");
+			sql.append(" where c.is_del=0 ");
+			if (paramObj != null) {
+				if (paramObj.getTerm_id() != null) {
+					sql.append(" and c.term_id=?");
+					paramList.add(paramObj.getTerm_id());
+				}
+				String sql_ = pjSql(paramList, paramObj.getCam_ids());
+				if (sql_ != null && StringUtils.isNotBlank(sql_)) {
+					sql.append(sql_);
+				}
+			}
+			if ("subject".equals(paramObj.getType())) {
+				sql.append(" group by c.subject_id");
+			} else {
+				sql.append(" group by c.category_id");
+			}
+		} else if (Constant.REG_NUM == paramObj.getEchartType()) { // 4
+			sql.append(
+					"select a.category_id,a.cam_id,a.term_id,a.subject_id,a.category_name,a.subject_name,a.clas_type,");
+			sql.append("ROUND(a.cur_num/b.old_num*100,2) as stuCount");
+			sql.append(" from");
+			sql.append(
+					" (select c.term_id,c.cam_id,c.category_id,c.subject_id,nc.category_name,s.subject_name,c.clas_type,sum(c.ss_num-c.st_num) as cur_num");
+			sql.append(" from edugate_base.teacher t");
+			sql.append("  left JOIN newsng.teacher_class tc on t.tech_id = tc.tech_id and tc.is_del=0");
+			sql.append(" left join newsng.classes c on tc.clas_id=c.clas_id and c.is_del=0 and c.clas_type=1 ");
+			sql.append(" left JOIN newsng.category nc on c.category_id=nc.category_id and nc.is_del=0");
+			sql.append(" left join newsng.`subject` s on c.subject_id=s.subject_id and s.is_del=0");
+			sql.append(" where t.is_del=0");
+			if (paramObj != null) {
+				// 当前学期
+				if (paramObj.getTerm_id() != null) {
+					sql.append(" and c.term_id=?");
+					paramList.add(paramObj.getTerm_id());
+				}
+				// 如果str=all,不做拼接，如果str=1,3,5多个则用in,否则用=
+				String sql_ = pjSql(paramList, paramObj.getCam_ids());
+				if (sql_ != null && StringUtils.isNotBlank(sql_)) {
+					sql.append(sql_);
+				}
+			}
+			sql.append(" GROUP BY tc.tech_id");
+			sql.append(" ) a");
+			sql.append(" LEFT JOIN (");
+			sql.append(
+					" select c.term_id,c.cam_id,c.category_id,c.subject_id,nc.category_name,s.subject_name,c.clas_type,sum(c.ss_num-c.st_num) as old_num");
+			sql.append(" from edugate_base.teacher t");
+			sql.append("  left JOIN newsng.teacher_class tc on t.tech_id = tc.tech_id and tc.is_del=0");
+			sql.append(" left join newsng.classes c on tc.clas_id=c.clas_id and c.is_del=0 and c.clas_type=1 ");
+			sql.append(" left JOIN newsng.category nc on c.category_id=nc.category_id and nc.is_del=0");
+			sql.append(" left join newsng.`subject` s on c.subject_id=s.subject_id and s.is_del=0");
+			sql.append("  where  t.is_del=0");
+			if (paramObj != null) {
+				// 往期学期
+				if (paramObj.getOld_term_id() != null) {
+					sql.append(" and c.term_id=?");
+					paramList.add(paramObj.getOld_term_id());
+				}
+
+				// 如果str=all,不做拼接，如果str=1,3,5多个则用in,否则用=
+				String sql_ = pjSql(paramList, paramObj.getCam_ids());
+				if (sql_ != null && StringUtils.isNotBlank(sql_)) {
+					sql.append(sql_);
+				}
+
+			}
+			sql.append(" GROUP BY tc.tech_id");
+			if ("subject".equals(paramObj.getType())) {
+				sql.append(") b ON a.subject_id = b.subject_id");
+				sql.append(" GROUP BY b.subject_id");
+			} else {
+				sql.append(") b ON a.category_id = b.category_id");
+				sql.append(" GROUP BY b.category_id");
+			}
+
+		} else if (Constant.LOSS_NUM == paramObj.getEchartType()) { // 5
+			sql.append(
+					"select c.term_id,c.cam_id,c.category_id,nc.category_name,s.subject_name,ROUND(sum(c.st_num)/ sum(c.ss_num)*100,2) as stuCount");
+			sql.append(" from edugate_base.teacher t");
+			sql.append("  left JOIN newsng.teacher_class tc on t.tech_id = tc.tech_id and tc.is_del=0");
+			sql.append(" left join newsng.classes c on tc.clas_id=c.clas_id and c.is_del=0");
+			sql.append(" left join newsng.category nc on c.category_id=nc.category_id and nc.is_del=0");
+			sql.append(" left join newsng.`subject` s on c.subject_id=s.subject_id and s.is_del=0");
+			sql.append(" where   c.is_del=0");
+			if (paramObj != null) {
+				if (paramObj.getTerm_id() != null) {
+					sql.append(" and c.term_id=?");
+					paramList.add(paramObj.getTerm_id());
+				}
+
+				// 如果str=all,不做拼接，如果str=1,3,5多个则用in,否则用=
+				String sql_ = pjSql(paramList, paramObj.getCam_ids());
+				if (sql_ != null && StringUtils.isNotBlank(sql_)) {
+					sql.append(sql_);
+				}
+			}
+			if ("subject".equals(paramObj.getType())) {
+				sql.append(" group by c.subject_id");
+			} else {
+				sql.append(" group by c.category_id");
+			}
+		}
+		return sql.toString();
+	}
+
+	/**
+	 * 通用的拼接sql，如果str=all,不做拼接，如果str=1,3,5多个则用in,否则用=
+	 * 
+	 * @param paramList
+	 * @param str
+	 * @return
+	 */
+	private String pjSql(List<Object> paramList, String str) {
+		StringBuffer sql = new StringBuffer();
+
+		if (StringUtils.isNotBlank(str)) {
+			if (Constant.ALL_CAMPUS.equalsIgnoreCase(str)) {
+
+			} else {
+				String[] camIds = str.split(",");
+				if (camIds != null && camIds.length > 1) {
+					sql.append(" and c.cam_id in(");
+					for (int i = 0; i < camIds.length; i++) {
+						if (i == camIds.length - 1) {
+							sql.append("?");
+						} else {
+							sql.append("?,");
+						}
+						paramList.add(camIds[i]);
+					}
+					sql.append(")");
+				} else {
+					sql.append(" and c.cam_id=?");
+					paramList.add(str);
+				}
+			}
+		}
+		return sql.toString();
+	}
+
+}

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title>掌上报名</title>
+		<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+		<link rel="shortcut icon" href="/favicon.ico">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<!--ui包-->
+		<link rel="stylesheet" href="../../../css/sm.css">
+		<link rel="stylesheet" href="../../../css/layout.css">
+		<style>
+			.list-block {
+				overflow: auto;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="page-group">
+			<div class="page page-current" id="signList">
+				
+				<!--报名列表-->
+				<div class="content native-scroll" id="allSign">
+					<!-- <div class="noData noData_line">
+			         	<span class="noData__tips">暂无报名</span>
+			         </div> -->
+				</div>
+				<!--报名列表 End-->
+			</div>
+		</div>
+	</body>
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script>
+	sessionStorage.removeItem("sign_back");//删除返回列表标识
+	var baseUser=JSON.parse(sessionStorage.baseUser);//获取用户信息
+	$(function(){
+
+		if(typeof sessionStorage.sign_class_list !== "undefined"){//如果进入过班级列表,重新刷新页面避免部分手机无法获取最新数据
+			sessionStorage.removeItem("sign_class_list");
+			window.location.reload();
+			return false;
+		}
+		var param = { // 公共请求参数
+			org_id: baseUser.orguser.org_id,
+			version: 3,
+			identity: 0
+		}
+		var isAuthentication = false;//是否认证
+		if(sessionStorage.certification == 1){//已认证,填加参数
+			isAuthentication = true;
+			param["token"] = baseUser.token;
+			param["udid"] = baseUser.udid;
+			param["user_id"] = baseUser.orguser.user_id;
+		}
+		getData(domainName + "/apply/plan/list.htm",param,function(res){
+			var d = res.data;
+			var list = d.list,
+			html = '';
+			if(list === null || list.length == 0){//如果列表为空
+				html += '<div class="noData noData_line">'+
+			         		'<span class="noData__tips">暂无报名</span>'+
+			         	'</div>'
+			}else{
+				for(var i=0;i<list.length;i++){
+					var status = '',
+					status_id = 0,//-1:未开始,0:已开始,1:已结束
+					is_over = 0,//是否超时关闭,超时1,未超时0
+					clas_count = '';
+					data = list[i],
+					beginTime = data.beginTime,
+					endTime = data.endTime,
+					serverTime = transformTime(d.serverTime);
+					if(serverTime>=endTime){
+						status = '报名已结束';
+						clas_count = '已成功报名'+ data.applyClassCount + '个班';
+						is_over = 1;
+						status_id = 1;	
+					}else if(serverTime<endTime && serverTime>beginTime){
+						var mss = endTime - serverTime;
+						status = '距离报名结束还有:' + formatDuring(mss);
+						clas_count = '已成功报名'+ data.applyClassCount + '个班';
+						status_id = 0
+					}else if(serverTime<beginTime){
+						var mss = beginTime - serverTime;
+						status = '距离报名开始还有:' + formatDuring(mss);
+						clas_count = '未报名'; 
+						status_id = -1;
+					}
+					// html += `<div data-planId="${data.planId}" data-termId="${data.termId}" data-open="${is_over}" class="card demo-card-header-pic"  data-type="${data.classType}">
+					// 			<div valign="bottom" class="card-header color-white no-border listtitle text-center">
+					// 				<div class="train"></div>${data.title}</div>
+					// 			<div class="card-content">
+					// 				<div class="card-content-inner">
+					// 					<p style="color:#efb51e;text-align:center;text-indent:0" data-status=${status_id} data-end=${endTime} data-sys=${serverTime} data-countdown=${mss}>${status}</p>
+					// 				</div>
+					// 			</div>
+					// 			<div class="card-footer">
+					// 				<a href="#" class="link color-gray" id="remark">${clas_count}</a>
+					// 				<a href="#" class="link external">详情</a>
+					// 			</div>
+					// 		</div>`
+					html += "<div data-planId=\"".concat(data.planId, "\" data-termId=\"").concat(data.termId, "\" data-open=\"").concat(is_over, "\" class=\"card demo-card-header-pic\"  data-type=\"").concat(data.classType, "\">\n\t\t\t\t\t\t\t\t<div valign=\"bottom\" class=\"card-header color-white no-border listtitle text-center\">\n\t\t\t\t\t\t\t\t\t<div class=\"train\"></div>").concat(data.title, "</div>\n\t\t\t\t\t\t\t\t<div class=\"card-content\">\n\t\t\t\t\t\t\t\t\t<div class=\"card-content-inner\">\n\t\t\t\t\t\t\t\t\t\t<p style=\"color:#efb51e;text-align:center;text-indent:0\" data-status=").concat(status_id, " data-end=").concat(endTime, " data-sys=").concat(serverTime, " data-countdown=").concat(mss, ">").concat(status, "</p>\n\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t<div class=\"card-footer\">\n\t\t\t\t\t\t\t\t\t<a href=\"#\" class=\"link color-gray\" id=\"remark\">").concat(clas_count, "</a>\n\t\t\t\t\t\t\t\t\t<a href=\"#\" class=\"link external\">\u8BE6\u60C5</a>\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t</div>");
+				}
+			}
+			$("#allSign").append(html);
+
+			$("[data-open='1']").find(".card-footer").each(function(i,e){//将所有已关闭的计划去除"详情"二字
+				$(e).find("a").eq(1).empty();
+			})
+		})
+		//判断是否认证
+		if(!isAuthentication){
+			setTimeout(function(){
+				$.confirm('您需要完成实名认证后方可进行报名，一次认证即可终身通用。', '实名认证', 
+					function () {
+						window.location="../certification/authentication.html";
+					},
+					null,
+					"这就去认证",
+					"暂时跳过"
+				);
+			},300)
+		}   
+		//倒计时
+		setInterval(function(){
+			$("[data-countdown]").each(function(i,e){
+				var timeM = parseInt($(e).attr("data-countdown"))-1000,//剩余时间时间戳
+				isOpen = +$(e).attr("data-status"),//开启状态 0开启 1关闭
+				sys = +$(e).attr("data-sys") - 1000,//系统返回当前时间时间戳
+				end = +$(e).attr("data-end");//结束时间时间戳
+				if(isOpen == -1){
+					if(timeM>=0){
+						$(e).attr("data-countdown",timeM);
+						var openTip="距离报名开始还有:<span  class='on'>"+formatDuring(timeM)+"</span>";
+						$(this).html(openTip);
+					}else{
+						var openTip="距离报名结束还有:<span  class='on'>"+formatDuring(end - sys)+"</span>";
+						$(this).html(openTip);
+						$(e).attr("data-status",0);
+						$(e).attr("data-countdown",end - sys);
+					}
+					$(e).attr("data-sys",sys)
+				}else if(isOpen == 0){
+					if(timeM>=0){
+						$(e).attr("data-countdown",timeM);
+						var openTip="距离报名结束还有:<span  class='on'>"+formatDuring(timeM)+"</span>";
+						$(this).html(openTip);
+					}else{
+						var openTip="报名已结束";
+						$(this).attr("data-status",1);
+						$(this).html(openTip);
+						$(this).parents(".card").attr("data-open","1").find(".card-footer").find("a").last().empty();
+					}
+				}
+			})
+		},1000)
+		//如果报名结束前往支付页面
+		//sign_class_list.html?id='+res.id+'
+		$(document).on('click', '.card', function(){
+			//招生计划是否关闭
+			var sign=$(this).attr("data-open");
+			//招生计划类型
+			var typeID=$(this).attr("data-type");
+			//计划id
+			var planId=$(this).attr("data-planId");
+			if(sign=="1"){//如果计划已关闭,取消点击
+				// window.location="../pay/index.html?planId="+planId;
+				return false;
+			}else{
+				//类型id 1老生2新生
+				if(typeID=="1"){
+					window.location="sign_class_list.html?planId="+planId;
+				}else{
+					window.location="sign_class_list_new.html?planId="+planId;
+				}
+			}
+		});
+	});
+</script>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title>缴费详情</title>
+		<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+		<link rel="shortcut icon" href="../../../favicon.ico">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<!--ui包-->
+		<link rel="stylesheet" href="../../../css/sm.css">
+		<link rel="stylesheet" href="../../../css/layout.css">
+		<link rel="stylesheet" href="../../../css/teacher.css">
+	</head>
+	<body>
+		<div class="page-group">
+			<div class="page page-current">
+				 <header class="bar bar-nav payHead">
+				    <div id="className">儿童画(儿162-1-2B)</div>
+				    <div class="" id="heji" style="color: #ffe5bf;">￥700</div>
+				  </header>
+		 		<div class="content native-scroll " style="top:.96rem">
+					  <div class="list-block" id="allStudent">
+					    <ul>
+							
+					    </ul>
+					  </div>
+				</div>
+			</div>
+ 		</div>
+	</body>
+</html>
+				 
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script>
+	var baseUser = JSON.parse(sessionStorage.baseUser)
+	var cid = GetUrlParam("cid"),class_name = GetUrlParam("className");
+	 $(function(){
+		$("#className").text(decodeURIComponent(class_name));
+		getData(domainName + '/wechat/portal/charge/getTDetail.json',{
+			token: baseUser.token,
+			udid: baseUser.udid,
+			version: 3,
+			identity: 1,
+			org_id: baseUser.orguser.org_id,
+			cid: cid
+		},function(res){
+			if(res.code == 200 && res.success == true){
+				var paid = res.data.paid,
+					refund = res.data.refund,
+					res_money = +res.data.paid_money - (+res.data.refund_money),
+					paid_html = '';
+
+				$("#heji").text("￥" + res_money);
+				if(paid.length>0){
+					paid_html = '<div class="content-block-title">缴费合计('+ paid.length +'笔 '+ res.data.paid_money +'元)</div>';
+					for(var i=0;i<paid.length;i++){
+						var d = paid[i];
+						// paid_html += `<li class="item-content">
+						// 					<div class="item-inner">
+						// 						<div class="item-title studentName">${d.stud_name}</div>
+						// 						缴费(${d.txnTime.split(" ")[0]})
+						// 						<div class="item-after" style="min-width:72px;">${d.money}</div>
+						// 					</div>
+						// 				</li>`
+						paid_html += "<li class=\"item-content\">\n\t\t\t\t\t\t\t\t\t\t\t<div class=\"item-inner\">\n\t\t\t\t\t\t\t\t\t\t\t\t<div class=\"item-title studentName\">".concat(d.stud_name, "</div>\n\t\t\t\t\t\t\t\t\t\t\t\t\u7F34\u8D39(").concat(d.txnTime.split(" ")[0], ")\n\t\t\t\t\t\t\t\t\t\t\t\t<div class=\"item-after\" style=\"min-width:72px;\">").concat(d.money, "</div>\n\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t</li>");
+					}
+				}
+				if(refund.length>0){
+					paid_html += '<div class="content-block-title">退费合计('+ refund.length +'笔 '+ res.data.refund_money +'元)</div>';
+					for(var j=0;j<refund.length;j++){
+						var d = refund[j];
+						// paid_html += `<div class="item-inner">
+						// 					<div class="item-title studentName">${d.stud_name}</div>
+						// 					退费(${d.txnTime.split(" ")[0]})
+						// 					<div class="item-after" style="min-width:72px;">${d.money}</div>
+						// 				</div>`
+						paid_html += "<div class=\"item-inner\">\n\t\t\t\t\t\t\t\t\t\t\t<div class=\"item-title studentName\">".concat(d.stud_name, "</div>\n\t\t\t\t\t\t\t\t\t\t\t\u9000\u8D39(").concat(d.txnTime.split(" ")[0], ")\n\t\t\t\t\t\t\t\t\t\t\t<div class=\"item-after\" style=\"min-width:72px;\">").concat(d.money, "</div>\n\t\t\t\t\t\t\t\t\t\t</div>");
+					}
+				}
+				else if(paid.length == refund.length && paid.length == 0){
+					paid_html += '<div class="noData noData_line"><span class="noData__tips">暂无数据</span></div>'
+				}
+				$("#allStudent").append(paid_html);
+			}else{
+				$.alert(res.message);
+			}
+		})
+	 });
+</script>

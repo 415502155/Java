@@ -1,0 +1,191 @@
+<!--导入班级或者学生-->
+<style>
+    .gui-alert {
+        margin-top: 20px;
+        margin-bottom: 30px;
+    }
+    .gui-alert .downLink{ display: none; color: #ff3300;cursor: pointer}
+    .gui-alert span {
+        padding: 0 2px;
+    }
+</style>
+
+<div class="content-wrap" id="sub_loadBox"  >
+    <form class="gui-form gui-form-label-right" id="add-form" novalidate="novalidate" enctype="multipart/form-data">
+        <div class="line"></div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">选择学期</label>
+            <div class="gui-form-item-content">
+                <select class="gui-input" name="termId" id="allTerm">
+                    <option value="">选择学期</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">选择类型</label>
+            <div class="gui-form-item-content">
+                <select class="gui-input"  name="type" id="dataType">
+                    <option value="">选择数据类型</option>
+                    <option value="1">导入班级</option>
+                    <option value="2">导入学生</option>
+                </select>
+            </div>
+        </div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">选择文件</label>
+            <div class="gui-form-item-content">
+                <input type="file" placeholder="选择文件" name="file"  id="upFiles" readonly class="gui-input" style="border:none;width: 180px;">
+                <div id="errorFiles" class="gui-alert"  title="下载错误文件" >
+                    <i class="fa fa-exclamation-circle" style="margin-right: 4px"></i>上传共<span class="total"></span>条数据，正确数据<span class="sucNum"></span>条，错误数据<span class="errNum"></span>条，
+                    <span class="downLink">点击此处下载错误数据文件</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="line"></div>
+        <div class="gui-form-item">
+            <div class="gui-form-item-content" >
+                <button type="button" class="gui-btn gui-btn-normal" id="save"><i class="fa fa-cloud-upload"></i><span>确认导入</span></button>
+                <button type="reset" class="gui-btn gui-btn-primary" id="reset"><i class="fa fa-trash-o"></i><span>清空表单</span></button>
+            </div>
+        </div>
+    </form>
+
+</div>
+<script src="plus/validate/jquery-validate.js"></script>
+<script>
+    var upExcel = {
+        parameter:{
+            "token":option.token,
+            "org_id":option.org_id,
+            "udid":option.udid,
+            "type":"",
+            "termId":"",
+            "camIds":JSON.parse(sessionStorage.loginUser).roleCam
+
+        }
+    };
+
+    $(function() {
+        //生成学期
+        allSelect()
+
+        //下载错误链接
+        $("#errorFiles").click(function () {
+            var upErrorStr=parseParams(upExcel.parameter);
+            window.location.href=domain+"/class/download/classOrStu.htm?"+upErrorStr
+        });
+
+        //去掉蓝色边框
+        $("#upFiles").change(function () {
+            $(this).blur();
+        });
+
+
+        //导入表单校验
+        $("#add-form").validate({
+            rules: {
+                termId: {
+                    required: true
+                },
+                type: {
+                    required: true
+                },
+                file: {
+                    required: true,
+                    fileCheck:true
+                }
+            },
+            messages: {
+                termId: {
+                    required: "请选择学期",
+                },
+                type: {
+                    required: "请选择上传类型",
+                },
+                file: {
+                    required: "请选择要上传的Excel文件",
+                    fileCheck:"只能上传Excel文件"
+                }
+            },
+            errorPlacement: function(error, element) {
+                error.appendTo(element.parent().after())
+            },
+            errorClass: 'gui-form-item-error',
+            errorElement: 'span',
+            submitHandler: function(form) {
+
+
+                var formData = new FormData($('#add-form')[0]);
+                formData.append("token",option.token);
+                formData.append("org_id",option.org_id);
+                formData.append("udid",option.udid);
+                formData.append("camIds",JSON.parse(sessionStorage.loginUser).roleCam);
+
+                upExcel.parameter.termId=$("#allTerm").val();
+                upExcel.parameter.type=$("#dataType").val();
+
+                $.ajax({
+                    type: 'post',
+                    url: domain + "/class/import/classOrStu.htm",
+                    data: formData,
+                    dataType:"json",
+                    async : false,
+                    cache: false,
+                    processData: false,
+                    contentType: false,
+                }).success(function (res) {
+
+                    if (res.code == "200" && res.success == true) {
+                        debugger
+                        var errorObj=res.data;
+                        //判断是否包含错误
+                        if(Number(errorObj.errNum)>0){
+                            $("#errorFiles .downLink").show();
+                            $("#errorFiles").addClass("gui-alert-warning");
+                        }else{
+                            $("#errorFiles").addClass("gui-alert-info");
+                            $("#errorFiles .downLink").hide();
+                        }
+                        $("#errorFiles").show();
+
+                        $("#errorFiles .errNum").text(errorObj.errNum);
+                        $("#errorFiles .sucNum").text(errorObj.sucNum);
+                        $("#errorFiles .total").text(errorObj.total);
+
+                    }else{
+                        myAlert(res.message,2,null,null);
+                    }
+
+
+                }).error(function () {
+                    myAlert("上传失败",2,null,null);
+                })
+
+
+            }
+        });
+
+        //提交
+        $("#save").click(function () {
+            //上次提交的错误隐藏
+            $("#errorFiles .downLink").hide();
+            $("#errorFiles").hide();
+
+            $("#add-form").submit();
+        });
+
+    });
+
+    /**
+     * 筛选Excel类型
+     * @author 刘双双
+     * jquery validate的扩展方法
+     *
+     */
+    $.validator.addMethod("fileCheck", function(value, element) {
+        var score = /^.*\.(?:xls|xlsx|XLSX|XLS)$/i;
+        return this.optional(element) || (score.test(value));
+    }, "请选择Excel文件类型");
+
+</script>
+
+

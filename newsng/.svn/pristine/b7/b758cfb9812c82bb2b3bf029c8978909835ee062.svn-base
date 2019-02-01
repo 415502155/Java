@@ -1,0 +1,1034 @@
+/*
+* 基础模块
+*
+*
+*基础模块--reset*/
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary,
+time, mark, audio, video {margin: 0;padding: 0;border: 0;}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section {display: block;}
+body {line-height: 1;}  ol, ul {list-style: none;}
+blockquote, q {quotes: none;}
+blockquote:before, blockquote:after, q:before, q:after {content: '';content: none;}
+/*input 自定义 \占位符 / 颜色*/
+input::-webkit-input-placeholder, textarea::-webkit-input-placeholder {color: #dddddd;}
+input:-moz-placeholder, textarea:-moz-placeholder {color: #dddddd;}
+input::-moz-placeholder, textarea::-moz-placeholder {color: #dddddd;}
+input:-ms-input-placeholder, textarea:-ms-input-placeholder {color: #dddddd;}
+a {position: relative;display: inline-block}
+pre {white-space: pre-wrap;word-wrap: break-word;line-height:1.5rem;font-family:Helvetica Neue, Helvetica, sans-serif}
+/*清除浮动*/
+.clearfix{
+    zoom:1
+}
+.clearfix:after{
+    content:'';
+    display: block;
+    overflow: hidden;
+    clear: both;
+}
+.fl{float: left;}
+.fr{float: right}
+
+
+/*
+ * 学生花名册
+ *type：page
+ * /
+ /*花名册--学生列表*/
+ 
+ button.smallbtn { 
+   line-height: 1.4rem;
+    height: 1.4rem;
+   }   
+ .clickObj {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 999;
+    } 
+/*
+ * 支付列表
+ *type:page
+ * /
+ /*支付列表--学生列表*/   
+.payHead {display:-webkit-flex; display: flex;-webkit-justify-content: space-between;justify-content: space-between; color: #fff; line-height: 2.2rem;}
+.gray {color:#ccc}
+.studentName { width:25% }
+.studentPsign { width: 7rem}
+
+/*
+ * 个人中心面板
+ *type：page
+ * /
+/*是否--同意协议*/
+.weui-agree__checkbox {
+	-webkit-appearance: none;
+	appearance: none;
+	outline: 0;
+	font-size: 0;
+	border: 1px solid #D1D1D1;
+	background-color: #FFFFFF;
+	border-radius: 3px;
+	width: 13px;
+	height: 13px;
+	position: relative;
+	vertical-align: 0;
+	top: 2px;
+}
+.weui-agree__text {
+	color: #999999;
+}
+.weui-agree__checkbox:checked:before {
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    text-align: center;
+    speak: none;
+    display: inline-block;
+    vertical-align: middle;
+    text-decoration: inherit;
+    content: "✔";
+    color: #09BB07;
+    font-size: 20px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -60%) scale(0.8) rotate(7deg);
+    transform: translate(-50%, -60%) scale(0.8) rotate(7deg);
+}
+.weui-agree {
+	display: block;
+    padding: .5em 15px;
+    font-size: .72rem;
+    margin-top: -1rem;
+}
+
+/*input 自定义 \占位符 / 颜色*/
+input::-webkit-input-placeholder, textarea::-webkit-input-placeholder { 
+    color:    #bfbfbf;
+}
+input:-moz-placeholder, textarea:-moz-placeholder { 
+    color:    #bfbfbf;
+}
+input::-moz-placeholder, textarea::-moz-placeholder { 
+    color:    #bfbfbf;
+}
+input:-ms-input-placeholder, textarea:-ms-input-placeholder { 
+    color:    #bfbfbf;
+}
+
+/* 登录 */
+/*认证顶部 图标*/
+.iconShow { text-align: center; padding: 40px 0 0;}
+.iconShow span {     
+	display: inline-block;
+    line-height: 2.8128rem;
+    height: 2.8128rem;
+    vertical-align: middle;
+    border-radius: .4rem;
+    overflow: hidden;
+    }
+.iconShow span img { vertical-align: middle; width: 2.8128rem; height: 2.8128rem;}
+.bindTipText {padding: 10px; font-size: .72rem;color: #bbbbbb;}
+.linkIcon { 
+	-webkit-transform:scale(.60) ;
+	-moz-transform: scale(.60);
+	transform:scale(.60);
+	}
+.getCode {    
+    height: 2.4rem;
+    position: absolute;
+    right: 0;
+    top: 0;
+    border-left: 1px #e7e7e7 solid;
+    line-height: 2.4rem;
+    text-align: center;
+    color: #2681e2;
+    padding: 0 .4rem;cursor: pointer;
+    }
+.loginLink {
+	position: relative;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    min-height: 2.2rem;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    padding: .5rem 1.2rem;
+    -webkit-box-pack: justify;
+    -ms-flex-pack: justify;
+    -webkit-justify-content: space-between;
+    justify-content: space-between;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    -webkit-align-items: center;
+    align-items: center;
+}
+    
+/*个人主页--Banner*/
+.banner {    
+	height: 9rem;
+    overflow: hidden;
+    position: relative;
+    }
+.banner span {
+	background: url(../images/studentBanner.jpg) top center no-repeat;
+    height: 9rem;
+    background-size: cover;
+    display: block;
+	/* -webkit-filter:blur(1px);
+	-moz-filter:blur(1px);
+	-ms-filter:blur(1px);
+	-o-filter:blur(1px);
+	filter:blur(1px); */
+}
+
+/*个人中心--用户信息*/
+.user { position:absolute;bottom:.5rem;z-index:2;width:100%;}
+.userImg {    
+	width: 3rem;
+    height: 3rem;
+    margin: .6rem .2rem .6rem .9rem;
+    background: cadetblue;
+    border-radius: 50%;
+    border: 4px #fff solid;
+    overflow: hidden;
+    vertical-align: middle;
+    }
+.userobj { display: inline-block;}
+.userInfo {
+	margin: .6rem 0;    
+    vertical-align: middle;
+    line-height: 1.2rem
+	}
+.userInfo .usserName {color: #fff;font-size: .82rem;font-weight: bolder;text-shadow: 1px 1px 1px #39503b}
+.userInfo .userId {color: #fff;font-size: .82rem;font-weight: bolder;text-shadow: 1px 1px 1px #39503b}
+.userImg img { width: 100%;}
+
+.userstate {     
+	padding-top: 1.7rem;
+    padding-right: .6rem;
+    position: absolute;
+    right: 0;
+    bottom: 1.2rem;
+    }
+.userstate ul li { float: left; width:30px;height:30px;list-style: none;margin-right: .3rem;}
+.userstate ul li.icon { width: 1.0rem; height: 1.0rem; background-size:cover; background-repeat: no-repeat;}
+.icon_wx {background: url(../images/icon_wx.png);}
+.icon_mob { background: url(../images/icon_mob.png);}
+.icon_idCard {background: url(../images/icon_idCard.png); }
+.icon_card {background: url(../images/icon_card.png);}
+
+i.icon img { width: 100%; }/*padding: 18%;*/
+
+.sys_icon_1 { background: #3cbb6a;}
+.sys_icon_2 { background: #4fd6ca;}
+.sys_icon_3{ background: #efb51e;}
+.sys_icon_4 { background: #359ee0;}
+
+
+
+/*
+ * 报名列表页面
+ * type:Page
+ * 
+ */
+.listtitle { 
+ 	background: url(../images/titlebg.png);
+    color: #604ef2;
+    opacity: .72;
+    text-shadow: 2px 0px 0px #fff, -2px 0px 0px #fff, 0px 2px 0px #fff, 0px -2px 0px #fff, 4px 4px 6px #8d80f6;
+    font-weight: bold;
+    }  
+/*报名班级列表*/
+.signClassTitle{
+	height: 3rem;
+    border-bottom: 1px #DCDCDC solid;
+    color: #fff;
+    background: -webkit-linear-gradient(-90deg, #0bcfac, #6ed587);
+    background: linear-gradient(-90deg, #0bcfac, #6ed587);
+    padding-left: .5rem;
+}
+/*.class-timeTip { text-align: center;}*/
+/*班级标识---活动图标*/
+.activities {     
+	background: url(../images/activities.png);
+    width: 3rem;
+    height: 3rem;
+    background-size: contain;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+/*班级标识---培训图标*/
+.train { 
+	background: url(../images/train.png); 
+	width: 3rem;
+    height: 3rem;
+	background-size: contain;
+	position: absolute;
+    top: 0;
+    left: 0; 
+    border-top-left-radius: .4rem;
+}
+/*班级标识---报名已满*/
+.isfull { 
+	background: url(../images/isfull.png) no-repeat; 
+	width: 3rem;
+    height: 3rem;
+	background-size: contain;
+	position: absolute;
+    top: 0;
+    left: 0;
+    border-top-left-radius: .4rem;
+}
+
+/*新生报名*/
+#allCategory .item-link.list-button {color: #999;}
+#allCategory .item-link.list-button.active {color: #1ad2a7;}
+.tool .select{
+    text-transform: none;
+    line-height: 1.5rem;
+    display: inline-block;
+    text-align: left;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    -ms-appearance: none;
+    appearance: none;
+    border-radius: 3px;
+    width: 4rem;
+    border: 1px #dcdcdc solid;
+    box-sizing: border-box;
+    box-shadow: none;
+    background: #fff;
+    padding: 0 0 0 0.35rem;
+    margin: 0;
+    height: 1.5rem;
+    color: #3d4145;
+    font-size: 0.7rem;
+    font-family: inherit;
+}
+/*
+ * 报名--班级列表页面
+ * type：page
+ *
+ */
+
+ /*报名顶部标题*/
+.signNotice {
+	height:2.2rem;
+	/* border-left: 1px #726dde solid;  */
+	width:3rem; 
+	position: absolute; 
+	right: 0; 
+	top: 0px; 
+	text-align: center; 
+	margin: .4rem;
+	padding-left: .4rem;
+	cursor: pointer;
+}
+/*倒计时时间*/ 
+.class-timeTip {
+	font-size:.64rem;
+	color: #fff895;
+	}
+.signTipTitle {font-size: 12px;height: 14px;margin-top: -8px;}
+
+/* 没有数据  */ 
+.noData_line {
+    border-top: 1px solid #E5E5E5;
+    margin-top: 2.4em;
+}
+.noData {
+    width: 65%;
+    margin: 3em auto;
+    line-height: 1.6em;
+    font-size: 14px;
+    text-align: center;
+}
+ .noData_line .noData__tips {
+    position: relative;
+    top: -0.9em;
+    padding: 0 .55em;
+    background-color: #f5f5f5;
+    color: #999999;
+}
+
+.noData__tips {
+    display: inline-block;
+    vertical-align: middle;
+} 
+  
+  
+/*筛选数据--select3列*/   
+.tool {    
+	padding: .4rem;
+    font-size: .7rem;
+    /* text-align: center; */
+    margin-top: 3rem;
+    background: #fff;
+    box-shadow: 2px 2px 10px rgba(120, 113, 239, 0.34);
+}
+.tool select {
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	-ms-appearance: none;
+	appearance: none;
+    border-radius: 3px;
+    width: 32%;
+    border: 1px #dcdcdc solid;
+    box-sizing: border-box;
+    box-shadow: none;
+    background: #fff;
+    padding: 0 0 0 0.35rem;
+    margin: 0;
+    height: 2rem;
+    color: #3d4145;
+    font-size: 0.78rem;
+    font-family: inherit;
+    }
+/*select边框及下拉三角符号*/   
+.tool .selectbox { position: relative;}
+.tool .selectbox:after {
+    content: "";
+    display: inline-block;
+    border-top: .24rem solid #d2d0d0;
+    border-left: .24rem solid transparent;
+    border-right: .24rem solid transparent;
+    position: absolute;
+    top: .2625rem;
+    right: .48rem;
+}
+.payTimeTip {
+	font-size: .6rem;
+    color: #F7ED1D;
+    padding: 0 .3rem;
+    }
+/*班级列表----复选框位置*/
+.checkbox-ADD {
+	position: absolute;
+    right: 1.2rem;
+    top: 50%;
+}
+.list-block .showDetail { 
+	/*height: 6.6rem; */
+	padding-top: .5rem; margin-top: .5rem; 
+	border-top: 1px solid #ececec;
+	-webkit-box-orient: inherit;
+}
+ /*.list-block .item-content { margin-bottom: .5rem;}*/
+/*班级列表*/
+.class-list ul li {
+	display: -webkit-flex;
+	display: flex;
+	display: -webkit-box;
+    display: -ms-flexbox;
+	justify-content: center;
+    background: #FFFFFF;
+    margin: .5rem;
+    border-radius: .4rem;
+    overflow: hidden;
+    box-shadow: 0 0.05rem 0.24rem rgba(160, 39, 222, 0.16)
+}
+.class_operation_box {
+	padding: .3rem 0;
+}
+/*班级基本信息*/
+.class_basic { width:74%;}
+.class_basic .class_title {padding: .4rem .4rem .4rem .6rem;color: #0DCFAB; font-size: .83rem;}
+.class_basic .class_info { padding: 0 .4rem  .6rem  .6rem ;font-size: .72rem;}
+/*班级基本信息--右侧操作列（波浪线区域）*/
+.class_operation {
+	/*background-image: -webkit-linear-gradient(-180deg, #807dee, #604ef2);
+    background-image: linear-gradient(-180deg,#807dee,#604ef2);*/
+    background: #7b75ee url(../images/operation.jpg) top left no-repeat;
+	width:26%;
+	text-align: center;
+	color: #fff;
+}
+.class_operation { 
+	padding-left: .5rem; 
+	position: relative;    
+	border-bottom-right-radius: .4rem;    
+	border-top-right-radius: .4rem;
+}
+  /*班级基本信息--右侧操作列--不可以选择*/
+.class_operation .unchange {  
+	background: #f5f4f4;
+    color: #c7c7c7;
+    display: initial;
+    padding: .3rem .5rem;
+    border-radius: .2rem;
+    margin-top: .4rem;
+    font-size: .7rem;
+}
+  /*班级基本信息--右侧操作列--可以选择*/
+.class_operation .changing {  
+	background: #f5f4f4;
+    color: #6e62f0;
+    display: initial;
+    padding: .3rem;
+    border-radius: .2rem;
+    margin-top: .4rem;
+    font-size: .6rem;
+}
+/*班级基本信息--右侧操作列--已选择*/   
+.class_operation .changed {  
+	background: #FDED36;
+    color: #af6e6e;
+    display: initial;
+    padding: .3rem .5rem;
+    border-radius: .2rem;
+    margin-top: .4rem;
+    font-size: .7rem;
+}
+ /*班级基本信息--右侧操作列--已报名*/   
+ .class_operation .success { 
+	background: #1ad2a7;
+    color: #ffffff;
+    display: initial;
+    padding: .3rem;
+    border-radius: .2rem;
+    margin-top: .4rem;
+    font-size: .6rem;
+    }
+
+/*班级基本信息--右侧操作列--垂直居中*/
+ .class_operation .ADD{
+position: absolute;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);  /* 使用css3的transform来实现 */
+-ms-transform:translate(-50%, -50%); 	/* IE 9 */
+-moz-transform:translate(-50%, -50%); 	/* Firefox */
+-webkit-transform:translate(-50%, -50%); /* Safari 和 Chrome */
+-o-transform:translate(-50%, -50%); /* opera */
+width: 100%;
+}
+   
+ /*班级列表--底部操作栏*/
+.list_bottom_tool  {
+	position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 2.4rem;
+    display: -webkit-flex;
+	display: flex;
+	justify-content: center;
+    z-index: 100000;
+    background: #fff;
+    line-height: 2.4rem;
+    -webkit-box-pack: justify;
+    -ms-flex-pack: justify;
+    -webkit-justify-content: space-between;
+    justify-content: space-between;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    -webkit-align-items: center;
+    align-items: center;
+    font-size: .8rem;
+    border-top: 1px #ebe9fd solid;
+}  
+
+.list_bottom_tool  .tool_tipText { padding-left: .5rem; font-size:.72rem}
+.list_bottom_tool  .tool_toDo { background:#fec955; color: #7e5b01;padding: 0 .7rem;font-size:.72rem}
+   
+/*
+ * 报名结果页面
+ * 报名报名成功、报名失败页面
+ * type：Page
+ */       
+.info-icon {
+	height: 3rem;
+    width: 3rem;
+    background: #1ad2a7;
+    color: #fff;
+    margin: 20px auto 0px;
+    line-height: 3rem;
+    font-size: 1.2rem;
+    border-radius: 50%;
+    position: relative;
+}
+.weui-msg {
+    padding-top:36;
+    text-align: center;
+}
+.weui-msg__icon-area {
+    margin-bottom: 1.5rem;
+}
+.weui-msg__text-area {
+    margin-bottom: 25px;
+    padding:0 20px;
+}
+.weui-msg__text-area a{
+    color:#09BB07
+}
+.weui-msg__title {
+    margin-bottom: 5px;
+    font-weight: 400;
+    font-size: 20px;
+}
+.weui-msg__desc {
+    font-size: 14px;
+    color: #999999;
+    }
+.weui-msg__opr-area {
+    margin-bottom: 25px;
+}
+/*失败背景及 × 图标的css3的实现*/
+.failed_color { background: #F6383A;}
+
+.failed::before, .failed::after {
+  content: '';
+  position: absolute;
+  height: 2px;
+  width: 50%;
+  top: 50%;
+  left: 25%;
+  margin-top: -1px;
+  background: #fff;
+}
+.failed::before {
+  -webkit-transform: rotate(45deg);
+  -moz-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  -o-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+.failed::after {
+  -webkit-transform: rotate(-45deg);
+  -moz-transform: rotate(-45deg);
+  -ms-transform: rotate(-45deg);
+  -o-transform: rotate(-45deg);
+  transform: rotate(-45deg);
+}
+
+.list-block .successTip_text { color:#1ad2a7;}
+.list-block .failedTip_text,.failedTip_text{ color: #f56264;}
+
+/*
+ * 实名认证
+ * Type：Page
+ */
+/*实名认证三个图标··实名认证 /在线认证/人工验证*/
+.authenticationTipText {
+	position: relative;
+    margin: 0;
+    margin: .75rem .75rem .5rem;
+    overflow: hidden;
+    font-size: .7rem;
+    line-height: 1rem;
+    color: #6d6d72;
+}
+.authentication_icon { 
+	width:1.2rem; 
+	height:1.2rem; 
+	background-image: url(../images/authentication_icon.png);
+	background-repeat: no-repeat;
+	background-size: cover;
+	display: inline-block;
+	vertical-align: middle;
+	margin-right: .1rem;
+    margin-top: -.3rem;
+}
+.authentication_icon_lock {background-position: 0 0;}
+.authentication_icon_online {background-position: -1.2rem 0;}
+.authentication_icon_manMade {background-position: -2.4rem 0;}
+
+
+
+/*
+ * 学员证
+ * Type：Page
+ * 
+ */
+.permit_list ul li{
+    background: #FFFFFF;
+    margin: .5rem .5rem 1rem;
+    border-radius: .4rem;
+    overflow: hidden;
+    box-shadow: 0 0.05rem 0.24rem rgba(160, 39, 222, 0.16);
+    position: relative;
+    padding-top:2.2rem
+}
+
+.permit_list ul li .permit_title {
+    background: -webkit-linear-gradient(-90deg,#0bcfac,#6ed587);
+    background: linear-gradient(-90deg,#0bcfac,#6ed587);
+    /* display: -webkit-flex; */
+    /* display: flex; */
+    /* -webkit-justify-content: space-between; */
+    /* justify-content: space-between; */
+    height: 2.2rem;
+    line-height: 2.2rem;
+    /* margin-top: -1.25rem; */
+    padding: 0 .8rem;
+    color: #fff;
+    position: absolute;
+    top: 0;
+    width: 100%;
+}
+.permit_time {font-size: .72rem;}
+.permit_info { text-align: center; padding: .5rem .5rem 1rem; font-size: .76rem;}
+.permit_className { font-size: .85rem; font-weight: bold; line-height:2rem}
+
+
+
+/*
+ * 教师收费列表
+ * Type：Page
+ * 
+ */
+.list-block .moneyTextColor { color: #f36b6b;}
+
+/*
+ * 教师发布通知
+ * Type：Page
+ * 
+ */
+/* webupload 通知 发通知图片上传选图片样式···将来可能删除 */
+.stutent-detail {
+	position: absolute;
+    right: 0;
+    height: 100%;
+    width: 40%;
+    top: 0;
+ }
+.webuploader-pick {
+     width: 72px;
+     height:72px;
+     border:1px #e2e2e2 dashed;
+     line-height: 72px;
+     background: none;
+     color: #c3c3c3;
+     padding: 0;
+     margin-right: 20px;
+     float: right;
+     position:relative;
+     margin-bottom:10px
+}
+.webuploader-pick:after,.webuploader-pick:before {
+    content: " ";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%,-50%);
+    transform: translate(-50%,-50%);
+    background-color: #d9d9d9
+}
+	
+.webuploader-pick:before {
+    width: 2px;
+    height: 39.5px
+}
+
+.webuploader-pick:after {
+    width: 39.5px;
+    height: 2px
+}
+.file-item {
+    display: block;
+    float: left;
+    position: relative;
+    width: 74px;
+    margin: 0 6px 6px 0;
+    overflow:hidden;
+    height:74px;
+    padding:0;
+    background-color: #fff;
+    border:none;
+    border-radius:0;
+    cursor: pointer;
+    -webkit-transition: border .2s ease-in-out;
+    -o-transition: border .2s ease-in-out;
+    transition: border .2s ease-in-out;
+}
+.file-item img { width:72px;height:72px;border: 1px #ccc solid;}
+p.imgWrap { margin: 0;}
+.list-block .class_name { max-width: 11.5rem;}
+.list-block .item-after { text-align: right; padding-left: 1rem;}
+/* webupload 通知 家庭作业图片上传选图片样式···将来可能删除 end */	
+
+/*
+ * 教师通知列表
+ * Type：Page
+ * 
+ */
+.notice-title{
+	color: #fff;
+    opacity: .6;
+}
+.list-block .gray {color:#ccc}
+
+/*列表滑动*/
+ * {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+   }
+
+       html {
+           -ms-touch-action: none;
+       }
+#wrapper {
+    position: absolute;
+    z-index: 1;
+    top: 0px;
+    bottom: 0px;
+    left: 9999px; /* Not a must - can be 0 - but it makes the appearance of the content a bit nicer */
+    width: 100%;
+    overflow: hidden;
+}
+
+   #scroller {
+       position: absolute;
+       z-index: 1;
+       -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+       width: 100%;
+       -webkit-transform: translateZ(0);
+       -moz-transform: translateZ(0);
+       -ms-transform: translateZ(0);
+       -o-transform: translateZ(0);
+       transform: translateZ(0);
+       -webkit-touch-callout: none;
+       -webkit-user-select: none;
+       -moz-user-select: none;
+       -ms-user-select: none;
+       user-select: none;
+       -webkit-text-size-adjust: none;
+       -moz-text-size-adjust: none;
+       -ms-text-size-adjust: none;
+       -o-text-size-adjust: none;
+       text-size-adjust: none;
+   }
+
+   #scroller ul {
+       list-style: none;
+       padding: 0;
+       margin: 0;
+       width: 100%;
+       text-align: left;
+   }
+
+   #scroller li {
+       font-size: 16px;
+   }
+
+   .pullDownLabel, .pullUpLabel {
+       color: #999;font-size: 14px
+   }
+   
+   .pullDown, .pullUp {
+       height: 40px;
+       line-height: 40px;
+       font-weight: bold;
+       font-size: 0.8em;
+       color: #888;
+       text-align:center
+   }
+
+   .pullDown .pullDownIcon, .pullUp .pullUpIcon {
+       display: inline-block;
+       opacity: 0.4;
+       width: 40px;
+       height: 40px;
+       background: url(../images/pull_to_refresh.png) 0 0 no-repeat;
+       -webkit-background-size: 40px 80px;
+       -ms-background-size: 40px 80px;
+       background-size: 40px 80px;
+       -webkit-transition-property: -webkit-transform;
+       -ms-transition-property: -webkit-transform;
+       -webkit-transition-duration: 250ms;
+       -ms-transition-duration: 250ms
+   }
+
+   .pullDown .pullDownIcon {
+       -webkit-transform: rotate(0deg) translateZ(0);
+       -ms-transform: rotate(0deg) translateZ(0)
+   }
+
+   .pullUp .pullUpIcon {
+       -webkit-transform: rotate(-180deg) translateZ(0);
+       -ms-transform: rotate(-180deg) translateZ(0)
+   }
+
+   .pullDown.flip .pullDownIcon {
+       -webkit-transform: rotate(-180deg) translateZ(0);
+       -ms-transform: rotate(-180deg) translateZ(0)
+   }
+
+   .pullUp.flip .pullUpIcon {
+       -webkit-transform: rotate(0deg) translateZ(0);
+       -ms-transform: rotate(0deg) translateZ(0)
+   }
+
+   .pullDown.loading .pullDownIcon, .pullUp.loading .pullUpIcon {
+       background-position: 0 100%;
+       -webkit-transform: rotate(0deg) translateZ(0);
+       -ms-transform: rotate(0deg) translateZ(0);
+       -webkit-transition-duration: 0ms;
+       -ms-transition-duration: 0ms;
+       -webkit-animation-name: loading;
+       -ms-animation-name: loading;
+       -webkit-animation-duration: 1s;
+       -ms-animation-duration: 1s;
+       -webkit-animation-iteration-count: infinite;
+       -ms-animation-iteration-count: infinite;
+       -webkit-animation-timing-function: linear;
+       -ms-animation-timing-function: linear
+   }
+
+   @-webkit-keyframes loading {
+       from {
+           -webkit-transform: rotate(0deg) translateZ(0)
+       }
+       to {
+           -webkit-transform: rotate(360deg) translateZ(0)
+       }
+   }
+
+   @-ms-keyframes loading {
+       from {
+           -ms-transform: rotate(0deg) translateZ(0)
+       }
+       to {
+           -ms-transform: rotate(360deg) translateZ(0)
+       }
+   }
+  .minData { height:180px}
+  
+
+/*
+*花名册通讯录
+*page
+*/
+ 
+#letter{
+    width: 100px;
+    height: 100px;
+    border-radius: 5px;
+    font-size: 75px;
+    color: #555;
+    text-align: center;
+    line-height: 100px;
+    background: rgba(145,145,145,0.6);
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    margin:-50px 0px 0px -50px;
+    z-index: 99;
+    display: none;
+}
+#letter img{
+    width: 50px;
+    height: 50px;
+    float: left;
+    margin:25px 0px 0px 25px;
+}
+.sort_box{
+    width: 100%;
+    overflow: hidden;
+}
+.sort_list {
+    padding:10px 60px 10px 80px;
+    position: relative;
+    height: 40px;
+    line-height: 40px;
+    border-bottom:1px solid #ddd;
+}
+
+.sort_list .num_logo{
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    overflow: hidden;
+    position: absolute;
+    top: 5px;
+    left: 20px;
+}
+.sort_list .num_logo img{
+    width: 50px;
+    height: 50px;
+}
+.sort_list .num_name{
+    color: #000;
+}
+
+.sort_letter{
+    height: 30px;
+    line-height: 30px;
+    padding-left: 20px;
+    color:#787878;
+    font-size: 14px;
+    border-bottom:1px solid #ddd;
+}
+.initials{
+    position: fixed;
+    top: 47px;
+    right: 0px;
+    height: 100%;
+    width: 24px;
+    padding: 0 5px;
+    text-align: center;
+    font-size: 12px;
+    z-index: 99;
+    background: rgba(145,145,145,0);
+}
+ .initials ul {border:none}
+.initials li img{
+    width: 14px;
+}
+/*个人中心--学生--所有应用图标*/
+.allServer { padding: .2rem .75rem}
+.allServer ul li span.serverText {}
+.allServer ul li {
+    height:4.8rem;
+    width:25%;
+    margin:0;
+    float: left;
+    text-align: center;
+    cursor:pointer;
+}
+.allServer ul li .icon {
+    width: 2.8rem;
+    height: 2.8rem;
+    border-radius: 50%;
+    background-image: url(../images/sevice_icon_student.png);
+    background-repeat: no-repeat;
+    background-size: auto 2.8rem;
+    display: block;
+    margin: .4rem auto .1rem;
+    border: .1rem #fff solid;
+}
+.allServer ul li .icon-notice{background-position: -11.2rem -0.1rem}
+.allServer ul li .icon-sign{background-position: -2.85rem -0.1rem}
+.allServer ul li .icon-voucher{background-position: -8.45rem -0.1rem}
+.allServer ul li .icon-pay {background-position: -5.7rem -0.1rem}
+.allServer ul li .icon-set {background-position: -0.05rem -0.1rem}
+.allServer ul li .serverText { font-size: .60rem}
+
+/*个人中心--教师--所有应用图标*/
+.allserverTeacher ul li .icon {
+    background-image:url(../images/sevice_icon_teacher.png);
+}
+
+.allserverTeacher ul li .icon_notice {background-position: -11.2rem -0.1rem}
+.allserverTeacher ul li .icon_schoolNotice {background-position: -2.9rem -0.1rem}
+.allserverTeacher ul li .icon_homework {background-position: -5.7rem -0.1rem}
+.allserverTeacher ul li .icon_timeSheet {background-position: -8.5rem -0.1rem}
+.allserverTeacher ul li .icon_blog {background-position: -11.3rem -0.1rem }
+.allserverTeacher ul li .icon_contact {background-position: -14.1rem -0.1rem }
+.allserverTeacher ul li .icon_payDetail {background-position: -2.9rem -0.1rem}
+.allserverTeacher ul li .icon_wages {background-position: -19.7rem -0.1rem }
+.allserverTeacher ul li .icon_echart {background-position: -8.5rem -0.1rem }
+.allserverTeacher ul li .icon_question {background-position: -30.85rem -0.1rem }
+.allserverTeacher ul li .icon_set {background-position: -5.65rem -0.1rem}
+.allserverTeacher ul li .icon_tsMessage { background-position: -28.0rem -0.1rem}
+.allserverTeacher ul li .icon_cook { background-position: -33.6rem -0.1rem}
+.allserverTeacher ul li .icon_mail { background-position: -36.4rem -0.1rem}
+.allserverTeacher ul li .icon_diner { background-position: -39.2rem -0.1rem}
+.allserverTeacher ul li .icon_message { background-position: -42.05rem -0.1rem}
+.allserverTeacher ul li .icon_list {background-position: -0.1rem -0.1rem}

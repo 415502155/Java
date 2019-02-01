@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title>个人设置</title>
+		<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+		<link rel="shortcut icon" href="/favicon.ico">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<!--ui包-->
+		<link rel="stylesheet" href="../../../css/sm.css">
+		<link rel="stylesheet" href="../../../css/layout.css">
+	</head>
+	<body>
+		<div class="page-group">
+			<div id="main_page" class="page page-current">
+				<div class="content">
+					<div class="list-block">
+						<ul>
+							<li class="item-content">
+								<div class="item-inner">
+								<div class="item-title">微信头像</div>
+								<div class="userobj userImg" style="margin: 0;" id="userHead"></div></div>
+							</li>
+							<li class="item-content">
+								<div class="item-inner">
+								<div class="item-title">微信昵称</div>
+								<div class="item-after" id="nickname">布鲁斯贵伊</div>
+								</div>
+							</li>
+							<li id="userId" class="item-content" style="display: none">
+								<div class="item-inner">
+								<div class="item-title">用户ID</div>
+								<div class="item-after" ></div>
+								</div>    
+							</li>
+							<li class="item-content item-link" id="toMobPage">
+								<div class="item-inner" >
+								<div class="item-title">手机号</div>
+								<div class="item-after" id="userMob"></div>
+								</div>
+							</li>
+							<li class="item-content item-link" id="toPSWPage">
+								<div class="item-inner">
+								<div class="item-title">密码</div>
+								<div class="item-after">修改密码</div>
+								</div>
+							</li>
+							<li id='certification' class="item-content item-link">
+										<div class="item-inner">
+											<div class="item-title">用户认证</div>
+											<div class="item-after">未认证</div>
+										</div>
+									</li>
+							<li class="item-content">
+								<div class="item-inner">
+								<div class="item-title">孩子姓名</div>
+								<div class="item-after" id="userName">-</div>
+								</div>
+							</li>
+							<li class="item-content">
+								<div class="item-inner">
+								<div class="item-title">孩子生日</div>
+								<div class="item-after" id="userbirthday">-</div>
+								</div>
+									</li>
+									<li class="item-content item-link">
+										<div class="item-inner">
+											<div class="item-title">家长身份</div>
+												<div class=" item-after" id="">
+													<input type="text" id="nowsRelation" readonly data-relation="" value="选择亲子关系" style="text-align:right;margin-top: -.46rem;margin-left:-.5rem">
+												</div>
+										</div>
+									</li>
+						</ul>
+					</div>
+					<div class="content-block">
+							<a href="javascript:void(0)" class="button button-fill external" id="save_info">保存修改</a>
+					</div>
+				  <div class="content-block">
+						   <a href="javascript:void(0)" class="button button-fill external" id="quit">退出登录</a>
+					</div>
+					
+
+				</div>
+			</div>
+
+			<!--修改手机号-->
+			<div class="page" id='mobile'>
+				<div class="content">
+						 <div class="list-block">
+							<ul>
+								<li>
+									<div class="item-content">
+										<div class="item-inner">
+											<div class="item-title label">密码</div>
+											<div class="item-input">
+												<input type="password" placeholder="请输入登录密码" id="pswFmob" name="mobile">
+											</div>
+										</div>
+									</div>
+								</li>
+						 </ul>
+						</div>	      
+						<div class="list-block">
+						 <ul>
+								 <li>
+										<div class="item-content">
+											<div class="item-inner">
+												<div class="item-title label">新手机号</div>
+												<div class="item-input">
+													<input type="tel" placeholder="请输入新手机号码" id="mobFmob" name="mobile">
+												</div>
+											</div>
+										</div>
+									</li>
+									<li>
+										<div class="item-content" style="background:#fff;">
+											<div class="item-inner">
+												<div class="item-title label">验证码</div>
+												<div class="item-input">
+													<input type="tel" placeholder="请输入验证码" id="codeFmob">
+													<div class="getCode" id="getCode">获取验证码</div>
+												</div>
+											</div>
+										</div>
+									</li>
+							</ul>
+						</div>
+							<div class="content-block">
+						<a href="javascript:void(0)" class="button button-fill external" id="editMob">修改手机</a>
+						<a href="#main_page" class="button close-popup back" style="margin-top:1rem">返回</a>
+					</div>
+				</div>
+			</div>
+			<!-- 修改该手机号 End-->
+			
+			<!--修改密码-->
+			<div class="page" id='password'>
+				<div class="content">
+						 <div class="list-block">
+							<ul>
+								<li>
+									<div class="item-content">
+										<div class="item-inner">
+											<div class="item-title label">旧密码</div>
+											<div class="item-input">
+												<input type="password" placeholder="请输入登录密码" id="oldPsw" name="mobile">
+											</div>
+										</div>
+									</div>
+								</li>
+						 </ul>
+						</div>	      
+						<div class="list-block">
+							<ul>
+							 <li>
+									<div class="item-content">
+										<div class="item-inner">
+											<div class="item-title label">新密码</div>
+											<div class="item-input">
+												<input type="password" placeholder="请输入新密码" id="newPsw" name="mobile">
+											</div>
+										</div>
+									</div>
+								</li>
+								<li>
+									<div class="item-content" style="background: #fff;">
+										<div class="item-inner">
+											<div class="item-title label">新密码</div>
+											<div class="item-input">
+												<input type="password" placeholder="请再次输入新密码" id="reNewPsw">
+											</div>
+										</div>
+									</div>
+								</li>
+							</ul>
+						</div>
+							<div class="content-block">
+						<a href="javascript:void(0)" class="button button-fill external" id="editPsw">修改密码</a>
+						<a href="#main_page" class="button close-popup back" style="margin-top:1rem">返回</a>
+					</div>
+				</div>
+			</div>
+			<!-- 修改该手机号 End-->
+			
+
+		</div>
+		
+	</body>
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script type="text/javascript">
+	//获取身份信息
+	var baseUser = JSON.parse(sessionStorage.baseUser),
+		now_child;
+	var certification = false;
+	$("#nickname").text(baseParameter.nick_name);//微信昵称
+	if(typeof baseParameter.head_url === "undefined"){
+		$("#userHead").append('<img src="/newsng/weixin/images/zkbg.png">');//微信头像
+	}else{
+		$("#userHead").append('<img src="'+decodeURIComponent(baseParameter.head_url + "")+'" >');
+	}
+	//判断是否认证
+	if(sessionStorage.certification == 1){//已认证
+		certification = true;
+		now_child = JSON.parse(sessionStorage.now_child)//孩子信息
+		var u_data = baseUser.orguser;//获取角色信息
+		$("#certification").removeClass("item-link").find(".item-after").text("已认证");
+		$("#userId").show().find(".item-after").text(now_child.user_id);//孩子ID
+		$("#userMob").text(u_data.user_loginname);//用户名
+		$("#userName").text(now_child.stud_name);//孩子名
+
+		//孩子生日
+		var bth = new Date(now_child.birthday);
+		bth = "" + bth.getFullYear()+ "年" + (bth.getMonth()+1) + "月" + bth.getDate() + "日";
+		$("#userbirthday").text(bth);
+		//亲子关系
+		if(now_child.relation !== null){
+			$("#nowsRelation").val(now_child.relation_name);
+			$("#nowsRelation").attr("relation",now_child.relation);
+		}
+
+	}else{
+		$("#userMob").text(baseUser.orguser.login_name);
+	}
+	$(function(){
+		$("#certification").click(function(){
+			//未认证跳转至认证界面
+			if(certification){
+				return false;
+			}
+			window.location = "../certification/authentication.html";
+		})
+		$("#nowsRelation").picker({//更改亲子关系
+			toolbarTemplate: '<header class="bar bar-nav">\
+			<button class="button button-link pull-right close-picker">确定</button>\
+			<h1 class="title">请选择亲子关系</h1>\
+			</header>',
+			cols: [
+				{
+					textAlign: 'center',
+					values: ['父亲', '母亲', '爷爷', '奶奶', '外公', '外婆', '其他']
+				}
+			],
+			onClose: function () {
+					//alert(1);
+				switch($('#nowsRelation').val()){
+					case '父亲' : $('#nowsRelation').attr('relation','1'); break;
+					case '母亲' : $('#nowsRelation').attr('relation','2'); break;
+					case '爷爷' : $('#nowsRelation').attr('relation','3'); break;
+					case '奶奶' : $('#nowsRelation').attr('relation','4'); break;
+					case '外公' : $('#nowsRelation').attr('relation','5'); break;
+					case '外婆' : $('#nowsRelation').attr('relation','6'); break;
+					case '其他' : $('#nowsRelation').attr('relation','7'); break;
+				}
+			}
+		});
+	//点击返回按钮返回设置首页
+	$(".back").on("click",function() {
+		$.router.back();
+	})
+
+	if(window.location.hash!==""){
+		window.location="index.html";
+	}
+	
+	//设置手机号
+	$("#toMobPage").click(function(){
+		$.router.loadPage("#mobile");
+	});
+	//设置密码editPSW
+	$("#toPSWPage").click(function(){
+		$.router.loadPage("#password");
+	});
+	/*修改密码*/
+	$("#editPsw").click(function(){
+		var  psw=$("#newPsw").val(),
+		reNewPsw=$("#reNewPsw").val(),
+		oldPsw=$("#oldPsw").val();
+		if(oldPsw==""){
+			$.alert("请输入旧密码！");
+			return false
+		}
+		if(psw==""){
+			$.alert("请输入新密码！");
+			return false
+		}
+		if(reNewPsw==""){
+			$.alert("请确认新密码！");
+			return false
+		}
+		if(psw.length<6){
+			$.alert("密码长度不能小于6位！");
+			return false
+		}
+		if(reNewPsw!==psw){
+			$.alert("两次密码输入不一致！");
+			return false
+		}
+		
+		var parameter={
+			token:baseUser.token,
+			udid:baseUser.udid,
+			version:3,
+			identity:baseUser.orguser.identity||0,
+			org_id:baseUser.orguser.org_id,
+			mobile:$("#userMob").text(),
+			old_password:oldPsw,
+			password:psw,
+			repassword:reNewPsw
+		}
+	
+		//修改密码
+		getData(domainName + "/mobile/parentApp/updateCustomInfoPassWord.json", parameter,function(res){
+			if(res.code=="200" && res.success == true){
+				userQuit();
+				$.alert("密码修改成功！请重新登录",function(){
+					window.location = '/newsng/weixin/html/parent/login/login_byMob.html';
+				});
+				setTimeout(function(){
+					window.location = '/newsng/weixin/html/parent/login/login_byMob.html';
+				},2000)
+			}else{
+				$.alert(res.message);
+			}
+		},"POST");  
+	});
+	/*修改密码end*/
+	
+	/*修改手机号*/
+	$("#editMob").click(function(){
+		var psw=$("#pswFmob").val(),
+			mob=$("#mobFmob").val(),
+			mobCode=$("#codeFmob").val();
+		
+		if(psw==""){
+			$.alert("请输入密码！");
+			return false
+		}
+		if(mob==""){
+			$.alert("请输入手机号！");
+			return false
+		}
+		
+		if(mobCode==""){
+			$.alert("请输入获取的验证码！");
+			return false
+		}
+		
+		var parameter={
+			token:baseUser.token,
+			udid:baseUser.udid,
+			version:3,
+			identity:baseUser.orguser.identity||0,
+			org_id:baseUser.orguser.org_id,
+			old_mobile:$("#userMob").text(),
+			mobile:mob,
+			validateCode:mobCode,
+			password:psw
+		}
+	
+		//修改密码
+		getData(domainName + "/mobile/parentApp/updateCustomInfoTelNum.json", parameter,function(res){
+			if(res.code == "200" && res.success == true){
+				userQuit();
+				$.alert("手机号修改成功！请重新登录",function(){
+					window.location = '/newsng/weixin/html/parent/login/login_byMob.html';
+				});
+				setTimeout(function(){
+					window.location = '/newsng/weixin/html/parent/login/login_byMob.html';
+				},2000)
+			}else{
+				$.alert(res.message);
+			}
+		},"POST");  
+	});
+	/*修改手机号end*/
+
+	//获取验证码
+	$("#getCode").click(function(){
+		var $this=$(this);
+		var val=$("#mobFmob").val();
+		if(val==""){
+			$.alert("手机号不能为空！");
+			return false
+		}
+		if($this.attr("data-states")=="off"){
+			return false
+		}
+		
+		//获取新用户验证码
+		getData(loginMain + "/esb/sendValidCodeSng", {phone:val},function(res){
+			if(res.code=="200" && res.success == true){
+				$.alert("验证码已发送，请查看您的新短消息！");
+				var second=60000;
+				var timeRun=setInterval(function(){
+							second=second-1000;
+							if(second>=1000){
+								$this.text(second/1000+"s后可发送").attr("data-states","off").css("color","#ccc");
+							}else{
+								$this.text("获取验证码").attr("data-states","on").css("color","");
+								clearInterval(timeRun);
+							}
+						}, 1000);
+			}else{
+				$.alert(res.message);
+			}
+		})
+	});
+
+	//修改关系
+	$("#save_info").click(function(){
+		var param = {
+			version: 3,
+			identity: baseUser.orguser.identity||0,
+			org_id: baseUser.orguser.org_id,
+			relation: $("#nowsRelation").attr("relation")
+		};
+		if(certification){//如果已认证
+			param["token"] = baseUser.token;
+			param["udid"] = baseUser.udid;
+			param["parent_id"] = baseUser.orguser.parent.parent_id;
+			param["stud_id"] = now_child.stud_id;
+			param["mobile"] = baseUser.orguser.user_loginname;
+		}else{//未认证
+			param["mobile"] = baseUser.orguser.login_name;
+		}
+
+		getData(domainName + '/mobile/parentApp/updateCustomInfoRelation.json',param,function(res){
+			if(res.code == 200 && res.success == true){
+				$.alert("保存成功",function(){
+					now_child.relation_name = $("#nowsRelation").val();//更新亲子关系名字
+					now_child.relation = $("#nowsRelation").attr("relation");
+					sessionStorage.removeItem("now_child");//移除当前孩子信息
+					sessionStorage.now_child = JSON.stringify(now_child);//更新孩子信息
+					setTimeout(function(){
+						window.location = '/newsng/weixin/html/parent/login/index.html';//保存成功后跳转至首页
+					},500);
+				})
+			}else{
+				$.alert(res.message);
+			}
+		})
+
+	})
+
+	//退出登录
+	$("#quit").click(function(){
+		$.confirm("是否退出登录?","退出登录",function(){
+			userQuit();
+			window.location="/newsng/weixin/html/parent/login/login_byPSW.html"
+		},null,"立即退出","暂不退出");
+	});
+	//处理头像地址错误图片显示默认头像
+	function errHead() {
+		var img = event.srcElement;
+		img.src = "../images/zkbg.png";
+		img.onerror = null; //控制不要一直跳动 
+	}
+})
+</script>
+ 

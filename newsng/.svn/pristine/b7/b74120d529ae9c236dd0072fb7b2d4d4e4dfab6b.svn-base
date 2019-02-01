@@ -1,0 +1,268 @@
+package sng.controller.web;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import sng.pojo.ParamObj;
+import sng.pojo.Result;
+import sng.pojo.SessionInfo;
+import sng.pojo.StudentPojo;
+import sng.pojo.base.OrgUser;
+import sng.pojo.base.Teacher;
+import sng.service.ChargeDetailService;
+import sng.service.ChargeRecordService;
+import sng.service.ChargeService;
+import sng.service.ClassService;
+import sng.service.MQService;
+import sng.service.StudentClassService;
+import sng.service.StudentService;
+import sng.util.Constant;
+import sng.util.ExcelUtil;
+import sng.constant.Consts;
+import sng.controller.common.BaseAction;
+import sng.entity.Classes;
+
+@Controller
+@RequestMapping("/student")
+public class StudentController extends BaseAction {
+
+	@Autowired
+	private ChargeService chargeService;
+	@Autowired
+	private ChargeDetailService chargeDetailService;
+	@Autowired
+	private ChargeRecordService chargeRecordService;
+	@Autowired
+	private StudentService studentService;
+	@Autowired
+	private ClassService classService;
+	@Autowired
+	private StudentClassService studentClassService;
+	@Autowired
+	private MQService mqService;
+
+	/**
+	 * @Title : getSutdentList
+	 * @功能描述:查询学员列表
+	 * @返回类型：Result<Paging<StudentPojo>>
+	 * @throws ：
+	 */
+	@RequestMapping(value = "/getSutdentList.json")
+	@ResponseBody
+	public Result<Map<String, Object>> getSutdentList(HttpServletRequest request,
+			@RequestParam(name = "currentPageNum", defaultValue = "1") Integer currentPageNum,
+			@RequestParam(name = "pageSize", defaultValue = Constant.NUM_PER_PCPAGE_STRING) Integer pageSize,
+			@RequestParam(name = "term_id", defaultValue = "") String term_id,
+			@RequestParam(name = "category_id", defaultValue = "") String category_id,
+			@RequestParam(name = "subject_id", defaultValue = "") String subject_id,
+			@RequestParam(name = "clas_type", defaultValue = "") String clas_type,
+			@RequestParam(name = "cam_id") String cam_id,
+			@RequestParam(name = "stu_status", defaultValue = "") String stu_status,
+			@RequestParam(name = "pay_method", defaultValue = "") String pay_method,
+			@RequestParam(name = "is_print", defaultValue = "") String is_print,
+			@RequestParam(name = "keyword", defaultValue = "") String keyword, HttpServletResponse response,
+			HttpSession session) throws Exception {
+		Result<Map<String, Object>> result = new Result<Map<String, Object>>();
+		Integer org_id = Integer.parseInt(request.getAttribute("org_id").toString());
+		Map<String, Object> map = studentService.queryList(org_id, term_id, category_id, subject_id, clas_type, cam_id,
+				stu_status, pay_method, is_print, keyword, currentPageNum, pageSize);
+		result.setData(map);
+		result.setSuccess(true);
+		return result;
+	}
+
+	/**
+	 * @Title : getSutdentList
+	 * @功能描述:查询学员列表
+	 * @返回类型：Result<Paging<StudentPojo>>
+	 * @throws ：
+	 */
+	@RequestMapping(value = "/getClassesList.json")
+	@ResponseBody
+	public Result<List<Classes>> getClassesList(HttpServletRequest request,
+			@RequestParam(name = "stu_class_id") Integer stu_class_id, HttpServletResponse response,
+			HttpSession session) throws Exception {
+		Result<List<Classes>> result = new Result<List<Classes>>();
+		List<Classes> list = classService.queryListForExchangeClass(stu_class_id);
+		result.setData(list);
+		result.setSuccess(true);
+		return result;
+	}
+
+	/**
+	 * 导出当前查询条件下的学员列表
+	 */
+	@RequestMapping(value = "/download.htm")
+	public void download(HttpServletRequest request,
+			@RequestParam(name = "term_id", defaultValue = "") String term_id,
+			@RequestParam(name = "category_id", defaultValue = "") String category_id,
+			@RequestParam(name = "subject_id", defaultValue = "") String subject_id,
+			@RequestParam(name = "clas_type", defaultValue = "") String clas_type,
+			@RequestParam(name = "cam_id", defaultValue = "") String cam_id,
+			@RequestParam(name = "stu_status", defaultValue = "") String stu_status,
+			@RequestParam(name = "pay_method", defaultValue = "") String pay_method,
+			@RequestParam(name = "is_print", defaultValue = "") String is_print,
+			@RequestParam(name = "keyword", defaultValue = "") String keyword,
+			@RequestParam(name = "ids", defaultValue = "") String ids, HttpServletResponse response,
+			HttpSession session) throws Exception {
+		try {
+			List<StudentPojo> list = new ArrayList<StudentPojo>();
+			if (StringUtils.isNoneBlank(ids)) {
+				list = studentService.getList(ids);
+			} else {
+				Integer org_id = Integer.parseInt(request.getAttribute("org_id").toString());
+				list = studentService.getList(org_id, term_id, category_id, subject_id, clas_type, cam_id, stu_status,
+						pay_method, is_print, keyword);
+			}
+			if (null != list && list.size() > 0) {
+				List<String[]> excelList = new ArrayList<String[]>();
+				int index = 1;
+				for (StudentPojo s : list) {
+					String[] exampleValue = new String[9];
+					exampleValue[0] = (index++) + "";
+					exampleValue[1] = s.getStud_name();
+					exampleValue[2] = s.getUser_idnumber();
+					exampleValue[3] = s.getClas_name();
+					exampleValue[4] = Consts.STUD_PAY_STATUS_MAP.get(s.getStu_status().toString());
+					exampleValue[5] = Consts.PAY_TYPE_MAP.get(s.getPay_method().toString());
+					exampleValue[6] = s.getTxnAmt();
+					exampleValue[7] = s.getTf_money();
+					exampleValue[8] = Consts.PRINT_STATUS_MAP.get(s.getIs_print().toString());
+					excelList.add(exampleValue);
+				}
+				Workbook wb = ExcelUtil.makeWorkbook("学员列表", Constant.STUDENT_EXCEL_COLUMN, excelList, "xls");
+				ExcelUtil.makeAndOutExcelFile(request, response, wb, "学员信息.xls");
+			} else {
+				Workbook wb = ExcelUtil.makeWorkbook("学员列表", Constant.STUDENT_EXCEL_COLUMN, null, "xls");
+				ExcelUtil.makeAndOutExcelFile(request, response, wb, "学员信息.xls");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * @author magq 学员管理--点击转班按钮弹出页面后点击搜索按钮列表
+	 * @param request
+	 * @param response
+	 * @param obj
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/queryMoveClassListInfo.json")
+	@ResponseBody
+	public Result queryMoveClassListInfo(HttpServletRequest request, HttpServletResponse response, ParamObj obj)
+			throws Exception {
+		Result result = studentService.queryMoveClassListInfo(obj);
+		return result;
+	}
+
+	/**
+	 * @author magq 学员管理--转班提交信息保存
+	 * @param request
+	 * @param response
+	 * @param obj
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/saveMoveClassStuInfo.json")
+	@ResponseBody
+	public Result saveMoveClassStuInfo(HttpServletRequest request, HttpServletResponse response,
+									   Integer org_id,String stud_id,Integer old_clas_id,Integer clas_id,String clas_name,String category_name,
+									   String subject_name,String class_week,String class_begin_time,String class_over_time,
+									   String class_unset_time)throws Exception {
+		OrgUser user = this.getOrgUser(request);
+		Teacher teacher = this.getTechByUId(user.getUser_id().toString());
+		Result result = studentService.saveMoveClassStuInfo(teacher, org_id, stud_id,old_clas_id, clas_id, clas_name, category_name,
+				 subject_name, class_week, class_begin_time, class_over_time,class_unset_time);
+		return result;
+	}
+
+	/**
+	 * @author magq 学员管理--点击学员管理中每条学员信息后面操作的按钮"手机"
+	 * @param request
+	 * @param response
+	 * @param obj
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/queryStuManageTelInfo.json")
+	@ResponseBody
+	public Result queryStuManageTelInfo(HttpServletRequest request, HttpServletResponse response, ParamObj obj)
+			throws Exception {
+		Result result = studentService.queryStuManageTelInfo(obj);
+		return result;
+	}
+
+	/**
+	 * @author magq
+	 * @desc 学员管理--选择全部分页数据
+	 * @param request
+	 * @param term_id
+	 * @param category_id
+	 * @param subject_id
+	 * @param clas_type
+	 * @param cam_id
+	 * @param stu_status
+	 * @param pay_method
+	 * @param is_print
+	 * @param keyword
+	 * @param ids
+	 * @param response
+	 */
+	@RequestMapping(value = "/queryStuIds.json")
+	@ResponseBody
+	public Result<List<Integer>> queryStuIds(HttpServletRequest request,
+			@RequestParam(name = "term_id", defaultValue = "") String term_id,
+			@RequestParam(name = "category_id", defaultValue = "") String category_id,
+			@RequestParam(name = "subject_id", defaultValue = "") String subject_id,
+			@RequestParam(name = "clas_type", defaultValue = "") String clas_type,
+			@RequestParam(name = "cam_id", defaultValue = "") String cam_id,
+			@RequestParam(name = "stu_status", defaultValue = "") String stu_status,
+			@RequestParam(name = "pay_method", defaultValue = "") String pay_method,
+			@RequestParam(name = "is_print", defaultValue = "") String is_print,
+			@RequestParam(name = "keyword", defaultValue = "") String keyword, HttpServletResponse response,
+			HttpSession session) throws Exception {
+		Result<List<Integer>> result  = new Result<List<Integer>>();
+		Integer org_id = Integer.parseInt(request.getAttribute("org_id").toString());
+		List<Integer> list = studentService.getidList(org_id, term_id, category_id, subject_id, clas_type, cam_id, stu_status,
+   				pay_method, is_print, keyword);
+		result.setData(list);
+		result.setSuccess(true);
+		return result;
+	}
+
+	/**
+	 * 学员管理--批量删除学员也支持单个删除
+	 * 
+	 * @param request
+	 * @param response
+	 * @param ids
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/batchDelStuInfo.json")
+	@ResponseBody
+	public Result batchDelStuInfo(HttpServletRequest request, HttpServletResponse response, String ids)
+			throws Exception {
+		SessionInfo sessionInfo = this.getSessionInfo(request);
+		Teacher tech = this.getTechByUId(sessionInfo.getUserId().toString());
+		Integer org_id = sessionInfo.getOrgId();
+		Result result = studentService.batchDelStuInfo(ids,tech,org_id);
+		return result;
+	}
+
+}

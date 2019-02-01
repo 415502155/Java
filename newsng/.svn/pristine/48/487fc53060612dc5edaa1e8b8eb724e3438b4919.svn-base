@@ -1,0 +1,221 @@
+<!--教室列表-->
+<style>
+    .tablesorter-blue tbody td.stu_status {color: #e89090;}
+</style>
+
+<div class="content-wrap" id="sub_loadBox"  >
+    <div class="search">
+        <select class="gui-input" id="allCampus"></select>
+        <div class="gui-input-group">
+            <input type="text" class="gui-input" id="roomName" placeholder="请输入教室名称" style="width: 220px"/>
+            <button type="button" class="gui-btn  gui-btn-normal" id="searchRoom"><i class="fa fa-search"></i>搜索</button>
+        </div>
+    </div>
+    <div class="bod-con-fer-form" >
+        <table align="center" class="tab tablesorter-blue">
+            <thead>
+            <tr>
+                <th>序号</th>
+                <th>教室名称</th>
+                <th>所属校区</th>
+                <th>所属位置</th>
+                <th>所属楼层</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody id="classRoomList">
+                <tr>
+                    <td colspan="6">暂无数据</td>
+                </tr>
+           <!-- <tr>
+                <td>1</td>
+                <td>301</td>
+                <td>保山道</td>
+                <td>西教学楼</td>
+                <td>3</td>
+                <td class="operation">
+                    <span  class="toDetail">编辑<em></em></span>
+                    <span  class="toDetail">删除<em></em></span>
+                </td>
+            </tr>-->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 分页 -->
+    <div class="gui-page-wapper" style="margin:20px 0;line-height: 28px;" id="pageContent">
+        <ul class="gui-page" id="limitUi">
+            <span class="gui-page-total">共<span id="allPage" class="numberShow">0</span>页 <span id="allTotal" class="numberShow">0</span>条数据</span>
+            <span id="creatPage"> </span>
+        </ul>
+        <span class="gui-page-options-elevator" style="padding-left: 10px;">
+                每页条数：
+                <select id="limit" >
+                     <option value="20">20</option>
+                     <option value="50">50</option>
+                     <option value="100">100</option>
+                </select>
+            </span>
+        <span class="gui-page-options">
+            <span class="gui-page-options-elevator">跳至第
+            <input id="page" class="gui-input" data-onlyNumber="true">
+             页</span>
+           </span>
+    </div>
+    <!--分页-->
+</div>
+
+<script>
+    var room_list={
+        "parameter":{
+            "cam_ids":option.roleCam,
+            "classroom_name":"",
+            "limit":limit?limit:20,
+            "page":page?page:1,
+            "version":0
+        },
+        "url":domain+"/baseSet/classRoomManage/queryClassRoomListInfo.json"
+    };
+
+    $(function () {
+        //默认
+        showHtml();
+        //下拉
+        allSelect();
+
+
+        //按关键字查询
+        $("#searchRoom").click(function () {
+            var key=$.trim($("#roomName").val());
+            room_list.parameter.classroom_name=key;
+            showHtml()
+            //}
+        });
+
+        $("#allCampus").change(function(){
+
+            room_list.parameter.cam_ids=$("#allCampus").val();
+            room_list.parameter.limit=$("#limit").val();
+            room_list.parameter.page=1;
+            showHtml();
+        });
+
+
+        //删除校区
+        $("#classRoomList").on("click",".toDel",function () {
+            var subject_id=$(this).attr("data-id");
+            var subject_name=$(this).closest("tr").find("td:eq(1)").text();
+
+            myConfirm("你确定要删除 ["+subject_name+"] 吗？",function () {
+
+                //删除操作
+                var delSubject = {
+                    parameter:{
+                        "classroom_id":subject_id,
+                        "org_id":option.org_id,
+                        "token":option.token,
+                        "udid":option.udid,
+                    },
+                    url:domain+"/baseSet/classRoomManage/deleteClassRoomInfo.json"
+                };
+
+                //保存或者更新类目
+                getData(delSubject.url,delSubject.parameter,function (data) {
+                    console.log(data)
+                    if(data.code==200 && data.success==true){
+                        myAlert("删除成功",1,data.code,function () {
+                            window.location.reload()
+                        });
+                    }else {
+                        myAlert(data.message,2,data.code,null);
+                    }
+                },"POST",false);
+
+            },null,null,2)
+
+        });
+
+        //编辑教室
+        $("#classRoomList").on("click",".toEdit",function () {
+            var classroom_id=$(this).attr("data-id");
+            window.location.href="#f41?classroom_id="+classroom_id
+        });
+
+
+
+    })
+    //列表
+    function showHtml(limit,page) {
+
+        room_list.parameter.limit=limit?limit:20;
+        room_list.parameter.page=page?page:1;
+
+        getData(room_list.url,room_list.parameter,function (res) {
+            console.log(res)
+            if(res.code==200 && res.success==true){
+
+                var data=res.data,html="";
+
+                //如果当前页是第一页从新渲染
+                if(data.page==1){
+                    //生成页数(总条数，总页数，)
+                    $("#creatPage").createPage({
+                        pageCount:data.size,
+                        current:page,
+                        url:room_list.url,
+                        backFn:function(page){
+                            var limit=parseInt($("#limit").val());
+
+                            showHtml(limit,page)
+                        }
+                    });
+                }
+
+                var localCampus={}
+
+                //总页数
+                $("#allPage").text(data.size);
+                //总条数
+                $("#allTotal").text(data.total);
+
+             if(data.data.length>0){
+                for(var n=0,m=data.data.length;n<m;n++){
+                    var toShow=(parseInt(data.page)-1)*parseInt(data.limit);
+                    var obj=data.data[n];
+                    html+=" <tr>" +
+                        "        <td>"+(n+toShow+1)+"</td>" +
+                        "        <td>"+obj.classroom_name+"</td>" +
+                        "        <td>"+obj.cam_name+"</td>" +
+                        "        <td>"+(obj.building==null?"--":obj.building)+"</td>" +
+                        "        <td>"+(obj.floor==null?"--":obj.floor)+"</td>" +
+                        "        <td class=\"operation\" >" +
+                        "        <span  class=\"toEdit\" data-id='"+obj.classroom_id+"'>编辑<em></em></span>" +
+                        "        <span  class=\"toDel\"  data-id='"+obj.classroom_id+"'>删除<em></em></span>" +
+                        "     </td>" +
+                        "    </tr>";
+
+                    localCampus[obj.classroom_id]={
+                        "classroom_name": obj.classroom_name,
+                        "building": obj.building,
+                        "floor": obj.floor,
+                        "cam_id": obj.cam_id,
+                        "cam_name": obj.cam_name,
+
+                    }
+
+                }
+                sessionStorage.localclassRooms=JSON.stringify(localCampus);
+
+            }else {
+                html += "<tr>" +
+                    "<td colspan='11' class='noData' title='没有找到数据'><i class=\"fa fa-warning\" aria-hidden=\"true\"></i>该条件下没有找到教室信息</td>" +
+                    "</tr>";
+            }
+                $("#classRoomList").html(html)
+
+            }else {
+                myAlert(res.message,2,res.code,null);
+            }
+        },"POST",false)
+    }
+</script>

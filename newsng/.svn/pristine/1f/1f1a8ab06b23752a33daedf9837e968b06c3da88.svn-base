@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title>学员列表</title>
+		<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+		<link rel="shortcut icon" href="../../../favicon.ico">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<!--ui包-->
+		<link rel="stylesheet" href="../../../css/sm.css">
+		<link rel="stylesheet" href="../../../css/layout.css">
+		<link rel="stylesheet" href="../../../css/teacher.css">
+		<style>
+			.list-block .item-title{
+				overflow: visible;
+			}
+			.list-block .item-title.label{
+				width:100%
+			}
+			#allClass .content-block-title{overflow: visible;display: none}
+			#allStudentC{color:lightgreen}
+		</style>
+	</head>
+	<body>
+		<div class="page-group">
+			<div class="page page-current">
+			   <header class="bar bar-nav">
+			    <!-- <h1 class="title pull-left" id="className"></h1> -->
+				  <button class="button button-link button-nav pull-left" id="className" style='margin-left:0.25rem'></button>
+				  <button class="button button-link button-nav pull-right">
+				   	 共<span id="allStudentC"> 0 </span>人
+				  </button>
+			  </header> 
+			 
+			 
+			 <div class="content native-scroll" style="top:.96rem">
+				 <div class="list-block " >
+				    <!-- <div id="letter" ></div> -->
+				    <ul class="sort_box" id="allClass" style="border:0">
+						<div id="pay_type5" class="content-block-title">缴费已完成(1人)</div>
+						<div id="pay_type3" class="content-block-title">报名待缴费(1人)</div>
+						<div id="pay_type2" class="content-block-title">名额保留中(1人)</div>
+						<div id="pay_type1" class="content-block-title">老生待续费(1人)</div>
+						<div id="pay_type6" class="content-block-title">退费待审核(1人)</div>
+						<div id="pay_type7" class="content-block-title">退费已审核(1人)</div>
+						<div id="pay_type8" class="content-block-title">退费已完成(1人)</div>
+						<div id="pay_type4" class="content-block-title">报名已作废(1人)</div>
+			       </ul>
+			        <!-- 首字母 -->
+    				<div class="initials">
+				        <ul></ul>
+				    </div>
+				    <!-- 首字母 End-->
+			    </div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
+<script src='../../../js/zepto.min.js'></script>
+<script src='../../../js/sm.min.js'></script>
+<script src='../../../js/config.js'></script>
+<script src='../../../js/phonebook/jquery.charfirst.pinyin.js'></script>
+<script src='../../../js/phonebook/sort.js'></script>
+<script>
+var baseUser = JSON.parse(sessionStorage.baseUser);
+$(function(){
+	var className = sessionStorage.className;
+	$("#className").text(className);
+	var clas_id = GetUrlParam("id");
+	getData(domainName + '/mobile/teacherApp/queryStudentByClass.json',{
+		token:baseUser.token,
+		udid:baseUser.udid,
+		version: 3,
+		identity: baseUser.orguser.identity||1,
+		org_id: baseUser.orguser.org_id,
+		clas_id: clas_id
+	},function(res){
+		if(res.code == 200&&res.success == true){
+			var d = res.data;
+			if(d!== null && d.length>0){
+				for(var i=0;i<d.length;i++){
+					var type = d[i].key;
+					var domList = function(data,selector){
+						var listHtml = '';
+						for(var j=0;j<data.length;j++){
+							// listHtml += `<li id="${data[j].stud_id}" class="item-content" data-tel="true" data-mob="" telSign>
+							// 				<div class="item-media"><span class="icon icon-phone"></span></div>
+							// 				<div class="item-inner">
+							// 					<div class="item-title label">${data[j].stud_name}</div>
+							// 					<div class="item-after gray"></div>
+							// 				</div>
+							// 			</li>`
+							listHtml += "<li id=\"".concat(data[j].stud_id, "\" class=\"item-content\" data-tel=\"true\" data-mob=\"\" telSign>\n\t\t\t\t\t\t\t\t\t\t\t\t<div class=\"item-media\"><span class=\"icon icon-phone\"></span></div>\n\t\t\t\t\t\t\t\t\t\t\t\t<div class=\"item-inner\">\n\t\t\t\t\t\t\t\t\t\t\t\t\t<div class=\"item-title label\">").concat(data[j].stud_name, "</div>\n\t\t\t\t\t\t\t\t\t\t\t\t\t<div class=\"item-after gray\"></div>\n\t\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t\t</li>");
+						}
+						selector.after(listHtml);
+					}
+					if(d[i].list.length>0){
+						$("#pay_type"+type).show();
+						$("#pay_type"+type).text(d[i].val+"("+ d[i].list.length +"人)");
+						domList(d[i].list,$("#pay_type"+type));
+					}else{
+						$("#pay_type"+type).hide();
+					}
+				}
+				// 			var Initials=$('.initials');
+				// 	        var LetterBox=$('#letter');
+				// 	        initials();
+
+				// 	        $(".initials ul li").click(function(){
+				// 	            var _this=$(this);
+				// 	            var LetterHtml=_this.html();
+				// 	            LetterBox.html(LetterHtml).show();
+				// 	            Initials.css('background','rgba(145,145,145,0.6)');
+				// 	            setTimeout(function(){
+				// 	                Initials.css('background','rgba(145,145,145,0)');
+				// 	                LetterBox.hide();
+				// 	            },1000);
+				// 	            var container = $('.native-scroll')
+				// 	            var scrollTo = $("#"+LetterHtml).offset().top
+				// 	             container.scrollTop(
+				// 				        scrollTo - container.offset().top + 48
+				// 				    );
+				// 	        });
+								
+				// 			//字母自动按屏幕设置高度···关闭    
+				// 	       /*  var windowHeight=$(window).height();
+				// 	        var InitHeight=windowHeight-45;
+				// 	        Initials.height(InitHeight);
+				// 	        var LiHeight=InitHeight/$('.initials ul li').length;
+				// 	        Initials.find('li').height(LiHeight);
+			}else{
+				$("#allClass").append('<div class="noData noData_line"><span class="noData__tips">暂无学员</span></div>');
+			}
+		}else{
+			$.alert(res.message);
+		}
+	},"POST")
+
+	//  var ports="../../../api/recruit/studentsList";
+	//  var parameter={
+	// 		 token:sessionStorage.token,
+    //    	 	 userId:JSON.parse(sessionStorage.baseInfo).userId,
+    //    	     recruitClassId:GetUrlParam("id")
+	//          }   
+
+	// $("#className").html(decodeURI(GetUrlParam("className")));
+	  
+	// getData(ports, parameter,function(result){		 
+	// 		if(result.success=="true"){
+	// 			var res = result.data;
+	// 			var html="";
+	// 			for(var m=res.length-1;m>=0;m--){
+	// 				var telSign='data-tel="true"';
+	// 				if(res[m].isGz==0){
+	// 					var gz='<button class="button button-success smallbtn">邀请关注</button>';
+	// 				}else{
+	// 					var gz='';
+	// 				}
+	// 			   	html +='<li class="item-content" data-mob="'+res[m].mobile+'" '+telSign+'>'+
+	// 				        	'<div class="item-media"><span class="icon icon-phone"></span></div>'+
+	// 				            '<div class="item-inner">'+
+	// 				            	'<div class="item-title label">'+res[m].studentName+'</div>'+
+	// 				                '<div class="item-after gray">'+gz+'</div>'+
+	// 				            '</div>'+
+	// 				       ' </li>';   
+	// 			}
+	       
+	// 			$("#allClass").html(html);
+	// 			$("#allStudentC").append(res.length);
+				
+	// 			var Initials=$('.initials');
+	// 	        var LetterBox=$('#letter');
+	// 	        initials();
+
+	// 	        $(".initials ul li").click(function(){
+	// 	            var _this=$(this);
+	// 	            var LetterHtml=_this.html();
+	// 	            LetterBox.html(LetterHtml).show();
+	// 	            Initials.css('background','rgba(145,145,145,0.6)');
+	// 	            setTimeout(function(){
+	// 	                Initials.css('background','rgba(145,145,145,0)');
+	// 	                LetterBox.hide();
+	// 	            },1000);
+	// 	            var container = $('.native-scroll')
+	// 	            var scrollTo = $("#"+LetterHtml).offset().top
+	// 	             container.scrollTop(
+	// 				        scrollTo - container.offset().top + 48
+	// 				    );
+	// 	        });
+				    
+	// 			//字母自动按屏幕设置高度···关闭    
+	// 	       /*  var windowHeight=$(window).height();
+	// 	        var InitHeight=windowHeight-45;
+	// 	        Initials.height(InitHeight);
+	// 	        var LiHeight=InitHeight/$('.initials ul li').length;
+	// 	        Initials.find('li').height(LiHeight); */
+	// 		}else{
+	// 			$.alert(result.msg);
+	// 		}
+	// 	}); 
+});
+
+//拨打电话
+$("#allClass").on('click','li[data-tel="true"]', function(){
+	getDataNoLoading(domainName + '/mobile/teacherApp/queryTelNumByStudent.json',{
+		token: baseUser.token,
+		udid: baseUser.udid,
+		version: 3,
+		identity: 1,
+		org_id: baseUser.orguser.org_id,
+		stud_id: $(this).attr("id")
+	},function(res){
+		if(res.code == 200 && res.success == true){
+			var d = res.data;
+			if(d !== null && d.length>0){
+				var buttons1 = [];
+				for(var i=0;i<d.length;i++){
+					var mob = d[i].user_mobile;
+					buttons1.push({
+						text: '电话联系' + d[i].parent_name,
+						mob:mob,
+						onClick:function() {
+							console.info(this.mob);
+							window.location.href="tel:"+this.mob;
+						}
+					});
+					buttons1.push({
+						text: '短信联系'+ d[i].parent_name,
+						mob:mob,
+						onClick:function() {
+							console.info(this.mob);
+							window.location.href="SMS:"+this.mob;
+						}
+					})
+				}
+				var buttons2 = [
+					{
+						text: '取消',
+						bg: 'danger'
+					}
+				];
+				var groups = [buttons1, buttons2];
+				$.actions(groups);
+			}
+		}else{
+			$.alert(res.message);
+		}
+	},"POST")
+});
+</script>
+ 

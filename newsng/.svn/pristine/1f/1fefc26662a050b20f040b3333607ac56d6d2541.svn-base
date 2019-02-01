@@ -1,0 +1,92 @@
+<!--创建类目-->
+<div style="padding: 40PX;">
+    <form class="gui-form gui-form-label-right" id="addCategory-form" novalidate="novalidate">
+        <div class="line"></div>
+        <div class="gui-form-item gui-form-item-required"><label class="gui-form-item-label">类目名称</label>
+            <div class="gui-form-item-content">
+                <input type="text" name="categoryName" id="categoryName" placeholder="请输入类目名称" class="gui-input" value="" maxlength="20" >
+            </div>
+        </div>
+
+        <div class="line"></div>
+        <div class="gui-form-item">
+            <div class="gui-form-item-content" >
+                <button type="button" class="gui-btn gui-btn-normal" id="saveCategory"><i class="fa fa-save"></i><span>保存类目</span></button>
+                <button type="reset" class="gui-btn gui-btn-warm" id="clearform"><i class="fa fa fa-trash-o"></i><span>清空表单</span></button>
+                <button type="button" class="gui-btn gui-btn-primary" id="back"><i class="fa fa-angle-left"></i><span>返回列表</span></button>
+            </div>
+        </div>
+    </form>
+</div>
+<script type="text/javascript" src="plus/validate/jquery-validate.js"></script>
+<script>
+    $(function() {
+
+        //返回列表
+        $("#back").click(function(){
+            window.location.href="#f23";
+        });
+
+        //赋值
+        $("#categoryName").val(decodeURI(GetUrlParam("categoryName"))).change();
+        $("#categoryId").val(GetUrlParam("categoryId"));
+
+
+        //校验规则
+        $("#addCategory-form").validate({
+            rules: {
+                categoryName: {
+                    required: true,
+                    minlength:2,
+                    maxlength:10
+                }
+            },
+            messages: {
+                categoryName: {
+                    required: '请输入类目名称',
+                    minlength:'类目名称最少2个字符',
+                    maxlength:'类目名称不能超过20个字'
+                }
+            },
+            errorPlacement: function(error, element) {
+                error.appendTo(element.parent().after())
+            },
+            errorElement: 'span',
+            submitHandler: function(form) {
+
+              //通过之后回调
+
+              //保存类目
+              var scategory = {
+                  parameter:{
+                            "category_id":GetUrlParam("categoryId"),
+                            "org_id": option.org_id,
+                            "category_name":$("#categoryName").val()
+                        },
+                  url:domain+"/baseSet/categoryManage/createAndUpdateCategoryInfo.json"
+
+              };
+
+                //保存或者更新类目
+                getData(scategory.url,scategory.parameter,function (data) {
+                    console.log(data)
+                    if(data.code==200 && data.success==true){
+                        myAlert("保存成功",1,data.code,function () {
+                            window.location.href="#f23"
+                        });
+                    }else {
+                        myAlert(data.message,2,data.code,null);
+                    }
+                },"POST",false)
+            }
+
+        });
+
+        $("#saveCategory").click(function () {
+            $("#addCategory-form").submit();
+        })
+
+    })
+</script>
+
+

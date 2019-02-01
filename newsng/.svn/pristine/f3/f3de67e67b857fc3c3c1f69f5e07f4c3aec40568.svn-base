@@ -1,0 +1,158 @@
+<!--用户管理-->
+<style>
+    .tablesorter-blue tbody td.stu_status {color: #e89090;}
+</style>
+
+<div class="content-wrap" id="sub_loadBox"  >
+
+    <div class="bod-con-fer-form" style="padding-top: 20px;">
+        <table align="center" class="tab tablesorter-blue">
+            <thead>
+            <tr>
+                <th>序号</th>
+                <th>机构名称</th>
+                <th>联系人</th>
+                <th>联系电话</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody id="list">
+            </tbody>
+        </table>
+    </div>
+    <!-- 分页 -->
+    <div class="gui-page-wapper" style="margin:20px 0;line-height: 28px;" id="pageContent">
+        <ul class="gui-page" id="limitUi">
+            <span class="gui-page-total">共<span id="allPage" class="numberShow">0</span>页 <span id="allTotal" class="numberShow">0</span>条数据</span>
+            <span id="creatPage"> </span>
+        </ul>
+        <span class="gui-page-options-elevator" style="padding-left: 10px;">
+                每页条数：
+                <select id="limit" >
+                     <option value="20">20</option>
+                     <option value="50">50</option>
+                     <option value="100">100</option>
+                </select>
+            </span>
+        <span class="gui-page-options">
+            <span class="gui-page-options-elevator">跳至第
+            <input id="page" class="gui-input" data-onlyNumber="true">
+             页</span>
+           </span>
+    </div>
+    <!--分页-->
+</div>
+<script>
+    $(function () {
+        //默认
+        showHtml();
+
+        //删除合作机构
+        $("#list").on("click",".toDel",function () {
+            var subject_id=$(this).attr("data-id");
+            var subject_name=$(this).closest("tr").find("td:eq(1)").text();
+
+            myConfirm("你确定要删除 ["+subject_name+"] 吗？",function () {
+
+                var delSubject = {
+                    parameter:{
+                        "cooperative_id":subject_id,
+                        "org_id":option.org_id,
+                        "token":option.token,
+                        "udid":option.udid,
+                    },
+                    url:domain+"/baseSet/cooperativeManage/deleteCooperativeInfo.json"
+                };
+                getData(delSubject.url,delSubject.parameter,function (data) {
+                    if(data.code==200 && data.success==true){
+                        myAlert("删除成功",1,data.code,function () {
+                            window.location.reload()
+                        });
+                    }else {
+                        myAlert(data.message,2,data.code,null);
+                    }
+                },"POST",false);
+
+            },null,null,2)
+
+        });
+
+        //编辑教室
+        $("#list").on("click",".toEdit",function () {
+            var id=$(this).attr("data-id");
+            window.location.href="#f51?cooperative_id="+id
+        });
+
+    })
+    //列表
+    function showHtml(limit,page) {
+
+        var cam_list={
+            "parameter":{
+                "org_id":option.org_id,
+                "limit":limit?limit:20,
+                "page":page?page:1,
+            },
+            "url":domain+"/baseSet/cooperativeManage/queryCooperativeListInfo.json"
+        };
+
+        getData(cam_list.url,cam_list.parameter,function (res) {
+
+            if(res.code==200 && res.success==true){
+                var data=res.data,html="";
+                //如果当前页是第一页从新渲染
+                if(data.page==1){
+                    //生成页数(总条数，总页数，)
+                    $("#creatPage").createPage({
+                        pageCount:data.totalPage,
+                        current:data.page,
+                        url:cam_list.url,
+                        backFn:function(page){
+                            var limit=parseInt($("#limit").val());
+
+                            showHtml(limit,page)
+                        }
+                    });
+                }
+
+                var localCooperatives={};
+                //总页数
+                $("#allPage").text(data.size);
+                //总条数
+                $("#allTotal").text(data.total);
+
+                if(data.data.length>0){
+                    for(var n=0,m=data.data.length;n<m;n++){
+                        var toShow=(parseInt(data.page)-1)*parseInt(data.limit);
+                        var obj=data.data[n];
+                        html+=" <tr>" +
+                            "        <td>"+(n+toShow+1)+"</td>" +
+                            "        <td>"+obj.name+"</td>" +
+                            "        <td>"+(obj.linkman==null||obj.linkman==""?"--":obj.linkman)+"</td>" +
+                            "        <td>"+(obj.phone==null||obj.phone==""?"--":obj.phone)+"</td>" +
+                            "        <td class=\"operation\" >" +
+                            "        <span  class=\"toEdit\" data-id='"+obj.cooperative_id+"'>编辑<em></em></span>" +
+                            "        <span  class=\"toDel\"  data-id='"+obj.cooperative_id+"'>删除<em></em></span>" +
+                            "     </td>" +
+                            "    </tr>"
+
+                        localCooperatives[obj.cooperative_id]={
+                            "name": obj.name,
+                            "linkman": obj.linkman,
+                            "phone": obj.phone,
+                            "note": obj.note,
+                        }
+
+                    }
+                    sessionStorage.localCooperatives=JSON.stringify(localCooperatives);
+                }else{
+                    html+="<tr><td colspan=\"5\" class=\"noData\"><i class=\"fa fa-warning\" aria-hidden=\"true\"></i>暂无合作机构</td></tr>";
+                }
+                $("#list").html(html)
+
+            }else {
+                myAlert(res.message,2,res.code,null);
+            }
+        },"POST",false)
+    }
+</script>
