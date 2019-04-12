@@ -36,12 +36,19 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
-
+/***
+ * 
+ * @Title: springstarter
+ * @author shy
+ * @Description TODO
+ * @data 2019年3月27日 下午3:16:03
+ *
+ */
 public class HttpClientUtil {
 
-	private static final int connTimeout = 120000;
+	private static final int CONN_TIMEOUT = 120000;
 
-	private static final int readTimeout = 120000;
+	private static final int READ_TIMEOUT = 120000;
 
 	private static final String charset = "UTF-8";
 
@@ -62,34 +69,34 @@ public class HttpClientUtil {
 	}
 
 	public static String post(String url, String parameterStr) throws ConnectTimeoutException, SocketTimeoutException, Exception {
-		return post(url, parameterStr, "application/x-www-form-urlencoded", charset, connTimeout, readTimeout);
+		return post(url, parameterStr, "application/x-www-form-urlencoded", charset, CONN_TIMEOUT, READ_TIMEOUT);
 	}
 
 	public static String post(String url, String parameterStr, String mimeType) throws ConnectTimeoutException,
 			SocketTimeoutException, Exception {
-		return post(url, parameterStr, mimeType, charset, connTimeout, readTimeout);
+		return post(url, parameterStr, mimeType, charset, CONN_TIMEOUT, READ_TIMEOUT);
 	}
 
 	public static String post(String url, Map<String, Object> params) throws ConnectTimeoutException, SocketTimeoutException,
 			Exception {
-		return postForm(url, params, null, connTimeout, readTimeout);
+		return postForm(url, params, null, CONN_TIMEOUT, READ_TIMEOUT);
 	}
 
 	public static String post(String url, Map<String, Object> params, Map<String, String> headers)
 			throws ConnectTimeoutException, SocketTimeoutException, Exception {
-		return postForm(url, params, headers, connTimeout, readTimeout);
+		return postForm(url, params, headers, CONN_TIMEOUT, READ_TIMEOUT);
 	}
 
 	public static String get(String url) throws Exception {
-		return get(url, charset, connTimeout, readTimeout);
+		return get(url, charset, CONN_TIMEOUT, READ_TIMEOUT);
 	}
 
 	public static String get(String url, Map<String, Object> paramMap) throws Exception {
-		return get(url, paramMap, charset, connTimeout, readTimeout);
+		return get(url, paramMap, charset, CONN_TIMEOUT, READ_TIMEOUT);
 	}
 
 	public static String get(String url, String charset) throws Exception {
-		return get(url, charset, connTimeout, readTimeout);
+		return get(url, charset, CONN_TIMEOUT, READ_TIMEOUT);
 	}
 
 	/**
@@ -99,14 +106,14 @@ public class HttpClientUtil {
 	 * @param body RequestBody
 	 * @param mimeType 例如 application/xml "application/x-www-form-urlencoded" a=1&b=2&c=3
 	 * @param charset 编码
-	 * @param connTimeout 建立链接超时时间,毫秒.
-	 * @param readTimeout 响应超时时间,毫秒.
+	 * @param CONN_TIMEOUT 建立链接超时时间,毫秒.
+	 * @param READ_TIMEOUT 响应超时时间,毫秒.
 	 * @return ResponseBody, 使用指定的字符集编码.
 	 * @throws ConnectTimeoutException 建立链接超时异常
 	 * @throws SocketTimeoutException 响应超时
 	 * @throws Exception
 	 */
-	private static String post(String url, String body, String mimeType, String charset, Integer connTimeout, Integer readTimeout)
+	private static String post(String url, String body, String mimeType, String charset, Integer CONN_TIMEOUT, Integer READ_TIMEOUT)
 			throws ConnectTimeoutException, SocketTimeoutException, Exception {
 		HttpClient client = null;
 		HttpPost post = new HttpPost(url);
@@ -118,11 +125,11 @@ public class HttpClientUtil {
 			}
 			// 设置参数
 			Builder customReqConf = RequestConfig.custom();
-			if (connTimeout != null) {
-				customReqConf.setConnectTimeout(connTimeout);
+			if (CONN_TIMEOUT != null) {
+				customReqConf.setConnectTimeout(CONN_TIMEOUT);
 			}
-			if (readTimeout != null) {
-				customReqConf.setSocketTimeout(readTimeout);
+			if (READ_TIMEOUT != null) {
+				customReqConf.setSocketTimeout(READ_TIMEOUT);
 			}
 			post.setConfig(customReqConf.build());
 
@@ -151,15 +158,15 @@ public class HttpClientUtil {
 	 * 
 	 * @param url
 	 * @param params
-	 * @param connTimeout
-	 * @param readTimeout
+	 * @param CONN_TIMEOUT
+	 * @param READ_TIMEOUT
 	 * @return
 	 * @throws ConnectTimeoutException
 	 * @throws SocketTimeoutException
 	 * @throws Exception
 	 */
-	private static String postForm(String url, Map<String, Object> params, Map<String, String> headers, Integer connTimeout,
-			Integer readTimeout) throws ConnectTimeoutException, SocketTimeoutException, Exception {
+	private static String postForm(String url, Map<String, Object> params, Map<String, String> headers, Integer CONN_TIMEOUT,
+			Integer READ_TIMEOUT) throws ConnectTimeoutException, SocketTimeoutException, Exception {
 
 		HttpClient client = null;
 		HttpPost post = new HttpPost(url);
@@ -181,11 +188,11 @@ public class HttpClientUtil {
 			}
 			// 设置参数
 			Builder customReqConf = RequestConfig.custom();
-			if (connTimeout != null) {
-				customReqConf.setConnectTimeout(connTimeout);
+			if (CONN_TIMEOUT != null) {
+				customReqConf.setConnectTimeout(CONN_TIMEOUT);
 			}
-			if (readTimeout != null) {
-				customReqConf.setSocketTimeout(readTimeout);
+			if (READ_TIMEOUT != null) {
+				customReqConf.setSocketTimeout(READ_TIMEOUT);
 			}
 			post.setConfig(customReqConf.build());
 			HttpResponse res = null;
@@ -207,7 +214,7 @@ public class HttpClientUtil {
 		}
 	}
 
-	private static String get(String url, Map<String, Object> paramMap, String charset, Integer connTimeout, Integer readTimeout)
+	private static String get(String url, Map<String, Object> paramMap, String charset, Integer CONN_TIMEOUT, Integer READ_TIMEOUT)
 			throws ConnectTimeoutException, SocketTimeoutException, Exception {
 
 		if (paramMap != null && paramMap.size() > 0) {
@@ -218,7 +225,7 @@ public class HttpClientUtil {
 			url += "?" + EntityUtils.toString(new UrlEncodedFormEntity(pairs, charset));
 		}
 
-		return get(url, charset, connTimeout, readTimeout);
+		return get(url, charset, CONN_TIMEOUT, READ_TIMEOUT);
 	}
 
 	/**
@@ -226,14 +233,14 @@ public class HttpClientUtil {
 	 * 
 	 * @param url
 	 * @param charset
-	 * @param connTimeout 建立链接超时时间,毫秒.
-	 * @param readTimeout 响应超时时间,毫秒.
+	 * @param CONN_TIMEOUT 建立链接超时时间,毫秒.
+	 * @param READ_TIMEOUT 响应超时时间,毫秒.
 	 * @return
 	 * @throws ConnectTimeoutException 建立链接超时
 	 * @throws SocketTimeoutException 响应超时
 	 * @throws Exception
 	 */
-	private static String get(String url, String charset, Integer connTimeout, Integer readTimeout)
+	private static String get(String url, String charset, Integer CONN_TIMEOUT, Integer READ_TIMEOUT)
 			throws ConnectTimeoutException, SocketTimeoutException, Exception {
 
 		HttpClient client = null;
@@ -242,11 +249,11 @@ public class HttpClientUtil {
 		try {
 			// 设置参数
 			Builder customReqConf = RequestConfig.custom();
-			if (connTimeout != null) {
-				customReqConf.setConnectTimeout(connTimeout);
+			if (CONN_TIMEOUT != null) {
+				customReqConf.setConnectTimeout(CONN_TIMEOUT);
 			}
-			if (readTimeout != null) {
-				customReqConf.setSocketTimeout(readTimeout);
+			if (READ_TIMEOUT != null) {
+				customReqConf.setSocketTimeout(READ_TIMEOUT);
 			}
 			get.setConfig(customReqConf.build());
 
@@ -286,8 +293,8 @@ public class HttpClientUtil {
 		try {
 			// 设置参数
 			Builder customReqConf = RequestConfig.custom();
-			customReqConf.setConnectTimeout(connTimeout);
-			customReqConf.setSocketTimeout(readTimeout);
+			customReqConf.setConnectTimeout(CONN_TIMEOUT);
+			customReqConf.setSocketTimeout(READ_TIMEOUT);
 
 			post.setConfig(customReqConf.build());
 
@@ -364,13 +371,13 @@ public class HttpClientUtil {
 
 	// 自定义私有类
 	private static class TrustAnyTrustManager implements X509TrustManager {
-
+		@Override
 		public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
 		}
-
+		@Override
 		public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
 		}
-
+		@Override
 		public X509Certificate[] getAcceptedIssuers() {
 			return new X509Certificate[] {};
 		}

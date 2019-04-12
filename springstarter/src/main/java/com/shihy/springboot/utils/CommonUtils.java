@@ -20,22 +20,33 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
+import java.util.TimeZone;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.cglib.beans.BeanGenerator;
-
-import com.alibaba.fastjson.JSONObject;
-
-
+/***
+ * 
+ * @Title: springstarter
+ * @author shy
+ * @Description TODO
+ * @data 2019年3月27日 下午3:30:35
+ *
+ */
 public class CommonUtils {
 
     public static String getUUID() {
@@ -316,7 +327,7 @@ public class CommonUtils {
     }
     
     public static Map<String,Object> doParameters(HttpServletRequest request){
-		Map<String,Object> param=new HashMap<String,Object>();
+		Map<String,Object> param=new HashMap<String,Object>(16);
 		Map<String,String[]> paramMap=request.getParameterMap();
 		for(String key : paramMap.keySet()){
 			String[] value=paramMap.get(key);
@@ -348,7 +359,7 @@ public class CommonUtils {
         }
         if(ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
 			ip = request.getRemoteAddr();
-			if(ip.equals("127.0.0.1")){  
+			if("127.0.0.1".equals(ip)){  
 				InetAddress inet=null;
 			try {
 				inet = InetAddress.getLocalHost();
@@ -493,14 +504,14 @@ public class CommonUtils {
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
 	public static Map bean2map(Object bean){
-    	Map map=new HashMap();
+    	Map map=new HashMap(16);
     	try{
 	    	Class type=bean.getClass();
 	    	BeanInfo beanInfo=Introspector.getBeanInfo(type);
 	    	PropertyDescriptor[] propertyDescriptor=beanInfo.getPropertyDescriptors();
 	    	for(PropertyDescriptor descriptor : propertyDescriptor){
 	    		String propertyName=descriptor.getName();
-	    		if(!propertyName.equals("class")){
+    			if(!"class".contentEquals(propertyName)){
 	    			Method readMethod=descriptor.getReadMethod();
 	    			Object result=readMethod.invoke(bean);
 	    			map.put(propertyName, result);
@@ -581,11 +592,165 @@ public class CommonUtils {
         return b1.subtract(b2);
 	}
 	
-	public static JSONObject mapToJson(Map<String, Object> map) {
-		JSONObject json = new JSONObject();
-		json.put("map", map);
-		return json;
+	/***
+	 * @Description: 数字截取后几位,四舍五入
+	 * @param: d
+	 * @param: digit
+	 */
+	public static double round(double d, int digit) {
+		
+		BigDecimal b = new BigDecimal(d);
+		return b.setScale(digit, BigDecimal.ROUND_HALF_UP).doubleValue();
+	}
+	/***
+	 * 
+	 * @Description: 四舍五入
+	 * @param d
+	 * @param type 如： "#.00" 即表示为保留小数点后两位  几个0代表保留的位数
+	 * @return   
+	 * @return double  
+	 * @throws @throws
+	 */
+	public static double subDecimalFormat(double d, String type) {
+		if (StringUtils.isBlank(type)) {
+			type = "#";
+		}
+		java.text.DecimalFormat df = new java.text.DecimalFormat(type); 
+		double d1 = Double.parseDouble(df.format(d));
+		return d1;
 	}
 	
+
+	/**
+	 * @Description: 将浮点数转为百分数
+	 * @param d
+	 * @param IntegerDigits 小数点前保留的位数
+	 * @param FractionDigits 小数点后保留的位数
+	 * @return String
+	 * @time 2018年10月1日 上午11:09:35
+	 */
+	public static String getPercentFormat(double d,int integerDigits,int fractionDigits){
+		  NumberFormat nf = java.text.NumberFormat.getPercentInstance(); 
+		  nf.setMaximumIntegerDigits(integerDigits);//小数点前保留几位
+		  nf.setMinimumFractionDigits(fractionDigits);// 小数点后保留几位
+		  String str = nf.format(d);
+		  return str;
+	}
 	
+	/**
+	 * @Description: 将百分数转为浮点数
+	 * @param d
+	 * @return double
+	 * @time 2018年10月1日 上午11:09:35
+	 */
+	public static double getPercentToDouble(String d, int digit){
+		NumberFormat nf=NumberFormat.getPercentInstance();
+		Number m = null;
+		try {
+			m = nf.parse(d);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+	    return round(Double.parseDouble(String.valueOf(m.toString())), digit) ;
+	}
+	/***
+	 * 
+	 * 对象改为局部变量每一个线程拥有一个单独的SimpleDateFormat对象。 
+	 * 我们可以将SimpleDateFormat改为一个局部变量使每个线程拥有一个SimpleDateFormat对象实例，这样在多线程环境下每个线程都用属于自己的实例去操作日期，
+	 * 因为每个线程中程序是串行执行这样就可以保证线程安全性了。但是这种做法的缺点是每创建一个线程就会新创建一个SimpleDateFormat实例，当线程退出时该对象就会被销毁，
+	 * 这样就会频繁地创建和销毁对象，效率较低。
+	 * 我们用ThreadLocal创建一个日期工具类DateUtil，ThreadLocal以日期模式为key，以SimpleDateFormat为值，
+	 * 对于同一种日期模式，同一个线程，只会创建同一个SimpleDateFormat实例。
+	 */
+	//***********************************************begining***************************************************//
+	private static ThreadLocal<Map<String, SimpleDateFormat>> dateFormatMap = new ThreadLocal<Map<String,SimpleDateFormat>>(){
+		@Override
+		protected Map<String, SimpleDateFormat> initialValue() {
+			// TODO Auto-generated method stub
+			return new HashMap<String, SimpleDateFormat>(16);
+		}
+	};
+	
+	private static SimpleDateFormat getSimpleDateFormat(final String pattern) {
+		Map<String, SimpleDateFormat> map = dateFormatMap.get();
+		SimpleDateFormat simpleDateFormat = map.get(pattern);
+		if (simpleDateFormat == null) {
+			simpleDateFormat = new SimpleDateFormat(pattern);
+			map.put(pattern, simpleDateFormat);
+		}
+		return simpleDateFormat;
+	}
+	
+	public static String format(Date date, String pattern) {
+		return getSimpleDateFormat(pattern).format(date);
+	}	
+	
+	public static Date parse(String date, String pattern) throws ParseException {
+		return getSimpleDateFormat(pattern).parse(date);
+	}
+	//***********************************************ending***************************************************//
+	/***
+	 * @Description: 并集
+	 * @param @param list1
+	 * @param @param list2
+	 * @return void  
+	 * @throws @throws
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public static List<Integer> unionSet(List<Integer> list1, List<Integer> list2) {
+		//求并集
+		Set result = new HashSet();
+		result.addAll(list1);
+		result.addAll(list2);
+		List<Integer> list = new ArrayList<>(result);
+		return list;
+	}
+	/***
+	 * @Description: 交集
+	 * @param @param list1
+	 * @param @param list2
+	 * @return void  
+	 * @throws @throws
+	 */
+	public static List<Integer> intersectionSet(List<Integer> list1, List<Integer> list2) {
+		//List<Integer> list1 = Arrays.asList(arr1);
+		//List<Integer> list2 = Arrays.asList(arr2);
+		
+		// 创建集合 求交集
+		Collection<Integer> c1 = new ArrayList<Integer>(list1);
+		Collection<Integer> c2 = new ArrayList<Integer>(list2);
+		c1.retainAll(c2);
+		List<Integer> list = new ArrayList<Integer>(c1);
+		System.out.println("arr1与arr2交集结果：" + c1);
+		return list;
+	}
+	/***
+	 * @Description: arr1集合中存在的元素但是arr2中不存在
+	 * @param @param list1
+	 * @param @param list2
+	 * @param @return
+	 * @return List<Integer>  
+	 * @throws @throws
+	 */
+	public static List<Integer> existence(List<Integer> list1, List<Integer> list2) {
+		int len1 = list1.size();
+		int len2 = list2.size();
+		//求arr1存在的元素，arr2不存在
+		List<Integer> l1 = new ArrayList<Integer>();
+		for(int i = 0; i < len1; i++) {
+			Integer num = list1.get(i);
+			if (!list2.contains(num)) {
+				l1.add(num);
+			}
+		}
+		System.out.println("arr1集合中存在的元素但是arr2中不存在 ：" + l1);
+		return l1;
+	}
+	
+	public static Date getDate(Long addTime) {
+		long current = System.currentTimeMillis();//当前时间毫秒数
+        long add_min = current+addTime;//
+        Date date = new Date(add_min);
+		return date;
+	}
 }

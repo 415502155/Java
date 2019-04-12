@@ -7,6 +7,8 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -28,7 +30,11 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Component
 @Slf4j
+@PropertySource({"classpath:config.properties"})
 public class BaseInterceptor implements HandlerInterceptor {
+	
+	@Value("${TOKEN_EXPIR_TIME}")
+	private String TOKEN_EXPIR_TIME;
 	
 	@Resource
 	private UserService userService;
@@ -82,9 +88,9 @@ public class BaseInterceptor implements HandlerInterceptor {
         		log.info("根据用户ID获取 ： { userToken :" + userToken + " }");
         		if (token.equals(userToken)) {
         			/***
-        			 * 重置用户信息的过期时间
+        			 * 每次请求都会重置用户登录信息的过期时间
         			 */
-        			userService.expire("user_id", Constant.ZERO);
+        			userService.expire("user_id", Long.parseLong(TOKEN_EXPIR_TIME));
         			log.info("请求参数 ：校验完成; 通过");
         		} else {
         			log.info("请求参数 ：token不正确");

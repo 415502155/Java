@@ -23,7 +23,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
  *
  */
 @Configuration
-@EnableCaching//开启注解
+@EnableCaching
 public class RedisConfig {
     @Bean
     public CacheManager cacheManager(RedisTemplate<?, ?> redisTemplate) {
@@ -36,7 +36,13 @@ public class RedisConfig {
         rcm.setDefaultExpiration(600);
         return rcm;*/
     }
-    // 以下两种redisTemplate自由根据场景选择
+    /***
+     * @Description: 以下两种redisTemplate自由根据场景选择
+     * @param @param connectionFactory
+     * @param @return
+     * @return RedisTemplate<Object,Object>  
+     * @throws @throws
+     */
     @SuppressWarnings({ "rawtypes", "unchecked" })
 	@Bean
     public RedisTemplate<Object, Object> redisTemplate(RedisConnectionFactory connectionFactory) {

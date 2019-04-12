@@ -326,4 +326,60 @@
             (#{item.user_name}, #{item.user_pass}, #{item.sex}, #{item.birthday}, #{item.is_del} ,#{item.create_time})
         </foreach>
     </insert>
+    <select id="getUserByUserId" parameterType="Integer" resultType="com.shihy.springboot.entity.User" statementType="CALLABLE">
+		{call pro_query_user(#{user_id,jdbcType=INTEGER,mode=IN}, #{user_name,jdbcType=VARCHAR,mode=OUT}, #{sex,jdbcType=INTEGER,mode=OUT}, #{birthday,jdbcType=DATE,mode=OUT})}
+	</select>
+	
+	<select id="getUserMapByUserId" parameterType="Integer" resultType="java.util.Map" statementType="CALLABLE">
+		{call pro_query_user(#{user_id,jdbcType=INTEGER,mode=IN}, #{user_name,jdbcType=VARCHAR,mode=OUT}, #{sex,jdbcType=INTEGER,mode=OUT}, #{birthday,jdbcType=DATE,mode=OUT})}
+	</select>
+	
+	<select id="getUserRoleMenuListInfo" resultType="java.util.HashMap" parameterType="java.lang.Integer">
+		select * from `master`.v_user_role_menu 
+		<if test="user_id != null">
+			where user_id = #{user_id}
+		</if>
+		ORDER BY create_time DESC
+	</select>
+	<select id="getUserRoleMenuByRoleId" resultType="java.util.HashMap" parameterType="java.lang.Integer">
+		SELECT t_role.role_id, t_role.role_name, t_menu.menu_id, t_menu.menu_name from t_user 
+		INNER JOIN t_user_role ON t_user.user_id = t_user_role.user_id AND t_user_role.is_del = 0
+		INNER JOIN t_role ON t_role.role_id = t_user_role.role_id AND t_role.is_del = 0
+		INNER JOIN t_role_menu ON t_role_menu.role_id = t_role.role_id AND t_role_menu.is_del = 0
+		INNER JOIN t_menu ON t_menu.menu_id = t_role_menu.menu_id and t_menu.is_del = 0
+		where t_role.is_del = 0 
+		<if test="role_id != null">
+			AND t_role.role_id = #{role_id}
+		</if>
+	</select>
+    <update id="updateUserMenuInfo" parameterType="java.lang.Integer" >
+    	update t_role_menu
+    	set t_role_menu.is_del = #{is_del,jdbcType=INTEGER}
+	    where t_role_menu.role_id = #{role_id,jdbcType=INTEGER}
+	    and t_role_menu.menu_id = #{menu_id,jdbcType=INTEGER}
+    </update>
+    <select id="getRoleMenuInfoByRoleIdAndMenuId" resultType="java.util.HashMap" parameterType="java.lang.Integer">
+    	SELECT t_role.role_id, t_role.role_name, t_menu.menu_id, t_menu.menu_name from t_user 
+		INNER JOIN t_user_role ON t_user.user_id = t_user_role.user_id AND t_user_role.is_del = 0
+		INNER JOIN t_role ON t_role.role_id = t_user_role.role_id AND t_role.is_del = 0
+		INNER JOIN t_role_menu ON t_role_menu.role_id = t_role.role_id
+		INNER JOIN t_menu ON t_menu.menu_id = t_role_menu.menu_id and t_menu.is_del = 0
+		<where>
+			<if test="is_del != null">
+				AND t_role_menu.is_del = #{is_del}
+			</if>
+			<if test="role_id != null">
+				AND t_role.role_id = #{role_id}
+			</if>
+			<if test="menu_id != null">
+				AND t_role_menu.menu_id = #{menu_id}
+			</if>
+		</where>
+    </select>
+    <insert id="insertRoleAndMenuInfo" parameterType="com.shihy.springboot.entity.Role2Menu" >
+    insert into t_role_menu (role_menu_id, menu_id, role_id, is_del,  
+      create_time, update_time)
+    values (#{role_menu_id,jdbcType=INTEGER},#{menu_id,jdbcType=INTEGER}, #{role_id,jdbcType=INTEGER}, #{is_del,jdbcType=INTEGER}, 
+      #{create_time,jdbcType=TIMESTAMP}, #{update_time,jdbcType=TIMESTAMP})
+  </insert>
 </mapper>

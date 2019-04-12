@@ -6,7 +6,6 @@ import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
@@ -19,6 +18,14 @@ import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import lombok.extern.slf4j.Slf4j;
+/***
+ * 
+ * @Title: springstarter
+ * @author shy
+ * @Description TODO
+ * @data 2019年3月27日 下午3:14:25
+ *
+ */
 @Slf4j
 public class EasyExcelUtil {
 	
@@ -37,8 +44,9 @@ public class EasyExcelUtil {
 
     private static void defaultExport(List<?> list, Class<?> pojoClass, String fileName, HttpServletRequest request, HttpServletResponse response, ExportParams exportParams) {
         Workbook workbook = ExcelExportUtil.exportExcel(exportParams,pojoClass,list);
-        if (workbook != null);
-        downLoadExcel(fileName, request, response, workbook);
+        if (workbook != null) {
+        	downLoadExcel(fileName, request, response, workbook);
+        };
     }
     /***
      * 
@@ -71,8 +79,9 @@ public class EasyExcelUtil {
     }
     private static void defaultExport(List<Map<String, Object>> list, String fileName, HttpServletRequest request, HttpServletResponse response) {
         Workbook workbook = ExcelExportUtil.exportExcel(list, ExcelType.HSSF);
-        if (workbook != null);
-        downLoadExcel(fileName, request, response, workbook);
+        if (workbook != null) {
+        	downLoadExcel(fileName, request, response, workbook);
+        };
     }
 
     public static <T> List<T> importExcel(String filePath,Integer titleRows,Integer headerRows, Class<T> pojoClass){

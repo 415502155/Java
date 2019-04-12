@@ -7,7 +7,6 @@ spring:
 mybatis:
   typeAliasesPackage: com.shihy.springboot.entity
   mapperLocations: classpath:mapping/*.xml
-
 ---
 
 #热部署生效
@@ -17,17 +16,44 @@ spring.devtools.restart.enabled: true
 #classpath目录下的WEB-INF文件夹内容修改不重启
 spring.devtools.restart.exclude: WEB-INF/**
 
-#开发配置
+#dubbo:
+#  application:
+#    name: springstarter
+#  registry:
+#    address: 127.0.0.1:2181
+#    protocol: zookeeper
+#  protocol:
+#    name: dubbo
+#    port: 20880
+#开发配置 ?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&useSSL=false
 spring:
   profiles: dev
   application:
     name: springstart
+  data:
+    solr:
+      host: http://localhost:8983/solr/new_core
   #◁◁◁◁◁◁◁◁◁◁◁◁◁◁◁◁◁◁◁◁◁◁◁◁◁◁◁◁◁◁◁◁◁◁◁◁◁◁◁mysql配置▷▷▷▷▷▷▷▷▷▷▷▷▷▷▷▷▷▷▷▷▷▷▷▷▷▷▷▷▷▷▷▷▷▷▷▷▷▷▷▷▷▷▷▷▷▷▷
   datasource:
-    url: jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=GBK
-    username: root
-    password: root
-    driver-class-name: com.mysql.jdbc.Driver
+    master:
+      url: jdbc:mysql://localhost:3306/master?useUnicode=true&characterEncoding=GBK
+      username: root
+      password: 123456
+      driver-class-name: com.mysql.jdbc.Driver
+      # 使用druid数据源
+      type: com.alibaba.druid.pool.DruidDataSource
+    slave:
+      url: jdbc:mysql://localhost:3306/slave?useUnicode=true&characterEncoding=GBK
+      username: root
+      password: 123456
+      driver-class-name: com.mysql.jdbc.Driver
+      #使用druid数据源
+      type: com.alibaba.druid.pool.DruidDataSource
+  #datasource:
+    #url: jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=GBK
+    #username: root
+    #password: root
+    #driver-class-name: com.mysql.jdbc.Driver
     # 使用druid数据源
     #type: com.alibaba.druid.pool.DruidDataSource
   ###rabbitmq
@@ -35,6 +61,20 @@ spring:
   rabbitmq.port: 5672
   rabbitmq.username: guest
   rabbitmq.password: guest
+  rabbitmq:
+    #发送方确认机制
+    #生产者将信道设置成 confmn 确认)模式，一旦信道进入 confmn 模式，所有在该信道上
+    #面发布的消息都会被指派 个唯一的 IDC 开始)，一旦消息被投递到所有匹配的队列之后，
+    #RabbitMQ 会发送一个确认 CBasic.Ack) 给生产者(包含消息的唯一 ID) ，这就使得生产
+    #者知晓消息已经正确到达了目的地了
+    publisher-confirms: true
+    #当使用ConvertAndSend的时候不需要设置返回值，convertSendAndReceive才需要
+    publisher-returns: true
+    template:
+    #当mandatory 参数设为 true,交换器无法根据自身的类型和路由键找到一个符合条件
+    #的队列，那么 RabbitM 会调用 Basic.Return 命令将消息返回给生产者 。当 mandatory
+    #数设置为 false 时，出现上述情形，则消息直接被丢弃
+      mandatory: true
   ###上传文件
   # 禁用 thymeleaf 缓存
   thymeleaf.cache: false

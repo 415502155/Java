@@ -8,6 +8,14 @@ import org.springframework.data.annotation.Transient;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.Data;
+/***
+ * 
+ * @Title: springstarter
+ * @author shy
+ * @Description User Entity
+ * @data 2019年3月27日 下午3:30:35
+ *
+ */
 @Data
 public class User implements Serializable {
     private Integer user_id;

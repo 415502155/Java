@@ -3,7 +3,14 @@ package com.shihy.springboot.entity;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
+/***
+ * 
+ * @Title: springstarter
+ * @author shy
+ * @Description TODO
+ * @data 2019年3月27日 下午3:30:35
+ *
+ */
 public class UserExample {
     protected String orderByClause;
 

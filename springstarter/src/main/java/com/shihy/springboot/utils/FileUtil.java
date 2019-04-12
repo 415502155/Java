@@ -10,8 +10,13 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import org.apache.commons.io.FileUtils;
 
-/**
- * 文件工具类
+/***
+ * 
+ * @Title: springstarter
+ * @author shy
+ * @Description TODO
+ * @data 2019年3月27日 下午3:30:35
+ *
  */
 public class FileUtil {
 

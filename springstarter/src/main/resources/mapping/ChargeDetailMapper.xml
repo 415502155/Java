@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.shihy.springboot.dao.ChargeMapper">
+	
+	<insert id="createUnpaidDetail"
+		parameterType="com.shihy.springboot.entity.ChargeDetail"  
+		useGeneratedKeys="true" keyProperty="cd_id">
+		insert into charge_detail (
+		cd_id,target_name,target_id,money,order_no,
+		operator,
+		end_time,
+		start_time,
+		pay_time,
+		type,
+		is_del,
+		create_time,
+		update_time
+		)
+		values
+		(#{cd_id,jdbcType=INTEGER},#{target_name,jdbcType=VARCHAR},#{target_id,jdbcType=INTEGER},
+		#{money,jdbcType=VARCHAR},
+		#{order_no,jdbcType=VARCHAR},
+		#{operator,jdbcType=VARCHAR},
+		#{end_time,jdbcType=TIMESTAMP},
+		#{start_time,jdbcType=TIMESTAMP},
+		#{pay_time,jdbcType=TIMESTAMP},
+		#{type,jdbcType=INTEGER},
+		#{is_del,jdbcType=INTEGER},
+		#{create_time,jdbcType=TIMESTAMP},
+		#{update_time,jdbcType=TIMESTAMP})
+	</insert>
+	<update id="updatePayTimeOut" parameterType="java.lang.Integer">
+		update charge_detail cd set cd.type = 3 where cd.cd_id = #{cdId,jdbcType=INTEGER} and cd.is_del = 0
+	</update>
+	<!-- <select id = "getLoggerList" resultType="com.shihy.springboot.entity.Logger" parameterType="java.lang.Integer">
+		select 
+		<include refid="Base_Column_List"/>
+		from t_logger where 1 = 1 
+		<if test="serchName != null" >
+			AND (target_name like #{serchName, jdbcType=VARCHAR} OR user_name like #{serchName, jdbcType=VARCHAR})
+		</if>
+		<if test="action != null">
+			AND action = #{action,jdbcType=INTEGER}
+		</if>
+			ORDER BY insert_time DESC LIMIT #{startSize}, #{size}
+	</select>
+	
+	<select id = "getLoggerTotalPage" resultType="java.lang.Integer" parameterType="java.lang.Integer">
+		select count(*) from `slave`.t_logger where 1 = 1
+		<if test="serchName != null" >
+			AND (target_name like #{serchName, jdbcType=VARCHAR} OR user_name like #{serchName, jdbcType=VARCHAR})
+		</if>
+		<if test="action != null">
+			 AND action = #{action,jdbcType=INTEGER}
+		</if> 
+	</select>
+	<update id="delLoggerByIds" parameterType="int[]">
+		update slave.t_logger SET is_del = 1 where log_id in 
+		<foreach collection="delIds" item="id" index="no" open="("
+			separator="," close=")">
+			#{id}
+		</foreach>
+	</update>
+	<update id="delLoggerByIdList" parameterType="java.util.List">
+		update slave.t_logger SET is_del = 1 where log_id in 
+		<foreach collection="list" item="item" index="index"  open="("
+			separator="," close=")"> 
+			#{item} 
+		</foreach>
+	</update>
+	
+	<insert id="batchAddLogger" parameterType="java.util.List"> 
+		insert into slave.t_logger (target_id,target_type,target_name, user_type, user_id,
+		user_name, action,content, is_del,insert_time, update_time, del_time) 
+		values 
+		<foreach collection="list" item="item" index="index" separator=","> 
+			(#{item.target_id,jdbcType=INTEGER},
+			#{item.target_type,jdbcType=INTEGER},
+			#{item.target_name,jdbcType=VARCHAR},
+			#{item.user_type,jdbcType=INTEGER},
+			#{item.user_id,jdbcType=INTEGER},
+			#{item.user_name,jdbcType=VARCHAR},
+			#{item.action,jdbcType=INTEGER},
+			#{item.content,jdbcType=VARCHAR},
+			#{item.is_del,jdbcType=INTEGER},
+			#{item.insert_time,jdbcType=TIMESTAMP},
+			#{item.update_time,jdbcType=TIMESTAMP},
+			#{item.del_time,jdbcType=TIMESTAMP})
+		</foreach> 
+	</insert>
+
+	<select id="getLoggerInfoList" resultType="java.util.Map">
+    	select 
+    	<include refid="Base_Column_List"/>
+    	from t_logger
+	    <where>
+	        <if test="target_name!=null">
+	            and target_name like concat('%',#{target_name},'%')
+	        </if>        
+	        <if test="action!=null">
+	            and action = #{action}
+	        </if>
+	        <if test="startSize!=null and size!=null">
+	            limit #{startSize},#{size}
+	        </if>
+	        
+	    </where>     
+	</select> -->
+</mapper>

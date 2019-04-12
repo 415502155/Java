@@ -1,7 +1,7 @@
 package com.shihy.springboot.utils;
 
 /***
- * 
+ *  @author sjwy-0001
  *  @Title: PageInfo.java 
  *  @Description: 主要是针对于oracle数据库
  *  Mysql数据的分页函数limit(?,?)
@@ -78,7 +78,7 @@ public class Page {
 	
 	
 	public Integer checkZero(Integer pageSize) {
-		if (pageSize == 0) {
+		if (pageSize == 0 || pageSize == null) {
 			pageSize = 10;
 		} 
 		return pageSize;		

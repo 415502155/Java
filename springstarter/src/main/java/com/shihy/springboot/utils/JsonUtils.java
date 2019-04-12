@@ -4,6 +4,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
+/***
+ * 
+ * @Title: springstarter
+ * @author shy
+ * @Description TODO
+ * @data 2019年3月27日 下午3:30:35
+ *
+ */
 public class JsonUtils {
 	// 定义jackson对象
 	private static final ObjectMapper MAPPER = new ObjectMapper();

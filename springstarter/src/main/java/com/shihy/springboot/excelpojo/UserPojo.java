@@ -4,7 +4,14 @@ import java.util.Date;
 
 import cn.afterturn.easypoi.excel.annotation.Excel;
 import lombok.Data;
-
+/***
+ * 
+ * @Title: springstarter
+ * @author shy
+ * @Description TODO
+ * @data 2019年3月27日 下午3:30:35
+ *
+ */
 @Data
 public class UserPojo {
 	

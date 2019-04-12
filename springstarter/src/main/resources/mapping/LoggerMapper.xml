@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.shihy.springboot.dao.LoggerMapper">
+	<resultMap type="com.shihy.springboot.entity.Logger" id="BaseResultMap">
+		<id column="log_id" property="log_id" jdbcType="INTEGER"></id>
+		
+		<result column="target_id" property="target_id" jdbcType="INTEGER"></result>
+		<result column="target_type" property="target_type" jdbcType="INTEGER"></result>
+		<result column="target_name" property="target_name" jdbcType="VARCHAR"></result>
+	
+		<result column="user_type" property="user_type" jdbcType="INTEGER"></result>
+		<result column="user_id" property="user_id" jdbcType="INTEGER"></result>
+		<result column="user_name" property="user_name" jdbcType="VARCHAR"></result>
+		
+		<result column="action" property="action" jdbcType="INTEGER"></result>
+		<result column="content" property="content" jdbcType="VARCHAR"></result>
+		<result column="is_del" property="is_del" jdbcType="INTEGER"></result>
+		
+	    <result column="insert_time" property="insert_time" jdbcType="TIMESTAMP" />
+	    <result column="update_time" property="update_time" jdbcType="TIMESTAMP" />
+	    <result column="del_time" property="del_time" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		log_id, target_id, target_name, target_type, user_id, user_name, user_type, action, content, is_del, insert_time, update_time, del_time
+	</sql>
+	
+	<insert id="insert"
+		parameterType="com.shihy.springboot.entity.Logger">
+		insert into `slave`.t_logger (log_id, target_id,
+		target_type,
+		target_name, user_type, user_id,
+		user_name, action,
+		content, is_del,
+		insert_time, update_time, del_time)
+		values
+		(#{log_id,jdbcType=INTEGER},
+		#{target_id,jdbcType=INTEGER},
+		#{target_type,jdbcType=INTEGER},
+		#{target_name,jdbcType=VARCHAR},
+		#{user_type,jdbcType=INTEGER},
+		#{user_id,jdbcType=INTEGER},
+		#{user_name,jdbcType=VARCHAR},
+		#{action,jdbcType=INTEGER},
+		#{content,jdbcType=VARCHAR},
+		#{is_del,jdbcType=INTEGER},
+		#{insert_time,jdbcType=TIMESTAMP},
+		#{update_time,jdbcType=TIMESTAMP},
+		#{del_time,jdbcType=TIMESTAMP})
+	</insert>
+
+	<select id = "getLoggerList" resultType="com.shihy.springboot.entity.Logger" parameterType="java.lang.Integer">
+		select 
+		<include refid="Base_Column_List"/>
+		from t_logger where 1 = 1 
+		<if test="serchName != null" >
+			AND (target_name like #{serchName, jdbcType=VARCHAR} OR user_name like #{serchName, jdbcType=VARCHAR})
+		</if>
+		<if test="action != null">
+			AND action = #{action,jdbcType=INTEGER}
+		</if>
+			ORDER BY insert_time DESC LIMIT #{startSize}, #{size}
+	</select>
+	
+	<select id = "getLoggerTotalPage" resultType="java.lang.Integer" parameterType="java.lang.Integer">
+		select count(*) from `slave`.t_logger where 1 = 1
+		<if test="serchName != null" >
+			AND (target_name like #{serchName, jdbcType=VARCHAR} OR user_name like #{serchName, jdbcType=VARCHAR})
+		</if>
+		<if test="action != null">
+			 AND action = #{action,jdbcType=INTEGER}
+		</if> 
+	</select>
+	<update id="delLoggerByIds" parameterType="int[]">
+		update slave.t_logger SET is_del = 1 where log_id in 
+		<foreach collection="delIds" item="id" index="no" open="("
+			separator="," close=")">
+			#{id}
+		</foreach>
+	</update>
+	<update id="delLoggerByIdList" parameterType="java.util.List">
+		update slave.t_logger SET is_del = 1 where log_id in 
+		<foreach collection="list" item="item" index="index"  open="("
+			separator="," close=")"> 
+			#{item} 
+		</foreach>
+	</update>
+	
+	<insert id="batchAddLogger" parameterType="java.util.List"> 
+		insert into slave.t_logger (target_id,target_type,target_name, user_type, user_id,
+		user_name, action,content, is_del,insert_time, update_time, del_time) 
+		values 
+		<foreach collection="list" item="item" index="index" separator=","> 
+			(#{item.target_id,jdbcType=INTEGER},
+			#{item.target_type,jdbcType=INTEGER},
+			#{item.target_name,jdbcType=VARCHAR},
+			#{item.user_type,jdbcType=INTEGER},
+			#{item.user_id,jdbcType=INTEGER},
+			#{item.user_name,jdbcType=VARCHAR},
+			#{item.action,jdbcType=INTEGER},
+			#{item.content,jdbcType=VARCHAR},
+			#{item.is_del,jdbcType=INTEGER},
+			#{item.insert_time,jdbcType=TIMESTAMP},
+			#{item.update_time,jdbcType=TIMESTAMP},
+			#{item.del_time,jdbcType=TIMESTAMP})
+		</foreach> 
+	</insert>
+
+	<select id="getLoggerInfoList" resultType="java.util.Map">
+    	select 
+    	<include refid="Base_Column_List"/>
+    	from t_logger
+	    <where>
+	        <if test="target_name!=null">
+	            and target_name like concat('%',#{target_name},'%')
+	        </if>        
+	        <if test="action!=null">
+	            and action = #{action}
+	        </if>
+	        <if test="startSize!=null and size!=null">
+	            limit #{startSize},#{size}
+	        </if>
+	        
+	    </where>     
+	</select>
+</mapper>

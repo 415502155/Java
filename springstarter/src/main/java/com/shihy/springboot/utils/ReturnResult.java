@@ -1,5 +1,12 @@
 package com.shihy.springboot.utils;
-
+/***
+ * 
+ * @Title: springstarter
+ * @author shy
+ * @Description TODO
+ * @data 2019年3月27日 下午3:30:35
+ *
+ */
 public class ReturnResult {
 	private long totalSize;
 	private long totalPage;

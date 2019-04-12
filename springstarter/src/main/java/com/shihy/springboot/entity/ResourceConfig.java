@@ -3,7 +3,14 @@ package com.shihy.springboot.entity;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
-
+/***
+ * 
+ * @Title: springstarter
+ * @author shy
+ * @Description TODO
+ * @data 2019年3月27日 下午3:30:35
+ *
+ */
 @Configuration
 @ConfigurationProperties(prefix = "springstarter")
 @PropertySource(value = "classpath:resource.properties")

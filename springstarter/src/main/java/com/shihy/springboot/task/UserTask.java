@@ -6,7 +6,14 @@ import java.util.concurrent.Callable;
 
 import com.shihy.springboot.config.SpringContextUtil;
 import com.shihy.springboot.dao.UserMapper;
-
+/***
+ * 
+ * @Title: springstarter
+ * @author shy
+ * @Description TODO
+ * @data 2019年3月27日 下午3:30:35
+ *
+ */
 public class UserTask implements Callable<Object> {
 	
 	private UserMapper userMapper = (UserMapper) SpringContextUtil.getBean("userMapper");

@@ -35,7 +35,7 @@ import org.apache.http.message.BasicNameValuePair;
 /**
  * @类 名： HttpUtils 身份证实名认证_易源数据认证参考用例里的httpUtils
  * @功能描述： https://github.com/aliyun/api-gateway-demo-sign-java/blob/master/src/main/java/com/aliyun/api/gateway/demo/util/HttpUtils.java
- * @作者信息： LiuYang
+ * @author LiuYang
  * @创建时间： 2018年12月20日上午10:21:41
  */
 @SuppressWarnings("deprecation")
@@ -295,12 +295,15 @@ public class HttpUtils {
         try {
             SSLContext ctx = SSLContext.getInstance("TLS");
             X509TrustManager tm = new X509TrustManager() {
+            	@Override
                 public X509Certificate[] getAcceptedIssuers() {
                     return null;
                 }
+            	@Override
                 public void checkClientTrusted(X509Certificate[] xcs, String str) {
                 	
                 }
+            	@Override
                 public void checkServerTrusted(X509Certificate[] xcs, String str) {
                 	
                 }

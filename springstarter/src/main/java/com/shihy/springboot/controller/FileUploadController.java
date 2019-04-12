@@ -46,7 +46,7 @@ public class FileUploadController {
 	 * @throws @throws
 	 */
 	@RequestMapping(value = "/index")
-	public String UploadPage() {
+	public String uploadPage() {
 		return "index";
 	}
 	/***
@@ -64,9 +64,9 @@ public class FileUploadController {
 		if (file == null) {
         	return ReturnResult.error(ReturnMsg.UPLOAD_FILE_EX1.getCode(), ReturnMsg.UPLOAD_FILE_EX1.getMsg());
         }
-		log.info("[文件类型] - [{}]", file.getContentType());
-        log.info("[文件名称] - [{}]", file.getOriginalFilename());
-        log.info("[文件大小] - [{}]", file.getSize());
+		log.info("[文件类型] - [{ ", file.getContentType() + " }]");
+        log.info("[文件名称] - [{ ", file.getOriginalFilename() + " }]");
+        log.info("[文件大小] - [{ ", file.getSize() + " }]");
         if (file.getSize() > Integer.parseInt(FILE_MAX_SIZE)) {
         	return ReturnResult.error(ReturnMsg.UPLOAD_FILE_EX2.getCode(), ReturnMsg.UPLOAD_FILE_EX2.getMsg() + FILE_MAX_SIZE);
         }
