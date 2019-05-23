@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>MyHtml.html</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="keywords" content="keyword1,keyword2,keyword3">
+<meta name="description" content="this is my page">
+<meta name="content-type" content="text/html; charset=UTF-8">
+<script type="text/javascript" src="https://cdn.goeasy.io/goeasy.js"></script>
+<!--<link rel="stylesheet" type="text/css" href="./styles.css">-->
+
+</head>
+
+<body>
+	This is my HTML page.
+	<br>
+	<div id="msg"></div>
+	<div id="code"></div>
+	<div id="url"></div>
+	<div id="info"></div>
+</body>
+<script type="text/javascript">
+	var goeasy = new GoEasy({
+		appkey : 'BC-d9feaa2278fb4bd6b93737176f5e1608'//訂閲的key，只能用來訂閲channel來接受消息  （Subscribe key）
+	});
+
+	debugger
+	goeasy.subscribe({
+		channel : 'test_channel',
+		onMessage: function (message) {
+            alert("您有新消息：channel：" + message.channel + " 内容：" + message.content);
+            var obj = JSON.parse(message.content);
+            document.getElementById("msg").innerHTML = obj.msg;
+            document.getElementById("code").innerHTML = obj.code;
+            document.getElementById("url").innerHTML = obj.url;
+            document.getElementById("info").innerHTML = obj.info;
+        },
+        onSuccess: function () {
+            alert("Channel订阅成功。");
+        },
+        onFailed: function (error) {
+            alert("Channel订阅失败, 错误编码：" + error.code + " 错误信息：" + error.content)
+        }
+	});
+</script>
+</html>
