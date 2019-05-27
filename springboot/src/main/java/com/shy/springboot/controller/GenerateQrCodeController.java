@@ -18,6 +18,12 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 
+import org.springframework.amqp.AmqpException;
+import org.springframework.amqp.core.AmqpTemplate;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.core.MessagePostProcessor;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,6 +32,8 @@ import com.shy.springboot.dao.UserDao;
 import com.shy.springboot.entity.User;
 import com.shy.springboot.thread.InsertUserCallable;
 import com.shy.springboot.utils.CommonUtils;
+import com.shy.springboot.utils.Constant;
+import com.shy.springboot.utils.FileUtil;
 import com.shy.springboot.utils.QRCodeUtil;
 import io.goeasy.GoEasy;
 import io.goeasy.publish.GoEasyError;
@@ -43,6 +51,11 @@ public class GenerateQrCodeController {
 	
 	@Resource
 	private UserDao userDao;
+	
+    @Autowired
+    private AmqpTemplate rabbitTemplate;
+    @Autowired
+    private RabbitTemplate delayrabbitTemplate;
 	
 	@RequestMapping(value = "/info")
 	@ResponseBody
@@ -79,6 +92,7 @@ public class GenerateQrCodeController {
 	            log.info("消息发布失败, 错误编码：" + error.getCode() + " 错误信息： " + error.getContent());
 	        }
 		});
+
 		return returnMap;
 	}
 	
@@ -311,5 +325,80 @@ public class GenerateQrCodeController {
 	        result.add(subset);
 	    }
 	    return result;
+	}
+	
+	@RequestMapping(value= "/login")
+	@ResponseBody
+	public Map<String, Object> login() {
+		Map<String, Object> returnMap = new HashMap<String, Object>();
+		
+		String str = String.format("Hi,%1$s是个管理员，家庭住址在%2$s， 今年%3$d岁", "admin","天津市南开区咸阳路",30); 
+		return returnMap;
+	}
+	
+	@RequestMapping(value= "/register")
+	@ResponseBody
+	public Map<String, Object> register() throws Exception {
+		String userName = "admin";
+		String userPass = "123456";
+		Integer sex = 1;
+		String birthday = "2008-08-08";
+		Map<String, Object> register = userDao.register(userName, userPass, sex, birthday);
+		return register;
+	}
+	
+	@RequestMapping(value = "/testmq")
+	@ResponseBody
+	public Map<String, Object> consumeMq() throws ParseException {
+		User user = new User();
+		user.setUser_name("MQ_"+CommonUtils.getRandomStr(6, 1));
+		user.setUser_pass(CommonUtils.getRandomStr(12, 1));
+		user.setSex(1);
+		user.setToken(null);
+		String birthday = "1999-08-01";
+		Date birthdayDate = CommonUtils.stringToDate(birthday, "yyyy-MM-dd");
+		user.setBirthday(birthdayDate);
+		user.setCreate_time(new Date());
+		user.setUpdate_time(new Date());
+		user.setIs_del(Constant.IS_DEL_NO);
+		Map<String, Object> returnMap = new HashMap<String, Object>();
+		log.info("请求发起时间 》》》》》》》》》》》》》》》》》》》》》》》》》》》》》》 ：" + CommonUtils.dateFormat(new Date(), null));
+		delayrabbitTemplate.convertAndSend(Constant.DELAY_UPDATE_USER_EXCHANGE, Constant.DELAY_UPDATE_USER_QUEUE, user, new MessagePostProcessor() {
+			@Override
+			public Message postProcessMessage(Message message) throws AmqpException {
+				 message.getMessageProperties().setHeader(Constant.DELAY_HEADER_KEY, 60000);
+				 return message;
+			}
+		});
+		String msg = "進入fanout.test隊列，即將被消費... ";
+		rabbitTemplate.convertAndSend("testFanoutExchange", "fanout.test", msg);
+		//發送DELAY_TEST_QUEUE
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("msg", "即將往 DELAY_TEST_QUEUE 隊列中發送消息，请求发起时间 ：" + CommonUtils.dateFormat(new Date(), null));
+		delayrabbitTemplate.convertAndSend(Constant.DELAY_TEST_EXCHANGE, Constant.DELAY_TEST_QUEUE, map, new MessagePostProcessor() {
+			@Override
+			public Message postProcessMessage(Message message) throws AmqpException {
+				 message.getMessageProperties().setHeader(Constant.DELAY_HEADER_KEY, 60000);
+				 return message;
+			}
+		});
+		return returnMap;
+	}
+	
+	@RequestMapping(value = "/page")
+	@ResponseBody
+	public List<User> getUserPageList() {
+		Integer page = 2;
+		Integer pageNum = 10;
+		return userDao.getUserPage(page, pageNum);
+	}
+	
+	@RequestMapping(value = "/page1")
+	@ResponseBody
+	public List<User> getUserPageList1() {
+		Integer page = 2;
+		Integer pageSize = 10;
+		String name = "a";
+		return userDao.queryUserPageList(name, page, pageSize);
 	}
 }

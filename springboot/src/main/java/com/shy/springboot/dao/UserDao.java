@@ -8,15 +8,19 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.CallableStatementCreator;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SqlInOutParameter;
 import org.springframework.jdbc.core.SqlOutParameter;
 import org.springframework.jdbc.core.SqlParameter;
@@ -24,12 +28,15 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.alibaba.fastjson.JSONObject;
 import com.mysql.jdbc.Statement;
+import com.shy.springboot.encryption.MD5;
 import com.shy.springboot.entity.User;
 import com.shy.springboot.utils.CommonUtils;
+import com.shy.springboot.utils.StaticVariable;
+
 import lombok.extern.slf4j.Slf4j;
+@SuppressWarnings("all")
 @Component
 @Transactional
 @Slf4j
@@ -61,8 +68,8 @@ public class UserDao {
     }
  
     public int update(User user) {
-        String sql = " UPDATE t_user SET user_name=?, sex=?, birthday=?, update_time=? WHERE user_id=? AND is_del = 0 ";
-        return jdbcTemplate.update(sql, user.getUser_name(), user.getSex(), user.getBirthday(), user.getUpdate_time(), user.getUser_id());
+        String sql = " UPDATE t_user SET user_name=?, sex=?, token=?, birthday=?, update_time=? WHERE user_id=? AND is_del = 0 ";
+        return jdbcTemplate.update(sql, user.getUser_name(), user.getSex(), user.getToken(), user.getBirthday(), user.getUpdate_time(), user.getUser_id());
     }
  
     public int delete(int id) {
@@ -77,9 +84,8 @@ public class UserDao {
  
     public User getById(int id) {
         String sql = " select user_id, user_name, user_pass, sex, token, birthday, create_time, update_time, is_del FROM t_user where is_del = 0 AND  user_id=? ";
-        List<Object[]> objects = new ArrayList<Object[]>();
-        jdbcTemplate.batchUpdate(sql, objects);
-        
+        //List<Object[]> objects = new ArrayList<Object[]>();
+        //jdbcTemplate.batchUpdate(sql, objects);
         
         return jdbcTemplate.queryForObject(sql, (ResultSet rs, int rowNumber) -> {
         	User user = new User();
@@ -244,4 +250,128 @@ public class UserDao {
     	String jsonString = JSONObject.toJSONString(result);
     	System.out.println("用户的交易记录 ：" + jsonString);
     } 
+    
+    public List<User> getUserListByName(String userName){
+        String sql=" select user_id, user_name, user_pass, sex, token, birthday, create_time, update_time, is_del FROM t_user where is_del = 0 AND user_name = ? ";
+        List<User> result=jdbcTemplate.query(sql, (resultSet, i) -> {
+        	User user = new User();
+        	user.setUser_id(resultSet.getInt("user_id"));
+        	user.setUser_name(resultSet.getString("user_name"));
+        	user.setUser_pass(resultSet.getString("user_pass"));
+        	user.setToken(resultSet.getString("token"));
+        	user.setSex(resultSet.getInt("sex"));
+        	user.setBirthday(resultSet.getDate("birthday"));
+        	user.setIs_del(0);
+        	user.setCreate_time(resultSet.getDate("create_time"));
+        	user.setUpdate_time(resultSet.getDate("update_time"));
+            return user;
+        }, userName);
+        return result;
+    }
+    
+    @SuppressWarnings("deprecation")
+	public Map<String, Object> login (String userName, String userPass) throws Exception {
+    	Map<String, Object> returnMap = new HashMap<String, Object>();
+    	MD5 md5 = new MD5();
+    	String digestUserPass = md5.digest(userPass, "MD5");
+    	//String sql = " SELECT * FROM t_user u where u.user_name = ? AND u.user_pass = ? AND u.is_del = 0; ";
+    	List<User> userList = this.getUserListByName(userName);
+    	/***
+    	 * 获取初始化设置
+    	 */
+    	log.info("项目名称 ：" + StaticVariable.projectName + "; 包名 ：" + StaticVariable.packageName + "; 配置名 ：" + StaticVariable.settingName); 
+    	if (userList != null && userList.size() > 0) {
+    		for (User user : userList) {
+    			System.out.println("登录用户名为 ："+ userName +"； 数据库查询对比名称 ：" + user.getUser_name());
+    			if (userName.equals(user.getUser_name())) {
+    				if (digestUserPass.equals(user.getUser_pass())) {
+    					//登录
+    					String token = user.getUser_id()+ "_" +CommonUtils.getRandomStr(32, 1);
+    					user.setToken(token);
+    					System.out.println("token >>>>>>>>>>>>>>>>>>>>>>>>>> :" + user.getToken());
+    					System.out.println(user.getUser_name() + "____" + user.getSex() + "____" + user.getBirthday() + "____" + user.getUpdate_time() + "____" + user.getUser_id());
+    					this.update(user);
+    					returnMap.put("code", 200);
+        				returnMap.put("msg", "success");
+        				returnMap.put("token", token);
+    				} else {
+    					returnMap.put("code", 400);
+    					returnMap.put("msg", "密码错误，请重新输入；");
+    				}
+				} else {
+					returnMap.put("code", 400);
+					returnMap.put("msg", "不存在该用户；");
+				}
+
+    		}
+		}
+    	return returnMap;
+    }
+    
+    
+    public Map<String, Object> register (String userName, String userPass, Integer sex, String birthday) throws Exception {
+    	Map<String, Object> returnMap = new HashMap<String, Object>();
+    	MD5 md5 = new MD5();
+    	String digestUserPass = md5.digest(userPass, "MD5");
+    	User user = new User();
+    	Date birthdayDate = CommonUtils.stringToDate(birthday, null);
+    	user.setUser_name(userName);
+    	user.setUser_pass(digestUserPass);
+    	user.setSex(sex);
+    	user.setBirthday(birthdayDate);
+    	user.setToken(null);
+    	int insertReturnPrimaryKey = this.insertReturnPrimaryKey(user);
+    	log.info("注册的用户的id ：" + insertReturnPrimaryKey);
+    	returnMap.put("code", 200);
+		returnMap.put("msg", "success");
+    	return returnMap;
+    }
+    
+    /***
+     * 
+     * @param page 页数
+     * @param pageNum 条目数
+     * @return
+     */
+    public List<User> getUserPage(Integer page, Integer pageNum){
+    	String sql = "SELECT * FROM t_user u WHERE \r\n" + 
+    			"u.is_del = 0\r\n" + 
+    			"limit ?,?";
+        List<User> result=jdbcTemplate.query(sql, (resultSet, i) -> {
+        	User user = new User();
+        	user.setUser_id(resultSet.getInt("user_id"));
+        	user.setUser_name(resultSet.getString("user_name"));
+        	user.setUser_pass(resultSet.getString("user_pass"));
+        	user.setToken(resultSet.getString("token"));
+        	user.setSex(resultSet.getInt("sex"));
+        	user.setBirthday(resultSet.getDate("birthday"));
+        	user.setIs_del(0);
+        	user.setCreate_time(resultSet.getTimestamp("create_time"));
+        	user.setUpdate_time(resultSet.getTimestamp("update_time"));
+            return user;
+        }, (page-1)*pageNum, pageNum);
+
+        return result;
+    }
+    
+    public User getUser(String id){
+        String sql = "SELECT * FROM t_user u ";
+        sql += " WHERE u.user_id= '"+id+"'";
+        return this.jdbcTemplate.queryForObject(sql,new BeanPropertyRowMapper<User>(User.class));
+    }
+    
+    public List<User> queryUserPageList(String name, Integer page, Integer pageSize) {
+        List<Object> params = new ArrayList<Object>();
+        StringBuffer sb = new StringBuffer(" SELECT * FROM t_user u WHERE u.is_del = 0 ");
+        if (StringUtils.isNotBlank(name)) {
+        	name = "%" + name + "%";
+        	sb.append(" AND u.user_name like ? ");        	
+        	params.add(name);
+        }
+        sb.append(" limit ?,? ");
+        params.add((page-1)*pageSize);
+        params.add(page*pageSize);
+        List<User> list = jdbcTemplate.query(sb.toString(), params.toArray(), new BeanPropertyRowMapper(User.class));
+        return list;
+    }
 }

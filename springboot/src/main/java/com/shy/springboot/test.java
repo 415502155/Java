@@ -1,14 +1,11 @@
 package com.shy.springboot;
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import com.shy.springboot.entity.User;
+import com.shy.springboot.utils.FileUtil;
 
 public class test {
 	public static void main(String[] args) throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
@@ -27,6 +24,18 @@ public class test {
 			userList.add(user);
 		}
 		List<List<User>> averageAssign = averageAssign(userList, 3);
+		
+		String fileName = "C:\\sjwy\\20190527\\1136.txt";
+	    FileUtil.makeNewFile(fileName);
+	    FileUtil.fileAppend(fileName, "今天是2019年5月27日，星期一，天气晴；");
+	    FileUtil.fileAppend(fileName, "今天是2019年5月27日，星期一，天气晴1；");
+	    String fileName2 = "C:\\sjwy\\20190527\\1146.txt";
+	    FileUtil.makeNewFile(fileName2, "aaaaaaa");
+	    File file = new File(fileName);
+	    String fileContent = FileUtil.getFileContent(file);
+	    System.out.println(fileContent);
+
+	    
 	}
 	/***
 	 * @deprecated    将一组数据平均分成n组 
@@ -57,7 +66,6 @@ public class test {
 	    return result;
 	}
 	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static void testAdd() throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		/***
 		 * String.format
