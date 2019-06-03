@@ -121,6 +121,15 @@ public class Constant {
 	 * 延迟队列delay_update_user_exchange
 	 */
 	public static final String DELAY_UPDATE_USER_EXCHANGE = "delay_update_user_exchange";
+	
+	/***
+	 * DirectConfig 
+	 * direct_exchange_a
+	 */
+	public static final String DIRECT_EXCHANGE_A = "direct_exchange_a";
+	public static final String DIRECT_QUEUE_A = "direct_queue_a";
+
+	
 	/***
 	 * 初始化密码
 	 */

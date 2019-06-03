@@ -453,4 +453,22 @@ public class GenerateQrCodeController {
 		}
 		return returnMap;
 	}
+	
+	@RequestMapping(value = "/direct")
+	@ResponseBody
+	public String directSend() {
+		log.info("请求发起时间 》》》》》》》》》》》》》》》》》》》》》》》》》》》》》》 ：" + CommonUtils.dateFormat(new Date(), null));
+		String message = "進入test_direct_queue隊列，message = {direct queue 测试发送}, 即將被消費... ";
+		rabbitTemplate.convertAndSend("test_direct_exchange", "test_direct_queue", message);
+		return "success";
+	}
+	
+	@RequestMapping(value = "/directa")
+	@ResponseBody
+	public String directASend() {
+		log.info("请求发起时间 》》》》》》》》》》》》》》》》》》》》》》》》》》》》》》 ：" + CommonUtils.dateFormat(new Date(), null));
+		String message = "admin";
+		rabbitTemplate.convertAndSend(Constant.DIRECT_EXCHANGE_A, Constant.DIRECT_QUEUE_A, message);
+		return "success";
+	}
 }
