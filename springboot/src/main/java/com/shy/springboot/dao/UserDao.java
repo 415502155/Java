@@ -292,13 +292,16 @@ public class UserDao {
     					System.out.println(user.getUser_name() + "____" + user.getSex() + "____" + user.getBirthday() + "____" + user.getUpdate_time() + "____" + user.getUser_id());
     					this.update(user);
     					returnMap.put("code", 200);
+    					returnMap.put("success", "true");
         				returnMap.put("msg", "success");
         				returnMap.put("token", token);
     				} else {
+    					returnMap.put("success", "false");
     					returnMap.put("code", 400);
     					returnMap.put("msg", "密码错误，请重新输入；");
     				}
 				} else {
+					returnMap.put("success", "false");
 					returnMap.put("code", 400);
 					returnMap.put("msg", "不存在该用户；");
 				}
@@ -310,21 +313,31 @@ public class UserDao {
     
     
     public Map<String, Object> register (String userName, String userPass, Integer sex, String birthday) throws Exception {
+    	//校验注册用户是否已存在，因为设计身份证号码或电话号码唯一标识，现在用名称做校验
+    	List<User> userListByName = this.getUserListByName(userName);
     	Map<String, Object> returnMap = new HashMap<String, Object>();
-    	MD5 md5 = new MD5();
-    	String digestUserPass = md5.digest(userPass, "MD5");
-    	User user = new User();
-    	Date birthdayDate = CommonUtils.stringToDate(birthday, null);
-    	user.setUser_name(userName);
-    	user.setUser_pass(digestUserPass);
-    	user.setSex(sex);
-    	user.setBirthday(birthdayDate);
-    	user.setToken(null);
-    	int insertReturnPrimaryKey = this.insertReturnPrimaryKey(user);
-    	log.info("注册的用户的id ：" + insertReturnPrimaryKey);
-    	returnMap.put("code", 200);
-		returnMap.put("msg", "success");
-    	return returnMap;
+    	if (userListByName != null || userListByName.size() > 0) {
+        	returnMap.put("code", 400);
+        	returnMap.put("success", "false");
+    		returnMap.put("msg", "该用户已注册，请登录；");
+        	return returnMap;
+    	} else {
+        	MD5 md5 = new MD5();
+        	String digestUserPass = md5.digest(userPass, "MD5");
+        	User user = new User();
+        	Date birthdayDate = CommonUtils.stringToDate(birthday, null);
+        	user.setUser_name(userName);
+        	user.setUser_pass(digestUserPass);
+        	user.setSex(sex);
+        	user.setBirthday(birthdayDate);
+        	user.setToken(null);
+        	int insertReturnPrimaryKey = this.insertReturnPrimaryKey(user);
+        	log.info("注册的用户的id ：" + insertReturnPrimaryKey);
+        	returnMap.put("code", 200);
+    		returnMap.put("msg", "success");
+        	return returnMap;
+    	}
+    	
     }
     
     /***
@@ -374,4 +387,86 @@ public class UserDao {
         List<User> list = jdbcTemplate.query(sb.toString(), params.toArray(), new BeanPropertyRowMapper(User.class));
         return list;
     }
+    
+    /***
+     * 
+     * @param name 名称
+     * @param startTime 开始时间
+     * @param endTime 结束时间
+     * @param page 页数
+     * @param pageSize 每页条数
+     * @return
+     */
+    public Map<String, Object>  getUserMapList(String name, String startTime, String endTime, Integer page, Integer pageSize) {
+    	
+    	List<Object> params = new ArrayList<Object>();
+    	List<Object> paramscount = new ArrayList<Object>();
+    	StringBuffer sql = new StringBuffer(" SELECT * FROM t_user u WHERE u.is_del = 0 ");
+    	StringBuffer sqlcount = new StringBuffer(" SELECT COUNT(*) num FROM t_user u WHERE u.is_del = 0 ");
+    	if (StringUtils.isNotBlank(startTime)) {
+    		sql.append(" AND u.birthday >= ? ");
+    		params.add(startTime);
+    		sqlcount.append(" AND u.birthday >= ? ");
+    		paramscount.add(startTime);
+    	}
+    	if (StringUtils.isNotBlank(endTime)) {
+    		sql.append(" AND u.birthday <= ? ");
+    		params.add(endTime);
+    		sqlcount.append(" AND u.birthday <= ? ");
+    		paramscount.add(endTime);
+    	}
+    	if (StringUtils.isNotBlank(name)) {
+    		name = "%" +name+ "%";
+    		sql.append(" AND u.user_name like ? ");
+    		params.add(name);
+    		sqlcount.append(" AND u.user_name like ? ");
+    		paramscount.add(name);
+    	}
+    	sql.append(" limit ?,? ");
+        params.add((page-1)*pageSize);
+        params.add(page*pageSize);
+        // 计算总页数、总条目数
+        Integer count = 0;//总条目数
+        Integer totalPage = 0;//总页数
+        List<User> userMapList = null;
+        Map<String, Object> returnMap = new HashMap<String, Object>();
+        try {
+        	userMapList = jdbcTemplate.query(sql.toString(), params.toArray(), new BeanPropertyRowMapper(User.class));
+        	if (paramscount == null || paramscount.size() > 0) {
+        		count = jdbcTemplate.queryForObject(sqlcount.toString(), paramscount.toArray(), Integer.class);
+        	} else {
+        		count = jdbcTemplate.queryForObject(sqlcount.toString(), Integer.class);
+        	}
+        	if (count%pageSize == 0) {
+        		totalPage = count/pageSize;
+        	} else {
+        		totalPage = count/pageSize + 1;
+        	}
+        	returnMap.put("code", 200);
+        	returnMap.put("msg", "success");
+        	returnMap.put("data", userMapList);
+        	returnMap.put("count", count);
+        	returnMap.put("totalPage", totalPage);
+        	returnMap.put("curPage", page);
+        	returnMap.put("pageSize", pageSize);
+		} catch (Exception e) {
+			log.info("getUserMapList ex :" + e);
+			e.printStackTrace();
+			returnMap.put("code", 400);
+        	returnMap.put("msg", "exception");
+        	returnMap.put("data", null);
+        	returnMap.put("count", 0);
+        	returnMap.put("totalPage", 0);
+		}
+		List<Map<String, Object>> queryForList = jdbcTemplate.queryForList(sql.toString(), params.toArray());
+		System.out.println("List<Map<String, Object>> queryForList >>>>>>>>>>>>>>>>>>>>>>>>>>>>>> :" + JSONObject.toJSONString(queryForList));
+		for (Map<String, Object> map : queryForList) {
+			String object = (String) map.get("user_name");
+			Timestamp object2 = (Timestamp) map.get("birthday");
+			log.info("----------------------- :" + object + "——————————————————————— ：" + CommonUtils.dateFormat(object2, "yyyy-MM-dd"));
+		}
+		
+		
+		return returnMap;
+    } 
 }

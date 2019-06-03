@@ -4,7 +4,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 import com.shy.springboot.entity.User;
+import com.shy.springboot.thread.UserRunable;
 import com.shy.springboot.utils.FileUtil;
 
 public class test {
@@ -17,7 +22,8 @@ public class test {
 		System.out.println(a);
 		System.out.println(a-b);*/
 		//testAdd();
-		List<User> userList = new ArrayList<User>();
+		//-----------------------
+		/*List<User> userList = new ArrayList<User>();
 		for (int i = 0; i < 12; i++) {
 			User user = new User();
 			user.setUser_name("aaaaa_"+i);
@@ -33,9 +39,16 @@ public class test {
 	    FileUtil.makeNewFile(fileName2, "aaaaaaa");
 	    File file = new File(fileName);
 	    String fileContent = FileUtil.getFileContent(file);
-	    System.out.println(fileContent);
-
-	    
+	    System.out.println(fileContent);*/
+	    //--------------------------
+	    ThreadPoolExecutor executor = new ThreadPoolExecutor(10, 50, 10000, TimeUnit.SECONDS, new LinkedBlockingDeque<Runnable>());
+		for (int i = 0; i < 5; i++) {
+			UserRunable userRunable = new UserRunable();
+			//userRunable.setNum(0);
+			new Thread(userRunable).start();
+			//userRunable.
+			//executor.execute(userRunable);
+		}
 	}
 	/***
 	 * @deprecated    将一组数据平均分成n组 

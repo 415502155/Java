@@ -116,8 +116,14 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-amqp</artifactId>
 		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/com.wordnik/swagger-annotations -->
+		<dependency>
+		    <groupId>com.wordnik</groupId>
+		    <artifactId>swagger-annotations</artifactId>
+		    <version>1.5.3-M1</version>
+		</dependency>
 	</dependencies>
-
 	<build>
 		<plugins>
 			<plugin>

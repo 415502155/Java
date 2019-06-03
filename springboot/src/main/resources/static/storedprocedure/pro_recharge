@@ -1,0 +1,46 @@
+BEGIN
+
+  DECLARE _balance VARCHAR(20);
+  DECLARE _deposit_bank VARCHAR(255);
+  DECLARE _address VARCHAR(255);
+  DECLARE _user_id INT;
+  DECLARE _user_name VARCHAR(255);
+  DECLARE _token VARCHAR(255);
+  DECLARE yue VARCHAR(255);
+  DECLARE _trace_no VARCHAR(255);
+
+  SET _balance = '0';  
+  SET _deposit_bank = '';
+  SET _address = '';
+  SET _user_id = 0;
+  SET _user_name = '';
+  SET _token = '';
+  SET yue = '';
+  SET p_result = -1;
+  SET p_msg = '';
+  SET _trace_no = FLOOR( 1000000000 + RAND() * (10000000000 - 1000000000));
+
+  ROLLBACK; 
+  start transaction;
+  SELECT a.card_no, a.balance, a.deposit_bank, a.address, tu.user_id, tu.user_name, tu.token 
+  INTO p_card_no, _balance, _deposit_bank, _address, _user_id, _user_name, _token
+  FROM master.account a INNER JOIN
+  master.t_user tu ON a.user_id = tu.user_id AND tu.is_del = 0
+  WHERE a.is_del = 0 AND a.card_no = p_card_no;
+  
+  IF _balance < p_draw_money THEN
+    SET p_result = -1;
+    SET p_msg = '余额不足；';
+  ELSEIF _balance >= p_draw_money THEN
+    SET yue= _balance-p_draw_money;
+    SELECT yue;
+  INSERT INTO master.charge_record  (
+		cd_id, trace_no, type, money, trace_time,	insert_time,	update_time,	is_del,  user_id,  card_no)
+	VALUES (
+		null,	_trace_no,	2,	p_draw_money,	NOW(),	NOW(),	NOW(),	0,	1,  p_card_no);
+ 
+  UPDATE master.account a SET a.balance = yue, a.update_time = NOW() WHERE a.card_no = p_card_no AND a.is_del = 0;
+  SET p_result = 1;
+  END IF;
+  SELECT p_card_no, p_result, p_msg, p_draw_money;
+END

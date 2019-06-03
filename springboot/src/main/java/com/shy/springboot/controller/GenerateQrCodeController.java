@@ -1,22 +1,20 @@
 package com.shy.springboot.controller;
 
+import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-
 import javax.annotation.Resource;
+import javax.validation.Valid;
 
 import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.core.AmqpTemplate;
@@ -24,16 +22,21 @@ import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessagePostProcessor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import com.alibaba.fastjson.JSONObject;
 import com.shy.springboot.dao.UserDao;
 import com.shy.springboot.entity.User;
+import com.shy.springboot.entity.Validator;
 import com.shy.springboot.thread.InsertUserCallable;
+import com.shy.springboot.thread.UserRunable;
 import com.shy.springboot.utils.CommonUtils;
 import com.shy.springboot.utils.Constant;
-import com.shy.springboot.utils.FileUtil;
 import com.shy.springboot.utils.QRCodeUtil;
 import io.goeasy.GoEasy;
 import io.goeasy.publish.GoEasyError;
@@ -331,7 +334,6 @@ public class GenerateQrCodeController {
 	@ResponseBody
 	public Map<String, Object> login() {
 		Map<String, Object> returnMap = new HashMap<String, Object>();
-		
 		String str = String.format("Hi,%1$s是个管理员，家庭住址在%2$s， 今年%3$d岁", "admin","天津市南开区咸阳路",30); 
 		return returnMap;
 	}
@@ -400,5 +402,55 @@ public class GenerateQrCodeController {
 		Integer pageSize = 10;
 		String name = "a";
 		return userDao.queryUserPageList(name, page, pageSize);
+	}
+	
+	@RequestMapping(value = "/listmap")
+	@ResponseBody
+	public Map<String, Object> getUserMapList() {
+		String name = "ia";
+		String startTime = "1711-01-23 00:00:00";
+		String endTime = "1900-10-11 00:00:00";
+		Integer page = 1;
+		Integer pageSize = 10;
+		Map<String, Object> returnMap = (Map<String, Object>) userDao.getUserMapList(name, startTime, endTime, page, pageSize);
+		return returnMap;
+	}
+	
+	/*@RequestMapping(value = "/runable")
+	@ResponseBody
+	public void getUserRunable () {
+		int id = 3;
+		UserRunable userRunable = new UserRunable();
+		userRunable.setId(id);
+	}*/
+	
+	@RequestMapping(value = "/excutor")
+	@ResponseBody
+	public void getUserExcutor () {
+		ThreadPoolExecutor executor = new ThreadPoolExecutor(10, 50, 10000, TimeUnit.SECONDS, new LinkedBlockingDeque<Runnable>());
+		for (int i = 0; i < 100; i++) {
+			UserRunable userRunable = new UserRunable();
+			userRunable.setNum(0);
+			executor.execute(userRunable);
+		}
+	}
+	
+	@RequestMapping(value = "/valid")
+	public Map<String, Object> validator(@Validated @RequestBody Validator valid, BindingResult bindingResult) {
+		Map<String, Object> returnMap = new HashMap<String, Object>();
+		if (bindingResult.hasErrors()) {
+			List<ObjectError> list = bindingResult.getAllErrors();
+			if (list != null && list.size() > 0) {
+				for (ObjectError oError : list) {
+					try {
+						log.info(new String(oError.getDefaultMessage().getBytes("ISO-8859-1"), "UTF-8"));
+					} catch (UnsupportedEncodingException e) {
+						e.printStackTrace();
+						log.info("validator ex :" + e);
+					}
+				}
+			}
+		}
+		return returnMap;
 	}
 }

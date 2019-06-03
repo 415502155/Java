@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>MyHtml.html</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="keywords" content="keyword1,keyword2,keyword3">
+<meta name="description" content="this is my page">
+<meta name="content-type" content="text/html; charset=UTF-8">
+<script type="text/javascript" src="https://cdn.goeasy.io/goeasy.js"></script>
+<!--<link rel="stylesheet" type="text/css" href="./styles.css">-->
+<script type="text/javascript" src="../js/jquery.min.js"></script>
+<script type="text/javascript" src="../js/jquery.dragsort.min.js"></script>
+</head>
+
+<body>
+	This is my HTML page.
+	<br>
+	<div id="msg"></div>
+	<div id="code"></div>
+	<div id="url"></div>
+	<div id="info"></div>
+	
+	<div id = "user" onclick = "postajax()" style = "font-size : 20px">user button</div>
+	<div id = "account" onclick = "accountajax()" style = "font-size : 20px; font-color: red;">account list button</div>
+	<div id = "accountbyid" onclick = "accountbyidajax()" style = "font-size : 20px; font-color: red;">account by id button</div>
+</body> 
+<script type="text/javascript">
+	var goeasy = new GoEasy({
+		appkey : 'BC-d9feaa2278fb4bd6b93737176f5e1608'//訂閲的key，只能用來訂閲channel來接受消息  （Subscribe key）
+	});
+
+	goeasy.subscribe({
+		channel : 'test_channel',
+		onMessage: function (message) {
+            alert("您有新消息：channel：" + message.channel + " 内容：" + message.content);
+            var obj = JSON.parse(message.content);
+            document.getElementById("msg").innerHTML = obj.msg;
+            document.getElementById("code").innerHTML = obj.code;
+            document.getElementById("url").innerHTML = obj.url;
+            document.getElementById("info").innerHTML = obj.info;
+        },
+        onSuccess: function () {
+            alert("Channel订阅成功。");
+        },
+        onFailed: function (error) {
+            alert("Channel订阅失败, 错误编码：" + error.code + " 错误信息：" + error.content)
+        }
+	});
+	
+	
+	function postajax() {
+		var url = "http://localhost:8080/server/api";
+		var data = {
+              	'cmd':101,
+              	'type':1,
+              	"name":'ai',
+              	"startTime":'1711-01-23 00:00:00',
+              	"endTime":'1900-10-11 00:00:00',
+              	'page':1,
+              	'pageSize':10
+            };
+		$.ajax({
+	        url : url,
+	        data : JSON.stringify(data),
+	        //async : asynct,
+	        timeout:30000,
+			type: 'post',
+			cache: false,
+	        dataType:'json',
+	        contentType:"application/json;charset=UTF-8",
+	        beforeSend:function(){
+	        },
+	        success : function(result,textStatus,jqXHR) {
+	        debugger
+	            if(jqXHR.status==200){
+	                //回调
+	                //result = eval('(' + result + ')');
+	                alert(result.data.msg);
+	            }
+	        },
+	        error : function(XMLHttpRequest, textStatus, errorThrown) {
+	           alert(XMLHttpRequest.statusText,2,null,null);
+	        },
+	        complete: function(XMLHttpRequest,status) {
+	            //超时,status还有success,error等值的情况
+	            if(status=='timeout'){
+	                alert("服务器响应超时，请稍后再试！",2,null,null);
+	            }
+	        },
+	    });
+	}
+	
+	
+	
+	function accountajax() {
+		var url = "http://localhost:8080/server/api";
+		var data = {
+              	'cmd':102,
+              	'type':1,
+              	"name":'北京',
+              	//"cardNo":'1711-01-23 00:00:00',
+              	'page':1,
+              	'pageSize':10
+            };
+		$.ajax({
+	        url : url,
+	        data : JSON.stringify(data),
+	        //async : asynct,
+	        timeout:30000,
+			type: 'post',
+			cache: false,
+	        dataType:'json',
+	        contentType:"application/json;charset=UTF-8",
+	        beforeSend:function(){
+	        },
+	        success : function(result,textStatus,jqXHR) {
+	        debugger
+	            if(jqXHR.status==200){
+	                //回调
+	                //result = eval('(' + result + ')');
+	                alert(result.data.msg);
+	            }
+	        },
+	        error : function(XMLHttpRequest, textStatus, errorThrown) {
+	           alert(XMLHttpRequest.statusText,2,null,null);
+	        },
+	        complete: function(XMLHttpRequest,status) {
+	            //超时,status还有success,error等值的情况
+	            if(status=='timeout'){
+	                alert("服务器响应超时，请稍后再试！",2,null,null);
+	            }
+	        },
+	    });
+	}
+	
+	
+	function accountbyidajax() {
+		var url = "http://localhost:8080/server/api";
+		var data = {
+              	'cmd':102,
+              	'type':2,
+              	'id':1
+            };
+		$.ajax({
+	        url : url,
+	        data : JSON.stringify(data),
+	        //async : asynct,
+	        timeout:30000,
+			type: 'post',
+			cache: false,
+	        dataType:'json',
+	        contentType:"application/json;charset=UTF-8",
+	        beforeSend:function(){
+	        },
+	        success : function(result,textStatus,jqXHR) {
+	        debugger
+	            if(jqXHR.status==200){
+	                //回调
+	                //result = eval('(' + result + ')');
+	                alert(result.data);
+	            }
+	        },
+	        error : function(XMLHttpRequest, textStatus, errorThrown) {
+	           alert(XMLHttpRequest.statusText,2,null,null);
+	        },
+	        complete: function(XMLHttpRequest,status) {
+	            //超时,status还有success,error等值的情况
+	            if(status=='timeout'){
+	                alert("服务器响应超时，请稍后再试！",2,null,null);
+	            }
+	        },
+	    });
+	}
+	
+</script>
+</html>

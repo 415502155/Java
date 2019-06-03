@@ -1,0 +1,6 @@
+CREATE DEFINER = 'root'@'localhost'
+PROCEDURE master.pro_test(INOUT p_id INT, OUT p_name VARCHAR(255))
+BEGIN
+ SELECT t_user.user_id, t_user.user_name INTO p_id, p_name FROM master.t_user where t_user.user_id = p_id;
+  SELECT p_id, p_name;
+END
