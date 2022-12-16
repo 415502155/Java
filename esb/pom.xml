@@ -12,7 +12,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<spring.framework.version>3.2.0.RELEASE</spring.framework.version>
+		<spring.framework.version>5.2.20.RELEASE</spring.framework.version>
 		<springframework.version>3.2.0.RELEASE</springframework.version>
 		<spring.amqp.version>1.0.0.RELEASE</spring.amqp.version>
 	</properties>
