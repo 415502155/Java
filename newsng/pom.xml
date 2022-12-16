@@ -11,7 +11,7 @@
 	<!-- 定义maven变量 -->
 	<properties>
 		<!-- spring -->
-		<spring.version>4.3.13.RELEASE</spring.version>
+		<spring.version>5.2.20.RELEASE</spring.version>
 		
 		<!-- Servlet -->
 		<servlet.version>3.0.1</servlet.version>
